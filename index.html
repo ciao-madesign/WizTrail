@@ -16,6 +16,25 @@
 
 </head>
 <body data-theme="dark">
+<header class="app-header">
+  <div class="app-brand">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <defs>
+        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#4fd1c5"/>
+          <stop offset="1" stop-color="#0ea5e9"/>
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="10" fill="url(#g)"/>
+      <path d="M7 12l3 3 7-7" fill="none" stroke="#021" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="brand-name">WizTrail</span>
+  </div>
+  <div class="app-header-actions">
+    <!-- opzionale: spazio per bottoni/tema -->
+  </div>
+</header>
 <div class="wrap">
 
 <h1>
@@ -160,16 +179,109 @@
 <section id="howto" class="panel">
   <div class="card">
     <h2>How‑to</h2>
-    <ul>
-      <li><b>Carica GPX/TCX</b>: WizTrail analizza distanza e percorso per generare la mappa.</li>
-      <li><b>Mappa</b>: muovi il puntatore sulla linea della distanza per vedere il punto corrispondente sulla mappa.</li>
-      <li><b>KML</b>: puoi esportare il percorso in formato KML dalla sezione mappa. Questo può essere utilizzato in servizi come https://touchterrain.geol.iastate.edu/main per creare visualizzazioni 3D del tracciato. </li>
-      <li><b>Previsione tempo gara</b>: inserisci il tuo tempo approssimativo sulla distanza 10K in condizioni ottimali (strada, senza dislivello), terreno, coefficiente α (Vedi in fondamenti: 2. Conversione salita → “chilometri equivalenti” (Naismith & fisiologia moderna), meteo, altitudine, specificità.</li>
-      <li><b>Tema</b>: seleziona “Chiaro/Scuro” dal menù in alto.</li>
-    </ul>
+
+    <details open>
+      <summary><b>1) Calcolatore — guida completa ai parametri</b></summary>
+      <div style="margin-top:10px">
+
+        <h3>Traccia GPS (opzionale)</h3>
+        <ul>
+          <li><b>Carica GPX/TCX</b>: se importi una traccia, il sistema legge automaticamente <i>Distanza</i> e <i>D+</i> (dislivello positivo). Puoi comunque modificarli a mano dopo l’import.</li>
+        </ul>
+
+        <h3>Parametri atleta</h3>
+        <ul>
+          <li><b>Tempo 10 km (mm:ss)</b> — È il tuo riferimento su strada e pianeggiante. Serve per “ancorare” la previsione: da questo valore il modello ricava il tuo passo/ritmo di base e lo adatta alla distanza reale di gara. 
+            <div class="mini">Consiglio: usa il miglior tempo recente in condizioni buone. Se non hai un 10K, usa il ritmo medio su 5K/15K e converti a stima.</div>
+          </li>
+        </ul>
+
+        <h3>Parametri gara</h3>
+        <ul>
+          <li><b>Distanza (km)</b> — i chilometri della gara/traccia che vuoi stimare. Se hai caricato una traccia, è già compilato.</li>
+          <li><b>D+ (m)</b> — somma delle salite (metri) lungo il percorso. A parità di distanza, più D+ = più “fatica equivalente”.</li>
+          <li><b>α (km ogni 100 m D+)</b> — “quanto pesano” le salite in <i>chilometri equivalenti</i>. 
+            <div class="mini">Esempio: con α=0.8, ogni 100 m di D+ “valgono” 0.8 km in più: se hai 700 m D+, aggiungi 5.6 km equivalenti.</div>
+            <div class="mini">Range tipico: 0.6–1.0 per trail corribili; 1.0–1.2 per percorsi lenti/pendenze cattive.</div>
+          </li>
+        </ul>
+
+        <h3>Terreno</h3>
+        <p>Indica <b>la percentuale</b> del tempo o della distanza stimata fatta su:</p>
+        <ul>
+          <li><b>% Strada</b> — asfalto o sterrato molto scorrevole</li>
+          <li><b>% E</b> — sentiero escursionistico facile</li>
+          <li><b>% EE</b> — tecnico (pietre, radici, passaggi stretti)</li>
+          <li><b>% EA</b> — attrezzato/esposto (lento, molto tecnico)</li>
+        </ul>
+        <p>Somma <b>deve arrivare al 100%</b>. In base alla tecnicità, si applicano <b>rallentamenti</b> dedicati:</p>
+        <ul>
+          <li><b>Rall. E (%)</b> — penalità extra su E (es. +3%)</li>
+          <li><b>Rall. EE (%)</b> — penalità su EE (es. +12%)</li>
+          <li><b>Rall. EA (%)</b> — penalità su EA (es. +25%)</li>
+        </ul>
+        <div class="mini">Suggerimento rapido: se non conosci bene il percorso, inizia con Strada/E/EE/EA ≈ 10/50/25/15 e rallentamenti default; poi affina dopo un’uscita ricognitiva.</div>
+
+        <h3>Condizioni gara</h3>
+        <ul>
+          <li><b>Meteo</b> — seleziona la fascia: “Fresco” (quasi neutro), “Mite”, “Caldo”, “Molto caldo”. Crescendo la temperatura, cresce la penalità.</li>
+          <li><b>Altitudine</b> — quota media stimata del percorso (o quota della gara). Più sali oltre i 1000–1500 m, maggiore l’impatto fisiologico sulla prestazione.</li>
+          <li><b>Fatica</b> — quanto incide per te l'accumulo di fatica nel corso della gara (Bassa/Media/Alta). Il modello la “pesa” di più se la distanza è lunga.</li>
+          <li><b>Specificità (S 0–1)</b> — quanto sei abituato proprio a <i>quel tipo</i> di gara (trail tecnico, salite/discese, quota, caldo). 
+            <div class="mini">0 = atleta “stradalista” non abituato; 1 = atleta molto abituato (penalità ridotte).</div>
+          </li>
+          <li><b>Margine ±%</b> — intervallo di confidenza che vuoi visualizzare attorno alla stima centrale (es. ±3%). Rende chiaro il range “Basso/Alto”.</li>
+        </ul>
+
+        <h3>Come nasce la stima (in parole semplici)</h3>
+        <ol>
+          <li>Partiamo dal tuo <b>ritmo sui 10K</b> (strada, pianura) per ricavare una base.</li>
+          <li>Adattiamo quel ritmo alla <b>distanza</b> della gara (il decadimento non è lineare).</li>
+          <li>Convertiamo il <b>dislivello (D+)</b> in “km equivalenti” tramite <b>α</b> (più salita ⇒ più km equivalenti).</li>
+          <li>Applichiamo l’effetto <b>terreno/tecnicità</b> con le percentuali e i relativi rallentamenti.</li>
+          <li>Aggiungiamo l’impatto di <b>meteo</b> e <b>altitudine</b>.</li>
+          <li>Moduliamo la <b>fatica</b> in funzione della distanza (pesa davvero sui lunghi).</li>
+          <li>Applichiamo la <b>specificità (S)</b>: se sei abituato a quel contesto, le penalità calano.</li>
+          <li>Mostriamo la stima centrale e il <b>range</b> in base al tuo <b>margine</b> ±%.</li>
+        </ol>
+
+        <h3>Impostazioni rapide consigliate</h3>
+        <ul>
+          <li><b>Gara trail “corribile” (colline)</b>: α=0.7–0.9; Strada/E/EE/EA ≈ 15/55/25/5; Meteo “Mite”; Alt “≤500 m”; S=0.4–0.7; Margine ±3–5%.</li>
+          <li><b>Trail tecnico (montagna)</b>: α=0.9–1.1; Strada/E/EE/EA ≈ 5/40/40/15; Meteo “Fresco/Mite”; Alt “1000–1500 m” o più; S=0.2–0.6; Margine ±5–8%.</li>
+          <li><b>Gara calda</b>: mantieni α come sopra, ma Meteo “Caldo/Molto caldo”; aumenta Margine (±5–8%) se non sei acclimatato.</li>
+        </ul>
+
+      </div>
+    </details>
+
+    <details>
+      <summary><b>2) Mappa 2D (uso sintetico)</b></summary>
+      <ul>
+        <li><b>Carica una traccia</b> per vedere il percorso su mappa.</li>
+        <li>Usa <b>“Centra sulla traccia”</b> per inquadrare il percorso intero.</li>
+        <li>La <b>linea distanza</b> (sezione Mappa) mostra i marcatori chilometrici; passando il mouse, puoi sincronizzare punti.</li>
+        <li><b>Scarica KML</b> per usare il percorso in strumenti esterni (es. stampa 3D del tracciato).</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary><b>3) Fondamenti (brevi note)</b></summary>
+      <ul>
+        <li>La stima si basa su un modello <b>Riegel adattivo</b> + <b>chilometri equivalenti</b> da D+ (coeff. α) + <b>fattori reali</b> (terreno, meteo, quota, fatica) e la tua <b>specificità</b>.</li>
+        <li>Non è una “verità assoluta”, ma una <b>previsione realistica</b> che si affina con dati migliori (ricognizioni, split reali, acclimatazione).</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary><b>4) Licenze & Policy (sintesi)</b></summary>
+      <ul>
+        <li>Usiamo librerie e tile map secondo le rispettive policy. Consulta la sezione dedicata per i crediti completi.</li>
+      </ul>
+    </details>
+
   </div>
 </section>
-
 <!-- PANEL: FONDAMENTI -->
 <section id="fond" class="panel">
   <div class="card">
@@ -611,10 +723,10 @@ document.getElementById("calcBtn").onclick = () => {
 
   const raw = terr * bm * ba * bf;
 
-  // Patch: modello più coerente
-  const adj = 1 + (raw - 1) * (1 - S);
+const gamma = 0.75;
+const adj = Math.max(1, 1 + (raw - 1) * Math.pow(1 - S, gamma));
 
-  const T = T_elev * adj;
+const T = T_elev * adj;
 
   const fmt = t => {
     const s = Math.round(t*60);
