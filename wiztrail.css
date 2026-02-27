@@ -204,3 +204,28 @@ body[data-theme="light"] .profile-wrap,
 body[data-theme="light"] fieldset{
   background: color-mix(in oklab, var(--card) 82%, transparent);
 }
+
+/* Intro breve sotto header */
+.site-intro {
+  margin: 12px auto 4px;
+  max-width: 820px;
+  padding: 8px 12px;
+  text-align: center;
+  color: var(--ink);
+  background: color-mix(in oklab, var(--card) 68%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  border-radius: 12px;
+  backdrop-filter: blur(10px) saturate(125%);
+  -webkit-backdrop-filter: blur(10px) saturate(125%);
+}
+.site-intro p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: color-mix(in oklab, var(--ink) 92%, transparent);
+}
+
+/* Tema chiaro: leggermente più pieno per leggibilità */
+body[data-theme="light"] .site-intro {
+  background: color-mix(in oklab, var(--card) 82%, transparent);
+}
