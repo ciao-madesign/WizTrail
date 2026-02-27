@@ -62,7 +62,7 @@
         <label>Distanza (km)</label>
         <input id="dist" type="number" step="0.001" value="21.097"/>
         <label>D+ (m)</label>
-        <input id="dplus" type="number" step="1" value="700"/>
+        <input id="dplus" type="number" step="1" value="0"/>
         <label>α (km ogni 100 m D+)</label>
         <input id="alpha" type="number" step="0.05" min="0.1" max="2" value="0.8"/>
       </fieldset>
@@ -72,10 +72,10 @@
     <div>
       <fieldset>
         <legend>Terreno</legend>
-        <label>% Strada</label><input id="p_strada" type="number" value="10"/>
+        <label>% Strada</label><input id="p_strada" type="number" value="0"/>
         <label>% E</label><input id="p_e" type="number" value="50"/>
-        <label>% EE</label><input id="p_ee" type="number" value="25"/>
-        <label>% EA</label><input id="p_ea" type="number" value="15"/>
+        <label>% EE</label><input id="p_ee" type="number" value="50"/>
+        <label>% EA</label><input id="p_ea" type="number" value="0"/>
         <label>Rall. E (%)</label><input id="c_e" type="number" value="3"/>
         <label>Rall. EE (%)</label><input id="c_ee" type="number" value="12"/>
         <label>Rall. EA (%)</label><input id="c_ea" type="number" value="25"/>
@@ -102,14 +102,14 @@
           <option value="1.04">>2000 m</option>
         </select>
 
-        <label>Fatica</label>
+        <label>Accumulo fatica</label>
         <select id="fatica">
-          <option value="1.00">Bassa</option>
-          <option value="1.02">Media</option>
-          <option value="1.03" selected>Alta</option>
+          <option value="1.00">Basso</option>
+          <option value="1.02">Medio</option>
+          <option value="1.03" selected>Alto</option>
         </select>
 
-        <label>Specificità (S 0–1)</label>
+        <label>Familiarità</label>
         <input id="spec" type="range" min="0" max="1" step="0.1" value="0.3"/>
 
         <label>Margine ±%</label>
@@ -349,282 +349,294 @@ Tempo finale =
 <div class="footer">WizTrail © 2026</div>
 
 <script>
-/* ====== THEME ====== */
-document.getElementById("themeSel").addEventListener("change",e=>{
-  document.body.setAttribute("data-theme",e.target.value);
+/* ===========================
+   THEME
+=========================== */
+document.getElementById("themeSel").addEventListener("change", e => {
+  document.body.setAttribute("data-theme", e.target.value);
 });
 
-/* ====== TABS ====== */
-document.querySelectorAll(".tab-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+/* ===========================
+   TABS
+=========================== */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById(btn.dataset.tab).classList.add("active");
-    if(btn.dataset.tab==="map2d"){ initLeaflet(); setTimeout(()=>{drawProfile(); fitTrack();},120);}
+    if (btn.dataset.tab === "map2d") {
+      initLeaflet();
+      setTimeout(() => {
+        drawProfile();
+        fitTrack();
+      }, 120);
+    }
   });
 });
 
-/* ====== HAVERSINE ====== */
+/* ===========================
+   HAVERSINE
+=========================== */
 function hav(a,b,c,d){
-  const R=6371000,t=Math.PI/180;
-  const dLat=(c-a)*t,dLon=(d-b)*t;
-  const k=Math.sin(dLat/2)**2 + Math.cos(a*t)*Math.cos(c*t)*Math.sin(dLon/2)**2;
-  return 2*R*Math.asin(Math.sqrt(k));
+  const R = 6371000;
+  const t = Math.PI/180;
+  const dLat = (c-a)*t;
+  const dLon = (d-b)*t;
+  const k = Math.sin(dLat/2)**2 +
+            Math.cos(a*t)*Math.cos(c*t)*Math.sin(dLon/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(k));
 }
 
-/* ====== PARSE GPX / TCX ====== */
+/* ===========================
+   PARSE GPX / TCX
+=========================== */
 function parseTrack(xml){
   const pts=[];
   const g=xml.getElementsByTagName("trkpt");
+
   if(g.length){
     [...g].forEach(n=>{
       const la=parseFloat(n.getAttribute("lat"));
       const lo=parseFloat(n.getAttribute("lon"));
-      const el=n.getElementsByTagName("ele")[0];
-      const e=el?parseFloat(el.textContent):0;
-      pts.push([la,lo,e]);
+      const e=n.getElementsByTagName("ele")[0];
+      pts.push([la,lo,e ? parseFloat(e.textContent) : 0]);
     });
     return pts;
   }
+
   const t=xml.getElementsByTagName("Trackpoint");
   [...t].forEach(n=>{
     const p=n.getElementsByTagName("Position")[0];
     if(!p)return;
+
     const la=p.getElementsByTagName("LatitudeDegrees")[0];
     const lo=p.getElementsByTagName("LongitudeDegrees")[0];
     const el=n.getElementsByTagName("AltitudeMeters")[0];
+
     pts.push([
-      la?parseFloat(la.textContent):0,
-      lo?parseFloat(lo.textContent):0,
-      el?parseFloat(el.textContent):0
+      la ? parseFloat(la.textContent) : 0,
+      lo ? parseFloat(lo.textContent) : 0,
+      el ? parseFloat(el.textContent) : 0
     ]);
   });
+
   return pts;
 }
 
-/* ====== COMPUTE METRICS ====== */
+/* ===========================
+   COMPUTE METRICS
+=========================== */
 function compute(pts){
   if(pts.length<2) return {km:0,gain:0,e:[],d:[]};
-  const elev=pts.map(p=>p[2]);
-  const d=[0]; let dist=0,gain=0;
-  for(let i=1;i<pts.length;i++){
-    const dd=hav(pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1]);
-    if(dd<300) dist+=dd;
-    d[i]=dist;
-    const de=elev[i]-elev[i-1];
-    if(de>1) gain+=de;
+
+  const elev = pts.map(p => p[2]);
+  const d = [0];
+  let dist=0, gain=0;
+
+  for(let i=1; i<pts.length; i++){
+    const dd = hav(pts[i-1][0], pts[i-1][1], pts[i][0], pts[i][1]);
+    if(dd < 300) dist += dd;
+    d[i] = dist;
+    const de = elev[i] - elev[i-1];
+    if(de > 1) gain += de;
   }
-  return {km:dist/1000,gain,e:elev,d};
+
+  return { km: dist/1000, gain, e: elev, d };
 }
 
-/* ====== GLOBAL STATE ====== */
-let gpxPts=[], metrics={e:[],d:[]};
+/* ===========================
+   GLOBAL STATE
+=========================== */
+let gpxPts = [];
+let metrics = {e:[], d:[]};
 
-/* ====== LOAD GPX ====== */
-document.getElementById("gpxfile").addEventListener("change",async e=>{
-  const f=e.target.files[0];
+/* ===========================
+   LOAD GPX
+=========================== */
+document.getElementById("gpxfile").addEventListener("change", async e => {
+  const f = e.target.files[0];
   if(!f) return;
-  const txt=await f.text();
-  const xml=new DOMParser().parseFromString(txt,"application/xml");
-  gpxPts=parseTrack(xml);
-  metrics=compute(gpxPts);
+  
+  const txt = await f.text();
+  const xml = new DOMParser().parseFromString(txt,"application/xml");
 
-  document.getElementById("dist").value=metrics.km.toFixed(3);
-  document.getElementById("dplus").value=metrics.gain;
-  document.getElementById("gpxInfo").textContent=
+  gpxPts = parseTrack(xml);
+  metrics = compute(gpxPts);
+
+  document.getElementById("dist").value = metrics.km.toFixed(3);
+  document.getElementById("dplus").value = metrics.gain;
+  document.getElementById("gpxInfo").textContent =
     `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km, D+: ${metrics.gain} m`;
 
   drawTrack();
   drawProfile();
 });
 
-/* ====== LEAFLET ====== */
-let map=null,poly=null,hoverMarker=null;
+/* ===========================
+   LEAFLET
+=========================== */
+let map=null, poly=null, hoverMarker=null;
 
 function initLeaflet(){
   if(map) return;
-  map=L.map("leafletMap");
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
+
+  map = L.map("leafletMap");
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom:19,
     attribution:"© OpenStreetMap contributors"
   }).addTo(map);
-  hoverMarker=L.circleMarker([0,0],{radius:6,color:"#ff0",fillColor:"#ff0"});
+
+  hoverMarker = L.circleMarker([0,0],{
+    radius:6,
+    color:"#ff0",
+    fillColor:"#ff0"
+  });
+
   map.setView([46.5,8.3],5);
 }
 
 function drawTrack(){
-  if(!map||!gpxPts.length)return;
+  if(!map || !gpxPts.length) return;
   if(poly) map.removeLayer(poly);
-  poly=L.polyline(gpxPts.map(p=>[p[0],p[1]]),{color:"#4fd1c5",weight:4}).addTo(map);
+
+  poly = L.polyline(gpxPts.map(p => [p[0], p[1]]),{
+    color:"#4fd1c5",
+    weight:4
+  }).addTo(map);
+
   fitTrack();
 }
 
 function fitTrack(){
-  if(poly) map.fitBounds(poly.getBounds(),{padding:[20,20]});
+  if(poly) map.fitBounds(poly.getBounds(), {padding:[20,20]});
 }
 
-document.getElementById("btnFit").onclick=fitTrack;
+document.getElementById("btnFit").onclick = fitTrack;
 
-/* ====== KML ====== */
-document.getElementById("btnKml").onclick=()=>{
-  if(!gpxPts.length){alert("Carica prima un GPX");return;}
-  const coords=gpxPts.map(p=>`${p[1]},${p[0]},${p[2]}`).join(" ");
-  const kml=`<?xml version="1.0"?>
+/* ===========================
+   KML
+=========================== */
+document.getElementById("btnKml").onclick = () => {
+  if(!gpxPts.length){
+    alert("Carica prima un GPX");
+    return;
+  }
+
+  const coords = gpxPts.map(p => `${p[1]},${p[0]},${p[2]}`).join(" ");
+
+  const kml = `<?xml version="1.0"?>
 <kml xmlns="http://www.opengis.net/kml/2.2"><Document>
 <Placemark><name>Percorso</name>
 <LineString><coordinates>${coords}</coordinates></LineString>
 </Placemark></Document></kml>`;
-  const blob=new Blob([kml],{type:"application/vnd.google-earth.kml+xml"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="wiztrail.kml";
+
+  const blob = new Blob([kml], {type:"application/vnd.google-earth.kml+xml"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "wiztrail.kml";
   a.click();
 };
 
-/* ====== DISTANCE LINE (marcatori ogni 5 km) ====== */
-function drawDistanceLine(){
-  const canvas = document.getElementById("distCanvas");
-  const stats  = document.getElementById("distStats");
-  const ctx = canvas.getContext("2d");
+/* ===========================
+   CALCOLO TEMPO – COMPLETAMENTE CORRETTO
+=========================== */
+const readNum = id => parseFloat(
+  document.getElementById(id).value.replace(",",".")
+) || 0;
 
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
-  const dpr = window.devicePixelRatio || 1;
+document.getElementById("calcBtn").onclick = () => {
 
-  canvas.width = w * dpr;
-  canvas.height = h * dpr;
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, w, h);
+  const msg = document.getElementById("msg");
+  msg.textContent = "";
 
-  if(!metrics || !metrics.d.length){
-    stats.textContent = "Carica una traccia per mostrare la progressione chilometrica.";
+  const t10 = document.getElementById("t10k").value;
+  if(!/^[0-9]+:[0-5][0-9]$/.test(t10)){
+    msg.textContent = "Formato 10K non valido";
     return;
   }
 
-  // distanza totale in km
-  const distKm = metrics.km;
-  const maxKm = Math.ceil(distKm / 5) * 5;
+  const m10 = parseInt(t10.split(":")[0]) + parseInt(t10.split(":")[1]) / 60;
 
-  stats.textContent = `Distanza totale: ${distKm.toFixed(2)} km`;
+  const D  = readNum("dist");
+  const Dp = readNum("dplus");
+  const a  = readNum("alpha");
 
-  const leftPad = 40;
-  const rightPad = 10;
-  const lineY = h / 2;
-
-  // linea orizzontale base
-  ctx.strokeStyle = "#4fd1c5";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(leftPad, lineY);
-  ctx.lineTo(w - rightPad, lineY);
-  ctx.stroke();
-
-  // marcatore ogni 5 km
-  const usableW = w - leftPad - rightPad;
-
-  ctx.strokeStyle = "#ffcc00";
-  ctx.fillStyle = "#ffcc00";
-  ctx.lineWidth = 2;
-  ctx.font = "12px system-ui";
-
-  for(let km = 0; km <= maxKm; km += 5){
-    const x = leftPad + (km / maxKm) * usableW;
-
-    // tacchetta verticale
-    ctx.beginPath();
-    ctx.moveTo(x, lineY - 12);
-    ctx.lineTo(x, lineY + 12);
-    ctx.stroke();
-
-    // etichetta
-    ctx.fillText(`${km} km`, x - 10, lineY + 28);
-  }
-
-  // marcatore finale reale (non multiplo di 5 km)
-  if(distKm % 5 !== 0){
-    const x = leftPad + (distKm / maxKm) * usableW;
-    ctx.strokeStyle = "#ff6b6b";
-    ctx.fillStyle   = "#ff6b6b";
-
-    ctx.beginPath();
-    ctx.moveTo(x, lineY - 14);
-    ctx.lineTo(x, lineY + 14);
-    ctx.stroke();
-
-    ctx.fillText(`${distKm.toFixed(1)} km`, x - 18, lineY + 28);
-  }
-}
-/* ====== CALCOLO TEMPO ====== */
-document.getElementById("calcBtn").onclick=()=>{
-  const msg=document.getElementById("msg");
-  msg.textContent="";
-  const t10=document.getElementById("t10k").value;
-  if(!/^[0-9]+:[0-5][0-9]$/.test(t10)){msg.textContent="Formato 10K non valido";return;}
-  const m10=parseInt(t10.split(":")[0])+parseInt(t10.split(":")[1])/60;
-
-  const D=parseFloat(document.getElementById("dist").value);
-  const Dp=parseFloat(document.getElementById("dplus").value);
-  const a=parseFloat(document.getElementById("alpha").value);
-
-  /* RIEGEL DINAMICO */
+  /* ===== RIEGEL DINAMICO PATCHATO ===== */
   let expo;
-  if(D<=20) expo=1.03+0.002*(D-10);
-  else if(D<=42) expo=1.05+0.0007*(D-20);
-  else expo=1.075;
+  if (D <= 20) expo = Math.max(1.03, 1.03 + 0.002*(D - 10));
+  else if (D <= 42) expo = 1.05 + 0.0007*(D - 20);
+  else expo = 1.075;
 
-  const HM=m10*Math.pow(21.097/10,expo);
-  const D_eq=D+(Dp/100)*a;
-  const T_elev=HM*(D_eq/D);
+  const base = m10 * Math.pow(D / 10, expo);
+  const D_eq = D + (Dp/100) * a;
+  const T_elev = base * (D_eq / D);
 
-  const pS=+document.getElementById("p_strada").value/100;
-  const pE=+document.getElementById("p_e").value/100;
-  const pEE=+document.getElementById("p_ee").value/100;
-  const pEA=+document.getElementById("p_ea").value/100;
-  if(Math.abs(pS+pE+pEE+pEA-1)>0.01){msg.textContent="Somma % ≠100";return;}
+  /* ===== TERRENO PATCHATO ===== */
+  const pS  = readNum("p_strada")/100;
+  const pE  = readNum("p_e")/100;
+  const pEE = readNum("p_ee")/100;
+  const pEA = readNum("p_ea")/100;
 
-  const cE=+document.getElementById("c_e").value/100;
-  const cEE=+document.getElementById("c_ee").value/100;
-  const cEA=+document.getElementById("c_ea").value/100;
-  const terr = pS*1 + pE*(1+cE) + pEE*(1+cEE) + pEA*(1+cEA);
+  if(Math.abs(pS + pE + pEE + pEA - 1) > 0.01){
+    msg.textContent = "Somma % ≠100";
+    return;
+  }
 
-  const bm=+document.getElementById("meteo").value;
-  const ba=+document.getElementById("alt").value;
+  const cE  = readNum("c_e")/100;
+  const cEE = readNum("c_ee")/100;
+  const cEA = readNum("c_ea")/100;
 
-  /* FATICA MODULATA DALLA DISTANZA */
+  const terr =
+      pS  * 1
+    + pE  * (1 + cE)
+    + pEE * (1 + cEE)
+    + pEA * (1 + cEA);
+
+  const bm = readNum("meteo");
+  const ba = readNum("alt");
+
+  /* ===== FATICA ===== */
   let fw;
-  if(D<=20) fw=0.25;
-  else if(D<=40) fw=0.25+0.03*(D-20);
-  else fw=1.0;
+  if (D <= 20) fw = 0.25;
+  else if (D <= 40) fw = 0.25 + 0.03*(D-20);
+  else fw = 1.0;
 
-  const bf_raw=+document.getElementById("fatica").value;
-  const bf=1+(bf_raw-1)*fw;
+  const bf_raw = readNum("fatica");
+  const bf = 1 + (bf_raw - 1) * fw;
 
-  const S=+document.getElementById("spec").value;
-  const mrg=+document.getElementById("margin").value/100;
+  /* ===== SPECIFICITÀ ===== */
+  const S   = readNum("spec");
+  const mrg = readNum("margin")/100;
 
-  const raw = terr*bm*ba*bf;
-  const adj = 1+(raw-1)*(1-0.6*S);
+  const raw = terr * bm * ba * bf;
 
-  const T=T_elev*adj;
+  // Patch: modello più coerente
+  const adj = 1 + (raw - 1) * (1 - S);
 
-  const fmt=t=>{
-    const s=Math.round(t*60);
-    const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),se=s%60;
-    return h?`${h}:${String(m).padStart(2,"0")}:${String(se).padStart(2,"0")}`
-            :`${m}:${String(se).padStart(2,"0")}`;
+  const T = T_elev * adj;
+
+  const fmt = t => {
+    const s = Math.round(t*60);
+    const h = Math.floor(s/3600);
+    const m = Math.floor((s%3600)/60);
+    const se= s%60;
+    return h ?
+      `${h}:${String(m).padStart(2,"0")}:${String(se).padStart(2,"0")}` :
+      `${m}:${String(se).padStart(2,"0")}`;
   };
 
-  document.getElementById("outFinal").textContent=fmt(T);
-  document.getElementById("outLow").textContent=fmt(T*(1-mrg));
-  document.getElementById("outHigh").textContent=fmt(T*(1+mrg));
-  msg.textContent="OK";
+  document.getElementById("outFinal").textContent = fmt(T);
+  document.getElementById("outLow").textContent   = fmt(T*(1-mrg));
+  document.getElementById("outHigh").textContent  = fmt(T*(1+mrg));
+  msg.textContent = "OK";
 };
 
-/* RESET */
-document.getElementById("resetBtn").onclick=()=>location.reload();
+/* ===========================
+   RESET
+=========================== */
+document.getElementById("resetBtn").onclick = () => location.reload();
 
 </script>
-
 </body>
 </html>
