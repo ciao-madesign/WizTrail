@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ciao-madesign.github.io/WizTrail/sitemap.xml
