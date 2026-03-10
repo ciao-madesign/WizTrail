@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>WizTrail</title>
 
-  <!-- PWA: manifest + colore UI -->
+  <!-- PWA -->
   <link rel="manifest" href="/WizTrail/manifest.webmanifest">
   <meta name="theme-color" content="#002b2b">
 
@@ -195,96 +195,61 @@
         <div style="margin-top:10px">
           <h3>Traccia GPS (opzionale)</h3>
           <ul>
-            <li><b>Carica GPX/TCX</b>: se importi una traccia, il sistema legge automaticamente <i>Distanza</i> e <i>D+</i> (dislivello positivo). Puoi comunque modificarli a mano dopo l’import.</li>
+            <li><b>Carica GPX/TCX</b>: se importi una traccia, il sistema legge automaticamente <i>Distanza</i> e <i>D+</i>. Puoi comunque modificarli a mano dopo l’import.</li>
           </ul>
 
           <h3>Parametri atleta</h3>
           <ul>
-            <li><b>Tempo 10 km (mm:ss)</b> — È il tuo riferimento su strada e pianeggiante. Serve per “ancorare” la previsione: da questo valore il modello ricava il tuo passo/ritmo di base e lo adatta alla distanza reale di gara.
-              <div class="mini">Consiglio: usa il miglior tempo recente in condizioni buone. Se non hai un 10K, usa il ritmo medio su 5K/15K e converti a stima.</div>
-            </li>
+            <li><b>Tempo 10 km (mm:ss)</b> — riferimento su strada e pianeggiante; da qui il modello ricava il ritmo base e lo adatta alla distanza reale.</li>
           </ul>
 
           <h3>Parametri gara</h3>
           <ul>
-            <li><b>Distanza (km)</b> — i chilometri della gara/traccia che vuoi stimare. Se hai caricato una traccia, è già compilato.</li>
-            <li><b>D+ (m)</b> — somma delle salite (metri) lungo il percorso. A parità di distanza, più D+ = più “fatica equivalente”.</li>
-            <li><b>α (km ogni 100 m D+)</b> — “quanto pesano” le salite in <i>chilometri equivalenti</i>.
-              <div class="mini">Esempio: con α=0.8, ogni 100 m di D+ “valgono” 0.8 km in più: se hai 700 m D+, aggiungi 5.6 km equivalenti.</div>
-              <div class="mini">Range tipico: 0.6–1.0 per trail corribili; 1.0–1.2 per percorsi lenti/pendenze cattive.</div>
-            </li>
+            <li><b>Distanza (km)</b> — chilometri della gara/traccia (se carichi una traccia, si compila da sé).</li>
+            <li><b>D+ (m)</b> — somma delle salite (metri); più D+ = più “fatica equivalente”.</li>
+            <li><b>α (km ogni 100 m D+)</b> — peso della salita in <i>chilometri equivalenti</i>.</li>
           </ul>
 
           <h3>Terreno</h3>
-          <p>Indica <b>la percentuale</b> del tempo o della distanza stimata fatta su:</p>
-          <ul>
-            <li><b>% Strada</b> — asfalto o sterrato molto scorrevole</li>
-            <li><b>% E</b> — sentiero escursionistico facile</li>
-            <li><b>% EE</b> — tecnico (pietre, radici, passaggi stretti)</li>
-            <li><b>% EA</b> — attrezzato/esposto (lento, molto tecnico)</li>
-          </ul>
-          <p>Somma <b>deve arrivare al 100%</b>. In base alla tecnicità, si applicano <b>rallentamenti</b> dedicati:</p>
-          <ul>
-            <li><b>Rall. E (%)</b> — penalità extra su E (es. +3%)</li>
-            <li><b>Rall. EE (%)</b> — penalità su EE (es. +12%)</li>
-            <li><b>Rall. EA (%)</b> — penalità su EA (es. +25%)</li>
-          </ul>
-          <div class="mini">Suggerimento rapido: se non conosci bene il percorso, inizia con Strada/E/EE/EA ≈ 10/50/25/15 e rallentamenti default; poi affina dopo un’uscita ricognitiva.</div>
+          <p>Indica le percentuali su Strada, E, EE, EA. La somma deve dare 100%.</p>
 
           <h3>Condizioni gara</h3>
           <ul>
-            <li><b>Meteo</b> — seleziona la fascia: “Fresco” (quasi neutro), “Mite”, “Caldo”, “Molto caldo”. Crescendo la temperatura, cresce la penalità.</li>
-            <li><b>Altitudine</b> — quota media stimata del percorso (o quota della gara). Più sali oltre i 1000–1500 m, maggiore l’impatto fisiologico sulla prestazione.</li>
-            <li><b>Fatica</b> — quanto incide per te l'accumulo di fatica nel corso della gara (Bassa/Media/Alta). Il modello la “pesa” di più se la distanza è lunga.</li>
-            <li><b>Specificità (S 0–1)</b> — quanto sei abituato proprio a <i>quel tipo</i> di gara (trail tecnico, salite/discese, quota, caldo).
-              <div class="mini">0 = atleta “stradalista” non abituato; 1 = atleta molto abituato (penalità ridotte).</div>
-            </li>
-            <li><b>Margine ±%</b> — intervallo di confidenza che vuoi visualizzare attorno alla stima centrale (es. ±3%). Rende chiaro il range “Basso/Alto”.</li>
+            <li><b>Meteo</b>, <b>Altitudine</b>, <b>Fatica</b>, <b>Specificità (S)</b>, <b>Margine ±%</b>.</li>
           </ul>
 
-          <h3>Come nasce la stima (in parole semplici)</h3>
+          <h3>Come nasce la stima</h3>
           <ol>
-            <li>Partiamo dal tuo <b>ritmo sui 10K</b> (strada, pianura) per ricavare una base.</li>
-            <li>Adattiamo quel ritmo alla <b>distanza</b> della gara (il decadimento non è lineare).</li>
-            <li>Convertiamo il <b>dislivello (D+)</b> in “km equivalenti” tramite <b>α</b> (più salita ⇒ più km equivalenti).</li>
-            <li>Applichiamo l’effetto <b>terreno/tecnicità</b> con le percentuali e i relativi rallentamenti.</li>
-            <li>Aggiungiamo l’impatto di <b>meteo</b> e <b>altitudine</b>.</li>
-            <li>Moduliamo la <b>fatica</b> in funzione della distanza (pesa davvero sui lunghi).</li>
-            <li>Applichiamo la <b>specificità (S)</b>: se sei abituato a quel contesto, le penalità calano.</li>
-            <li>Mostriamo la stima centrale e il <b>range</b> in base al tuo <b>margine</b> ±%.</li>
+            <li>Ritmo 10K → base.</li>
+            <li>Adattamento alla distanza.</li>
+            <li>Conversione D+ in km equivalenti con α.</li>
+            <li>Penalità per tecnicità terreno.</li>
+            <li>Effetti meteo e altitudine.</li>
+            <li>Fatica adattiva con la distanza + specificità atleta.</li>
           </ol>
-
-          <h3>Impostazioni rapide consigliate</h3>
-          <ul>
-            <li><b>Gara trail “corribile” (colline)</b>: α=0.7–0.9; Strada/E/EE/EA ≈ 15/55/25/5; Meteo “Mite”; Alt “≤500 m”; S=0.4–0.7; Margine ±3–5%.</li>
-            <li><b>Trail tecnico (montagna)</b>: α=0.9–1.1; Strada/E/EE/EA ≈ 5/40/40/15; Meteo “Fresco/Mite”; Alt “1000–1500 m” o più; S=0.2–0.6; Margine ±5–8%.</li>
-            <li><b>Gara calda</b>: mantieni α come sopra, ma Meteo “Caldo/Molto caldo”; aumenta Margine (±5–8%) se non sei acclimatato.</li>
-          </ul>
         </div>
       </details>
 
       <details>
         <summary><b>2) Mappa 2D (uso sintetico)</b></summary>
         <ul>
-          <li><b>Carica una traccia</b> per vedere il percorso su mappa.</li>
-          <li>Usa <b>“Centra sulla traccia”</b> per inquadrare il percorso intero.</li>
-          <li>La <b>linea distanza</b> (sezione Mappa) mostra i marcatori chilometrici; passando il mouse, puoi sincronizzare punti.</li>
-          <li><b>Scarica KML</b> per usare il percorso in strumenti esterni (es. stampa 3D del tracciato).</li>
+          <li><b>Carica una traccia</b> per visualizzare il percorso.</li>
+          <li><b>Centra sulla traccia</b> per inquadrare l’intero tracciato.</li>
+          <li><b>Scarica KML</b> per usi esterni.</li>
         </ul>
       </details>
 
       <details>
         <summary><b>3) Fondamenti (brevi note)</b></summary>
         <ul>
-          <li>La stima si basa su un modello <b>Riegel adattivo</b> + <b>chilometri equivalenti</b> da D+ (coeff. α) + <b>fattori reali</b> (terreno, meteo, quota, fatica) e la tua <b>specificità</b>.</li>
-          <li>Non è una “verità assoluta”, ma una <b>previsione realistica</b> che si affina con dati migliori (ricognizioni, split reali, acclimatazione).</li>
+          <li>Modello <b>Riegel adattivo</b> + <b>km equivalenti</b> da D+ (α) + <b>fattori reali</b> (terreno, meteo, quota, fatica) + <b>specificità</b>.</li>
         </ul>
       </details>
 
       <details>
         <summary><b>4) Licenze & Policy (sintesi)</b></summary>
         <ul>
-          <li>Usiamo librerie e tile map secondo le rispettive policy. Consulta la sezione dedicata per i crediti completi.</li>
+          <li>Leaflet secondo Quick Start ufficiale; tile OSM (© OpenStreetMap contributors) secondo Tile Usage Policy.</li>
         </ul>
       </details>
     </div>
@@ -294,103 +259,7 @@
   <section id="fond" class="panel">
     <div class="card">
       <h2>Fondamenti scientifici e criteri di calcolo</h2>
-      <p>
-        Questa sezione spiega in modo trasparente tutti gli elementi scientifici,
-        fisiologici ed empirici utilizzati nel modello di previsione di WizTrail,
-        includendo fonti e riferimenti esterni.
-      </p>
-
-      <h3>1. Formula di Riegel (modello potenza, versione dinamica)</h3>
-      <p>
-        La formula originale di Riegel descrive il decadimento della velocità
-        al crescere della distanza attraverso un'esponente <b>R</b>:
-      </p>
-      <pre style="white-space:pre-wrap;">
-T₂ = T₁ × (D₂ / D₁) ^ R
-      </pre>
-      <p>
-        La documentazione moderna riconosce che l’esponente R non può essere considerato
-        costante per tutte le distanze, come spiegato in analisi avanzate dei modelli
-        predittivi (es. tabelle predittive modernizzate e chiarimenti forniti da provider
-        come TrainAsOne). Le performance reali mostrano infatti che:
-      </p>
-      <ul>
-        <li>su distanze brevi (5–15 km), R tende verso 1.03–1.055;</li>
-        <li>su mezza maratona converge verso ~1.06;</li>
-        <li>su maratona tende a 1.07–1.08;</li>
-      </ul>
-      <p>
-        WizTrail implementa quindi un <b>Riegel dinamico</b>, con R che varia dolcemente
-        in funzione della distanza per evitare sovrastime sulle distanze brevi e fornire
-        proiezioni più realistiche sulle lunghe.
-      </p>
-
-      <h3>2. Conversione salita → “chilometri equivalenti” (Naismith & fisiologia moderna)</h3>
-      <p>
-        La prima formulazione storica per stimare l’impatto della salita sul tempo è
-        la regola di <b>Naismith (1902)</b>, che identifica l’ascesa come contributore
-        lineare all’incremento del tempo stimato.
-      </p>
-      <p>
-        WizTrail usa quindi la conversione della salita in
-        <b>chilometri equivalenti</b> tramite un coefficiente α:
-      </p>
-      <pre style="white-space:pre-wrap;">
-D_equiv = D + α × (D⁺ / 100)
-      </pre>
-      <p>
-        Il valore α (0.6–1.2) è coerente con evidenze moderne sul costo energetico
-        della corsa in salita (lineare fino a pendenze del 20%).
-      </p>
-
-      <h3>3. Costo metabolico di salita/discesa — Minetti et al.</h3>
-      <p>
-        Il riferimento fisiologico più rilevante mostra come il costo energetico vari con la pendenza:
-        lineare in salita, minimo intorno a –10% in discesa, e crescente su discese molto ripide.
-      </p>
-      <p>
-        WizTrail non replica l'intera curva per semplicità computazionale,
-        ma recepisce i principi chiave nella costruzione dei km equivalenti.
-      </p>
-
-      <h3>4. Terreno e tecnicità: perché il GAP non basta</h3>
-      <p>
-        Il <b>Grade Adjusted Pace (GAP)</b> non considera la tecnicità del fondo:
-        radici, pietre, sentiero stretto, superficie scivolosa ecc. Per questo
-        WizTrail utilizza coefficienti dedicati per:
-      </p>
-      <ul>
-        <li>Strada → coefficiente 1.00</li>
-        <li>E (escursionistico) → +3%</li>
-        <li>EE (tecnico) → +12%</li>
-        <li>EA (attrezzato/esposto) → +25%</li>
-      </ul>
-
-      <h3>5. Fatica progressiva (modello adattivo distanza-dipendente)</h3>
-      <p>
-        La fatica cresce <b>non linearmente</b> con la distanza, per deplezione del glicogeno,
-        danno muscolare eccentrico (soprattutto in discesa), diminuzione della potenza sostenibile
-        e aumento della temperatura interna. WizTrail implementa quindi una <b>fatica pesata</b>:
-      </p>
-      <ul>
-        <li><b>&lt;20 km</b>: impatto ridotto (~25%)</li>
-        <li><b>20–40 km</b>: transizione</li>
-        <li><b>&gt;40 km</b>: impatto completo</li>
-      </ul>
-
-      <h3>6. Meteo (temperatura) e Altitudine</h3>
-      <p>
-        Le prestazioni ottimali avvengono in condizioni fresche; l’altitudine riduce la
-        pressione parziale di O₂ e incide progressivamente già sopra i 1000–1500 m.
-      </p>
-
-      <h3>7. Specificità dell’allenamento (S)</h3>
-      <p>
-        La variabile <b>S</b> modula quanto le penalità legate a tecnicità, meteo e
-        altitudine si applicano realmente all’atleta.
-      </p>
-
-      <h3>8. Struttura finale del modello WizTrail</h3>
+      <p>Spiegazione sintetica dei principi usati (Riegel dinamico, D+ → km equivalenti, tecnicità, meteo/altitudine, fatica, specificità).</p>
       <pre style="white-space:pre-wrap;">
 Tempo finale =
   (Stima Riegel dinamica su base 10 km)
@@ -416,21 +285,16 @@ Tempo finale =
 
   <div class="footer">WizTrail © 2026</div>
 </div> <!-- /wrap -->
-
 <!-- ===========================
      SCRIPT APP
 =========================== -->
 <script>
-/* ===========================
-   THEME
-=========================== */
+/* THEME */
 document.getElementById("themeSel").addEventListener("change", e => {
   document.body.setAttribute("data-theme", e.target.value);
 });
 
-/* ===========================
-   TABS
-=========================== */
+/* TABS */
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -440,16 +304,14 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     if (btn.dataset.tab === "map2d") {
       initLeaflet();
       setTimeout(() => {
-        drawProfile();
+        drawProfile && drawProfile();
         fitTrack();
       }, 120);
     }
   });
 });
 
-/* ===========================
-   HAVERSINE
-=========================== */
+/* HAVERSINE */
 function hav(a,b,c,d){
   const R = 6371000;
   const t = Math.PI/180;
@@ -460,9 +322,7 @@ function hav(a,b,c,d){
   return 2 * R * Math.asin(Math.sqrt(k));
 }
 
-/* ===========================
-   PARSE GPX / TCX
-=========================== */
+/* PARSE GPX / TCX */
 function parseTrack(xml){
   const pts=[];
   const g=xml.getElementsByTagName("trkpt");
@@ -491,9 +351,7 @@ function parseTrack(xml){
   return pts;
 }
 
-/* ===========================
-   COMPUTE METRICS
-=========================== */
+/* COMPUTE METRICS */
 function compute(pts){
   if(pts.length<2) return {km:0,gain:0,e:[],d:[]};
   const elev = pts.map(p => p[2]);
@@ -509,15 +367,11 @@ function compute(pts){
   return { km: dist/1000, gain, e: elev, d };
 }
 
-/* ===========================
-   GLOBAL STATE
-=========================== */
+/* GLOBAL STATE */
 let gpxPts = [];
 let metrics = {e:[], d:[]};
 
-/* ===========================
-   LOAD GPX
-=========================== */
+/* LOAD GPX */
 document.getElementById("gpxfile").addEventListener("change", async e => {
   const f = e.target.files[0];
   if(!f) return;
@@ -530,12 +384,10 @@ document.getElementById("gpxfile").addEventListener("change", async e => {
   document.getElementById("gpxInfo").textContent =
     `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km, D+: ${metrics.gain} m`;
   drawTrack();
-  drawProfile();
+  drawProfile && drawProfile();
 });
 
-/* ===========================
-   LEAFLET
-=========================== */
+/* LEAFLET */
 let map=null, poly=null, hoverMarker=null;
 function initLeaflet(){
   if(map) return;
@@ -565,9 +417,7 @@ function fitTrack(){
 }
 document.getElementById("btnFit").onclick = fitTrack;
 
-/* ===========================
-   KML
-=========================== */
+/* KML */
 document.getElementById("btnKml").onclick = () => {
   if(!gpxPts.length){
     alert("Carica prima un GPX");
@@ -586,9 +436,7 @@ document.getElementById("btnKml").onclick = () => {
   a.click();
 };
 
-/* ===========================
-   CALCOLO TEMPO – COMPLETAMENTE CORRETTO
-=========================== */
+/* CALCOLO TEMPO */
 const readNum = id => parseFloat(
   document.getElementById(id).value.replace(",",".")
 ) || 0;
@@ -608,17 +456,17 @@ document.getElementById("calcBtn").onclick = () => {
   const Dp = readNum("dplus");
   const a  = readNum("alpha");
 
-  /* ===== RIEGEL DINAMICO PATCHATO ===== */
+  /* RIEGEL DINAMICO */
   let expo;
   if (D <= 20)       expo = Math.max(1.03, 1.03 + 0.002*(D - 10));
   else if (D <= 42)  expo = 1.05 + 0.0007*(D - 20);
   else               expo = 1.075;
 
-  const base  = m10 * Math.pow(D / 10, expo);
-  const D_eq  = D + (Dp/100) * a;
+  const base   = m10 * Math.pow(D / 10, expo);
+  const D_eq   = D + (Dp/100) * a;
   const T_elev = base * (D_eq / D);
 
-  /* ===== TERRENO PATCHATO ===== */
+  /* TERRENO */
   const pS  = readNum("p_strada")/100;
   const pE  = readNum("p_e")/100;
   const pEE = readNum("p_ee")/100;
@@ -639,7 +487,7 @@ document.getElementById("calcBtn").onclick = () => {
   const bm = readNum("meteo");
   const ba = readNum("alt");
 
-  /* ===== FATICA ===== */
+  /* FATICA */
   let fw;
   if (D <= 20)      fw = 0.25;
   else if (D <= 40) fw = 0.25 + 0.03*(D-20);
@@ -648,13 +496,13 @@ document.getElementById("calcBtn").onclick = () => {
   const bf_raw = readNum("fatica");
   const bf = 1 + (bf_raw - 1) * fw;
 
-  /* ===== SPECIFICITÀ ===== */
+  /* SPECIFICITÀ */
   const S   = readNum("spec");
   const mrg = readNum("margin")/100;
 
-  const raw = terr * bm * ba * bf;
+  const raw   = terr * bm * ba * bf;
   const gamma = 0.75;
-  const adj = Math.max(1, 1 + (raw - 1) * Math.pow(1 - S, gamma));
+  const adj   = Math.max(1, 1 + (raw - 1) * Math.pow(1 - S, gamma));
 
   const T = T_elev * adj;
 
@@ -674,21 +522,70 @@ document.getElementById("calcBtn").onclick = () => {
   msg.textContent = "OK";
 };
 
-/* ===========================
-   RESET
-=========================== */
+/* RESET */
 document.getElementById("resetBtn").onclick = () => location.reload();
 </script>
+<!-- ===== Banner iOS PWA (solo Safari iPhone/iPad) ===== -->
+<div id="installIos" class="install-ios" role="dialog" aria-live="polite" aria-label="Suggerimento installazione app su iPhone">
+  <div class="install-ios__inner">
+    <img class="install-ios__icon" src="/WizTrail/icons/icon-192.png" alt="" aria-hidden="true">
+    <div>
+      <p class="install-ios__title">Installa WizTrail su iPhone</p>
+      <p class="install-ios__text">
+        Apri il menu
+        <span class="install-ios__share" aria-label="Pulsante Condividi di Safari">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l4 4h-3v6h-2V7H8l4-4zm-7 9h2v7h10v-7h2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7z"/></svg>
+          Condividi
+        </span>
+        e scegli <b>Aggiungi a Home</b>.
+      </p>
+      <p class="install-ios__hint">Così potrai aprirla a schermo intero, senza barra degli indirizzi.</p>
+    </div>
+    <button class="install-ios__close" id="installIosClose" aria-label="Chiudi banner">×</button>
+  </div>
+</div>
 
-<!-- ===========================
-     SERVICE WORKER REGISTER
-     (per GitHub Pages in /WizTrail/)
-=========================== -->
+<!-- Service Worker (GitHub Pages in /WizTrail/) -->
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/WizTrail/service-worker.js");
   }
 </script>
+<script>
+(function () {
+  const STORAGE_KEY = "wiztrail_ios_banner_closed_v1";
 
+  // Evita se già chiuso
+  if (localStorage.getItem(STORAGE_KEY) === "1") return;
+
+  // iOS detection
+  const ua = window.navigator.userAgent || "";
+  const isIOS = /iP(hone|od|ad)/i.test(ua);
+
+  // Safari-only (escludi Chrome/Firefox/Opera/Samsung su iOS)
+  const isWebkit = /WebKit/i.test(ua);
+  const isCriOS = /CriOS/i.test(ua);
+  const isFxiOS = /FxiOS/i.test(ua);
+  const isOpera = /OPiOS/i.test(ua);
+  const isSamsung = /SamsungBrowser/i.test(ua);
+  const isSafari = isIOS && isWebkit && !isCriOS && !isFxiOS && !isOpera && !isSamsung;
+
+  // Già “Aggiunta a Home” (standalone)?
+  const isStandalone = (window.navigator.standalone === true) ||
+                       (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+
+  if (isSafari && !isStandalone) {
+    const el = document.getElementById("installIos");
+    const closeBtn = document.getElementById("installIosClose");
+    if (el && closeBtn) {
+      el.style.display = "block";
+      closeBtn.addEventListener("click", () => {
+        el.style.display = "none";
+        localStorage.setItem(STORAGE_KEY, "1");
+      }, { once: true });
+    }
+  }
+})();
+</script>
 </body>
 </html>
