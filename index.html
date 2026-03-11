@@ -190,11 +190,6 @@
       <button class="btn" id="btnFit">Centra sulla traccia</button>
       <button class="btn secondary" id="btnKml">Scarica KML</button>
 
-      <div class="profile-wrap">
-        <canvas id="distCanvas"></canvas>
-        <div id="distStats" class="mini">Carica una traccia per mostrare la progressione chilometrica.</div>
-      </div>
-
       <div class="banner-3d">
         Stampa la tua traccia in <b>3D!</b><br>
         Trasformala in un ricordo (medaglia, modellino, trofeo...)<br>
@@ -243,7 +238,7 @@
         </ul>
         <p>Somma <b>deve arrivare al 100%</b>. In base alla tecnicità, si applicano <b>rallentamenti</b> dedicati:</p>
         <ul>
-          <li><b>Rall. E (%)</b> — penalità extra su E (es. +3%)</li>
+          <li><b>Rall. E (%)</b> — penalità extra su E (es. +5%)</li>
           <li><b>Rall. EE (%)</b> — penalità su EE (es. +12%)</li>
           <li><b>Rall. EA (%)</b> — penalità su EA (es. +25%)</li>
         </ul>
@@ -293,25 +288,10 @@
       <li>La Mappa 2D funziona automaticamente dopo aver caricato un file <b>GPX</b> o <b>TCX</b> nel Calcolatore.</li>
       <li>Una volta caricata la traccia, passa alla scheda <b>Mappa 2D</b> per visualizzarla.</li>
     </ul>
-
-    <h3>Interazione con la mappa</h3>
-    <ul>
-      <li><b>Pan</b>: trascina la mappa con il mouse o il dito.</li>
-      <li><b>Zoom</b>: usa rotellina, pinch o i pulsanti + e −.</li>
-      <li><b>Centra sulla traccia</b>: uso del pulsante <b>“Centra sulla traccia”</b> per ri‑adattare la vista alla polilinea.</li>
-    </ul>
-
     <h3>Esportazione KML</h3>
     <ul>
       <li>Con <b>“Scarica KML”</b> puoi esportare il percorso in formato Google Earth compatibile.</li>
       <li>Il file può essere caricato in Google Earth (desktop o mobile) e in app 3D view per modellazione della traccia.</li>
-    </ul>
-
-    <h3>Linea di distanza</h3>
-    <ul>
-      <li>La barra orizzontale mostra i marcatori ogni 5 km.</li>
-      <li>Se la distanza non è multiplo di 5, viene aggiunto un marcatore per la distanza reale.</li>
-      <li>Quando muovi il puntatore sul grafico (se attivo), puoi sincronizzare punti mappa/altimetria.</li>
     </ul>
 
   </div>
@@ -808,6 +788,7 @@ document.getElementById("resetBtn").onclick = () => location.reload();
 </script>
 </body>
 </html>
+
 
 
 
