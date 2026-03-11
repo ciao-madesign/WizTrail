@@ -132,7 +132,7 @@
           <label>% E</label><input id="p_e" type="number" value="50"/>
           <label>% EE</label><input id="p_ee" type="number" value="50"/>
           <label>% EA</label><input id="p_ea" type="number" value="0"/>
-          <label>Rall. E (%)</label><input id="c_e" type="number" value="3"/>
+          <label>Rall. E (%)</label><input id="c_e" type="number" value="5"/>
           <label>Rall. EE (%)</label><input id="c_ee" type="number" value="12"/>
           <label>Rall. EA (%)</label><input id="c_ea" type="number" value="25"/>
           <div id="terrainWarn" class="error"></div>
@@ -164,7 +164,7 @@
           <label>Familiarità</label>
           <input id="spec" type="range" min="0" max="1" step="0.1" value="0.3"/>
           <label>Margine ±%</label>
-          <input id="margin" type="number" value="3"/>
+          <input id="margin" type="number" value="10"/>
         </fieldset>
 
         <div class="toolbar">
@@ -203,48 +203,112 @@
     </div>
   </section>
 <!-- PANEL: HOWTO -->
-  <section id="howto" class="panel">
-    <div class="card">
-      <h2>How‑to</h2>
+ <section id="howto" class="panel">
+  <div class="card">
+    <h2>How‑to</h2>
 
-      <details open>
-        <summary><b>1) Calcolatore — guida completa ai parametri</b></summary>
-        <div style="margin-top:10px">
-          <h3>Traccia GPS (opzionale)</h3>
-          <ul>
-            <li><b>Carica GPX/TCX</b>: se importi una traccia, il sistema legge automaticamente <i>Distanza</i> e <i>D+</i>. Puoi comunque modificarli a mano dopo l’import.</li>
-          </ul>
+    <details open>
+      <summary><b>1) Calcolatore — guida completa ai parametri</b></summary>
+      <div style="margin-top:10px">
 
-          <h3>Parametri atleta</h3>
-          <ul>
-            <li><b>Tempo 10 km (mm:ss)</b> — riferimento su strada e pianeggiante; da qui il modello ricava il ritmo base e lo adatta alla distanza reale.</li>
-          </ul>
+        <h3>Traccia GPS (opzionale)</h3>
+        <ul>
+          <li><b>Carica GPX/TCX</b>: se importi una traccia, il sistema legge automaticamente <i>Distanza</i> e <i>D+</i> (dislivello positivo). Puoi comunque modificarli a mano dopo l’import.</li>
+        </ul>
 
-          <h3>Parametri gara</h3>
-          <ul>
-            <li><b>Distanza (km)</b> — chilometri della gara/traccia (se carichi una traccia, si compila da sé).</li>
-            <li><b>D+ (m)</b> — somma delle salite (metri); più D+ = più “fatica equivalente”.</li>
-            <li><b>α (km ogni 100 m D+)</b> — peso della salita in <i>chilometri equivalenti</i>.</li>
-          </ul>
+        <h3>Parametri atleta</h3>
+        <ul>
+          <li><b>Tempo 10 km (mm:ss)</b> — È il tuo riferimento su strada e pianeggiante. Serve per “ancorare” la previsione: da questo valore il modello ricava il tuo passo/ritmo di base e lo adatta alla distanza reale di gara. 
+            <div class="mini">Consiglio: usa il miglior tempo recente in condizioni buone. Se non hai un 10K, usa il ritmo medio su 5K/15K e converti a stima.</div>
+          </li>
+        </ul>
 
-          <h3>Terreno</h3>
-          <p>Indica le percentuali su Strada, E, EE, EA. La somma deve dare 100%.</p>
+        <h3>Parametri gara</h3>
+        <ul>
+          <li><b>Distanza (km)</b> — i chilometri della gara/traccia che vuoi stimare. Se hai caricato una traccia, è già compilato.</li>
+          <li><b>D+ (m)</b> — somma delle salite (metri) lungo il percorso. A parità di distanza, più D+ = più “fatica equivalente”.</li>
+          <li><b>α (km ogni 100 m D+)</b> — “quanto pesano” le salite in <i>chilometri equivalenti</i>. 
+            <div class="mini">Esempio: con α=0.8, ogni 100 m di D+ “valgono” 0.8 km in più: se hai 700 m D+, aggiungi 5.6 km equivalenti.</div>
+            <div class="mini">Range tipico: 0.6–1.0 per trail corribili; 1.0–1.2 per percorsi lenti/pendenze cattive.</div>
+          </li>
+        </ul>
 
-          <h3>Condizioni gara</h3>
-          <ul>
-            <li><b>Meteo</b>, <b>Altitudine</b>, <b>Fatica</b>, <b>Specificità (S)</b>, <b>Margine ±%</b>.</li>
-          </ul>
+        <h3>Terreno</h3>
+        <p>Indica <b>la percentuale</b> del tempo o della distanza stimata fatta su:</p>
+        <ul>
+          <li><b>% Strada</b> — asfalto o sterrato molto scorrevole</li>
+          <li><b>% E</b> — sentiero escursionistico facile</li>
+          <li><b>% EE</b> — tecnico (pietre, radici, passaggi stretti)</li>
+          <li><b>% EA</b> — attrezzato/esposto (lento, molto tecnico)</li>
+        </ul>
+        <p>Somma <b>deve arrivare al 100%</b>. In base alla tecnicità, si applicano <b>rallentamenti</b> dedicati:</p>
+        <ul>
+          <li><b>Rall. E (%)</b> — penalità extra su E (es. +3%)</li>
+          <li><b>Rall. EE (%)</b> — penalità su EE (es. +12%)</li>
+          <li><b>Rall. EA (%)</b> — penalità su EA (es. +25%)</li>
+        </ul>
+        <div class="mini">Suggerimento rapido: se non conosci bene il percorso, inizia con Strada/E/EE/EA ≈ 10/50/25/15 e rallentamenti default; poi affina dopo un’uscita ricognitiva.</div>
 
-          <h3>Come nasce la stima</h3>
-          <ol>
-            <li>Ritmo 10K → base.</li>
-            <li>Adattamento alla distanza.</li>
-            <li>Conversione D+ in km equivalenti con α.</li>
-            <li>Penalità per tecnicità terreno.</li>
-            <li>Effetti meteo e altitudine.</li>
-            <li>Fatica adattiva con la distanza + specificità atleta.</li>
-          </ol>
-        </div>
+        <h3>Condizioni gara</h3>
+        <ul>
+          <li><b>Meteo</b> — seleziona la fascia: “Fresco” (quasi neutro), “Mite”, “Caldo”, “Molto caldo”. Crescendo la temperatura, cresce la penalità.</li>
+          <li><b>Altitudine</b> — quota media stimata del percorso (o quota della gara). Più sali oltre i 1000–1500 m, maggiore l’impatto fisiologico sulla prestazione.</li>
+          <li><b>Fatica</b> — quanta stanchezza porti in gara (Bassa/Media/Alta). Il modello la “pesa” di più se la distanza è lunga.</li>
+          <li><b>Specificità (S 0–1)</b> — quanto sei abituato proprio a <i>quel tipo</i> di gara (trail tecnico, salite/discese, quota, caldo). 
+            <div class="mini">0 = atleta “stradalista” non abituato; 1 = atleta molto abituato (penalità ridotte).</div>
+          </li>
+          <li><b>Margine ±%</b> — intervallo di confidenza che vuoi visualizzare attorno alla stima centrale (es. ±3%). Rende chiaro il range “Basso/Alto”.</li>
+        </ul>
+
+        <h3>Come nasce la stima (in parole semplici)</h3>
+        <ol>
+          <li>Partiamo dal tuo <b>ritmo sui 10K</b> (strada, pianura) per ricavare una base.</li>
+          <li>Adattiamo quel ritmo alla <b>distanza</b> della gara (il decadimento non è lineare).</li>
+          <li>Convertiamo il <b>dislivello (D+)</b> in “km equivalenti” tramite <b>α</b> (più salita ⇒ più km equivalenti).</li>
+          <li>Applichiamo l’effetto <b>terreno/tecnicità</b> con le percentuali e i relativi rallentamenti.</li>
+          <li>Aggiungiamo l’impatto di <b>meteo</b> e <b>altitudine</b>.</li>
+          <li>Moduliamo la <b>fatica</b> in funzione della distanza (pesa davvero sui lunghi).</li>
+          <li>Applichiamo la <b>specificità (S)</b>: se sei abituato a quel contesto, le penalità calano.</li>
+          <li>Mostriamo la stima centrale e il <b>range</b> in base al tuo <b>margine</b> ±%.</li>
+        </ol>
+
+        <h3>Impostazioni rapide consigliate</h3>
+        <ul>
+          <li><b>Gara trail “corribile” (colline)</b>: α=0.7–0.9; Strada/E/EE/EA ≈ 15/55/25/5; Meteo “Mite”; Alt “≤500 m”; S=0.4–0.7; Margine ±3–5%.</li>
+          <li><b>Trail tecnico (montagna)</b>: α=0.9–1.1; Strada/E/EE/EA ≈ 5/40/40/15; Meteo “Fresco/Mite”; Alt “1000–1500 m” o più; S=0.2–0.6; Margine ±5–8%.</li>
+          <li><b>Gara calda</b>: mantieni α come sopra, ma Meteo “Caldo/Molto caldo”; aumenta Margine (±5–8%) se non sei acclimatato.</li>
+        </ul>
+
+      </div>
+    </details>
+
+    <details>
+      <summary><b>2) Mappa 2D (uso sintetico)</b></summary>
+      <ul>
+        <li><b>Carica una traccia</b> per vedere il percorso su mappa.</li>
+        <li>Usa <b>“Centra sulla traccia”</b> per inquadrare il percorso intero.</li>
+        <li>La <b>linea distanza</b> (sezione Mappa) mostra i marcatori chilometrici; passando il mouse, puoi sincronizzare punti.</li>
+        <li><b>Scarica KML</b> per usare il percorso in strumenti esterni (es. stampa 3D del tracciato).</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary><b>3) Fondamenti (brevi note)</b></summary>
+      <ul>
+        <li>La stima si basa su un modello <b>Riegel adattivo</b> + <b>chilometri equivalenti</b> da D+ (coeff. α) + <b>fattori reali</b> (terreno, meteo, quota, fatica) e la tua <b>specificità</b>.</li>
+        <li>Non è una “verità assoluta”, ma una <b>previsione realistica</b> che si affina con dati migliori (ricognizioni, split reali, acclimatazione).</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary><b>4) Licenze & Policy (sintesi)</b></summary>
+      <ul>
+        <li>Usiamo librerie e tile map secondo le rispettive policy. Consulta la sezione dedicata per i crediti completi.</li>
+      </ul>
+    </details>
+
+  </div>
+</section>
       </details>
 
       <details>
@@ -273,22 +337,128 @@
   </section>
 
   <!-- PANEL: FONDAMENTI -->
-  <section id="fond" class="panel">
-    <div class="card">
-      <h2>Fondamenti scientifici e criteri di calcolo</h2>
-      <p>Spiegazione sintetica dei principi usati (Riegel dinamico, D+ → km equivalenti, tecnicità, meteo/altitudine, fatica, specificità).</p>
-      <pre style="white-space:pre-wrap;">
-Tempo finale =
-  (Stima Riegel dinamica su base 10 km)
-× (Conversione distanza equivalente)
-× (Coefficiente tecnicità terreno)
-× (Fattori meteo e altitudine)
-× (Fatica adattiva in funzione della distanza)
-× (Correzione specificità)
-      </pre>
-    </div>
-  </section>
+ <section id="fond" class="panel">
+  <div class="card">
+    <h2>Fondamenti scientifici e criteri di calcolo</h2>
 
+    <p>
+      WizTrail combina una base predittiva empirica (Riegel), fisiologia dell’esercizio (costo metabolico su pendenza, calore, altitudine, fatica) e variabili reali del trail (tecnicità del fondo), modulando infine l’output con la tua <b>specificità</b> (familiarità con il contesto gara). Le sezioni qui sotto documentano ogni componente con riferimenti esterni.
+    </p>
+
+    <hr>
+
+    <h3>1) Predizione su distanza: formula di Riegel (versione adattiva)</h3>
+    <p>
+      La relazione classica tra tempi su distanze diverse segue una legge di potenza: 
+      <code>T₂ = T₁ × (D₂ / D₁)<sup>b</sup></code>, con <code>b ≈ 1.06</code> per molti runner su strada. 
+      La letteratura spiega origini e limiti del modello (valore tipico dell’esponente, accuratezza su range moderati, attenzioni su distanze estreme). 
+      Per questo WizTrail usa una <b>versione adattiva</b> (esponente che varia dolcemente con la distanza) per ridurre sovrastime/ sottostime a estremi di D. 
+      Riferimenti introduttivi e operativi: 
+      https://www.predictmyrun.com/aboutPredictMyRun (overview metodo)</a> [1](https://www.predictmyrun.com/about) · 
+      https://www.omnicalculator.com/sports/race-predictorOmni Calculator (Riegel 1977/1981)</a> [2](https://www.omnicalculator.com/sports/race-predictor) · 
+      background storico su Riegel: https://en.wikipedia.org/wiki/Peter_Riegelvoce enciclopedica</a>. [3](https://en.wikipedia.org/wiki/Peter_Riegel)
+    </p>
+
+    <hr>
+
+    <h3>2) Dislivello → “chilometri equivalenti”: Naismith reinterpretata</h3>
+    <p>
+      L’impatto della salita si può tradurre in distanza “equivalente”: un incremento lineare proporzionale al <b>D+</b>. 
+      L’idea risale alla <b>regola di Naismith</b> (1892): ~1 h ogni 5 km di piano + 1 h ogni 600 m di salita; è usata come baseline in pianificazione e ha ricevuto varie estensioni moderne (correzioni per discesa/terreno). 
+      Noi la applichiamo in forma semplice come coefficiente <b>α</b> (km ogni 100 m D+), tipicamente 0.6–1.2 in funzione di pendenze/tecnicità. 
+      Riferimenti: 
+      https://en.wikipedia.org/wiki/Naismith%27s_ruleSintesi su Naismith</a> [4](https://en.wikipedia.org/wiki/Naismith%27s_rule) · 
+      spiegazioni moderne e limiti pratici: 
+      https://www.hikeclock.com/learn/naismith-ruleHikeClock (how‑to)</a> [5](https://www.hikeclock.com/learn/naismith-rule) · 
+      panoramica divulgativa con varianti metriche: 
+      https://sketchplanations.com/naismiths-ruleSketchplanations</a>. [6](https://sketchplanations.com/naismiths-rule)
+    </p>
+
+    <hr>
+
+    <h3>3) Fisiologia della pendenza: costo metabolico in salita/discesa</h3>
+    <p>
+      Il costo energetico di cammino/corsa cresce con la salita, ha un <b>minimo intorno a −10%</b> in discesa, e torna a crescere su discese molto ripide (per azione eccentrica e controllo). 
+      Il riferimento classico è <b>Minetti et al., J Appl Physiol 2002</b>, che misura il costo (J·kg⁻¹·m⁻¹) su pendenze da −45% a +45%. 
+      Noi non replichiamo l’intera curva: ne recepiamo i principi chiave nel calcolo dei “km equivalenti” e nei limiti del GAP. 
+      Fonti: 
+      https://journals.physiology.org/doi/full/10.1152/japplphysiol.01177.2001Minetti 2002, J Appl Physiol</a> [7](https://journals.physiology.org/doi/full/10.1152/japplphysiol.01177.2001?wwparam=1253634332) · 
+      scheda archivio UNIGE con abstract e numeri chiave. [8](https://archive-ouverte.unige.ch/unige:10359)
+    </p>
+
+    <hr>
+
+    <h3>4) Perché il solo GAP non basta sul trail</h3>
+    <p>
+      Il <b>Grade Adjusted Pace (GAP)</b> normalizza la pendenza per stimare un passo “equivalente in piano”, ma non contempla la <b>tecnicità del fondo</b> (radici, sassi, single‑track, scivolosità). 
+      Strava dichiara esplicitamente che GAP <b>non corregge</b> per difficoltà tecniche; per questo WizTrail applica <b>coefficenti di tecnicità</b> (E/EE/EA). 
+      Riferimenti: 
+      https://support.strava.com/hc/en-us/articles/216917067-Grade-Adjusted-Pace-GAPStrava Support: cos’è il GAP</a> [9](https://support.strava.com/hc/en-us/articles/216917067-Grade-Adjusted-Pace-GAP) · 
+      nota tecnica indipendente (reverse‑engineering) su come il GAP deriva da curve sforzo/pendenza e big‑data HR: 
+      https://aaron-schroeder.github.io/reverse-engineering/grade-adjusted-pace.htmlanalisi di Schroeder</a>. [10](https://aaron-schroeder.github.io/reverse-engineering/grade-adjusted-pace.html)
+    </p>
+
+    <hr>
+
+    <h3>5) Fatica progressiva dipendente dalla distanza</h3>
+    <p>
+      A parità di intensità relativa, la fatica cresce su distanze lunghe per deplezione di glicogeno, danno muscolare eccentrico (soprattutto in discesa), stress termico cumulativo. 
+      In WizTrail la “fatica” è modulata dalla <b>distanza</b> (peso ridotto <20 km, transizione 20–40 km, pieno impatto >40 km) per riflettere il comportamento non lineare osservato nel campo. 
+      Questa scelta è coerente con l’evidenza che il calore agisce come <i>fatigue amplifier</i> già prima che la temperatura corporea salga a livelli pericolosi, e con il fatto che gli stress ambientali <i>non</i> si traducono in un semplice costo energetico costante nel tempo. 
+      Per un inquadramento empirico degli effetti termici: 
+      https://runningwritings.com/2025/04/heat-humidity-marathon-times.htmlRunning Writings (analisi 3.891 maratone)</a> [11](https://runningwritings.com/2025/04/heat-humidity-marathon-times.html) · 
+      https://marathonhandbook.com/large-scale-marathon-study-identifies-ideal-weather-conditions-for-peak-marathon-performance/Marathon Handbook (range ottimale 2–13 °C)</a>. [12](https://marathonhandbook.com/large-scale-marathon-study-identifies-ideal-weather-conditions-for-peak-marathon-performance/)
+    </p>
+
+    <hr>
+
+    <h3>6) Meteo (temperatura/umidità): range ottimali e penalità</h3>
+    <p>
+      Le prestazioni su distanze lunghe risultano migliori in condizioni <b>fresche</b>. 
+      Analisi su migliaia di maratone convergono su un range “sweet‑spot” ~<b>2–13 °C</b>; al di sopra di ~18 °C, l’umidità amplifica la penalità con rallentamenti percentuali via via maggiori. 
+      Riferimenti divulgativi con dataset e stime pratiche: 
+      https://runningwritings.com/2025/04/heat-humidity-marathon-times.htmlRunning Writings</a> [11](https://runningwritings.com/2025/04/heat-humidity-marathon-times.html) · 
+      https://marathonhandbook.com/large-scale-marathon-study-identifies-ideal-weather-conditions-for-peak-marathon-performance/Marathon Handbook (sintesi su 3.891 prestazioni/754 gare)</a>. [12](https://marathonhandbook.com/large-scale-marathon-study-identifies-ideal-weather-conditions-for-peak-marathon-performance/)
+    </p>
+
+    <hr>
+
+    <h3>7) Altitudine</h3>
+    <p>
+      L’ipossia riduce la pressione parziale di O₂ e compromette la capacità prestativa negli sforzi di endurance già a basse/medie quote; l’acclimatazione mitiga in parte ma non annulla il gap rispetto al livello del mare. 
+      Evidenze applicate: performance peggiore a 1.780 m senza acclimatazione adeguata, con tempi di adattamento dell’ordine di 2–3 settimane a seconda della quota; effetto altitudine sui mezzofondo/fondo cresce ~oltre 1.000–1.500 m. 
+      Fonti: 
+      https://journals.physiology.org/doi/full/10.1152/japplphysiol.00909.2015Chapman et al., J Appl Physiol 2015 (acclimatazione e living altitude)</a> [13](https://journals.physiology.org/doi/full/10.1152/japplphysiol.00909.2015) · 
+      https://www.researchgate.net/.../Effects-of-Altitude-on-Performance-of-Elite-Track-and-Field-Athletes.pdfHamlin et al. 2015, effetti su eventi di corsa</a>. [14](https://www.researchgate.net/profile/Stephen-Hollings/publication/272842345_Effects_of_Altitude_on_Performance_of_Elite_Track-and-Field_Athletes/links/56a1774208ae24f627020a58/Effects-of-Altitude-on-Performance-of-Elite-Track-and-Field-Athletes.pdf)
+    </p>
+
+    <hr>
+
+    <h3>8) Specificità dell’allenamento (S) e trasferibilità</h3>
+    <p>
+      Il principio di <b>specificità</b> (SAID) afferma che gli adattamenti sono specifici allo stimolo (metabolico, biomeccanico, neuromuscolare). 
+      Per il trail, abituarsi a pendenze, fondo instabile, quota o caldo riduce l’impatto dei corrispondenti fattori in gara; per questo WizTrail applica la variabile <b>S</b> (0–1) che attenua le penalità ambientali/tecniche. 
+      Riferimenti: https://worldathletics.org/download/download?filename=f9fa48c2-2a0c-46f3-88b9-149f4d561326.pdf&urlslug=Chapter%203%3A%20TrainingWorld Athletics — principi di training (Specificità/Overload)</a> [15](https://worldathletics.org/download/download?filename=f9fa48c2-2a0c-46f3-88b9-149f4d561326.pdf&urlslug=Chapter%203%3A%20Training) · 
+      rassegna su specificità e “dynamic correspondence”: 
+      https://www.mdpi.com/2411-5142/7/4/102Stone et al., JFMK 2022</a>. [16](https://www.mdpi.com/2411-5142/7/4/102)
+    </p>
+
+    <hr>
+
+    <h3>9) Struttura del modello WizTrail (riepilogo)</h3>
+    <pre style="white-space:pre-wrap;">
+Tempo stimato = 
+  (Riegel adattivo ancorato al tuo 10K) 
+× (Distanza equivalente: D + α·D⁺/100)
+× (Fattore tecnicità: Strada/E/EE/EA + rallentamenti)
+× (Fattori meteo + altitudine)
+× (Fatica adattiva distanza-dipendente)
+× (Correzione di specificità S)
+    </pre>
+
+   
+  </div>
+</section>
   <!-- PANEL: LIC -->
   <section id="lic" class="panel">
     <div class="card">
@@ -606,6 +776,7 @@ document.getElementById("resetBtn").onclick = () => location.reload();
 </script>
 </body>
 </html>
+
 
 
 
