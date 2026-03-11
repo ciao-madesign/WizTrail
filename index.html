@@ -225,11 +225,11 @@
 
         <h3>Parametri gara</h3>
         <ul>
-          <li><b>Distanza (km)</b> — i chilometri della gara/traccia che vuoi stimare. Se hai caricato una traccia, è già compilato.</li>
+          <li><b>Distanza (km)</b> — i chilometri della gara/traccia che vuoi stimare. Se hai caricato una traccia, è già compilato (è comunque possibile modificare manualmente il parametro).</li>
           <li><b>D+ (m)</b> — somma delle salite (metri) lungo il percorso. A parità di distanza, più D+ = più “fatica equivalente”.</li>
           <li><b>α (km ogni 100 m D+)</b> — “quanto pesano” le salite in <i>chilometri equivalenti</i>. 
             <div class="mini">Esempio: con α=0.8, ogni 100 m di D+ “valgono” 0.8 km in più: se hai 700 m D+, aggiungi 5.6 km equivalenti.</div>
-            <div class="mini">Range tipico: 0.6–1.0 per trail corribili; 1.0–1.2 per percorsi lenti/pendenze cattive.</div>
+            <div class="mini">Range tipico: 0.6–1.0 per trail corribili; 1.0–1.2 per percorsi lenti/pendenze cattive. <br> Per principianti non abituati al dislivello si consiglia di considerare valori alti anche per percorsi meno impegnativi.</div>
           </li>
         </ul>
 
@@ -251,13 +251,13 @@
 
         <h3>Condizioni gara</h3>
         <ul>
-          <li><b>Meteo</b> — seleziona la fascia: “Fresco” (quasi neutro), “Mite”, “Caldo”, “Molto caldo”. Crescendo la temperatura, cresce la penalità.</li>
+          <li><b>Meteo</b> — seleziona la fascia: “Fresco” (si intende la fascia "ideale" per la corsa, tra ~2–13 °C fino a circa ~18 °C), “Mite”, “Caldo”, “Molto caldo”. Crescendo la temperatura, cresce la penalità.</li>
           <li><b>Altitudine</b> — quota media stimata del percorso (o quota della gara). Più sali oltre i 1000–1500 m, maggiore l’impatto fisiologico sulla prestazione.</li>
-          <li><b>Fatica</b> — quanta stanchezza porti in gara (Bassa/Media/Alta). Il modello la “pesa” di più se la distanza è lunga.</li>
+          <li><b>Fatica</b> — quanta stanchezza porti in gara (Bassa/Media/Alta). Si riferisce sia all'accumulo di fatica precdente alla gara, sia all'effetto in gara: atleti abituati a distanze più corte rispetto a quelle della gara dovranno avvertiranno più fatica nella fase finale, questo incide molto sulla performance complessiva. Il modello la “pesa” di più se la distanza è lunga.</li>
           <li><b>Specificità (S 0–1)</b> — quanto sei abituato proprio a <i>quel tipo</i> di gara (trail tecnico, salite/discese, quota, caldo). 
             <div class="mini">0 = atleta “stradalista” non abituato; 1 = atleta molto abituato (penalità ridotte).</div>
           </li>
-          <li><b>Margine ±%</b> — intervallo di confidenza che vuoi visualizzare attorno alla stima centrale (es. ±3%). Rende chiaro il range “Basso/Alto”.</li>
+          <li><b>Margine ±%</b> — intervallo di confidenza che vuoi visualizzare attorno alla stima centrale (es. ±10%). Rende chiaro il range “Basso/Alto”.</li>
         </ul>
 
         <h3>Come nasce la stima</h3>
@@ -275,8 +275,8 @@
         <h3>Impostazioni rapide consigliate</h3>
         <ul>
           <li><b>Gara trail “corribile” (colline)</b>: α=0.7–0.9; Strada/E/EE/EA ≈ 15/55/25/5; Meteo “Mite”; Alt “≤500 m”; S=0.4–0.7; Margine ±3–5%.</li>
-          <li><b>Trail tecnico (montagna)</b>: α=0.9–1.1; Strada/E/EE/EA ≈ 5/40/40/15; Meteo “Fresco/Mite”; Alt “1000–1500 m” o più; S=0.2–0.6; Margine ±5–8%.</li>
-          <li><b>Gara calda</b>: mantieni α come sopra, ma Meteo “Caldo/Molto caldo”; aumenta Margine (±5–8%) se non sei acclimatato.</li>
+          <li><b>Trail tecnico (montagna)</b>: α=0.9–1.1; Strada/E/EE/EA ≈ 5/40/40/15; Meteo “Fresco/Mite”; Alt “1000–1500 m” o più; S=0.2–0.6; Margine ±8–10%.</li>
+          <li><b>Gara calda</b>: mantieni α come sopra, ma Meteo “Caldo/Molto caldo”; aumenta Margine (±8–12%) se non sei acclimatato.</li>
         </ul>
 
       </div>
