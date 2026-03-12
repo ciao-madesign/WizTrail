@@ -93,6 +93,7 @@
     <button class="tab-btn" data-tab="howto">How‑to</button>
     <button class="tab-btn" data-tab="fond">Fondamenti</button>
     <button class="tab-btn" data-tab="lic">Licenze & Policy</button>
+    <button class="tab-btn" data-tab="postgara">Post‑gara</button>
   </div>
 
   <!-- PANEL: CALCOLATORE -->
@@ -171,7 +172,23 @@
           <button class="btn" id="calcBtn">Calcola</button>
           <button class="btn secondary" id="resetBtn">Reset</button>
         </div>
-        <div id="msg" class="mini"></div>
+<!-- Suggerimenti dinamici (Calcolatore) -->
+<!-- Suggerimenti dinamici (Calcolatore) -->
+<div id="calc_tips" class="card" style="display:none; margin-top:8px;">
+
+  <div id="calc_tips_header" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+    <h3 style="margin:0;">Suggerimenti</h3>
+    <button id="calc_tips_toggle" class="btn secondary" style="padding:6px 10px; font-size:13px;">
+      Mostra suggerimenti
+    </button>
+  </div>
+
+  <div id="calc_tips_body" class="mini" style="display:none; margin-top:10px;"></div>
+</div>        <div id="msg" class="mini"></div>
+<div class="toolbar">
+  <button class="btn" id="btnFotoJson">Riepilogo (JSON)</button>
+  <p class="mini">I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
+</div>
 
         <div class="grid" style="margin-top:8px">
           <div class="kpi"><h3>Tempo finale</h3><div class="val" id="outFinal">—:—</div></div>
@@ -346,6 +363,80 @@
    
   </div>
 </details>
+<!-- ========================= -->
+<!-- HOW-TO: POST GARA         -->
+<!-- ========================= -->
+<details>
+  <summary><b>5) Post‑gara — come funziona </b></summary>
+  <div style="margin-top:10px">
+    <h3>Obiettivo</h3>
+    <p>
+      La scheda <b>Post‑gara</b> serve a confrontare la <i>prestazione prevista</i> con quella <i>reale</i>, 
+      spiegare lo scostamento e generare un <b>report</b> da salvare come promemoria per la prossima previsione.
+      Tutto avviene <b>in locale</b>, nessun dato viene inviato a server.
+    </p>
+
+    <h3>Flusso rapido in 3 step</h3>
+    <ol>
+      <li><b>(Opz.) Importa snapshot JSON</b> — Se, prima della gara, hai scaricato il “Riepilogo parametri” dal Calcolatore
+          (pulsante <i>Riepilogo (JSON)</i>), carica quel file JSON con <i>Carica snapshot JSON</i> per pre‑compilare campi come
+          Distanza, D+, α, terreno/meteo/altitudine, ecc.</li>
+      <li><b>Compila i dati reali della gara</b> — Inserisci Identificativo gara (obbligatorio), Tempo reale (hh:mm:ss) e, se vuoi,
+          fattori come <i>rallentamento in salita</i>, <i>soste</i>, <i>pacing</i>, <i>meteo</i>, <i>altitudine</i>, <i>terreno</i>, <i>note</i>.</li>
+      <li><b>Genera il report</b> — Clic su <i>Genera Report</i> per vedere: Delta (assoluto e %), cause probabili e
+          <b>suggerimenti pratici</b> per correggere i parametri della prossima previsione.</li>
+    </ol>
+
+    <h3>Cosa significano i campi principali</h3>
+    <ul>
+      <li><b>Identificativo gara</b> — Nome/data (es.: “Trail dei Monti 2026”). Serve a intitolare e ritrovare il report.</li>
+      <li><b>Tempo previsto</b> — È il tempo stimato dal Calcolatore, riportato dallo snapshot o inserito a mano.</li>
+      <li><b>Tempo reale</b> — Il tempo effettivo che hai impiegato (hh:mm:ss).</li>
+      <li><b>Rallentamento in salita (%)</b> — Quanto sei andato più lento in salita rispetto alla pianura (stima personale o da orologio).
+          Serve a proporre un <b>α</b> coerente per la prossima previsione.</li>
+      <li><b>Soste (min)</b> — Minuti totali di fermo (ristori, imprevisti). Vengono riportati come possibile causa di scostamento.</li>
+      <li><b>Terreno percepito</b> — Strada / E / EE / EA. Il report suggerisce <b>rallentamenti</b> indicativi per E/EE/EA.</li>
+      <li><b>Meteo / Altitudine</b> — Le condizioni percepite (Fresco/Mite/Caldo/Molto caldo; fasce di quota) generano suggerimenti coerenti.</li>
+      <li><b>Pacing percepito</b> — “Partito troppo forte / regolare / troppo piano”: ogni opzione produce un suggerimento dedicato.</li>
+      <li><b>α usato in previsione (opz.)</b> — Se lo indichi, il sistema confronta <i>α</i> usato con quello suggerito.</li>
+    </ul>
+
+    <h3>Delta e suggerimenti</h3>
+    <p>
+      Il report calcola lo <b>scostamento</b> tra Tempo reale e Tempo previsto (minuti e %).
+      In base ai fattori dichiarati, propone <b>suggerimenti</b> sintetici per la prossima previsione:
+      α (dislivello), rallentamenti per tecnicità (E/EE/EA), Meteo, Altitudine, gestione soste, pacing.
+      I consigli sono <b>euristici</b> e vanno personalizzati sulla tua esperienza.
+    </p>
+
+    <h3>Download del report (solo Riepilogo)</h3>
+    <p>
+      Dopo aver generato il report, puoi scaricare un file con i dati principali:
+    </p>
+    <ul>
+      <li><b>CSV</b> — Una riga con tutte le colonne utili (identificativo, tempi, fattori, suggerimenti, note, timestamp).</li>
+      <li><b>JSON</b> — Oggetto completo, comodo per archiviazione e automazioni.</li>
+      <li><b>TXT</b> — Testo semplice e leggibile ovunque.</li>
+    </ul>
+    <p class="mini"><i>Privacy</i>: I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
+
+    <h3>Fotografia parametri del Calcolatore (prima della gara)</h3>
+    <p>
+      Nel tab <b>Calcolatore</b> c’è il pulsante <i>Scarica fotografia</i> (CSV/JSON/TXT): salva una istantanea dei parametri impostati
+      (10K, Distanza, D+, α, mix terreno, Meteo/Altitudine/Fatica/Specificità, Margine, eventuale stima tempo).
+      Questo file ti servirà per ricordare <b>cosa avevi impostato</b> e per <b>pre‑compilare</b> la scheda Post‑gara tramite
+      <i>Carica snapshot JSON</i>.
+    </p>
+
+    <h3>Consigli pratici</h3>
+    <ul>
+      <li><b>Compila subito dopo la gara</b>: i dettagli sono più freschi e il report sarà più utile.</li>
+      <li>Se la gara è stata <b>molto calda</b> o in <b>quota</b>, considera di aumentare il <b>Margine ±%</b> nella prossima previsione.</li>
+      <li>Se hai <b>zero soste</b> su gare lunghe, pianifica comunque micro‑rifornimenti per robustezza.</li>
+      <li>Se il <b>rallentamento in salita</b> è alto, prova ad aumentare <b>α</b>; se è minimo su percorsi corribili, valuta <b>α</b> più basso.</li>
+    </ul>
+  </div>
+</details>
      </section>
 
       <!-- PANEL: FONDAMENTI -->
@@ -471,6 +562,110 @@ Tempo stimato =
    
   </div>
 </section>
+
+  <!-- PANEL: POSTGARA -->
+<section id="postgara" class="panel">
+  <div class="card">
+
+    <h2>Report Post‑gara</h2>
+    <p>Importa i dati o compila manualmente i campi per generare il report.</p>
+
+    <!-- Import snapshot JSON -->
+    <fieldset>
+            <label>Carica riepilogo (JSON)</label>
+      <input id="postgaraJsonInput" type="file" accept="application/json">
+      <button class="btn" id="btnImportSnapshot">Carica</button>
+    </fieldset>
+<!-- Import traccia GPX/TCX reale -->
+<fieldset>
+
+
+  <label>Carica i dati gara effettivi (GPX)</label>
+  <input id="pg_gpx_file" type="file" accept=".gpx,.tcx,application/gpx+xml">
+  <button class="btn" id="btnPgImportGpx">Carica</button>
+
+  </fieldset>
+
+    <!-- Dati post-gara -->
+    <fieldset>
+      <legend>Dati gara reali</legend>
+
+      <label>Identificativo gara</label>
+      <input id="pg_idgara" type="text" placeholder="Es: Trail dei Monti 2026">
+
+      <label>Distanza (km)</label>
+      <input id="pg_dist" type="number" step="0.001">
+
+      <label>D+ (m)</label>
+      <input id="pg_dplus" type="number">
+
+      <label>Tempo previsto (hh:mm:ss)</label>
+      <input id="pg_prev" type="text" placeholder="02:45:00">
+
+      <label>Tempo reale (hh:mm:ss)</label>
+      <input id="pg_real" type="text" placeholder="03:12:00">
+
+      <label>Rallentamento in salita (%)</label>
+<input id="pg_slow" type="number" placeholder="Es. 20">
+<p class="mini">Stima di quanto sei andato più lento in salita rispetto alla pianura. Puoi indicare un valore da sensazione o ricavato dall’orologio.</p>
+
+      <label>Soste totali (minuti)</label>
+      <input id="pg_soste" type="number" value="0">
+
+      <label>Tecnicità del terreno percepita</label>
+<select id="pg_terr">
+    <option value="Strada">Molto semplice</option>
+    <option value="E">Moderata</option>
+    <option value="EE">Impegnativa</option>
+    <option value="EA">Molto difficile</option>
+</select>
+
+      <label>Meteo percepito</label>
+      <select id="pg_meteo">
+        <option>Mite</option>
+        <option>Fresco</option>
+        <option>Caldo</option>
+        <option>Molto caldo</option>
+      </select>
+
+      <label>Altitudine percepita</label>
+      <select id="pg_alt">
+        <option>&le;500 m</option>
+        <option>500–1000 m</option>
+        <option>1000–1500 m</option>
+        <option>1500–2000 m</option>
+        <option>>2000 m</option>
+      </select>
+
+      <label>Pacing percepito</label>
+      <select id="pg_pacing">
+        <option value="regolare">Regolare</option>
+        <option value="forte">Partito troppo forte</option>
+        <option value="lento">Partito troppo piano</option>
+      </select>
+
+      <label>α usato in previsione (opzionale)</label>
+      <input id="pg_alpha" type="number" step="0.01">
+
+      <label>Note</label>
+      <input id="pg_note" type="text">
+
+    </fieldset>
+
+    <!-- Genera Report -->
+    <button class="btn" id="btnGeneraReport">Genera Report</button>
+
+    <div id="pg_output" style="margin-top:20px;"></div>
+
+    <!-- Download -->
+    <div id="pg_downloads" style="margin-top:20px; display:none;">
+  <button class="btn" id="btnPgJson">Scarica report</button>
+  <p class="mini">I file JSON possono essere aperti con <em>blocco note</em> o altri strumenti di lettura testuale. Se necessario convertire in formato <em>.txt</em> o altri formati testuali. I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
+</div>
+
+  </div>
+</section>
+
   <!-- PANEL: LIC -->
   <section id="lic" class="panel">
     <div class="card">
@@ -786,9 +981,9 @@ document.getElementById("resetBtn").onclick = () => location.reload();
   }
 })();
 </script>
+<script src="wiztrail-report.js"></script>
 </body>
 </html>
-
 
 
 

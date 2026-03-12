@@ -229,6 +229,17 @@ body[data-theme="light"] fieldset{
 body[data-theme="light"] .site-intro {
   background: color-mix(in oklab, var(--card) 82%, transparent);
 }
+/* --- LINEA DI DISTANZA (barra chilometrica) --- */
+#distCanvas {
+  width: 100%;
+  height: 140px;   /* puoi aumentare a piacere */
+  display: block;
+}
+
+.profile-wrap {
+  padding: 10px;
+  border-radius: 12px;
+}
 /* ===== Banner iOS PWA ===== */
 .install-ios {
   position: fixed;
@@ -276,3 +287,29 @@ body[data-theme="light"] .site-intro {
   border-radius: 999px; padding: 4px 10px; white-space: nowrap;
 }
 .install-ios__share svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* Suggerimenti dinamici — resa minimale */
+#calc_tips ul.tips-list { margin: 8px 0 0; padding-left: 18px; }
+#calc_tips li { margin: 4px 0; }
+#calc_tips li.warn { color: var(--warn); font-weight: 600; }
+#calc_tips li.info { color: var(--muted); }
+#calc_tips .tip-ico { margin-right: 6px; }
+
+#calc_tips ul.tips-list {
+  margin: 0; 
+  padding-left: 18px; 
+}
+#calc_tips li { 
+  margin: 6px 0; 
+  line-height: 1.4; 
+}
+#calc_tips li.warn { 
+  color: var(--warn); 
+  font-weight: 600; 
+}
+#calc_tips li.info { 
+  color: var(--muted); 
+}
+#calc_tips_toggle { 
+  white-space: nowrap; 
+}
