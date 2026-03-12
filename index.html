@@ -72,7 +72,7 @@
 
 <div class="wrap">
   <section id="intro" class="site-intro" aria-label="Introduzione">
-    <p>Predici la tua performance in gara combinando i tuoi dati con le caratteristiche del percorso.</p>
+    <p>Stima la tua performance in gara combinando i tuoi dati con le caratteristiche del percorso.</p>
   </section>
 
   <h1>
@@ -128,11 +128,11 @@
       <!-- DESTRA -->
       <div>
         <fieldset>
-          <legend>Terreno</legend>
-          <label>% Strada</label><input id="p_strada" type="number" value="0"/>
-          <label>% E</label><input id="p_e" type="number" value="50"/>
-          <label>% EE</label><input id="p_ee" type="number" value="50"/>
-          <label>% EA</label><input id="p_ea" type="number" value="0"/>
+          <legend>Terreno (Tecnicità)</legend>
+          <label>% Strada (molto semplice)</label><input id="p_strada" type="number" value="0"/>
+          <label>% E (moderata)</label><input id="p_e" type="number" value="50"/>
+          <label>% EE (impegnativa)</label><input id="p_ee" type="number" value="50"/>
+          <label>% EA (molto difficile)</label><input id="p_ea" type="number" value="0"/>
           <label>Rall. E (%)</label><input id="c_e" type="number" value="5"/>
           <label>Rall. EE (%)</label><input id="c_ee" type="number" value="12"/>
           <label>Rall. EA (%)</label><input id="c_ea" type="number" value="25"/>
@@ -677,7 +677,13 @@ Tempo stimato =
     </div>
   </section>
 
-  <div class="footer">WizTrail © 2026</div>
+  <div class="footer">WizTrail © 2026 
+<p>
+      <a href="https://www.youtube.com/@WizTrail" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">
+        📺 Visita il mio canale YouTube
+      </a>
+    </p>
+</div>
 </div> <!-- /wrap -->
 <!-- ===========================
      SCRIPT APP
