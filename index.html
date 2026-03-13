@@ -69,6 +69,12 @@
     <!-- opzionale: spazio per bottoni/tema -->
   </div>
 </header>
+<!-- Banner Installazione PWA / Tutorial -->
+<div id="wizBanner" class="wiz-banner">
+  <a href="install.html" class="wiz-banner-link">
+    📱 Aggiungi WizTrail alla tua Home!
+  </a>
+</div>
 
 <div class="wrap">
   <section id="intro" class="site-intro" aria-label="Introduzione">
@@ -199,21 +205,25 @@
     </div>
   </section>
 
-  <!-- PANEL: MAPPA 2D -->
-  <section id="map2d" class="panel">
-    <div class="card">
-      <h2>Mappa 2D</h2>
-      <div id="leafletMap"></div>
-      <button class="btn" id="btnFit">Centra sulla traccia</button>
-      <button class="btn secondary" id="btnKml">Scarica KML</button>
+<!-- PANEL: MAPPA 2D -->
+<section id="map2d" class="panel">
+  <div class="card">
+    <h2>Mappa 2D</h2>
+    <div id="leafletMap"></div>
 
-      <div class="banner-3d">
-        Stampa la tua traccia in <b>3D!</b><br>
-        Trasformala in un ricordo (medaglia, modellino, trofeo...)<br>
-        <a>#Servizio in arrivo</a>
-      </div>
+    <!-- ⬇️ NUOVO: profilo altimetrico -->
+    <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
+    <!-- ⬆️ -->
+
+    <button class="btn" id="btnFit">Centra sulla traccia</button>
+    <button class="btn secondary" id="btnKml">Scarica KML</button>
+    <div class="banner-3d">
+      Stampa la tua traccia in <b>3D!</b><br>
+      Trasformala in un ricordo (medaglia, modellino, trofeo...)<br>
+      <a>#Servizio in arrivo</a>
     </div>
-  </section>
+  </div>
+</section>
 <!-- PANEL: HOWTO -->
  <section id="howto" class="panel">
   <div class="card">
@@ -304,6 +314,7 @@
     <ul>
       <li>La Mappa 2D funziona automaticamente dopo aver caricato un file <b>GPX</b> o <b>TCX</b> nel Calcolatore.</li>
       <li>Una volta caricata la traccia, passa alla scheda <b>Mappa 2D</b> per visualizzarla.</li>
+<li>Muovi il cursore sul profilo altimetrico per visualizzare lo sviluppo del percorso.</li>
     </ul>
     <h3>Esportazione KML</h3>
     <ul>
@@ -836,6 +847,7 @@ document.getElementById("btnKml").onclick = () => {
   a.click();
 };
 
+
 /* CALCOLO TEMPO */
 const readNum = id => parseFloat(
   document.getElementById(id).value.replace(",",".")
@@ -988,6 +1000,277 @@ document.getElementById("resetBtn").onclick = () => location.reload();
 })();
 </script>
 <script src="wiztrail-report.js"></script>
+<script>
+/* ====== PROFILO ALTIMETRICO (Canvas) ====== */
+/* Dipendenze: gpxPts, metrics (compute), map, hoverMarker */
+let elevCanvas = null, elevCtx = null;
+let elevState = {
+  pxW: 0, pxH: 0,
+  dpi: Math.max(1, window.devicePixelRatio || 1),
+  padding: { top: 16, right: 14, bottom: 26, left: 42 },
+  x: [],   // x pixel per ciascun punto
+  y: [],   // y pixel per ciascun punto
+  min: 0,  // quota minima
+  max: 0,  // quota massima
+  distKm: [] // distanza cumulata (km) per punto
+};
+
+function _setupCanvasSize() {
+  elevCanvas = document.getElementById('elevCanvas');
+  if (!elevCanvas) return false;
+  const cssW = elevCanvas.clientWidth || elevCanvas.offsetWidth || 600;
+  const cssH = elevCanvas.clientHeight || 160;
+  elevState.dpi = Math.max(1, window.devicePixelRatio || 1);
+  elevCanvas.width  = Math.round(cssW * elevState.dpi);
+  elevCanvas.height = Math.round(cssH * elevState.dpi);
+  elevCtx = elevCanvas.getContext('2d');
+  elevCtx.setTransform(elevState.dpi, 0, 0, elevState.dpi, 0, 0); // unità = CSS px
+  elevState.pxW = cssW;
+  elevState.pxH = cssH;
+  return true;
+}
+
+function _formatKm(x) { return x.toFixed(2).replace('.', ','); }
+function _formatM(x)  { return Math.round(x) + ' m'; }
+
+/* Costruisce coordinate schermo da metrics/gpxPts */
+function _computeProfileCoords() {
+  if (!metrics || !metrics.e || !metrics.d || !metrics.e.length || !metrics.d.length) return false;
+
+  // Serie
+  const elev = metrics.e;     // array elevazioni (m)
+  const dist = metrics.d;     // array distanza cumulata (metri)
+  const n = elev.length;
+  if (n < 2) return false;
+
+  const pad = elevState.padding;
+  const W = elevState.pxW - pad.left - pad.right;
+  const H = elevState.pxH - pad.top  - pad.bottom;
+
+  // Range verticale con piccolo margine (5%)
+  let minE = Math.min(...elev.filter(Number.isFinite));
+  let maxE = Math.max(...elev.filter(Number.isFinite));
+  if (!Number.isFinite(minE) || !Number.isFinite(maxE) || minE === maxE) {
+    minE = (minE || 0) - 1; maxE = (maxE || 0) + 1;
+  }
+  const margin = (maxE - minE) * 0.05;
+  minE -= margin; maxE += margin;
+
+  const totalM = dist[dist.length - 1] || 0.0001;
+
+  elevState.x = new Array(n);
+  elevState.y = new Array(n);
+  elevState.min = minE;
+  elevState.max = maxE;
+  elevState.distKm = dist.map(m => m / 1000);
+
+  for (let i = 0; i < n; i++) {
+    const fx = (dist[i] / totalM);
+    const fy = (elev[i] - minE) / (maxE - minE);
+    elevState.x[i] = pad.left + fx * W;
+    elevState.y[i] = pad.top  + (1 - fy) * H;
+  }
+  return true;
+}
+
+/* Grid e assi */
+function _drawAxes() {
+  const ctx = elevCtx, pad = elevState.padding;
+  const W = elevState.pxW, H = elevState.pxH;
+  ctx.clearRect(0, 0, W, H);
+
+  // Fondo
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Assi e griglia
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1;
+
+  // Orizzontali (quota) — 4 tacche
+  const lines = 4;
+  for (let i = 0; i <= lines; i++) {
+    const y = pad.top + (i / lines) * (H - pad.top - pad.bottom);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(W - pad.right, y);
+    ctx.stroke();
+  }
+
+  // Verticali (distanza) — 5 tacche
+  const vLines = 5;
+  for (let i = 0; i <= vLines; i++) {
+    const x = pad.left + (i / vLines) * (W - pad.left - pad.right);
+    ctx.beginPath();
+    ctx.moveTo(x, pad.top);
+    ctx.lineTo(x, H - pad.bottom);
+    ctx.stroke();
+  }
+
+  // Etichette min/max quota
+  ctx.fillStyle = 'rgba(232,242,255,0.85)';
+  ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText(_formatM(elevState.max), 6, 6);
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(_formatM(elevState.min), 6, H - 6);
+
+  // Etichetta distanza totale
+  const totKm = elevState.distKm[elevState.distKm.length - 1] || 0;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(`${_formatKm(totKm)} km`, W - 6, H - 6);
+}
+
+/* Traccia profilo con fill gradiente */
+function _drawProfileLine() {
+  const ctx = elevCtx, pad = elevState.padding;
+  const xs = elevState.x, ys = elevState.y;
+  if (!xs.length) return;
+
+  // Area riempita
+  const baseY = elevState.pxH - pad.bottom;
+
+  const grad = ctx.createLinearGradient(0, pad.top, 0, baseY);
+  grad.addColorStop(0, 'rgba(79, 209, 197, 0.25)'); // #4fd1c5
+  grad.addColorStop(1, 'rgba(14, 165, 233, 0.08)'); // #0ea5e9
+
+  ctx.beginPath();
+  ctx.moveTo(xs[0], baseY);
+  for (let i = 0; i < xs.length; i++) ctx.lineTo(xs[i], ys[i]);
+  ctx.lineTo(xs[xs.length - 1], baseY);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Linea profilo
+  ctx.beginPath();
+  ctx.moveTo(xs[0], ys[0]);
+  for (let i = 1; i < xs.length; i++) ctx.lineTo(xs[i], ys[i]);
+  ctx.strokeStyle = '#4fd1c5';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+/* Hover + sincronizzazione mappa */
+function _attachProfileEvents() {
+  if (!elevCanvas) return;
+  const pad = elevState.padding;
+  const xs = elevState.x, ys = elevState.y;
+  const n  = xs.length;
+
+  const tip = document.createElement('div');
+  tip.style.position = 'absolute';
+  tip.style.pointerEvents = 'none';
+  tip.style.padding = '4px 6px';
+  tip.style.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  tip.style.background = 'rgba(0,0,0,0.65)';
+  tip.style.color = '#e8f2ff';
+  tip.style.border = '1px solid rgba(255,255,255,0.15)';
+  tip.style.borderRadius = '6px';
+  tip.style.transform = 'translate(-50%,-120%)';
+  tip.style.display = 'none';
+  // container pos relativo
+  elevCanvas.parentElement.style.position = elevCanvas.parentElement.style.position || 'relative';
+  elevCanvas.parentElement.appendChild(tip);
+
+  function indexFromClientX(clientX) {
+    const rect = elevCanvas.getBoundingClientRect();
+    const x = (clientX - rect.left); // in CSS px
+    // ricerca binaria “povera”
+    let lo = 0, hi = n - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (xs[mid] < x) lo = mid + 1;
+      else hi = mid;
+    }
+    const i = Math.max(0, Math.min(n - 1, lo));
+    // scegli tra i e i-1 quello più vicino
+    if (i > 0 && Math.abs(xs[i - 1] - x) < Math.abs(xs[i] - x)) return i - 1;
+    return i;
+  }
+
+  function drawHover(i) {
+    const ctx = elevCtx;
+    // ridisegna base
+    _drawAxes(); _drawProfileLine();
+
+    // linea verticale + punto
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xs[i], pad.top); ctx.lineTo(xs[i], elevState.pxH - pad.bottom); ctx.stroke();
+    ctx.fillStyle = '#ffb020';
+    ctx.beginPath(); ctx.arc(xs[i], ys[i], 3, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // tooltip
+    const km = elevState.distKm[i] || 0;
+    const m  = metrics.e[i] || 0;
+    tip.textContent = `${_formatKm(km)} km • ${_formatM(m)}`;
+    tip.style.left = `${xs[i]}px`;
+    tip.style.top  = `${ys[i]}px`;
+    tip.style.display = 'block';
+  }
+
+  function syncMap(i) {
+    if (!map || !hoverMarker || !gpxPts || !gpxPts[i]) return;
+    const p = gpxPts[i];
+    hoverMarker.setLatLng([p[0], p[1]]).addTo(map);
+  }
+
+  function handleMove(clientX) {
+    if (!n) return;
+    const i = indexFromClientX(clientX);
+    drawHover(i);
+    syncMap(i);
+  }
+
+  function leave() {
+    tip.style.display = 'none';
+    _drawAxes(); _drawProfileLine();
+  }
+
+  // Mouse
+  elevCanvas.addEventListener('mousemove', (e) => handleMove(e.clientX));
+  elevCanvas.addEventListener('mouseleave', leave);
+
+  // Touch
+  elevCanvas.addEventListener('touchstart', (e) => {
+    if (!e.touches || !e.touches.length) return;
+    handleMove(e.touches[0].clientX);
+  }, {passive: true});
+  elevCanvas.addEventListener('touchmove', (e) => {
+    if (!e.touches || !e.touches.length) return;
+    handleMove(e.touches[0].clientX);
+  }, {passive: true});
+  elevCanvas.addEventListener('touchend', leave);
+
+  // Resize
+  window.addEventListener('resize', () => { drawProfile(); }, { passive: true });
+}
+
+/* API pubblica */
+function drawProfile() {
+  if (!gpxPts || gpxPts.length < 2) {
+    const c = document.getElementById('elevCanvas');
+    if (c) {
+      _setupCanvasSize();
+      elevCtx.clearRect(0, 0, elevState.pxW, elevState.pxH);
+      elevCtx.fillStyle = 'rgba(232,242,255,0.7)';
+      elevCtx.font = '13px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      elevCtx.fillText('Carica una traccia GPX/TCX per vedere il profilo.', 12, 24);
+    }
+    return;
+  }
+  if (!_setupCanvasSize()) return;
+  if (!_computeProfileCoords()) return;
+  _drawAxes();
+  _drawProfileLine();
+  _attachProfileEvents();
+}
+</script>
 </body>
 </html>
 

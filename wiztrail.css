@@ -313,3 +313,50 @@ body[data-theme="light"] .site-intro {
 #calc_tips_toggle { 
   white-space: nowrap; 
 }
+/* ===== Banner Installazione (alto a destra) ===== */
+.wiz-banner {
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  z-index: 200; /* sopra tutto ma sotto eventuali overlay */
+  background: color-mix(in oklab, var(--card) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  padding: 8px 14px;
+  border-radius: 10px;
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+/* link */
+.wiz-banner-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.wiz-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}
+
+/* Tema chiaro */
+body[data-theme="light"] .wiz-banner {
+  background: color-mix(in oklab, var(--card) 82%, transparent);
+}
+
+.wiz-banner {
+  opacity: 0;
+  transform: translateY(-6px);
+  animation: wbFade 0.55s ease forwards 0.4s;
+}
+
+@keyframes wbFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
