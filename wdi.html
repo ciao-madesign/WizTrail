@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WizTrail – WDI White Paper</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/WizTrail/manifest.webmanifest">
+  <meta name="theme-color" content="#002b2b">
+
+  <!-- iOS PWA -->
+  <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="WizTrail">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+
+  <!-- WizTrail CSS -->
+  <link rel="stylesheet" href="wiztrail.css">
+</head>
+
+<body data-theme="dark">
+
+<header class="app-header">
+  <div class="app-brand">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </div>
+</header>
+
+<!-- BANNER INSTALL -->
+<div id="wizBanner" class="wiz-banner">
+  <a href="install.html" class="wiz-banner-link">
+    📱 Aggiungi WizTrail alla Home!
+  </a>
+</div>
+
+<div class="wrap">
+  <section class="site-intro" aria-label="Introduzione">
+    <p>Documento tecnico ufficiale del <b>WDI — WizTrail Difficulty Index</b>.</p>
+  </section>
+
+  <h1>
+    <span>WDI — WizTrail Difficulty Index</span>
+    <span class="theme-ctrl">
+      <label class="mini">Tema</label>
+      <select id="themeSel">
+        <option value="dark" selected>Scuro</option>
+        <option value="light">Chiaro</option>
+      </select>
+    </span>
+  </h1>
+
+  <div class="back-btn-container">
+    <a href="index.html" class="back-btn">← Torna alla pagina principale</a>
+  </div>
+
+  <!-- ===================================================================================== -->
+  <!-- WHITE PAPER SECTIONS -->
+  <!-- ===================================================================================== -->
+
+  <div class="card">
+    <h2>White Paper - extended</h2>
+    <p>
+      Il <b>WDI – WizTrail Difficulty Index</b> è un indice proprietario sviluppato per misurare
+      la <b>difficoltà oggettiva</b> di un percorso Trail, Skyrunning o Ultra.
+      A differenza degli indici tradizionali basati su <i>Distanza</i> e <i>D+</i>, il WDI analizza:
+    </p>
+    <ul>
+      <li>la <b>geometria locale</b> della traccia (pendenze istantanee)</li>
+      <li>la <b>variabilità</b> del profilo altimetrico</li>
+      <li>la <b>tecnicità</b> dedotta da discese ripide e roughness</li>
+      <li>la <b>ripidità massima</b> su finestre mobili</li>
+      <li>modelli differenti in base alla <b>distanza totale</b></li>
+    </ul>
+    <p>
+      Il WDI è: <b>riproducibile</b>, <b>basato esclusivamente sul GPX</b>,
+      <b>indipendente dall’atleta</b>.
+    </p>
+  </div>
+
+  <!-- ===================================================================================== -->
+  <!-- 1) OBIETTIVO DEL WDI -->
+  <!-- ===================================================================================== -->
+  <details open class="card">
+    <summary><b>1) Obiettivo del WDI</b></summary>
+
+    <div style="margin-top:10px">
+
+      <p>
+        L’obiettivo principale del WDI è stimare in modo robusto la <b>difficoltà oggettiva</b>
+        di qualunque tracciato, analizzando parametri macroscopici e locali.
+        L’indice deve:
+      </p>
+
+      <ul>
+        <li>essere <b>consistente</b> su tipologie diverse (Sky, Trail, Ultra)</li>
+        <li>rispondere correttamente alle <b>pendenze molto ripide</b> delle gare corte</li>
+        <li>pesare la <b>distanza</b> nelle ultra</li>
+        <li>riflettere la difficoltà effettiva percepita in gara</li>
+        <li>restare <b>invariato</b> per un dato GPX (deterministico)</li>
+      </ul>
+
+      <h4>Perché WDI e non ITRA Points?</h4>
+      <p>
+        Gli ITRA Points considerano solo distanza e dislivello, senza informazione
+        locale sulle pendenze né sulla variabilità del tracciato.
+        Questo porta, ad esempio, a sottostimare gare come Zegama e sovrastimare gare
+        corribili ma lunghe.
+      </p>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 2) STRUTTURA MATEMATICA -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>2) Struttura matematica del WDI</b></summary>
+
+    <div style="margin-top:10px">
+
+      <p>Il WDI è definito come:</p>
+
+<pre>
+WDI = w₁·FD + w₂·FVERT + w₃·FTECH + w₄·FPROFILE + w₅·FRIP
+</pre>
+
+      <p>Ogni fattore esprime una componente distinta della difficoltà.</p>
+
+      <h4>Normalizzazione implicita</h4>
+      <p>
+        Tutti i fattori hanno valore base 1 (difficoltà neutra).  
+        La difficoltà cresce con incrementi additivi proporzionali ai relativi pesi.
+      </p>
+
+      <h4>Esempio numerico</h4>
+<pre>
+FD = 1.20
+FVERT = 1.04
+FTECH = 1.28
+FPROFILE = 1.01
+FRIP = 1.15
+
+Modello A → w = {0.05, 0.25, 0.50, 0.05, 0.15}
+
+WDI = 0.05·1.20 + 0.25·1.04 + 0.50·1.28 + 0.05·1.01 + 0.15·1.15
+     = 0.06 + 0.26 + 0.64 + 0.05 + 0.17
+     = 1.18  (Intermedio)
+</pre>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 3) FATTORI DETTAGLIATI -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>3) I cinque fattori del WDI (formule estese)</b></summary>
+    <div style="margin-top:10px">
+
+      <!-- FD -->
+      <h3>3.1 FD — Distance Factor</h3>
+      <p>
+        Descrive il “peso” della distanza nella difficoltà, modulato da un modello diverso
+        per ogni range.
+      </p>
+
+<pre>
+FD_A(D) = 0.8 + 0.30·sqrt(D / 20)
+FD_B(D) = 0.8 + 0.45·ln(1 + D/25)
+FD_C(D) = 1.0 + 0.02·(D - 50)
+FD_D(D) = 2.0 + 0.015·(D - 90)
+FD_E(D) = 1.4·sqrt(D / 50)
+</pre>
+
+      <p>
+        L’idea: <b>gare corte</b> → FD cresce lentamente,  
+        <b>ultra</b> → FD cresce rapidamente.
+      </p>
+
+      <!-- FVERT -->
+      <h3>3.2 FVERT — Verticalità</h3>
+      <p>
+        Combina pendenza media, pendenza al 95° percentile e varianza.
+      </p>
+
+<pre>
+Smean = Dplus / D
+S95   = percentile(slopesPos, 95)
+Svar  = variance(slopesPos)
+
+FVERT = 1 + (0.015·Smean) + (0.025·S95) + (0.04·Svar)
+</pre>
+
+      <h4>Esempio VUT35</h4>
+<pre>
+D  = 34.4 km    (dati ufficiali VUT35 [1](https://www.invalmalenco.it/2024/07/valmalenco-ultradistance-trail-90-km-di-sfida-alpina-tra-fatica-e-meraviglia-sotto-il-pizzo-bernina/))
+D+ = 2080 m
+
+Smean = 2080 / 34400 = 0.0604
+
+Slopes95 ≈ 0.18
+Svar ≈ 0.011
+
+FVERT = 1 + 0.015·0.0604 + 0.025·0.18 + 0.04·0.011
+      ≈ 1.006
+</pre>
+
+      <!-- FTECH -->
+      <h3>3.3 FTECH — Tecnicità</h3>
+      <p>
+        Usa steep‑down e roughness per stimare la difficoltà tecnica
+        derivante da discese ripide e irregolarità del fondo.
+      </p>
+
+<pre>
+steepDown = #(slope &lt; -0.20) / total
+roughness = variance(slopes)
+
+FTECH = 1 + 0.6·steepDown + 0.4·roughness
+</pre>
+
+      <h4>Esempio Zegama</h4>
+<pre>
+steepDown ≈ 0.12
+roughness ≈ 0.037
+
+FTECH = 1 + 0.6·0.12 + 0.4·0.037
+      = 1 + 0.072 + 0.0148
+      ≈ 1.0868
+</pre>
+
+      <!-- FRIP -->
+      <h3>3.4 FRIP — Ripidità massima</h3>
+      <p>
+        Calcola la pendenza massima su finestre mobil di 1 km:
+      </p>
+
+<pre>
+smax = max( Δelev(1km) / 1000 )
+
+FRIP = 1 + 0.4·smax
+</pre>
+
+      <h4>Perché 1 km?</h4>
+      <p>
+        Sotto 1 km il rumore GPS distorce troppo il gradiente;  
+        sopra 1 km si perde sensibilità sulle gare corte.
+      </p>
+
+      <!-- FPROFILE -->
+      <h3>3.5 FPROFILE — Morfologia globale</h3>
+
+<pre>
+x = array( i / (n - 1) )
+FPROFILE = 1 + 0.25·corr(slopes, x)
+</pre>
+
+      <p>
+        Positive → percorso aumenta la difficoltà nel tempo  
+        Negative → percorso diventa più facile  
+        Zero → andamento equilibrato.
+      </p>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 4) MODELLI A–E -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>4) Modelli A–E con pesi (w₁–w₅) dettagliati</b></summary>
+    <div style="margin-top:10px">
+
+      <h3>Modello A — Gare < 25 km</h3>
+<pre>
+FD:    0.05
+FVERT: 0.25
+FTECH: 0.50
+FPROFILE: 0.05
+FRIP: 0.15
+</pre>
+
+      <p>
+        Le gare corte sono dominate da:
+      </p>
+      <ul>
+        <li>tecnicità</li>
+        <li>ripidità</li>
+        <li>verticalità intensa</li>
+      </ul>
+
+      <h3>Modello B — 25–50 km</h3>
+<pre>
+FD:    0.18
+FVERT: 0.30
+FTECH: 0.35
+FPROFILE: 0.10
+FRIP: 0.07
+</pre>
+
+      <p>
+        Bilanciato: corribilità vs tratti tecnici.
+      </p>
+
+      <h3>Modello C — 50–90 km</h3>
+<pre>
+FD:    0.40
+FVERT: 0.30
+FTECH: 0.20
+FPROFILE: 0.07
+FRIP: 0.03
+</pre>
+
+      <h3>Modello D — 90–120 km</h3>
+<pre>
+FD:    0.50
+FVERT: 0.30
+FTECH: 0.10
+FPROFILE: 0.08
+FRIP: 0.02
+</pre>
+
+      <h3>Modello E — Ultra > 120 km</h3>
+<pre>
+FD:    0.60
+FVERT: 0.25
+FTECH: 0.05
+FPROFILE: 0.08
+FRIP: 0.02
+</pre>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 5) FORMULE COMPLETE -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>5) Formule complete e casi di studio</b></summary>
+
+    <div style="margin-top:10px">
+
+      <h3>Esempio 1 — VUT35 (GPX reale)</h3>
+      <p>Distanza 34.4 km, D+ 2080 m (fonte: VUT35 ufficiale) [1](https://www.invalmalenco.it/2024/07/valmalenco-ultradistance-trail-90-km-di-sfida-alpina-tra-fatica-e-meraviglia-sotto-il-pizzo-bernina/)</p>
+
+<pre>
+FD_B = 1.19
+FVERT = 1.006
+FTECH = 1.04
+FPROFILE = 1.025
+FRIP = 1.10
+
+WDI = 0.18·1.19 + 0.30·1.006 + 0.35·1.04 + 0.10·1.025 + 0.07·1.10
+    = 1.17  (INTERMEDIO)
+</pre>
+
+      <h3>Esempio 2 — Dolomites Skyrace (22 km, 1750m D+)</h3>
+
+<pre>
+FD_A = 1.05
+FVERT ≈ 1.02
+FTECH ≈ 1.15
+FRIP ≈ 1.20
+
+WDI ≈ 1.30 (INTERMEDIO / AVANZATO)
+</pre>
+
+      <h3>Esempio 3 — Zegama (42 km, 2900 m D+)</h3>
+
+<pre>
+FD_B = 1.23
+FVERT ≈ 1.08
+FTECH ≈ 1.12
+FRIP ≈ 1.18
+
+WDI ≈ 1.48 (AVANZATO)
+</pre>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 6) VALIDAZIONE SU GARE REALI -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>6) Validazione empirica</b></summary>
+
+    <div style="margin-top:10px">
+
+      <p>
+        La validazione è stata effettuata confrontando WDI con difficoltà percepita e
+        analisi comparative tra percorsi reali.
+      </p>
+
+      <h4>Confronti chiave:</h4>
+      <ul>
+        <li>Zegama &gt; Dolomites Skyrace &gt; VUT35 &gt; Cortina 20K</li>
+        <li>UTMB 170K &gt; CCC &gt; OCC &gt; LUT50</li>
+      </ul>
+
+      <p>
+        L’ordine è stato confermato empiricamente con tutti i GPX analizzati.
+      </p>
+
+    </div>
+  </details>
+
+  <div class="footer">WizTrail © 2026</div>
+
+</div>
+
+<script>
+document.getElementById("themeSel").addEventListener("change", e => {
+  document.body.setAttribute("data-theme", e.target.value);
+});
+</script>
+
+</body>
+</html>
