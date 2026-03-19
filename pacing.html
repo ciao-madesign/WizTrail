@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WizTrail – White Paper Pacing Planner</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/WizTrail/manifest.webmanifest">
+  <meta name="theme-color" content="#002b2b">
+
+  <!-- iOS -->
+  <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="WizTrail">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin="">
+
+  <!-- WizTrail CSS -->
+  <link rel="stylesheet" href="wiztrail.css">
+</head>
+
+<body data-theme="dark">
+
+<header class="app-header">
+  <div class="app-brand">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </div>
+</header>
+
+<!-- Banner -->
+<div id="wizBanner" class="wiz-banner">
+  <a href="install.html" class="wiz-banner-link">
+    📱 Aggiungi WizTrail alla Home!
+  </a>
+</div>
+
+<div class="wrap">
+
+  <section class="site-intro">
+    <p>Documento tecnico ufficiale del <b>Pacing Planner</b> di WizTrail.</p>
+  </section>
+
+  <h1>
+    <span>Pacing Planner – Modello matematico esteso</span>
+    <span class="theme-ctrl">
+      <label class="mini">Tema</label>
+      <select id="themeSel">
+        <option value="dark" selected>Scuro</option>
+        <option value="light">Chiaro</option>
+      </select>
+    </span>
+  </h1>
+
+  <div class="back-btn-container">
+    <a href="index.html" class="back-btn">← Torna alla pagina principale</a>
+  </div>
+
+  <!-- ===================================================================================== -->
+  <!-- CARD INTRO -->
+  <!-- ===================================================================================== -->
+  <div class="card">
+    <h2>Pacing Planner – White Paper tecnico</h2>
+
+    <p>
+      Il Pacing Planner di WizTrail utilizza un modello <b>chunk‑based</b>
+      che trasforma la traccia GPX in migliaia di micro‑segmenti, stimandone il
+      <b>costo energetico locale</b> e producendo un pacing realistico per ciascun tratto
+      (5 km o 10 km).
+    </p>
+
+    <p>
+      Il modello combina:
+    </p>
+    <ul>
+      <li>pendenza locale (salita, discesa)</li>
+      <li>dislivello positivo e negativo</li>
+      <li>tecnicità dichiarata nel Calcolatore (Strada/E/EE/EA)</li>
+      <li>penalità per meteo, altitudine, fatica progressiva</li>
+      <li>scaling finale per rispettare il tempo target del Calcolatore</li>
+    </ul>
+
+    <p>
+      Questa pagina è la documentazione tecnica ufficiale del modello.
+    </p>
+  </div>
+
+  <!-- ===================================================================================== -->
+  <!-- 1) PRINCIPI GENERALI -->
+  <!-- ===================================================================================== -->
+  <details open class="card">
+    <summary><b>1) Principi generali del modello chunk‑based</b></summary>
+    <div style="margin-top:12px">
+
+      <p>
+        Il pacing nel trail running non può essere stimato tramite una media lineare:
+      </p>
+
+      <ul>
+        <li>le salite ripide abbattono la velocità anche del 50‑80%</li>
+        <li>le discese tecniche richiedono controllo muscolare (freno eccentrico)</li>
+        <li>i tratti corribili permettono recuperi di ritmo</li>
+      </ul>
+
+      <p>
+        Per questo WizTrail applica un modello in cui:
+      </p>
+
+      <ol>
+        <li>si divide la gara in <b>micro‑segmenti GPX</b></li>
+        <li>si aggregano per tratti da <b>5 km o 10 km</b> (chunk)</li>
+        <li>si calcola il <b>costo medio del chunk</b></li>
+        <li>si trasforma il costo in un <b>tempo locale raw</b></li>
+        <li>si scala tutto per rispettare il <b>tempo gara target</b></li>
+      </ol>
+
+      <p><b>La formula chiave è:</b></p>
+
+<pre>
+pace_chunk = (tempo_raw_chunk / distanza_chunk)
+</pre>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 2) FORMALIZZAZIONE MATEMATICA -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>2) Formalizzazione matematica completa</b></summary>
+    <div style="margin-top:12px">
+
+      <h3>2.1 Segmentazione GPX</h3>
+
+      <p>
+        Dati i punti GPX:
+      </p>
+
+<pre>
+P = { (latₖ, lonₖ, elevₖ, distₖ) }   per k = 1 … N
+</pre>
+
+      <p>Ricaviamo:</p>
+
+<pre>
+Δdₖ = distₖ₊₁ - distₖ
+Δeₖ = elevₖ₊₁ - elevₖ
+slopeₖ = Δeₖ / Δdₖ
+</pre>
+
+      <h3>2.2 Fattore di costo locale</h3>
+
+      <p>
+        A ogni micro‑segmento associamo un <b>costo energetico equivalente</b>:
+      </p>
+
+<pre>
+Cₖ = base_speed_factor × slope_factor(slopeₖ)
+                           × terrain_factor
+                           × meteo_factor
+                           × altitude_factor
+                           × fatigue_factor
+</pre>
+
+      <h4>a) Base speed factor</h4>
+
+<pre>
+base_speed = velocity_from_10K
+</pre>
+
+      <h4>b) Slope factor</h4>
+
+<pre>
+Se slopeₖ > 0:
+    cost = 1 + α·slopeₖ     (salita)
+Se slopeₖ ≤ 0:
+    cost = 1 + β·|slopeₖ|   (discesa, non lineare)
+</pre>
+
+      <p>
+        Dove β < α perché la discesa è “più veloce” fino a ~–10%.
+      </p>
+
+      <h4>c) Terrain factor</h4>
+
+<pre>
+Strada → 1.00
+E      → 1.03–1.06
+EE     → 1.10–1.15
+EA     → 1.20–1.30
+</pre>
+
+      <h4>d) Meteo</h4>
+
+<pre>
+meteo_factor = 1 + f(T)
+</pre>
+
+      <h4>e) Altitudine</h4>
+
+<pre>
+alt_factor = 1 + 0.07·(quota_media_km)
+</pre>
+
+      <h4>f) Fatica progressiva</h4>
+
+<pre>
+fatigue_factor = 1 + γ·(distₖ / D_totale)
+</pre>
+
+      <h3>2.3 Costo del chunk</h3>
+
+<pre>
+C_chunk = mean( Cₖ_for_k_in_chunk )
+</pre>
+
+      <h3>2.4 Tempo raw del chunk</h3>
+
+<pre>
+tempo_raw_chunk = (distanza_chunk / base_speed) × C_chunk
+</pre>
+
+      <h3>2.5 Scaling finale</h3>
+
+<pre>
+sum_raw = Σ tempo_raw_chunk
+
+scaling = T_target / sum_raw
+
+tempo_finale_chunk = tempo_raw_chunk × scaling
+</pre>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 3) ESEMPI NUMERICI -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>3) Esempi numerici completi</b></summary>
+    <div style="margin-top:12px">
+
+      <h3>Esempio 1 — Chunk 5‑10 km</h3>
+
+<pre>
+distanza_chunk = 5.0 km
+pendenza_media = +11%
+tecnicità = EE
+quota = 1200 m
+meteo = caldo moderato
+base_speed = 3.4 m/s  (equivalente a ~4:54/km)
+</pre>
+
+      <h4>Calcoli:</h4>
+
+<pre>
+C_slope = 1 + 0.8·0.11 = 1.088
+C_terrain = 1.12
+C_alt = 1 + 0.07·1.2 = 1.084
+C_meteo = 1.05
+C_fatigue ≈ 1.06
+
+C_chunk = 1.088 · 1.12 · 1.084 · 1.05 · 1.06
+        ≈ 1.41
+
+tempo_raw_chunk =
+  (5000 m / 3.4 m/s) × 1.41
+= (1470 s) × 1.41
+= 2073 s
+= 34:33
+</pre>
+
+---
+
+      <h3>Esempio 2 — Chunk 10‑15 km (corribile)</h3>
+
+<pre>
+pendenza:  +2%
+terreno:   E
+quota:     900 m
+</pre>
+
+<pre>
+C_slope = 1 + 0.8·0.02 = 1.016
+C_terrain = 1.04
+C_alt = 1.063
+C_meteo = 1.02
+C_fatigue ≈ 1.08
+
+C_chunk ≈ 1.24
+
+tempo_raw ≈ (5000/3.4) × 1.24
+          ≈ 1470 × 1.24
+          ≈ 1822 s = 30:22
+</pre>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 4) VALIDAZIONE -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>4) Validazione empirica</b></summary>
+    <div style="margin-top:12px">
+
+      <p>
+        Il modello è stato testato usando GPX reali di diverse gare:
+      </p>
+
+      <ul>
+        <li>VUT35 → chunk duri tra 5‑10 km e 15‑20 km</li>
+        <li>Zegama → forte aumento del pacing nei chunk centrali</li>
+        <li>Dolomites Skyrace → discese tecniche → chunk più lenti</li>
+        <li>OCC → andamento più regolare</li>
+        <li>Sierre-Zinal → salita lunga → chunk iniziali pesanti</li>
+      </ul>
+
+      <p>
+        In tutti i casi il pacing prodotto rispecchia fedelmente la percezione
+        reale della gara.
+      </p>
+
+    </div>
+  </details>
+
+  <!-- ===================================================================================== -->
+  <!-- 5) LIMITI DEL MODELLO -->
+  <!-- ===================================================================================== -->
+  <details class="card">
+    <summary><b>5) Limitazioni e considerazioni</b></summary>
+    <div style="margin-top:12px">
+
+      <ul>
+        <li>Il GPX deve essere pulito (rumore altimetrico riduce la precisione).</li>
+        <li>Il terreno è dichiarato dall’utente, non inferito dalla traccia.</li>
+        <li>Il meteo è una stima, non una misura fisiologica reale.</li>
+        <li>Il modello assume costanza di passo a parità di costo energetico.</li>
+      </ul>
+
+    </div>
+  </details>
+
+  <div class="footer">WizTrail © 2026</div>
+
+</div>
+
+<script>
+  document.getElementById("themeSel").addEventListener("change", e => {
+    document.body.setAttribute("data-theme", e.target.value);
+  });
+</script>
+
+</body>
+</html>

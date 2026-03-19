@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# Non indicizzare file tecnici o di servizio
+Disallow: /manifest.webmanifest
+Disallow: /icons/
+Disallow: /img/icons/
+Disallow: /favicon.ico
+
+# Evita indicizzazione di file sistemici o secondari
+Disallow: /CNAME
+Disallow: /LICENSE
+Disallow: /README
+Disallow: /README.md
+
+# Evita indicizzazione di pagine inutili ai motori
+Disallow: /install.html
+Disallow: /dettaglio.html
+
+# Permetti invece Ranking, WDI, Pacing e Homepage
+Allow: /index.html
+Allow: /ranking.html
+Allow: /wdi.html
+Allow: /pacing.html
+
+# Sitemap ufficiale
+Sitemap: https://ciao-madesign.github.io/WizTrail/sitemap.xml

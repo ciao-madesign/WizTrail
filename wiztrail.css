@@ -206,24 +206,21 @@ body[data-theme="light"] fieldset{
 }
 
 /* Intro breve sotto header */
+
 .site-intro {
-  margin: 12px auto 4px;
-  max-width: 820px;
-  padding: 8px 12px;
-  text-align: center;
-  color: var(--ink);
-  background: color-mix(in oklab, var(--card) 68%, transparent);
-  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  border-radius: 12px;
-  backdrop-filter: blur(10px) saturate(125%);
-  -webkit-backdrop-filter: blur(10px) saturate(125%);
+  padding: 4px 10px;          /* meno spazio interno */
+  margin: 8px auto 2px;       /* riduce spazi sopra e sotto */
+  max-width: 720px;           /* leggermente più stretta */
 }
+
+/* Testo più piccolo e colorato come i legend */
 .site-intro p {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.35;
-  color: color-mix(in oklab, var(--ink) 92%, transparent);
+  font-size: 0.88rem;         /* più piccolo dell’originale */
+  line-height: 1.25;          /* più compatto */
+  color: var(--muted);        /* stesso colore dei legend */
+  opacity: 0.9;               /* leggero smorzamento */
 }
+
 
 /* Tema chiaro: leggermente più pieno per leggibilità */
 body[data-theme="light"] .site-intro {
@@ -359,4 +356,67 @@ body[data-theme="light"] .wiz-banner {
     opacity: 1;
     transform: translateY(0);
   }
+}
+.pacing-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.pacing-table th {
+  text-align: left;
+  padding: 6px 4px;
+  color: var(--muted);
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+}
+
+.pacing-table td {
+  padding: 6px 4px;
+}
+.pc_canvas {
+  width: 60% !important;    /* Larghezza visiva ridotta */
+  max-width: 650px;         /* (opzionale) limite massimo */
+  height: 260px;            /* altezza visiva */
+  display: block;
+  margin: 0 auto;           /* centrare */
+}
+
+.wdi-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 4px 0 4px;
+  margin-bottom: 6px;
+  justify-content: center;
+}
+
+.wdi-btn {
+background: rgba(255,255,255,0.12);
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+  transition: 0.2s;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.wdi-btn:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+.back-btn {
+  display: inline-block;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--text);
+  text-decoration: none;
+  margin: 10px auto 14px auto;
+  transition: 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.20);
 }

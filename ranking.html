@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WizTrail – Classifica WDI</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/WizTrail/manifest.webmanifest">
+  <meta name="theme-color" content="#002b2b">
+
+  <!-- iOS -->
+  <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <!-- WizTrail CSS -->
+  <link rel="stylesheet" href="wiztrail.css">
+</head>
+
+<body data-theme="dark">
+
+<header class="app-header">
+  <div class="app-brand">
+    <img src="img/logo.svg" class="brand-img"/>
+    <span class="brand-name">WizTrail</span>
+  </div>
+</header>
+<div id="wizBanner" class="wiz-banner">
+  <a href="install.html" class="wiz-banner-link">
+    📱 Aggiungi WizTrail alla Home!
+  </a>
+</div>
+
+
+<div class="wrap">
+
+  <h1>
+    <span>Classifica WDI – WizTrail Difficulty Index</span>
+    <span class="theme-ctrl">
+      <label class="mini">Tema</label>
+      <select id="themeSel">
+        <option value="dark" selected>Scuro</option>
+        <option value="light">Chiaro</option>
+      </select>
+    </span>
+  </h1>
+<div class="back-btn-container">
+  <a href="index.html" class="back-btn">← Torna alla pagina principale</a>
+</div>
+  <!-- ========================================================= -->
+  <!--  FILTRI -->
+  <!-- ========================================================= -->
+  <div class="card">
+    <h2>Filtri</h2>
+
+    <div class="grid grid-2">
+      <div>
+        <label>Filtra per nome gara</label>
+        <input id="filterName" type="text" placeholder="Es: Zegama, UTMB…">
+      </div>
+
+      <div>
+        <label>Modello (A–E)</label>
+        <select id="filterModel">
+          <option value="">Tutte</option>
+          <option value="A">A — <25 km</option>
+          <option value="B">B — 25–50 km</option>
+          <option value="C">C — 50–90 km</option>
+          <option value="D">D — 90–120 km</option>
+          <option value="E">E — >120 km</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!--  CLASSIFICA -->
+  <!-- ========================================================= -->
+  <div class="card">
+    <h2>Classifica Ufficiale (da ranking-data.json)</h2>
+
+    <div class="responsive-table">
+      <table id="raceTable">
+        <thead>
+          <tr>
+            <th data-sort="name">Gara ↑↓</th>
+            <th data-sort="distance">Distanza (km) ↑↓</th>
+            <th data-sort="dplus">D+ (m) ↑↓</th>
+            <th data-sort="wdi">WDI ↑↓</th>
+            <th>Modello</th>
+          </tr>
+        </thead>
+        <tbody id="raceBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!--  SEZIONE ADMIN (solo se ?admin=1) -->
+  <!-- ========================================================= -->
+  <div class="card admin-only" style="display:none;">
+    <h2>Aggiungi una nuova gara al ranking</h2>
+    <p class="mini">Carica il GPX reale per ottenere distanza, D+, WDI e modello.  
+       Il JSON generato va copiato dentro <code>ranking-data.json</code>.</p>
+
+    <label>GPX reale</label>
+    <input type="file" id="gpxAdmin" accept=".gpx,.tcx"/>
+
+    <label>Nome gara</label>
+    <input type="text" id="adminName" placeholder="Es: Gran Trail XYZ">
+
+    <button class="btn" id="btnAdminCompute">Calcola</button>
+
+    <pre id="adminOutput"
+         style="margin-top:10px;padding:8px;background:#111;border-radius:6px;">
+    </pre>
+  </div>
+
+  <!-- ========================================================= -->
+  <!--  CONFRONTO UTENTE -->
+  <!-- ========================================================= -->
+  <div class="card">
+    <h2>Confronta la tua gara</h2>
+
+    <label>Carica GPX</label>
+    <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
+
+    <button class="btn" id="btnUserCompute">Analizza</button>
+
+    <div id="userResult" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="footer">WizTrail © 2026</div>
+
+</div>
+
+<!-- -------------------------------------------------------------------------- -->
+<!--  JAVASCRIPT PRINCIPALE                                                     -->
+<!-- -------------------------------------------------------------------------- -->
+
+<script src="wiztrail-racescore.js"></script>
+
+<script>
+
+/* ============================================================
+   1) Tema
+============================================================ */
+themeSel.addEventListener("change", e =>
+  document.body.setAttribute("data-theme", e.target.value)
+);
+
+/* ============================================================
+   2) Funzione colore WDI
+============================================================ */
+function getWdiColor(wdi) {
+  if (wdi < 1.25) return "#4fd1c5";
+  if (wdi < 1.45) return "#ffb020";
+  if (wdi < 1.70) return "#ff6a3d";
+  return "#ff00a8";
+}
+
+/* ============================================================
+   3) Rileva modalità admin (?admin=1)
+============================================================ */
+const isAdmin = new URLSearchParams(location.search).get("admin") === "1";
+document.querySelectorAll(".admin-only")
+  .forEach(el => el.style.display = isAdmin ? "block" : "none");
+
+/* ============================================================
+   4) Carica classifica da JSON esterno
+============================================================ */
+
+let races = [];
+
+fetch("ranking-data.json")
+  .then(r => r.json())
+  .then(json => {
+    races = json;
+    renderTable();
+  });
+
+/* ============================================================
+   5) Rendering tabella
+============================================================ */
+
+function renderTable() {
+  const nameFilter  = filterName.value.toLowerCase();
+  const modelFilter = filterModel.value;
+  raceBody.innerHTML = "";
+
+  races
+    .filter(r =>
+      r.name.toLowerCase().includes(nameFilter) &&
+      (modelFilter === "" || r.model === modelFilter)
+    )
+    .forEach(r => {
+      const tr = document.createElement("tr");
+      tr.style.cursor = "pointer";
+
+      tr.addEventListener("click", () => {
+        window.location.href =
+          `dettaglio.html?race=${encodeURIComponent(r.name)}`;
+      });
+
+      tr.innerHTML = `
+        <td>${r.name}</td>
+        <td>${r.distance}</td>
+        <td>${r.dplus}</td>
+        <td style="color:${getWdiColor(r.wdi)};font-weight:700;">
+          ${r.wdi.toFixed(2)}
+        </td>
+        <td>${r.model}</td>
+      `;
+
+      raceBody.appendChild(tr);
+    });
+}
+
+/* ============================================================
+   6) Ordinamento
+============================================================ */
+
+let sortState = { column:null, asc:true };
+
+document.querySelectorAll("#raceTable th[data-sort]").forEach(th => {
+  th.addEventListener("click", () => {
+    const col = th.dataset.sort;
+
+    if (sortState.column === col) sortState.asc = !sortState.asc;
+    else {
+      sortState.column = col;
+      sortState.asc = true;
+    }
+
+    races.sort((a,b) => {
+      if (a[col] < b[col]) return sortState.asc ? -1:1;
+      if (a[col] > b[col]) return sortState.asc ? 1:-1;
+      return 0;
+    });
+
+    renderTable();
+  });
+});
+
+/* ============================================================
+   7) Filtri
+============================================================ */
+filterName.addEventListener("input", renderTable);
+filterModel.addEventListener("change", renderTable);
+
+/* ============================================================
+   8) Calcolo WDI – GPX (ADMIN)
+============================================================ */
+btnAdminCompute?.addEventListener("click", async () => {
+
+  const gp = gpxAdmin.files[0];
+  if (!gp) return alert("Carica un GPX");
+  const raceName = adminName.value.trim();
+  if (!raceName) return alert("Inserisci il nome gara");
+
+  const text = await gp.text();
+  const xml  = new DOMParser().parseFromString(text, "application/xml");
+
+  const pts = parseTrack(xml);
+  const mt  = compute(pts);
+
+  const rs = WizRaceScore.computeFromGpx(pts, mt);
+
+  adminOutput.textContent =
+`{
+  "name": "${raceName}",
+  "distance": ${mt.km.toFixed(2)},
+  "dplus": ${mt.gain},
+  "wdi": ${rs.RaceScore.toFixed(2)},
+  "model": "${rs.range}"
+}`;
+});
+
+/* ============================================================
+   9) Calcolo WDI – GPX (VISITATORE)
+============================================================ */
+btnUserCompute?.addEventListener("click", async () => {
+
+  const gp = gpxUser.files[0];
+  if (!gp) return alert("Carica un GPX");
+
+  const text = await gp.text();
+  const xml  = new DOMParser().parseFromString(text, "application/xml");
+
+  const pts = parseTrack(xml);
+  const mt  = compute(pts);
+
+  const rs = WizRaceScore.computeFromGpx(pts, mt);
+
+  userResult.innerHTML = `
+    <h3>La tua gara</h3>
+    <p><b>Distanza:</b> ${mt.km.toFixed(2)} km<br>
+       <b>D+:</b> ${mt.gain} m<br>
+       <b>WDI:</b> 
+         <span style="color:${getWdiColor(rs.RaceScore)};font-weight:700;">
+           ${rs.RaceScore.toFixed(2)}
+         </span>
+         (${rs.cls})</p>
+    <p><b>Modello:</b> ${rs.range}</p>
+  `;
+});
+
+</script>
+
+</body>
+</html>

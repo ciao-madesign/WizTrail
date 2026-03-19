@@ -1,0 +1,11 @@
+[
+  {"name":"Zegama-Aizkorri","distance":42,"dplus":2900,"wdi":1.48,"model":"B"},
+  {"name":"Dolomites Skyrace","distance":22,"dplus":1750,"wdi":1.32,"model":"A"},
+  {"name":"VUT35 – Valmalenco","distance":34.4,"dplus":2080,"wdi":1.18,"model":"B"},
+  {"name":"UTMB OCC","distance":55,"dplus":3500,"wdi":1.30,"model":"C"},
+  {"name":"UTMB CCC","distance":100,"dplus":6100,"wdi":1.52,"model":"D"},
+  {"name":"UTMB 100M","distance":170,"dplus":10000,"wdi":1.80,"model":"E"},
+  {"name":"Lavaredo 50K","distance":50,"dplus":2600,"wdi":1.20,"model":"B"},
+  {"name":"Cortina Trail 20K","distance":20,"dplus":1000,"wdi":1.10,"model":"A"},
+  {"name":"Sierre-Zinal","distance":31,"dplus":2200,"wdi":1.12,"model":"B"}
+]
