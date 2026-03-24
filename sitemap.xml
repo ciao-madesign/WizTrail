@@ -1,18 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- HOMEPAGE -->
+  <!-- HOMEPAGE / APP CORE -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/</loc>
-    <lastmod>2026-03-18</lastmod>
+    <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- INSTALL PAGE -->
+  <!-- CALCOLATORE & FUNZIONI PRINCIPALI -->
   <url>
-    <loc>https://ciao-madesign.github.io/WizTrail/install.html</loc>
-    <lastmod>2026-03-18</lastmod>
+    <loc>https://ciao-madesign.github.io/WizTrail/index.html</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- TRAINING ANALYZER / WDIT -->
+  <url>
+    <loc>https://ciao-madesign.github.io/WizTrail/training-analyzer.html</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- SHARE CARD VIEW -->
+  <url>
+    <loc>https://ciao-madesign.github.io/WizTrail/share_card.html</loc>
+    <lastmod>2026-03-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -20,33 +36,41 @@
   <!-- WDI WHITE PAPER -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/wdi.html</loc>
-    <lastmod>2026-03-18</lastmod>
+    <lastmod>2026-03-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 
   <!-- PACING WHITE PAPER -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/pacing.html</loc>
-    <lastmod>2026-03-18</lastmod>
+    <lastmod>2026-03-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 
-  <!-- WDI RANKING -->
+  <!-- RANKING GARE -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/ranking.html</loc>
-    <lastmod>2026-03-18</lastmod>
+    <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- DETTAGLIO GARA (opzionale, priorità bassa) -->
+  <!-- DETTAGLIO GARA -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/dettaglio.html</loc>
-    <lastmod>2026-03-18</lastmod>
+    <lastmod>2026-03-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- INSTALL APP -->
+  <url>
+    <loc>https://ciao-madesign.github.io/WizTrail/install.html</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 
 </urlset>

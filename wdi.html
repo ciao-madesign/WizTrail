@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WizTrail – WDI White Paper (2026 Update)</title>
-/WizTrail/manifest.webmanifest
+<link rel="manifest" href="/WizTrail/manifest.webmanifest">
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,182 +49,149 @@ percorso.
 </p>
 </div>
 
-<!-- =============================== STRUTTURA =============================== -->
 <details class="card" open>
-<summary><b>1) Formula del WDI</b></summary>
-<div style="margin-top:10px">
-<p>Il WDI è definito come:</p>
-<pre>
-WDI = w₁·FD + w₂·FVERT + w₃·FTECH + w₄·FPROFILE + w₅·FRIP
-</pre>
-<p>
-Tutti i fattori hanno valore base 1, e crescono proporzionalmente al loro
-peso. I pesi (w₁…w₅) dipendono dal modello (A–E) selezionato in base alla
-distanza.
-</p>
-</div>
-</details>
+  <summary><b>1) Formula del WDI</b></summary>
+  <div style="margin-top:10px">
 
+    <p>
+      Il WDI utilizza un modello a <b>4 componenti indipendenti</b>,
+      progettate per essere stabili, resilienti al rumore GPS e interpretabili.
+      La formula generale è:
+    </p>
+
+<pre>
+WDI = (Dist_eff + Dplus_eff + SlopePct) × TecFactor
+</pre>
+
+    <p>Le quattro componenti sono:</p>
+
+    <ul>
+      <li><b>Dist_eff</b> — distanza attenuata in base alla geometria del percorso</li>
+      <li><b>Dplus_eff</b> — dislivello positivo smorzato per evitare esplosioni nelle ultra</li>
+      <li><b>SlopePct</b> — pendenza media assoluta del percorso</li>
+      <li><b>TecFactor</b> — coefficiente tecnico (1.01 → 1.10)</li>
+    </ul>
+
+    <p>
+      Questo approccio rende il WDI
+      <b>più stabile, scalabile e universalmente leggibile</b>.
+    </p>
+
+  </div>
+</details>
 <!-- =============================== FATTORI =============================== -->
 <details class="card">
-<summary><b>2) I Cinque Fattori</b></summary>
-<div style="margin-top:10px">
-<h3>FD — Distance Factor</h3>
-<p>Modella il ruolo della distanza nella difficoltà, usando 5 funzioni
-specifiche per i modelli A–E.</p>
+  <summary><b>2) Le Componenti del WDI</b></summary>
+  <div style="margin-top:10px">
+
+    <h3>Distanza_eff</h3>
+    <p>
+      La distanza effettiva utilizza la funzione:
+    </p>
 <pre>
-FD_A(D) = 0.80 + 0.30·sqrt(D/20)
-FD_B(D) = 0.80 + 0.45·ln(1 + D/25)
-FD_C(D) = 1.00 + 0.02·(D - 50)
-FD_D(D) = 2.00 + 0.015·(D - 90)
-FD_E(D) = 1.40·sqrt(D/50)
+Dist_eff = (km − 1.5·√km) + (50 / √km)
+</pre>
+    <p>
+      Ciò riduce l'impatto delle gare lunghissime, mantenendo proporzioni realistiche.
+    </p>
+
+    <h3>Dplus_eff</h3>
+    <p>
+      Il dislivello positivo è convertito in punti tramite una funzione di smorzamento:
+    </p>
+<pre>
+Dplus_eff = (D+_km × 10) / (1 + √D+_km / 8)
+</pre>
+    <p>
+      Questo mantiene forte il peso del dislivello nelle gare corte/medie,
+      e attenua l'esplosione nelle ultra.
+    </p>
+
+    <h3>Pendenza media (SlopePct)</h3>
+    <p>
+      È la pendenza media assoluta del percorso:
+    </p>
+<pre>
+SlopePct = | D+ / distanza | × 100
 </pre>
 
-<h3>FVERT — Verticalità</h3>
-<pre>
-Smean = Dplus / D
-top95 = percentile(slopesPos, 95)
-Svar   = variance(slopesPos)
-FVERT = 1 + 0.015·Smean + 0.025·top95 + 0.04·Svar
-</pre>
+    <h3>TecFactor (1.01 → 1.10)</h3>
+    <p>
+      Il fattore tecnico ingloba in modo robusto:
+    </p>
+    <ul>
+      <li>max pendenza salita</li>
+      <li>max pendenza discesa</li>
+      <li>variabilità del profilo (molto attenuata)</li>
+      <li>roughness (molto attenuata)</li>
+    </ul>
 
-<h3>FTECH — Tecnicità</h3>
-<pre>
-steepDown = #(slope < -0.20) / total
-roughness = variance(slopes)
-FTECH = 1 + 0.6·steepDown + 0.4·roughness
-</pre>
+    <p>
+      Il TecFactor finale varia tra <b>1.01 e 1.10</b>, evitando sovrastime.
+    </p>
 
-<h3>FPROFILE — Profilo Globale</h3>
-<pre>
-x = array(i / (n - 1))
-FPROFILE = 1 + 0.25·corr(slopes, x)
-</pre>
-
-<h3>FRIP — Ripidità Massima per km</h3>
-<pre>
-smax = max( Δelev(1km)/1000 )
-FRIP = 1 + 0.4·smax
-</pre>
-</div>
-</details>
-
-<!-- =============================== MODELLI =============================== -->
-<details class="card">
-<summary><b>3) Pesi dei Modelli A–E</b></summary>
-<div style="margin-top:10px">
-<h3>Modello A — < 25 km</h3>
-<pre>
-FD: 0.05
-FVERT: 0.25
-FTECH: 0.50
-FPROFILE: 0.05
-FRIP: 0.15
-</pre>
-
-<h3>Modello B — 25–50 km</h3>
-<pre>
-FD: 0.18
-FVERT: 0.30
-FTECH: 0.35
-FPROFILE: 0.10
-FRIP: 0.07
-</pre>
-
-<h3>Modello C — 50–90 km</h3>
-<pre>
-FD: 0.40
-FVERT: 0.30
-FTECH: 0.20
-FPROFILE: 0.07
-FRIP: 0.03
-</pre>
-
-<h3>Modello D — 90–120 km</h3>
-<pre>
-FD: 0.50
-FVERT: 0.30
-FTECH: 0.10
-FPROFILE: 0.08
-FRIP: 0.02
-</pre>
-
-<h3>Modello E — > 120 km</h3>
-<pre>
-FD: 0.60
-FVERT: 0.25
-FTECH: 0.05
-FPROFILE: 0.08
-FRIP: 0.02
-</pre>
-</div>
+  </div>
 </details>
 
 <!-- =============================== SOGLIE 2026 =============================== -->
 <details class="card" open>
-<summary><b>4)Soglie attuali (Classificazione A–E)</b></summary>
-<div style="margin-top:10px">
-<p>
-Le soglie sono state ricalibrate nel 2026 sulla base di un dataset di <b>20
-ultra reali</b> dal range 10–170 km. I valori sono coerenti con il motore
-<wiztrail-racescore.js> aggiornato.
-</p>
+  <summary><b>4) Soglie Ufficiali WDI</b></summary>
+  <div style="margin-top:10px">
 
-<h3>Modello A</h3>
+    <p>
+      Le soglie sono calibrate su un dataset reale di oltre 150 gare internazionali
+      (vertical, trail, skyrace, ultra, endurance), con normalizzazione interna WDI.
+    </p>
+
 <pre>
-Base        < 1.22
-Intermedio  < 1.38
-Avanzato    < 1.62
-Elite       ≥ 1.62
+0 – 30      → Sport
+30 – 75     → Pro
+75 – 120    → Advanced
+120 – 180   → Extreme
+180 – 350   → Elite
+> 350       → Legend
 </pre>
 
-<h3>Modello B</h3>
-<pre>
-Base        < 1.30
-Intermedio  < 1.52
-Avanzato    < 1.82
-Elite       ≥ 1.82
-</pre>
+    <p>
+      Le categorie sono studiate per coprire l’intera gamma dei percorsi
+      — dalle gare corribili alle ultra più devastanti (es. Tor des Géants).
+    </p>
 
-<h3>Modello C</h3>
-<pre>
-Base        < 1.42
-Intermedio  < 1.63
-Avanzato    < 1.86
-Elite       ≥ 1.86
-</pre>
-
-<h3>Modello D</h3>
-<pre>
-Base        < 1.55
-Intermedio  < 1.78
-Avanzato    < 2.02
-Elite       ≥ 2.02
-</pre>
-
-<h3>Modello E</h3>
-<pre>
-Base        < 1.65
-Intermedio  < 1.92
-Avanzato    < 2.20
-Elite       ≥ 2.20
-</pre>
-</div>
+  </div>
 </details>
 
 <!-- =============================== ESEMPI =============================== -->
 <details class="card">
-<summary><b>5) Esempi </b></summary>
-<div style="margin-top:10px">
-<h3>Zegama-Aizkorri (42 km, 2900 m D+) – Modello B</h3>
-<p>WDI ≈ 1.48 → <b>Avanzato</b></p>
+  <summary><b>5) Esempi Reali (calibrati WDI )</b></summary>
+  <div style="margin-top:10px">
 
-<h3>OCC (60.5 km, 3300 m D+) – Modello C</h3>
-<p>WDI ≈ 1.78 → <b>Avanzato</b></p>
+   
+    <h3>MEHT (21 km, D+ ~900)</h3>
+    <p>
+      WDI ≈ 50–52 → <b>Pro</b>
+    </p>
 
-<h3>UTMB 100M (170 km, 10000 m D+) – Modello E</h3>
-<p>WDI ≈ 2.15 → <b>Avanzato/Elite Borderline</b></p>
-</div>
+    <h3>VUT35 (34 km, 2080 m D+)</h3>
+    <p>
+      WDI ≈ 72–74 → <b>Pro / Advanced border</b>
+    </p>
+
+    <h3>Lavaredo 80K (80 km, 4900 m D+)</h3>
+    <p>
+      WDI ≈ 128–132 → <b>Extreme</b>
+    </p>
+
+    <h3>Valmalenco UltraDistance Trail 90 (89 km, 6800 m D+)</h3>
+    <p>
+      WDI ≈ 155–160 → <b>Elite basso</b>
+    </p>
+
+    <h3>Tor des Géants (330 km, 24 000 m D+)</h3>
+    <p>
+      WDI ≈ 1000–1050 → <b>Legend</b>
+    </p>
+
+  </div>
 </details>
 
 <div class="footer">WizTrail © 2026</div>

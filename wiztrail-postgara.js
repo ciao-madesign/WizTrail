@@ -20,7 +20,7 @@ function pg_secToHMS(sec) {
 /***************************************************************
  *  COMMENTO INTELLIGENTE
  ***************************************************************/
-function pg_generateComment({ deltaPerc, terr, met, pac, soste }) {
+function pg_generateComment({ deltaPerc, terr, met, pac, soste, realSec }) {
 
   let comment = [];
 
@@ -28,10 +28,10 @@ function pg_generateComment({ deltaPerc, terr, met, pac, soste }) {
   if (deltaPerc < -5) {
     comment.push("Prestazione eccellente: hai corso più veloce del previsto. Segno di forma superiore alle attese.");
   } 
-  else if (deltaPerc <= 5) {
+  else if (deltaPerc <= 7) {
     comment.push("Ottima coerenza: il risultato è molto vicino alla previsione, la strategia di gara sembra ben calibrata.");
   }
-  else if (deltaPerc <= 12) {
+  else if (deltaPerc <= 15) {
     comment.push("Leggera differenza rispetto alla previsione: performance comunque buona, con piccoli margini di miglioramento.");
   }
   else {
@@ -70,14 +70,25 @@ function pg_generateComment({ deltaPerc, terr, met, pac, soste }) {
     comment.push("Pacing costante: buona gestione dello sforzo.");
   }
 
-  /* 5) Soste */
-  const sNum = Number(soste);
-  if (sNum && sNum >= 8) {
-    comment.push("Le soste totali hanno inciso in modo significativo sul tempo finale.");
-  } 
-  else if (sNum && sNum > 0) {
+  /* 5) Soste — valutazione percentuale */
+const sNum = Number(soste);
+if (sNum && realSec > 0) {
+
+  const stopPerc = (sNum * 60 / realSec) * 100;
+
+  if (stopPerc >= 15) {
+    comment.push("Le soste hanno inciso in modo molto significativo sul tempo finale.");
+  }
+  else if (stopPerc >= 10) {
+    comment.push("Le soste hanno avuto un impatto significativo sulla performance.");
+  }
+  else if (stopPerc >= 5) {
     comment.push("Le soste hanno avuto un impatto moderato sulla performance.");
   }
+  else {
+    comment.push("Le soste hanno inciso in modo minimo: impatto trascurabile sul risultato.");
+  }
+}
 
   return comment.join(" ");
 }
@@ -154,13 +165,14 @@ document.getElementById("btnGeneraReport")?.addEventListener("click", () => {
   const pac  = document.getElementById("pg_pacing").value;
   const note = document.getElementById("pg_note").value;
 
-  const commento = pg_generateComment({
-    deltaPerc,
-    terr,
-    met,
-    pac,
-    soste
-  });
+ const commento = pg_generateComment({
+  deltaPerc,
+  terr,
+  met,
+  pac,
+  soste,
+  realSec
+});
 
   const out = document.getElementById("pg_output");
   out.innerHTML = `
@@ -168,12 +180,12 @@ document.getElementById("btnGeneraReport")?.addEventListener("click", () => {
     <p><b>${idGara}</b></p>
 
     <p><b>Distanza reale:</b> ${dist} km <br>
-       <b>D+ reale:</b> ${dplus} m</p>
+       <p><b>D+ reale:</b> ${Math.round(Number(dplus))} m</p>
 
     <p><b>Tempo previsto:</b> ${prev}<br>
        <b>Tempo reale:</b> ${real}</p>
 
-    <p><b>Delta:</b> ${delta>=0?"+":""}${delta.toFixed(0)} s (${deltaPerc.toFixed(2)}%)</p>
+    <p><b>Delta:</b> ${delta>=0?"+":""}${pg_secToHMS(Math.abs(delta))} (${deltaPerc.toFixed(2)}%)</p>
 
     <p><b>Soste:</b> ${soste} min</p>
 

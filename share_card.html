@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WizTrail – Share Card</title>
+
+<link rel="stylesheet" href="wiztrail.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+body { background:#000; color:#fff; font-family:Inter,system-ui; }
+
+.share-wrapper { max-width:900px; margin:0 auto; padding:20px; }
+.card-preview { background:#111; padding:20px; border-radius:18px; box-shadow:0 0 20px rgba(0,0,0,0.5); }
+
+#shareCard {
+  width: 100%;
+  border-radius: 22px;
+  padding: 24px;
+
+  background: rgba(0, 0, 0, 0.82); /* molto più scuro */
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.05);
+
+  color:#fff;
+  box-shadow:0 0 25px rgba(0,0,0,0.45);
+}
+
+.bottom-row {
+  margin-top:20px;
+  display:flex;
+  gap:16px;
+}
+
+.left-col, .right-col {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.wdit-big { font-size:3.1rem; font-weight:920; }
+.wdit-comment { font-size:1.3rem; opacity:0.9; }
+.perf-comment { font-size:1.1rem; font-weight:600; }
+
+.share-data {
+  font-size:0.85rem;
+  opacity:0.92;
+  font-weight:500;
+}
+
+#shareMap,
+#shareElev {
+  width:100%;
+  height:auto;
+  background: rgba(10,10,10,0.45); /* leggero sfondo opaco */
+  border-radius:12px;
+}
+
+.btn-main {
+  display:inline-block;
+  padding:12px 22px;
+  font-size:1.2rem;
+  font-weight:700;
+  border:none;
+  border-radius:12px;
+  background:#00ffcc;
+  color:#000;
+  cursor:pointer;
+  margin-top:18px;
+}
+
+.btn-main:hover { opacity:0.85; }
+</style>
+</head>
+
+
+
+<body>
+
+<div class="share-wrapper">
+  <div class="card-preview">
+
+    <div id="shareCard">
+
+      <!-- MAPPA -->
+      <canvas id="shareMap" width="1200" height="600"></canvas>
+
+
+
+      <!-- SEZIONE INFERIORE -->
+      <div class="bottom-row">
+
+        <!-- SINISTRA: WDIT -->
+        <div class="left-col">
+          <div id="shareWDIT" class="wdit-big"></div>
+          <div id="shareComment" class="wdit-comment"></div>
+          <div id="sharePerf" class="perf-comment"></div>
+        </div>
+
+        <!-- DESTRA: DATI -->
+   <div class="right-col">
+   <div id="sDistance" class="share-data"></div>
+   <div id="sDplus" class="share-data"></div>
+   <div id="sTimeReal" class="share-data"></div>
+   <div id="sTimeEst" class="share-data" style="display:none;"></div>
+   <div id="sPaceAvg" class="share-data"></div>
+
+   <!-- ALTIMETRIA RIDOTTA -->
+   <canvas id="shareElev" width="800" height="180" style="margin-top:10px; border-radius:10px;"></canvas>
+
+</div>
+
+      </div>
+<canvas id="storyCanvas" width="1080" height="1920" style="display:none;"></canvas>
+    </div>
+
+
+    <div style="text-align:center;">
+      <button id="btnDownload" class="btn-main">📤 Salva</button>
+  
+<button id="btnStories" class="btn-main" style="margin-left:10px;">
+    📲 Condividi
+</button>
+  </div>
+
+  </div>
+</div>
+
+
+<script>
+// =========================
+// FUNZIONI BASE
+// =========================
+
+const data = JSON.parse(sessionStorage.getItem("shareData") || "{}");
+
+// -------------------------
+// COLORI WDIT
+// -------------------------
+function wditColor(score){
+  score = parseFloat(score);
+  if(score < 0.45) return "#2BB7DA";   // leggero
+  if(score < 0.80) return "#34A853";   // buono
+  if(score < 1.20) return "#F4C20D";   // impegnativo
+  if(score < 2.20) return "#F79617";   // molto impegnativo
+  if(score < 8.00) return "#E91E63";   // estremo
+  return "#8E24AA";                   // leggendario
+}
+
+
+
+// =========================
+// POPOLAMENTO DATI TESTO
+// =========================
+
+if(data.distance)
+  sDistance.textContent = `Distanza: ${Number(data.distance).toFixed(2)} km`;
+
+sDplus.textContent = `Dislivello: ${Math.round(data.dplus)} m`;
+
+if(data.time_real)
+  sTimeReal.textContent = `Tempo reale: ${data.time_real}`;
+
+if(data.time_est && data.includeCompare){
+  sTimeEst.style.display = "block";
+  sTimeEst.textContent = `Tempo stimato: ${data.time_est}`;
+}
+
+if(data.time_real && data.distance){
+  const parts = data.time_real.split(":").map(Number);
+  const sec = parts[0]*3600 + parts[1]*60 + parts[2];
+  const paceSec = sec / data.distance;
+  const mm = Math.floor(paceSec/60);
+  const ss = Math.round(paceSec%60);
+  sPaceAvg.textContent = `Pace medio: ${mm}:${String(ss).padStart(2,"0")}/km`;
+}
+
+if(data.WDIT !== undefined){
+  shareWDIT.textContent = `WDIT ${data.WDIT}`;
+  shareWDIT.style.color = wditColor(data.WDIT);
+}
+
+shareComment.textContent = data.comment || "";
+
+if(data.includeCompare && data.perfComment){
+  sharePerf.textContent = data.perfComment;
+  sharePerf.style.color = wditColor(data.WDIT);
+}
+
+
+
+// =========================
+// NORMALIZZAZIONE TRACCIA
+// =========================
+function normalize(points){
+  const lats = points.map(p => p[0]);
+  const lons = points.map(p => p[1]);
+
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLon = Math.min(...lons);
+  const maxLon = Math.max(...lons);
+
+  // padding del 10% per lato → margini eleganti
+  const PAD = 0.10;
+
+  return points.map(p => {
+
+    // normalizzazione standard 0 → 1
+    const nx = (p[1] - minLon) / (maxLon - minLon);
+    const ny = (p[0] - minLat) / (maxLat - minLat);
+
+    // applica i margini
+    const nxp = PAD + nx * (1 - PAD * 2);
+    const nyp = PAD + ny * (1 - PAD * 2);
+
+    return [nxp, nyp];
+  });
+}
+
+
+
+// =========================
+// DISEGNO MAPPA
+// =========================
+function drawMap(){
+  const canvas = document.getElementById("shareMap");
+  const ctx = canvas.getContext("2d");
+
+  // --- SFONDO OPACO + GRADIENTE (come altimetria) ---
+  const g = ctx.createLinearGradient(0,0,0,canvas.height);
+  g.addColorStop(0, "rgba(15,15,15,0.60)");   // in alto leggermente più chiaro
+  g.addColorStop(1, "rgba(20,20,20,0.40)");   // in basso leggermente più scuro
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // --- RUMORE LEGGERO (come in altimetria) ---
+  const noiseCanvas = document.createElement("canvas");
+  noiseCanvas.width = canvas.width;
+  noiseCanvas.height = canvas.height;
+  const nctx = noiseCanvas.getContext("2d");
+  const noiseData = nctx.createImageData(canvas.width, canvas.height);
+
+  for (let i = 0; i < noiseData.data.length; i += 4) {
+    const v = Math.random() * 35;               // leggermente più intenso
+    noiseData.data[i]     = v;
+    noiseData.data[i + 1] = v;
+    noiseData.data[i + 2] = v;
+    noiseData.data[i + 3] = 35;                 // alpha 14%
+  }
+
+  nctx.putImageData(noiseData, 0, 0);
+  ctx.globalAlpha = 0.14;
+  ctx.drawImage(noiseCanvas, 0, 0);
+  ctx.globalAlpha = 1;
+
+  // --- TRACCIA ---
+  drawTrack();
+
+  // --- FADE LATERALE (come altimetria) ---
+  const fadeSide = ctx.createLinearGradient(0,0,canvas.width,0);
+  fadeSide.addColorStop(0, "rgba(0,0,0,0.40)");
+  fadeSide.addColorStop(0.08, "rgba(0,0,0,0)");
+  fadeSide.addColorStop(0.92, "rgba(0,0,0,0)");
+  fadeSide.addColorStop(1, "rgba(0,0,0,0.40)");
+
+  ctx.fillStyle = fadeSide;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
+
+function drawTrack(){
+  if(!data.pts) return;
+  const canvas = shareMap;
+  const ctx = canvas.getContext("2d");
+
+  const norm = normalize(data.pts);
+  ctx.beginPath();
+
+  norm.forEach((p,i)=>{
+    const x = p[0] * canvas.width;
+    const y = canvas.height - p[1] * canvas.height;
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+
+  ctx.strokeStyle = wditColor(data.WDIT);
+  ctx.lineWidth = 6;
+  ctx.lineCap = "round";
+  ctx.stroke();
+}
+
+
+
+// =========================
+// DISEGNO ALTIMETRIA PIENA
+// =========================
+function drawElevProfile(elev){
+  const canvas = shareElev;
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!elev || !elev.length) return;
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // --- SFONDO OPACO ---
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,"rgba(15,15,15,0.60)");
+  bg.addColorStop(1,"rgba(20,20,20,0.40)");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,H);
+
+  // --- RANGE ALTEZZE CON SOLO MARGINE SUPERIORE ---
+  const max = Math.max(...elev);
+  const min = Math.min(...elev);
+  const padTop = H * 0.12;    // margine superiore
+  const padBottom = 0;        // nessun margine inferiore
+  const span = (max - min) || 1;
+
+  const lineColor = wditColor(data.WDIT);
+
+  // --- AREA PIENA ---
+  ctx.beginPath();
+  for (let i = 0; i < elev.length; i++) {
+    const x = (i / (elev.length - 1)) * W;
+
+    // y va da padTop a H (niente margine inferiore)
+    const norm = (elev[i] - min) / span;
+    const y = H - (norm * (H - padTop) + padBottom);
+
+    if(i === 0) ctx.moveTo(x, H);   // sempre partire dal fondo
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(W, H);
+  ctx.closePath();
+
+  ctx.fillStyle = lineColor + "33";  // 20% opacity
+  ctx.fill();
+
+  // --- LINEA ALTIMETRICA ---
+  ctx.beginPath();
+  for (let i = 0; i < elev.length; i++) {
+    const x = (i / (elev.length - 1)) * W;
+    const norm = (elev[i] - min) / span;
+    const y = H - (norm * (H - padTop) + padBottom);
+
+    if(i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.stroke();
+
+  // --- FADE LATERALE ---
+  const fadeSide = ctx.createLinearGradient(0,0,W,0);
+  fadeSide.addColorStop(0, "rgba(0,0,0,0.45)");
+  fadeSide.addColorStop(0.08, "rgba(0,0,0,0)");
+  fadeSide.addColorStop(0.92, "rgba(0,0,0,0)");
+  fadeSide.addColorStop(1, "rgba(0,0,0,0.45)");
+
+  ctx.fillStyle = fadeSide;
+  ctx.fillRect(0,0,W,H);
+}
+
+// =========================
+// RENDER SHARE CARD
+// =========================
+drawMap();
+if(data.elev) drawElevProfile(data.elev);
+
+
+
+// =========================
+// DOWNLOAD / SHARE
+// =========================
+btnDownload.addEventListener("click", async ()=>{
+
+  const card = document.getElementById("shareCard");
+  const canvas = await html2canvas(card, {scale:2});
+
+  canvas.toBlob(async blob=>{
+    const file = new File([blob],"wiztrail.png",{type:"image/png"});
+
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+       await navigator.share({
+         title:"Il mio allenamento",
+         text:"Guarda il mio WDIT su WizTrail!",
+         files:[file]
+       });
+    } else {
+       const url = URL.createObjectURL(blob);
+       const a = document.createElement("a");
+       a.href = url;
+       a.download = "wiztrail.png";
+       a.click();
+    }
+  }); // 🔥 questa parentesi CHIUDE correttamente toBlob
+
+}); // 🔥 questa parentesi CHIUDE correttamente il listener Salva
+
+// LISTENER STORIES MODE (fuori dal btnDownload!)
+btnStories.addEventListener("click", async ()=>{
+
+  const storyCanvas = document.getElementById("storyCanvas");
+
+  // 1) cattura della card
+  const sourceCanvas = await html2canvas(document.getElementById("shareCard"), { scale: 3 });
+
+  const ctx = storyCanvas.getContext("2d");
+
+  // 2) sfondo 9:16 instagram
+  const g = ctx.createLinearGradient(0,0,0,1920);
+  g.addColorStop(0, "rgba(20,20,20,1)");
+  g.addColorStop(1, "rgba(10,10,10,1)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,1080,1920);
+
+  // 3) centratura della card
+  const scale = 0.90;
+  const cardW = 1080 * scale;
+  const cardH = (sourceCanvas.height / sourceCanvas.width) * cardW;
+  const offsetX = (1080 - cardW)/2;
+  const offsetY = (1920 - cardH)/2;
+
+  ctx.drawImage(sourceCanvas, offsetX, offsetY, cardW, cardH);
+
+  // 4) esportazione finale
+  storyCanvas.toBlob(async blob=>{
+    const file = new File([blob], "wiztrail_story.png", {type:"image/png"});
+
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+       await navigator.share({
+         title:"Il mio allenamento",
+         text:"Allenamento su WizTrail – Stories Mode",
+         files:[file]
+       });
+    } else {
+       const url = URL.createObjectURL(blob);
+       const a = document.createElement("a");
+       a.href = url;
+       a.download = "wiztrail_story.png";
+       a.click();
+    }
+  });
+
+});
+
+document.getElementById("btnStories").addEventListener("click", async () => {
+  const storyCanvas = document.getElementById("storyCanvas");
+
+  // 1) cattura del shareCard in alta qualità
+  const sourceCanvas = await html2canvas(document.getElementById("shareCard"), { scale: 3 });
+
+  const ctx = storyCanvas.getContext("2d");
+
+  // 2) sfondo story (sfumato, instagram-friendly)
+  const g = ctx.createLinearGradient(0,0,0,1920);
+  g.addColorStop(0, "rgba(20,20,20,1)");
+  g.addColorStop(1, "rgba(10,10,10,1)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,1080,1920);
+
+  // 3) centratura della card
+  const scale = 0.90; // la card occupa il 90% dello schermo
+  const cardW = 1080 * scale;
+  const cardH = (sourceCanvas.height / sourceCanvas.width) * cardW;
+
+  const offsetX = (1080 - cardW)/2;
+  const offsetY = (1920 - cardH)/2;
+
+  ctx.drawImage(sourceCanvas, offsetX, offsetY, cardW, cardH);
+
+  // 4) esportazione finale
+  storyCanvas.toBlob(async blob => {
+    const file = new File([blob], "wiztrail_story.png", {type:"image/png"});
+    if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
+       await navigator.share({
+         title:"Il mio allenamento",
+         text:"Allenamento su WizTrail – Stories Mode",
+         files:[file]
+       });
+    } else {
+       const url = URL.createObjectURL(blob);
+       const a = document.createElement("a");
+       a.href = url;
+       a.download = "wiztrail_story.png";
+       a.click();
+    }
+  });
+});
+
+
+</script>
+
+</body>
+</html>

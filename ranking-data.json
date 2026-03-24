@@ -1,3 +1,10 @@
 [
-  {"name":"test","distance":20,"dplus":1000,"wdi":1.10,"model":"A"}
+  {
+    "name": "Zegama",
+    "distance": 42.20,
+    "dplus": 2700,
+    "wdi": 48.1,
+    "class": "epico",
+    "color": "#E91E63"
+  }
 ]

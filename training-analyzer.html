@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WizTrail – Training Analyzer (WDIT)</title>
+<link rel="manifest" href="/WizTrail/manifest.webmanifest">
+<meta name="theme-color" content="#002b2b">
+<link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="wiztrail.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body data-theme="dark">
+<header class="app-header">
+<div class="app-brand">
+<img src="img/logo.svg" alt="WizTrail" class="brand-img">
+<span class="brand-name">WizTrail</span>
+</div>
+</header>
+<div id="wizBanner" class="wiz-banner">
+<a href="install.html" class="wiz-banner-link">📱 Aggiungi WizTrail alla Home!</a>
+</div>
+
+<div class="wrap">
+<h1>
+<span>Training Analyzer — WDIT</span>
+<span class="theme-ctrl">
+<label class="mini">Tema</label>
+<select id="themeSel">
+<option value="dark" selected>Scuro</option>
+<option value="light">Chiaro</option>
+</select>
+</span>
+</h1>
+<button class="btn secondary" onclick="location.href='index.html'">← Torna alla home</button>
+
+<!-- IMPORT -->
+<div class="card" style="margin-top:20px;">
+<h2>Carica la tua attività</h2>
+<p class="mini">Carica la traccia per analizzare la difficoltà del tuo allenamento.</p>
+<input type="file" id="gpxFile" accept=".gpx,.tcx" class="input-file">
+
+<div style="margin-top:12px;">
+<label>Tempo reale (modificabile)</label>
+<input id="timeRealInput" type="text" placeholder="hh:mm:ss" class="input-text">
+</div>
+
+<div style="margin-top:12px;">
+<label><input type="checkbox" id="useEstimate"> Usa la stima del calcolatore</label>
+</div>
+
+<div id="shareCompareBlock" style="margin-top:8px;display:none;">
+<label><input type="checkbox" id="shareCompare"> Confronta tempo stimato vs tempo reale</label>
+</div>
+
+<button class="btn" id="btnAnalyze">Analizza</button>
+</div>
+
+<!-- RISULTATI -->
+<div id="results" style="display:none;margin-top:20px;">
+
+<div class="card">
+<h2>Mappa 2D (Leaflet)</h2>
+<div id="mapLeaflet" style="width:100%;height:300px;border-radius:8px;"></div>
+</div>
+
+<div class="card"><h2>Profilo altimetrico</h2><canvas id="elevCanvas" width="600" height="200" style="width:100%;height:200px;border-radius:8px;"></canvas></div>
+
+<div class="card">
+<h2>Dati allenamento</h2>
+<div class="grid grid-2">
+<div><h3>Distanza</h3><div class="val" id="distVal">— km</div></div>
+<div><h3>D+</h3><div class="val" id="dplusVal">— m</div></div>
+<div><h3>Tempo reale</h3><div class="val" id="timeReal">—</div></div>
+<div id="estBlock" style="display:none;"><h3>Tempo stimato</h3><div class="val" id="timeEst">—</div></div>
+</div>
+</div>
+
+<div class="card" id="wditCard" style="text-align:center;">
+<h2>WDIT — WizTrail Difficulty Index (Training)</h2>
+<div id="wditScore" style="font-size:3.2rem;font-weight:900;margin-top:10px;">—</div>
+<div id="wditComment" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
+<div id="perfComment" style="font-size:1.2rem;margin-top:10px;font-weight:600;"></div>
+</div>
+
+<div class="card" style="text-align:center;"><button class="btn" id="btnShare">Condividi</button></div>
+</div>
+
+<div class="footer">WizTrail © 2026</div>
+</div>
+
+<script src="wiztrail-wdit.js"></script>
+<script>
+/* Tema */
+themeSel.addEventListener("change", e => document.body.setAttribute("data-theme", e.target.value));
+
+/* FORMAT TIME */
+function fmtSec(sec){
+ const h=Math.floor(sec/3600);
+ const m=Math.floor((sec%3600)/60);
+ const s=Math.floor(sec%60);
+ return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function parseGPX(text){
+ const xml=new DOMParser().parseFromString(text,"application/xml");
+ const pts=[];
+ const times=[];
+ [...xml.getElementsByTagName("trkpt")].forEach(p=>{
+  const lat=parseFloat(p.getAttribute("lat"));
+  const lon=parseFloat(p.getAttribute("lon"));
+  const ele=parseFloat(p.getElementsByTagName("ele")[0]?.textContent||0);
+  pts.push([lat,lon,ele]);
+  const t=p.getElementsByTagName("time")[0]?.textContent;
+  if(t) times.push(Date.parse(t)/1000);
+ });
+ return {pts,times};
+}
+
+function computeMetrics(pts){
+ const R=6371000;
+ let d=[0],e=[],gain=0;
+ for(let i=0;i<pts.length;i++){
+  e.push(pts[i][2]);
+  if(i===0) continue;
+  const lat1=pts[i-1][0]*Math.PI/180, lon1=pts[i-1][1]*Math.PI/180;
+  const lat2=pts[i][0]*Math.PI/180, lon2=pts[i][1]*Math.PI/180;
+  const a=Math.sin((lat2-lat1)/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
+  const dist=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*R;
+  d.push(d[d.length-1]+dist);
+  if(e[i]-e[i-1]>0) gain+=e[i]-e[i-1];
+ }
+ return {km:d[d.length-1]/1000,gain,e,d};
+}
+
+function drawElevation(c, e){
+  if (!e || !e.length) return;
+  const ctx = c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+
+  const max = Math.max(...e);
+  const min = Math.min(...e);
+  const H = c.height;
+  const W = c.width;
+
+  // linea altimetrica
+  ctx.beginPath();
+  for (let i=0; i<e.length; i++) {
+    const x = (i / (e.length - 1)) * W;
+    const y = H - ((e[i] - min) / (max - min)) * H;
+    if (i === 0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
+
+ctx.strokeStyle = wditColor(currentTrainingWDIT);
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function wditColor(score) {
+  if (score < 0.45) return "#2BB7DA";   // leggero -> teal
+  if (score < 0.80) return "#34A853";   // buono
+  if (score < 1.20) return "#F4C20D";   // impegnativo
+  if (score < 2.20) return "#F79617";   // molto impegnativo
+  if (score < 8.00) return "#E91E63";   // estremo -> fucsia
+  return "#8E24AA";                     // leggendario
+}
+
+function getComment(w){
+if(w<0.45)return"Giro tranquillo 🌿";
+if(w<0.80)return"Buon allenamento 🏃‍♂️";
+if(w<1.25)return"Gran galoppata 💪";
+if(w<2.20)return"Bella sudata 🔥";
+return"Beast mode 💀";}
+
+function performanceComment(realSec, estSec){
+  if(!realSec || !estSec) return "";
+
+  const deltaPerc = (realSec - estSec) / estSec;
+
+  // TEMPO REALE MIGLIORE DELLO STIMATO
+  if(deltaPerc < -0.10)
+    return "Serve un un estintore... sei on fiiire! 🔥";          // oltre -10%
+
+  if(deltaPerc < 0)
+    return "Si volaaa! 🚀";                      // tra 0% e -10%
+
+  // TEMPO REALE PEGGIORE DELLO STIMATO
+  if(deltaPerc <= 0.05)
+    return "In scioltezza! 💅";                // tra 0% e +5%
+
+  return "Non si molla, c'è margine di miglioramento! 💪";  // oltre +5%
+}
+/* MAPPA LEAFLET */
+let map=null,poly=null;
+function initMap(){
+  if(map) return;
+
+  map = L.map("mapLeaflet");
+
+  const dark = L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    { subdomains: "abcd", maxZoom: 18, opacity: 1 }
+  );
+
+  const topo = L.tileLayer(
+    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    { opacity: 0.35, maxZoom: 17 }
+  );
+
+  L.layerGroup([dark, topo]).addTo(map);
+  map.setView([46.5, 8.3], 5);
+}
+
+function drawLeaflet(pts, wditColorVal){
+  initMap();
+  if(poly) poly.remove();
+  poly = L.polyline(
+    pts.map(p => [p[0],p[1]]),
+    {
+      color: wditColorVal,
+      weight: 4
+    }
+  ).addTo(map);
+  map.fitBounds(poly.getBounds());
+}
+
+/* ANALISI */
+btnAnalyze.addEventListener("click",async()=>{
+ const file=gpxFile.files[0]; if(!file) return alert("Carica un GPX");
+ const text=await file.text();
+ const g=parseGPX(text);
+ const pts=g.pts, times=g.times;
+ if(!pts.length) return alert("GPX non valido");
+
+ /* TEMPO REALE AUTOMATICO */
+ if(times.length>1){
+  const realSec=times[times.length-1]-times[0];
+  timeRealInput.value=fmtSec(realSec);
+ }
+
+ const mt=computeMetrics(pts);
+ const real=parseTimeToSec(timeRealInput.value);
+
+ const rs=WizTrailWDIT.computeFromGpx(pts,mt);
+
+ results.style.display="block";
+ distVal.textContent=mt.km.toFixed(2)+" km";
+dplusVal.textContent = Math.round(mt.gain) + " m";
+ timeReal.textContent=timeRealInput.value;
+
+ /* STIMA */
+ let estSec=null;
+ if(useEstimate.checked){
+  estSec=Math.round(mt.km*7*60 + mt.gain*0.6);
+  timeEst.textContent=fmtSec(estSec);
+  estBlock.style.display="block";
+  shareCompareBlock.style.display="block";
+  if(real) perfComment.textContent=performanceComment(real, estSec);
+perfComment.style.color = wditColor(rs.WDIT);
+ } else {
+  estBlock.style.display="none";
+  shareCompareBlock.style.display="none";
+  perfComment.textContent="";
+ }
+
+ wditScore.textContent=rs.WDIT.toFixed(2);
+ wditScore.style.color=wditColor(rs.WDIT);
+window.currentTrainingWDIT = rs.WDIT;
+ wditComment.textContent=rs.class;
+ wditComment.style.color=wditColor(rs.WDIT);
+
+drawLeaflet(pts, wditColor(rs.WDIT));
+setTimeout(() => {
+  // forza un redraw ora che il canvas ha dimensioni
+  elevCanvas.width  = elevCanvas.clientWidth;
+  elevCanvas.height = elevCanvas.clientHeight;
+  drawElevation(elevCanvas, mt.e);
+}, 50);
+
+ btnShare.onclick=()=>{
+  sessionStorage.setItem("shareData",JSON.stringify({distance:mt.km,dplus:mt.gain,time_real:timeRealInput.value,time_est:estSec?fmtSec(estSec):null,includeCompare:shareCompare.checked,WDIT:rs.WDIT.toFixed(2),comment:getComment(rs.WDIT),perfComment:perfComment.textContent,pts:pts,elev:mt.e}));
+  window.location.href="share_card.html";
+ };
+});
+
+function parseTimeToSec(t){const p=t.split(":" ).map(Number);if(p.length!==3)return null;return p[0]*3600+p[1]*60+p[2];}
+
+</script>
+</body>
+</html>

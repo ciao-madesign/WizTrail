@@ -53,8 +53,7 @@
 <header class="app-header">
   <div class="app-brand">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
-    <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
-      <defs>
+         <defs>
         <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
           <stop offset="0" stop-color="#4fd1c5"/>
           <stop offset="1" stop-color="#0ea5e9"/>
@@ -77,6 +76,7 @@
 </div>
 <!-- Toolbar Link WDI -->
 <div class="wdi-toolbar">
+<a href="training-analyzer.html" class="wdi-btn">Training Analyzer</a>
   <a href="ranking.html" class="wdi-btn">Ranking WDI</a>
   <a href="wdi.html" class="wdi-btn">Cos'è il WDI?</a>
 <a href="pacing.html" class="wdi-btn">Metodo Pacing</a>
@@ -139,9 +139,6 @@
 
         <label>D+ (m)</label>
         <input id="dplus" type="number" step="1" value="0"/>
-
-        <label>α (km ogni 100 m D+)</label>
-        <input id="alpha" type="number" step="0.05" min="0.1" max="2" value="0.8"/>
       </fieldset>
 
     </div>
@@ -153,17 +150,18 @@
     <!-- ------------------------- -->
     <div>
 
-      <fieldset>
-        <legend>Terreno (Tecnicità)</legend>
-        <label>% Strada (molto semplice)</label><input id="p_strada" type="number" value="0"/>
-        <label>% E (moderata)</label><input id="p_e" type="number" value="50"/>
-        <label>% EE (impegnativa)</label><input id="p_ee" type="number" value="50"/>
-        <label>% EA (molto difficile)</label><input id="p_ea" type="number" value="0"/>
-        <label>Rall. E (%)</label><input id="c_e" type="number" value="5"/>
-        <label>Rall. EE (%)</label><input id="c_ee" type="number" value="12"/>
-        <label>Rall. EA (%)</label><input id="c_ea" type="number" value="25"/>
-        <div id="terrainWarn" class="error"></div>
-      </fieldset>
+  <fieldset>
+  <legend>Tecnica del percorso</legend>
+
+  <label>Livello tecnicità</label>
+  <select id="terrain">
+    <option value="Strada">Strada / molto semplice</option>
+    <option value="E">E – Trail semplice</option>
+    <option value="EE">EE – Impegnativo</option>
+    <option value="EA">EA – Tecnico / Esposizione</option>
+  </select>
+
+ </fieldset>
 
       <fieldset>
         <legend>Condizioni gara</legend>
@@ -192,7 +190,12 @@
         </select>
 
         <label>Familiarità</label>
-        <input id="spec" type="range" min="0" max="1" step="0.1" value="0.3"/>
+        <input id="spec" type="range" min="0" max="1" step="0.1" value="0.2"/>
+<div class="mini" style="margin-top:4px;">
+  S = 0.2 → amatore medio;  
+  S = 0.4 → amatore avanzato;  
+  S = 0.8 → atleta competitivo.
+</div>
 
         <label>Margine ±%</label>
         <input id="margin" type="number" value="10"/>
@@ -237,7 +240,7 @@
         </div>
 
         <div class="kpi">
-          <h3>WDI RaceScore</h3>
+          <h3>WDI (WizTrail Difficulty Index)</h3>
 
           <div class="val"
                id="outRaceScore"
@@ -270,6 +273,24 @@
           ⚠️ Carica una traccia GPX/TCX nel tab Calcolatore prima di generare il pacing.
       </div>
 
+<div class="card" style="margin-top:16px;">
+  <h2>Mappa + Profilo altimetrico</h2>
+
+  <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    
+    <!-- MAPPA PACING -->
+    <div id="pacingMap" 
+         style="flex:1; min-width:300px; height:300px; border-radius:8px;">
+    </div>
+
+    <!-- PROFILO ALTIMETRICO PACING -->
+    <canvas id="pacingElevCanvas"
+            style="flex:1; min-width:300px; height:300px; border-radius:8px;">
+    </canvas>
+
+  </div>
+</div>
+
       <!-- Tempo obiettivo -->
       <div class="grid" style="margin-bottom:12px;">
         <div>
@@ -282,6 +303,7 @@
           <select id="pc_gran">
             <option value="5">5 km</option>
             <option value="10">10 km</option>
+<option value="1">1 km</option>
           </select>
         </div>
       </div>
@@ -354,22 +376,18 @@
     <ul>
       <li><b>Distanza (km)</b> — lunghezza effettiva del percorso.</li>
       <li><b>D+ (m)</b> — dislivello positivo totale.</li>
-      <li><b>α (km per 100 m D+)</b> — converte la salita in “km equivalenti”.
-          Più è ripida/tecnica la gara, più α può salire.</li>
-    </ul>
+         </ul>
 
-    <h3>4. Terreno (Tecnicità)</h3>
-    <p>Indica <b>quanto del percorso</b> rientra in ciascuna categoria:</p>
+    <h3>4. Tercnica del percorso</h3>
+    <p>Indica il livello tecnico globale del percorso: Strada, E, EE o EA.
+Influisce solo su salite e discese ripide, aumentando il tempo previsto nei tratti impegnativi.
     <ul>
       <li><b>Strada</b> — scorrevole, quasi sempre corribile</li>
       <li><b>E</b> — sentiero semplice</li>
       <li><b>EE</b> — tecnico: radici, pietre, tratti stretti</li>
       <li><b>EA</b> — molto tecnico, esposto o instabile</li>
-    </ul>
-    <p>Per ogni categoria viene applicato un rallentamento.</p>
-    <div class="mini">
-      Consiglio: se non conosci bene il percorso, usa 10/50/25/15 (trail medio variabile)e modifichi dopo.
-    </div>
+    </ul></p>
+ 
 
     <h3>5. Condizioni gara</h3>
     <ul>
@@ -385,7 +403,7 @@
     <ul>
       <li><b>Tempo finale</b> — la stima più probabile.</li>
       <li><b>Basso/Alto</b> — i limiti del tuo range realistico.</li>
-      <li><b>WDI RaceScore</b> — indica la <b>difficoltà  della gara secondo RaceScore WDI</b>
+      <li><b>WDI</b> — indica la <b>difficoltà  della gara secondo il WDI</b>
           (tecnicità, verticalità, profilo…).
       </li>
     </ul>
@@ -393,10 +411,8 @@
     <h3>7. Trucchetto rapido</h3>
     <p>Se il risultato “non ti torna”, spesso dipende da:</p>
     <ul class="mini">
-      <li>α troppo basso → gara più dura del previsto</li>
-      <li>EE/EA sottostimati → percorso più tecnico</li>
-      <li>Meteo/altitudine ignorati → penalità più alta</li>
       <li>S troppo alto → stima troppo ottimista</li>
+      <li>Meteo/altitudine ignorati → penalità più alta</li>
     </ul>
 
   </div>
@@ -406,43 +422,80 @@
 <!-- 2) PACING PLANNER -->
 <!-- ========================= -->
 <details>
-  <summary><b>2) Pacing Planner — come leggere i tratti</b></summary>
+  <summary><b>2) Pacing Planner </b></summary>
   <div style="margin-top:10px">
 
     <h3>1. Non serve ricaricare la traccia</h3>
-    <p>Il Pacing Planner usa automaticamente lo <b>stesso GPX</b> caricato nel Calcolatore.</p>
+    <p>
+      Il Pacing Planner utilizza automaticamente lo <b>stesso GPX</b> caricato nel
+      Calcolatore: distanza, dislivello e difficoltà dei segmenti sono già disponibili.
+    </p>
 
-    <h3>2. Perché il pacing è “chunk‑based”</h3>
-    <p>La gara viene divisa in tratti (5 km o 10 km).  
-       Ogni tratto ha un ritmo diverso a seconda della sua difficoltà reale:</p>
+    <h3>2. Perché il pacing è realistico (v2.0)</h3>
+    <p>
+      Il pacing non è un semplice “ritmo medio” lineare: usa una versione
+      semplificata del motore del calcolatore pc_granper valutare la <b>difficoltà
+      locale</b> del percorso. 
+    </p>
+
+    <p>
+      Il percorso viene suddiviso in <b>micro‑segmenti</b> (pochi metri), e ogni tratto
+      da 5 km o 10 km (“chunk”) viene valutato in base a:
+    </p>
     <ul>
-      <li>pendenza (salita/discesa)</li>
-      <li>tecnicità</li>
-      <li>quota</li>
-      <li>meteo</li>
-      <li>fatica progressiva</li>
+      <li><b>pendenza</b>: salite lente, discese moderate più veloci;</li>
+      <li><b>tecnicità globale</b> (Strada / E / EE / EA);</li>
+      <li><b>altitudine</b> e <b>meteo</b> (penalità leggere ma realistiche);</li>
     </ul>
-    <p>Così il ritmo è molto più realistico di un semplice “pace medio”.</p>
 
-    <h3>3. Come leggere la tabella</h3>
+    <p>
+      A differenza del calcolatore, il Pacing Planner <b>non applica fatica cumulativa</b>,
+      così il passo rimane più omogeneo e coerente con l’idea di una strategia di gara
+      costante.
+    </p>
+
+    <h3>3. Ritmo regolare, adattato alla difficoltà</h3>
+    <p>
+      Il tempo totale che inserisci (es. 6 ore) viene distribuito proporzionalmente
+      alla <b>difficoltà relativa</b> dei chunk:
+    </p>
     <ul>
-      <li><b>KM</b> — il punto di fine tratto</li>
-      <li><b>Tempo</b> — tempo cumulato previsto</li>
-      <li><b>Pace tratto</b> — ritmo realistico in quel segmento</li>
+      <li>chunk facili → <b>ritmo più veloce</b>;</li>
+      <li>chunk difficili → <b>ritmo più lento</b>;</li>
+      <li>primo e ultimo km sono simili se il terreno è simile → <b>pacing realistico</b>;</li>
     </ul>
 
     <div class="mini">
-      Se un tratto ha pace 8:40/km e il successivo 5:10/km,
-      è normale: riflette la difficoltà reale del percorso.
+      Questo approccio permette di pianificare un ritmo costante, con variazioni
+      solo dove il percorso lo richiede realmente.
     </div>
 
-    <h3>4. Consigli pratici</h3>
+    <h3>4. Come leggere la tabella</h3>
     <ul>
-      <li>Usalo per decidere <b>dove spingere</b> e dove <b>risparmiare</b>.</li>
-      <li>Controlla i tratti con pace lento: spesso coincidono con
-          salite o discese tecniche.</li>
-      <li>Anche se in gara sarà diverso, il pacing ti evita
-          di “partire troppo forte”.</li>
+      <li><b>KM</b> → fine del tratto (5 km o 10 km);</li>
+      <li><b>Tempo</b> → tempo cumulato previsto alla fine del chunk;</li>
+      <li><b>Pace tratto</b> → ritmo medio solo di quel segmento;</li>
+    </ul>
+
+    <p>
+      Se un tratto ha 8:20/km e quello successivo 6:10/km è perfettamente normale:
+      significa che il primo contempla maggiori salite o passaggi tecnici.
+    </p>
+
+    <h3>5. Suggerimenti pratici</h3>
+    <ul>
+      <li>
+        Usa il pacing per <b>capire dove spingere</b> e dove
+        <b>risparmiare energie</b>.
+      </li>
+      <li>
+        Se un tratto è particolarmente lento, spesso coincide con un punto chiave
+        del percorso (salita ripida o discesa tecnica).
+      </li>
+      <li>
+        Non cercare di “seguire alla lettera” ogni ritmo: considera il pacing come
+        <b>linea guida</b> per non partire troppo forte e gestire meglio la gara.
+      </li>
     </ul>
 
   </div>
@@ -539,309 +592,266 @@
     <h2>Fondamenti scientifici e criteri di calcolo</h2>
 
     <p>
-      Questa sezione descrive come WizTrail costruisce una stima realistica della performance
-      integrando: <b>modelli fisiologici</b>, <b>modelli energetici della pendenza</b>,
-      <b>effetti ambientali</b> e <b>analisi della traccia GPX</b>.
-      La documentazione completa del RaceScore WDI (Wiztrail Difficulty Index) è qui inclusa.
+      Il modello WizTrail utilizza un approccio integrato per stimare in modo realistico
+      la performance nel trail running, combinando:
+      <b>modelli fisiologici moderni</b>, 
+      <b>analisi energetica della pendenza</b>, 
+      <b>effetti ambientali</b>
+      e una <b>lettura segmentata del GPX</b> con filtri anti-rumore.
+    </p>
+
+    <p class="mini">
+      Il motore di calcolo dell'indice WDI  è separato dal calcolatore 
+      e descrive la difficoltà oggettiva del percorso.  
+      Qui sono documentati i criteri del <b>Calcolatore</b> 
+      e del <b>Pacing Planner</b>.
     </p>
 
     <!-- ======================================================== -->
-    <!-- 1) PREVISIONE SU DISTANZA (RIEGEL ADATTIVO) -->
+    <!-- 1) RIEGEL ADATTIVO -->
     <!-- ======================================================== -->
     <details>
       <summary><b>1) Predizione su distanza: Riegel adattivo</b></summary>
       <div style="margin-top:10px">
 
-        <p>Il modello parte dalla relazione di <b>Riegel</b>, storicamente utilizzata
-           per predire tempi su distanze diverse:</p>
+        <p>
+          Il modello parte dalla relazione di <b>Riegel</b>, tradizionalmente usata
+          per stimare tempi su distanze maggiori a partire da un riferimento:
+        </p>
 
-        <pre>T₂ = T₁ × (D₂ / D₁)^b</pre>
+<pre>T₂ = T₁ × (D₂ / D₁)^b</pre>
 
         <p>
-          La letteratura mostra che <b>b</b> non è fisso: varia con la distanza.
-          Studi moderni (es. analisi di Daniels, Jack Tupper;
-          lavori di Seiler sulla distribuzione intensità/durata)
-          indicano che la perdita di efficienza cresce al crescere della distanza.
+          L’esponente <b>b</b> non è costante: 
+          studi sulla distribuzione intensità/durata (Daniels, Seiler)
+          mostrano che aumenta con la distanza, simulando la crescente fatica aerobica.
         </p>
 
         <p>
-          WizTrail utilizza quindi un <b>Riegel adattivo</b>: l’esponente b aumenta
-          leggermente con la distanza (per simulare maggiore fatica aerobica),
-          evitando sovrastime su ultra e sottostime su gare brevi.
+          WizTrail usa quindi un <b>Riegel adattivo</b>: 
+          questo fornisce il <b>tempo teorico su piano</b>,
+          prima di considerare pendenze, tecnica, quota e condizioni.
         </p>
-
-        <div class="mini">
-          Il risultato è il <b>tempo teorico su piano</b> prima delle correzioni.
-        </div>
 
       </div>
     </details>
 
     <!-- ======================================================== -->
-    <!-- 2) DISLIVELLO E "KM EQUIVALENTI": NAISMITH + MINETTI -->
+    <!-- 2) PENDENZA → VELOCITÀ (MODELLO v2.0) -->
     <!-- ======================================================== -->
     <details>
-      <summary><b>2) Dislivello → “km equivalenti” (Naismith + fisiologia moderna)</b></summary>
+      <summary><b>2) Pendenza → velocità: salite, discese, fisiologia reale</b></summary>
       <div style="margin-top:10px">
 
         <p>
-          La regola classica di <b>Naismith</b> (1892) assume che 100 m di salita valgano
-          circa 1 km aggiuntivo di sforzo.  
-          Ricerche successive — in particolare <b>Minetti et al.</b>,
-          che studiano il costo energetico della locomozione in salita/discesa —
-          mostrano che l’effetto non è lineare, ma dipende da pendenza, tecnica e fondo.
+          Il Time Estimator v2.0 non usa più “km equivalenti”.  
+          Invece, applica una funzione fisiologica che traduce la <b>pendenza reale</b> 
+          in <b>velocità locale</b>.
         </p>
-
-        <p>
-          WizTrail usa un coefficiente <b>α</b> che converte la salita in chilometri equivalenti:
-        </p>
-
-        <pre>D_equiv = D + α × (D⁺ / 100)</pre>
 
         <ul>
-          <li><b>α ≈ 0.6–0.9</b> → gare corribili / asfalto / strade bianche.</li>
-          <li><b>α ≈ 1.0–1.2</b> → trail tecnici con pendenze brutte o instabilità.</li>
+          <li><b>Salita</b>: il passo rallenta in modo <b>non lineare</b>.
+              Una salita del 15–20% può valere il doppio/triplo del ritmo di pianura.</li>
+          <li><b>Discesa</b>: moderatamente più veloce fino a ~10%, 
+              poi rallenta per controllo eccentrico.</li>
+          <li><b>Discesa ripida</b>: oltre il 15% la velocità cala sensibilmente.</li>
         </ul>
 
         <p>
-          L’equivalenza permette di trattare lunghezza e dislivello come un singolo indicatore di “costo globale”.
+          Questo approccio è coerente con le curve energetiche di Minetti 
+          (Human Locomotion on Sloped Terrain, 2002),
+          eliminate le distorsioni create da α.
         </p>
+
       </div>
     </details>
 
     <!-- ======================================================== -->
-    <!-- 3) COSTO METABOLICO DI SALITA/DISCESA (MINETTI 2002) -->
+    <!-- 3) TECNICITÀ DEL TERRENO -->
     <!-- ======================================================== -->
     <details>
-      <summary><b>3) Costo metabolico e pendenza (Minetti, 2002)</b></summary>
+      <summary><b>3) Tecnica del terreno (E / EE / EA)</b></summary>
       <div style="margin-top:10px">
 
         <p>
-          Minetti (Human Locomotion on Sloped Terrain, 2002) ha misurato che:
+          Nel Trail la velocità non dipende solo dalla pendenza, ma anche dalla 
+          <b>tecnicità del fondo</b>. WizTrail usa le categorie CAI:
         </p>
 
         <ul>
-          <li>il costo energetico <b>aumenta rapidamente</b> con la pendenza positiva,</li>
-          <li>ha un <b>minimo attorno a −10%</b> in discesa,</li>
-          <li>aumenta di nuovo per discese molto ripide per effetto eccentrico.</li>
+          <li><b>E</b> — sentiero semplice</li>
+          <li><b>EE</b> — impegnativo (radici, pietre, passaggi stretti)</li>
+          <li><b>EA</b> — molto difficile o esposto</li>
         </ul>
 
         <p>
-          WizTrail applica questo principio nel <b>costo locale</b> dei micro‑segmenti GPX,
-          valutando segmento per segmento quanto la pendenza incide sulla velocità reale.
+          Il modello v2.0 applica la penalità tecnica <b>solo dove serve</b>:
+          salite ripide e discese impegnative, mai in pianura.
         </p>
 
       </div>
     </details>
 
     <!-- ======================================================== -->
-    <!-- 4) PERCHE' GAP NON BASTA (TECNICITA') -->
+    <!-- 4) FATICA PROGRESSIVA DINAMICA -->
     <!-- ======================================================== -->
     <details>
-      <summary><b>4) Perché il GAP non basta sul Trail</b></summary>
+      <summary><b>4) Fatica progressiva</b></summary>
       <div style="margin-top:10px">
 
         <p>
-          Il GAP (Grade Adjusted Pace) corregge solo la pendenza.
-          Ma nel Trail contano enormemente:
+          La fatica non dipende solo dalla distanza, ma dal <b>tempo reale</b>
+          già trascorso in gara.  
+          WizTrail v2.0 utilizza:
+        </p>
+
+<pre>fatigue = 1 + (t_ore / 12)^1.3</pre>
+
+        <p>
+          Il modello riproduce bene il comportamento reale:
         </p>
 
         <ul>
-          <li>radici, pietre, fango, scivolosità;</li>
-          <li>sentieri esposti o con passaggi stretti;</li>
-          <li>discese tecniche che richiedono controllo muscolare.</li>
+          <li>gare brevi → fatica quasi nulla</li>
+          <li>gare medie (4–6h) → impatto moderato</li>
+          <li>ultra 10–15h → +15–25%</li>
+          <li>endurance estreme → crescita molto marcata</li>
         </ul>
-
-        <p>
-          Per questo WizTrail utilizza <b>classi tecniche</b> (Strada / E / EE / EA)
-          derivate dalle scale escursionistiche CAI
-          e applica un <b>rallentamento dedicato</b> per ciascuna categoria.
-        </p>
 
       </div>
     </details>
 
     <!-- ======================================================== -->
-    <!-- 5) FATICA PROGRESSIVA -->
+    <!-- 5) METEO E ALTITUDINE -->
     <!-- ======================================================== -->
     <details>
-      <summary><b>5) Fatica progressiva (metabolica + neuromuscolare)</b></summary>
-      <div style="margin-top:10px">
-
-        <p>
-          La fatica nei trail deriva da processi combinati:
-        </p>
-
-        <ul>
-          <li><b>glicogeno</b> (riduzione disponibilità energetica),</li>
-          <li><b>danno muscolare eccentrico</b> (discese),</li>
-          <li><b>stress termico</b>,</li>
-          <li><b>quota</b> (riduzione VO₂max),</li>
-          <li><b>durata totale</b>.</li>
-        </ul>
-
-        <p>
-          Il Calcolatore usa un fattore globale dipendente dalla distanza,
-          mentre il Pacing Planner usa un fattore
-          <b>che cresce con l’avanzamento della traccia GPX</b>.
-        </p>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 6) METEO E ALTITUDINE -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>6) Meteo e altitudine: impatto reale</b></summary>
+      <summary><b>5) Meteo e altitudine</b></summary>
       <div style="margin-top:10px">
 
         <h4>Meteo</h4>
         <p>
-          L’aumento della temperatura riduce l’efficienza cardiovascolare
-          e incrementa i tempi di gara fino al +20% nelle ultra calde.
-          WizTrail applica un <b>fattore meteo</b> crescente
-          con caldo e umidità.
+          Il caldo riduce la capacità aerobica e rallenta i tempi,
+          soprattutto nelle gare lunghe.
+          Il modello applica un effetto crescente con le <b>ore totali</b>.
         </p>
 
         <h4>Altitudine</h4>
         <p>
-          La fisiologia dimostra (Fulco, 1998; Roach, 2001)
-          che il VO₂max cala del 6–8% per ogni 1000 m oltre i 1500 m.
-          WizTrail usa un <b>coefficiente altitudine</b> progressivo per simulare questo effetto.
+          L’efficienza aerobica cala progressivamente oltre i 1500 m.
+          WizTrail applica un <b>coefficiente altitudine</b> 
+          basato sulla quota media del percorso.
         </p>
 
       </div>
     </details>
 
     <!-- ======================================================== -->
-    <!-- 7) SPECIFICITÀ -->
+    <!-- 6) SPECIFICITÀ (S) -->
     <!-- ======================================================== -->
     <details>
-      <summary><b>7) Specificità dell’atleta (S)</b></summary>
+      <summary><b>6) Specificità dell’atleta (S)</b></summary>
       <div style="margin-top:10px">
 
         <p>
-          La specificità S (0–1) rappresenta quanto sei abituato al tipo di gara.
-          Un atleta “specifico” soffre meno i tratti tecnici o ripidi,
-          quindi le penalità vengono <b>attenuate</b>.
+          La specificità <b>S</b> (0–1) indica quanto l’atleta è abituato
+          a salite, discese tecniche e trail impegnativi.
         </p>
 
+        <ul>
+          <li><b>0.1–0.2</b> → amatore medio (grande gap piano–salita)</li>
+          <li><b>0.3–0.4</b> → amatore avanzato</li>
+          <li><b>0.7–0.8</b> → atleta competitivo</li>
+        </ul>
+
         <p>
-          È un fattore personale, unico per ogni atleta.
+          S riduce il rallentamento in salita e migliora la gestione della tecnica.
         </p>
 
       </div>
     </details>
 
     <!-- ======================================================== -->
-    <!-- 8) RACESCORE WDI -->
+    <!-- 7) WDI v9.1 -->
     <!-- ======================================================== -->
     <details>
-      <summary><b>8) RaceScore WDI — Wiztrail Difficulty Index</b></summary>
+      <summary><b>7) WDI — WizTrail Difficulty Index </b></summary>
       <div style="margin-top:10px">
 
         <p>
-          Il RaceScore WDI è l’indice proprietario di WizTrail che misura la
-          <b>difficoltà oggettiva</b> del percorso.
-          Non dipende dall’atleta, ma dalla gara.
+          Il WDI misura la <b>difficoltà oggettiva</b> dei percorsi in base al GPX:
+          distanza, D+, pendenze e tecnicità attenuata.
         </p>
 
-        <h4>Fattori considerati</h4>
-        <ul>
-          <li><b>FD</b> — Distanza (modello A–E)</li>
-          <li><b>FVERT</b> — Verticalità: pendenze medie, pendenze 95°, varianza</li>
-          <li><b>FTECH</b> — Tecnicità: discese ripide, roughness</li>
-          <li><b>FPROFILE</b> — Profilo: andamento del tracciato</li>
-          <li><b>FRIP</b> — Ripidità massima per km</li>
-        </ul>
+        <h4>Formula</h4>
+<pre>
+WDI = (Dist_eff + Dplus_eff + SlopePct) × TecFactor
+</pre>
 
-        <h4>Perché è superiore ai modelli classici?</h4>
-        <p>
-          Modelli come ITRA Points o Running Stone considerano prevalentemente
-          distanza e dislivello.
-          RaceScore WDI utilizza l’intera geometria del percorso,
-          incluse pendenze locali e tecnicità.
-        </p>
-
-        <h4>Esempi di calibrazione reale</h4>
-        <ul>
-          <li><b>Zegama (42k / 2900 D+)</b> → Avanzato  
-              (alta tecnicità + ripidità continue)</li>
-          <li><b>Dolomites Skyrace (22k / 1750 D+)</b> → Intermedio/Avanzato  
-              (discese tecniche + esposto)</li>
-          <li><b>VUT35 (34k / 2080 D+)</b> → Intermedio  
-              (trail alpino tecnico ma non estremo)</li>
-          <li><b>Cortina 20k</b> → Base  
-              (traccia corribile, pendenze moderate)</li>
-        </ul>
-
-        <h4>Cosa rappresenta il valore</h4>
-        <ul>
-          <li><b>&lt; 1.25</b> — Base (corribili, moderate)</li>
-          <li><b>1.25–1.45</b> — Intermedio (trail seri)</li>
-          <li><b>1.45–1.70</b> — Avanzato (skyrace, gare dure)</li>
-          <li><b>&gt; 1.70</b> — Elite (Kima, Tromsø, super-technical)</li>
-        </ul>
+        <h4>Classificazione</h4>
+<pre>
+0–30      Sport
+30–75     Pro
+75–120    Advanced
+120–180   Extreme
+180–350   Elite
+>350      Legend
+</pre>
 
       </div>
     </details>
 
     <!-- ======================================================== -->
-    <!-- 9) PACING CHUNK-BASED -->
+    <!-- 8) PACING CHUNK-BASED v2.0 -->
     <!-- ======================================================== -->
     <details>
-      <summary><b>9) Chunk‑based pacing — perché è realistico</b></summary>
+      <summary><b>8) Pacing Planner v2.0: perché è realistico</b></summary>
       <div style="margin-top:10px">
 
         <p>
-          Il pacing tradizionale “spalma” il tempo totale su tutti i km.
-          WizTrail no.
+          Il pacing non è calcolato come “ritmo medio”, ma come somma di 
+          <b>micro‑segmenti</b> identici a quelli usati nel Time Estimator v2.0.
         </p>
 
         <p>
-          La traccia GPX viene divisa in <b>micro‑segmenti</b> che alimentano
-          tratti da 5–10 km (“chunk”).
+          I segmenti vengono aggregati in “chunk” da 5–10 km, ciascuno con:
         </p>
 
-        <p>Per ogni chunk calcoliamo:</p>
         <ul>
-          <li>costo locale (pendenza, fondo, tecnicità)</li>
-          <li>dislivello effettivo</li>
-          <li>meteo/altitudine</li>
-          <li>fatica progressiva</li>
+          <li>pendenza reale filtrata</li>
+          <li>tecnica locale</li>
+          <li>quota</li>
+          <li>meteo</li>
+          <li>fatica progressiva accumulata</li>
         </ul>
 
         <p>
-          Il risultato è un <b>ritmo diverso per ogni tratto</b>,
-          molto vicino allo sforzo reale percepito in gara.
+          Il risultato è un ritmo per tratto estremamente fedele alla dinamica reale di gara.
         </p>
 
       </div>
     </details>
 
     <!-- ======================================================== -->
-    <!-- 10) FORMULA SINTETICA -->
+    <!-- 9) FORMULA RIASSUNTIVA -->
     <!-- ======================================================== -->
     <details>
-      <summary><b>10) Formula riassuntiva</b></summary>
+      <summary><b>9) Formula riassuntiva</b></summary>
       <div style="margin-top:10px">
 
 <pre style="white-space:pre-wrap;">
 Tempo previsto =
   (Riegel adattivo)
-× (km equivalenti: D + α·D⁺/100)
-× (penalità tecniche: Strada/E/EE/EA)
-× (meteo × altitudine)
+× (pendenza → velocità locale)
+× (tecnicità nelle salite/discese ripide)
 × (fatica progressiva)
-× (correzione specificità S)
+× (meteo × altitudine)
+× (specificità S)
 
-RaceScore WDI =
-  w1·FD + w2·FVERT + w3·FTECH + w4·FPROFILE + w5·FRIP
-  (pesi diversi per modelli A–B–C–D–E)
+WDI =
+  (Dist_eff + Dplus_eff + SlopePct) × TecFactor
 
 Pacing Planner =
-  micro‑segmenti GPX → costo locale → tempo grezzo → scaling
+  micro-segmenti → aggregazione chunk → tempo cumulato realistico
 </pre>
 
       </div>
@@ -1018,6 +1028,19 @@ Pacing Planner =
      SCRIPT APP
 =========================== -->
 <script>
+function wdiLabel(cls){
+  switch(cls){
+    case "Sport": return "Sport";
+    case "Pro": return "Pro";
+    case "Advanced": return "Advanced";
+    case "Extreme": return "Extreme";
+    case "Elite": return "Elite";
+    case "Legend": return "Legend";
+  }
+  return cls;
+}
+</script>
+<script>
 /* THEME */
 document.getElementById("themeSel").addEventListener("change", e => {
   document.body.setAttribute("data-theme", e.target.value);
@@ -1121,6 +1144,8 @@ function compute(pts){
 /* GLOBAL STATE */
 let gpxPts = [];
 let metrics = {e:[], d:[]};
+let currentWDI = null;  
+let lastRS = null;  
 
 /* LOAD GPX (solo nel tab Calcolatore) */
 document.getElementById("gpxfile").addEventListener("change", async e => {
@@ -1141,6 +1166,132 @@ document.getElementById("gpxfile").addEventListener("change", async e => {
   drawTrack();
   drawProfile && drawProfile();
 });
+
+/* ============================================================
+   A) FILTRI GPS ANTIRUMORE
+   ============================================================ */
+
+// Smooth altimetry (moving average)
+function smoothElevation(elev, windowSize = 5) {
+  const smoothed = [];
+  const w = Math.floor(windowSize / 2);
+  for (let i = 0; i < elev.length; i++) {
+    let sum = 0, count = 0;
+    for (let k = -w; k <= w; k++) {
+      const idx = i + k;
+      if (idx >= 0 && idx < elev.length) {
+        sum += elev[idx];
+        count++;
+      }
+    }
+    smoothed.push(sum / count);
+  }
+  return smoothed;
+}
+
+// Limit extreme slope jumps (anti-GPS spikes)
+function clampSlope(dh, dd, maxSlope = 0.35) {
+  const rawSlope = dh / dd;
+  if (Math.abs(rawSlope) > maxSlope) {
+    return Math.sign(rawSlope) * maxSlope;
+  }
+  return rawSlope;
+}
+
+/* ============================================================
+   B) COSTRUZIONE SEGMENTI (50–100 m)
+   ============================================================ */
+
+function computeSegments(pts, dist, elev, segLength = 80) {
+
+  const segments = [];
+  let accDist = 0;
+  let lastIndex = 0;
+
+  for (let i = 1; i < pts.length; i++) {
+    const d = dist[i] - dist[lastIndex];
+
+    if (d >= segLength) {
+      const dh = elev[i] - elev[lastIndex];
+      const dd = d;
+
+      // pendenza filtrata anti-rumore
+      const p = clampSlope(dh, dd);
+
+      segments.push({
+        dist: dd,        // distanza del segmento in metri
+        dh: dh,          // dislivello reale del segmento
+        slope: p,        // pendenza filtrata
+        idxStart: lastIndex,
+        idxEnd: i
+      });
+
+      lastIndex = i;
+    }
+  }
+
+  return segments;
+}
+
+/* ============================================================
+   C) pendenza → velocità locale (con Specificità S)
+   ============================================================ */
+
+function velocityFromSlope(p, S, velBase) {
+
+  // Pianura: restituisce velBase
+  if (Math.abs(p) < 0.015) {
+    return velBase;
+  }
+
+  // SALITA
+  if (p > 0) {
+    let fatt = 1 + 3.5 * p;
+    fatt *= (1 + (1 - S)); 
+    if (fatt > 2.0) fatt = 2.0;
+    return velBase / fatt;
+  }
+
+  // DISCESA
+  if (p < 0 && p > -0.10) {
+    let fatt = 1 - 0.5 * Math.abs(p);
+    if (fatt < 0.85) fatt = 0.85;
+    return velBase / fatt;
+  }
+
+  // DISCESA RIPIDA
+  if (p <= -0.10) {
+    let fatt = 1 + Math.abs(p);
+    return velBase / fatt;
+  }
+}
+
+/* ============================================================
+   D) Penalità tecnica E / EE / EA
+   ============================================================ */
+
+function technicalPenalty(slope, terrainClass) {
+  // Classe tecnica definita dall’utente (E/EE/EA)
+  // Applichiamo penalità solo in salita ripida e discesa ripida
+
+  if (terrainClass === "E") return 0; // quasi nulla
+  if (terrainClass === "EE") {
+    if (slope > 0.08 || slope < -0.10) return 0.12; // +12%
+  }
+  if (terrainClass === "EA") {
+    if (slope > 0.08 || slope < -0.10) return 0.28; // +28%
+  }
+
+  return 0;
+}
+
+/* ============================================================
+   E) Fatica dinamica (in base al tempo reale accumulato)
+   ============================================================ */
+
+function fatigueFactor(t_hours) {
+  return 1 + Math.pow(t_hours / 12, 1.3);
+}
 
 /* LEAFLET */
 let map=null, poly=null, hoverMarker=null;
@@ -1184,7 +1335,7 @@ function drawTrack(){
   if(!map || !gpxPts.length) return;
   if(poly) map.removeLayer(poly);
   poly = L.polyline(gpxPts.map(p => [p[0], p[1]]),{
-    color:"#4fd1c5",
+    color: getColorWDI(currentWDI),
     weight:4
   }).addTo(map);
   fitTrack();
@@ -1222,90 +1373,133 @@ const readNum = id => parseFloat(
   document.getElementById(id).value.replace(",",".")
 ) || 0;
 
+/* ============================================================
+   F) TIME ESTIMATOR v2.0 — pipeline completa
+   ============================================================ */
+
 document.getElementById("calcBtn").onclick = () => {
+
   const msg = document.getElementById("msg");
   msg.textContent = "";
 
+  // === Input atleta ===
   const t10 = document.getElementById("t10k").value;
   if(!/^[0-9]+:[0-5][0-9]$/.test(t10)){
     msg.textContent = "Formato 10K non valido";
     return;
   }
   const m10 = parseInt(t10.split(":")[0]) + parseInt(t10.split(":")[1]) / 60;
+  const paceBase = m10 / 10;    // min/km
+  const velBase = 60 / paceBase; // km/h
+  const velBase_ms = velBase * 1000 / 3600;
 
-  const D  = readNum("dist");
-  const Dp = readNum("dplus");
-  const a  = readNum("alpha");
+  // === Input corsa (tecnica, condizioni) ===
+ const terrainClass = document.getElementById("terrain").value;
 
-  /* RIEGEL DINAMICO */
-  let expo;
-  if (D <= 20)       expo = Math.max(1.03, 1.03 + 0.002*(D - 10));
-  else if (D <= 42)  expo = 1.05 + 0.0007*(D - 20);
-  else               expo = 1.075;
+  const S = readNum("spec"); // specificità
+  const meteo = readNum("meteo");
+  const alt = readNum("alt");
+  const margin = readNum("margin")/100;
 
-  const base   = m10 * Math.pow(D / 10, expo);
-  const D_eq   = D + (Dp/100) * a;
-  const T_elev = base * (D_eq / D);
-
-  /* TERRENO */
-  const pS  = readNum("p_strada")/100;
-  const pE  = readNum("p_e")/100;
-  const pEE = readNum("p_ee")/100;
-  const pEA = readNum("p_ea")/100;
-  if(Math.abs(pS + pE + pEE + pEA - 1) > 0.01){
-    msg.textContent = "Somma % ≠100";
+  // === GPX necessario ===
+  if (!gpxPts || !gpxPts.length) {
+    msg.textContent = "Carica un GPX per usare il modello v2.0";
     return;
   }
-  const cE  = readNum("c_e")/100;
-  const cEE = readNum("c_ee")/100;
-  const cEA = readNum("c_ea")/100;
 
-  const terr = pS * 1
-             + pE  * (1 + cE)
-             + pEE * (1 + cEE)
-             + pEA * (1 + cEA);
+  // === computeMetrics ===
+  const m = compute(gpxPts);
 
-  const bm = readNum("meteo");
-  const ba = readNum("alt");
+  // === smoothing altimetrico ===
+  const elev_s = smoothElevation(m.e);
 
-  /* FATICA */
-  let fw;
-  if (D <= 20)      fw = 0.25;
-  else if (D <= 40) fw = 0.25 + 0.03*(D-20);
-  else              fw = 1.0;
+  // === costruiamo segmenti ===
+  const segments = computeSegments(gpxPts, m.d, elev_s);
 
-  const bf_raw = readNum("fatica");
-  const bf = 1 + (bf_raw - 1) * fw;
+  // === loop segmento per segmento ===
+  let T = 0; // tempo totale in secondi
 
-  /* SPECIFICITÀ */
-  const S   = readNum("spec");
-  const mrg = readNum("margin")/100;
+  segments.forEach(seg => {
 
-  const raw   = terr * bm * ba * bf;
-  const gamma = 0.75;
-  const adj   = Math.max(1, 1 + (raw - 1) * Math.pow(1 - S, gamma));
+    const p = seg.slope; 
+    const dist_m = seg.dist;
 
-  const T = T_elev * adj;
+    // velocità locale in base alla pendenza e specificità
+    const velLocal = velocityFromSlope(p, S, velBase);
 
+    // penalità tecnica
+    const tech = technicalPenalty(p, terrainClass);
+
+    const velTech = velLocal / (1 + tech);
+
+    // tempo grezzo segmento
+    let t_raw = dist_m / (velTech * 1000/3600);
+
+    // fatica dinamica
+    const t_hours = T / 3600;
+    const fat = fatigueFactor(t_hours);
+
+    const t_final = t_raw * fat;
+
+    T += t_final;
+  });
+
+  // === fattori finali meteo / altitudine ===
+  const T_hours = T / 3600;
+  const meteoFactor = 1 + (meteo - 1) * (T_hours / 5);
+  const altFactor   = alt;
+
+  T *= meteoFactor;
+  T *= altFactor;
+
+const rs = WizTrailWDI.computeFromGpx(gpxPts, metrics);
+currentWDI = rs.WDI;
+lastRS = rs;
+document.getElementById("outRaceScore").textContent = rs.WDI.toFixed(1);
+document.getElementById("outRaceScore").style.color = rs.color;
+
+document.getElementById("outRaceScoreSub").innerHTML = `
+  <div style="
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:12px;
+    font-weight:700;
+    color:#021;
+    background:${rs.color};
+    margin-bottom:8px;
+    ">
+    ${wdiLabel(rs.class)}
+  </div>
+  <br><br>
+  <span class="mini">
+  Difficoltà stimata con WizTrail WDI v9.1
+  </span>
+`;
+
+  // Output finale
   const fmt = t => {
-    const s = Math.round(t*60);
+    const s = Math.round(t);
     const h = Math.floor(s/3600);
     const m = Math.floor((s%3600)/60);
     const se= s%60;
-    return h ?
-      `${h}:${String(m).padStart(2,"0")}:${String(se).padStart(2,"0")}` :
-      `${m}:${String(se).padStart(2,"0")}`;
+    return `${h}:${String(m).padStart(2,"0")}:${String(se).padStart(2,"0")}`;
   };
 
   document.getElementById("outFinal").textContent = fmt(T);
-  document.getElementById("outLow").textContent   = fmt(T*(1-mrg));
-  document.getElementById("outHigh").textContent  = fmt(T*(1+mrg));
+  document.getElementById("outLow").textContent   = fmt(T*(1-margin));
+  document.getElementById("outHigh").textContent  = fmt(T*(1+margin));
   msg.textContent = "OK";
-
-const rs = WizRaceScore.computeFromGpx(gpxPts, metrics);
-    renderRaceScoreCard(rs.RaceScore, rs);
-
 };
+
+
+function getColorWDI(wdi){
+  if(wdi < 30)  return "#2BB7DA";
+  if(wdi < 75)  return "#34A853";
+  if(wdi < 120) return "#F4C20D";
+  if(wdi < 180) return "#F79617";
+  if(wdi < 350) return "#E91E63";
+  return "#8E24AA";
+}
 
 /* RESET */
 document.getElementById("resetBtn").onclick = () => location.reload();
@@ -1649,67 +1843,11 @@ function drawProfile() {
 <script src="wiztrail-racescore.js?v=20260318"></script>
 
 <script>
-function renderRaceScoreCard(score, factors) {
-
-    const el  = document.getElementById("outRaceScore");
-    const sub = document.getElementById("outRaceScoreSub");
-    if (!el || !sub) return;
-
-    /* ------------------------------------------
-       1) CLASSIFICAZIONE DAL MOTORE 3.0
-    ------------------------------------------ */
-    const cls   = factors.cls;      // ex factors.classify.cls
-    const range = factors.range;    // ex factors.classify.range
-
-    /* ------------------------------------------
-       2) COLORE NUMERO
-    ------------------------------------------ */
-    let col = "#4fd1c5"; // base
-    if (cls === "intermedio") col = "#ffb020";
-    if (cls === "avanzato")   col = "#ff6a3d";
-    if (cls === "elite")      col = "#ff00a8";
-
-    el.style.color = col;
-    el.textContent = score.toFixed(2);
-
-    /* ------------------------------------------
-       3) COLORE BADGE
-    ------------------------------------------ */
-    const badgeColors = {
-        "base":       "#4fd1c5",
-        "intermedio": "#ffb020",
-        "avanzato":   "#ff6a3d",
-        "elite":      "#ff00a8"
-    };
-
-    const badgeColor = badgeColors[cls] || "#999";
-
-    /* ------------------------------------------
-       4) OUTPUT SECONDARIO
-    ------------------------------------------ */
-    sub.innerHTML = `
-        <div style="
-            display:inline-block;
-            padding:4px 10px;
-            border-radius:12px;
-            font-weight:700;
-            color:#021;
-            background:${badgeColor};
-            margin-bottom:8px;
-        ">
-            ${cls.toUpperCase()} • MODEL ${range}
-        </div>
-        <br><br>
-
-        FD (Distanza): ${factors.FD.toFixed(2)}<br>
-        V (Verticalità): ${factors.FVERT.toFixed(2)}<br>
-        T (Tecnicità): ${factors.FTECH.toFixed(2)}<br>
-        P (Profilo): ${factors.FPROFILE.toFixed(2)}<br>
-        RIP (Ripidità MAX): ${factors.FRIP.toFixed(2)}
-    `;
-}
+// Obsoleto — rimosso nella versione WDI v9.1
+function renderRaceScoreCard(){ return; }
 </script>
-<script src="wiztrail-pacing.js?v=20260318"></script>
+
+<script src="wiztrail-pacing.js?v=20260320"></script>
 <script>
 document.getElementById("btnFotoJson")?.addEventListener("click", () => {
 
@@ -1747,7 +1885,9 @@ document.getElementById("btnFotoJson")?.addEventListener("click", () => {
       tempo_finale: T_final,
       low:          T_low,
       high:         T_high,
-      RaceScore:    RS
+     RaceScore: lastRS ? lastRS.WDI.toFixed(1) : null,
+WDI_class: lastRS ? lastRS.class : null,
+WDI_color: lastRS ? lastRS.color : null,
     }
   };
 

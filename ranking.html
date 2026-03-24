@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WizTrail – Classifica WDI</title>
-/WizTrail/manifest.webmanifest
+<link rel="manifest" href="/WizTrail/manifest.webmanifest">
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -43,17 +43,7 @@
 <label>Filtra per nome gara</label>
 <input id="filterName" type="text" placeholder="Es: Zegama, UTMB…">
 </div>
-<div>
-<label>Modello (A–E)</label>
-<select id="filterModel">
-<option value="">Tutte</option>
-<option value="A">A — <25 km</option>
-<option value="B">B — 25–50 km</option>
-<option value="C">C — 50–90 km</option>
-<option value="D">D — 90–120 km</option>
-<option value="E">E — >120 km</option>
-</select>
-</div>
+
 </div>
 </div>
 
@@ -68,7 +58,6 @@
 <th data-sort="dplus">D+ (m) ↑↓</th>
 <th data-sort="wdi">WDI ↑↓</th>
 <th>Classe</th>
-<th>Modello</th>
 </tr>
 </thead>
 <tbody id="raceBody"></tbody>
@@ -78,7 +67,7 @@
 
 <div class="card admin-only" style="display:none;">
 <h2>Aggiungi una nuova gara al ranking</h2>
-<p class="mini">Carica il GPX reale per ottenere distanza, D+, WDI e modello.<br>Il JSON generato va copiato dentro <code>ranking-data.json</code>.</p>
+<p class="mini">Carica il GPX reale per ottenere distanza, D+, WDI.<br>Il JSON generato va copiato dentro <code>ranking-data.json</code>.</p>
 <label>GPX reale</label>
 <input type="file" id="gpxAdmin" accept=".gpx,.tcx"/>
 <label>Nome gara</label>
@@ -100,89 +89,94 @@
 
 <script src="wiztrail-racescore.js"></script>
 <script>
+function parseGPX(text){
+  const xml = new DOMParser().parseFromString(text, "application/xml");
+  const pts = [];
+  [...xml.getElementsByTagName("trkpt")].forEach(p => {
+    const lat = parseFloat(p.getAttribute("lat"));
+    const lon = parseFloat(p.getAttribute("lon"));
+    const ele = parseFloat(p.getElementsByTagName("ele")[0]?.textContent || 0);
+    pts.push([lat, lon, ele]);
+  });
+  return pts;
+}
+</script>
+<script>
+function computeMetrics(pts){
+  const R=6371000;
+  let d=[0], e=[], gain=0;
+  for(let i=0;i<pts.length;i++){
+    e.push(pts[i][2]);
+    if(i===0) continue;
+
+    const lat1=pts[i-1][0]*Math.PI/180, lon1=pts[i-1][1]*Math.PI/180;
+    const lat2=pts[i][0]*Math.PI/180, lon2=pts[i][1]*Math.PI/180;
+    const a=Math.sin((lat2-lat1)/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
+    const dist=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*R;
+
+    d.push(d[d.length-1]+dist);
+    if(e[i]-e[i-1] > 0) gain += e[i]-e[i-1];
+  }
+  return {km:d[d.length-1]/1000,gain,e,d};
+}
+</script>
+<script>
 //---------------------------------------- tema
 const themeSel = document.getElementById("themeSel");
 themeSel.addEventListener("change", e => document.body.setAttribute("data-theme", e.target.value));
-
-//---------------------------------------- colori per classe
-function classColor(cls) {
- switch(cls) {
-   case "base": return "#4fd1c5";
-   case "intermedio": return "#ffb020";
-   case "avanzato": return "#ff6a3d";
-   case "elite": return "#ff00a8";
- }
-}
-
-//---------------------------------------- classifica soglie motore
-function getWdiClass(model, score) {
- if (model === "A") {
-   if (score < 1.22) return "base";
-   if (score < 1.38) return "intermedio";
-   if (score < 1.62) return "avanzato";
-   return "elite";
- }
- if (model === "B") {
-   if (score < 1.30) return "base";
-   if (score < 1.52) return "intermedio";
-   if (score < 1.82) return "avanzato";
-   return "elite";
- }
- if (model === "C") {
-   if (score < 1.42) return "base";
-   if (score < 1.63) return "intermedio";
-   if (score < 1.86) return "avanzato";
-   return "elite";
- }
- if (model === "D") {
-   if (score < 1.55) return "base";
-   if (score < 1.78) return "intermedio";
-   if (score < 2.02) return "avanzato";
-   return "elite";
- }
- if (score < 1.65) return "base";
- if (score < 1.92) return "intermedio";
- if (score < 2.20) return "avanzato";
- return "elite";
-}
 
 //---------------------------------------- admin mode
 const isAdmin = new URLSearchParams(location.search).get("admin") === "1";
 document.querySelectorAll(".admin-only").forEach(el => el.style.display = isAdmin ? "block" : "none");
 
 //---------------------------------------- load ranking
-tlet races = [];
+let races = [];
 fetch("ranking-data.json")
  .then(r => r.json())
  .then(json => { races = json; renderTable(); });
 
 //---------------------------------------- rendering tabella
+
+function wdiLabel(cls){
+  switch(cls){
+    case "Sport": return "Sport";
+    case "Pro": return "Pro";
+    case "Advanced": return "Advanced";
+    case "Extreme": return "Extreme";
+    case "Elite": return "Elite";
+    case "Legend": return "Legend";
+  }
+  return cls;
+}
+
 function renderTable() {
  const nameFilter = filterName.value.toLowerCase();
- const modelFilter = filterModel.value;
+
  raceBody.innerHTML = "";
 
- races
- .filter(r => r.name.toLowerCase().includes(nameFilter)
-         && (modelFilter === "" || r.model === modelFilter))
- .forEach(r => {
-   const cls = getWdiClass(r.model, r.wdi);
-   const clr = classColor(cls);
+races
+  .filter(r => r.name.toLowerCase().includes(nameFilter))
+  .forEach(r => {
 
    const tr = document.createElement("tr");
    tr.style.cursor = "pointer";
+tr.style.borderLeft = "4px solid " + r.color;
+tr.style.transition = "background 0.2s ease, border 0.2s ease";
    tr.addEventListener("click", () => {
      window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
    });
 
-   tr.innerHTML = `
-   <td>${r.name}</td>
-   <td>${r.distance}</td>
-   <td>${r.dplus}</td>
-   <td style="color:${clr};font-weight:700;">${r.wdi.toFixed(2)}</td>
-   <td style="color:${clr};font-weight:700;">${cls.toUpperCase()}</td>
-   <td>${r.model}</td>
-   `;
+ tr.innerHTML = `
+<td>${r.name}</td>
+<td>${r.distance}</td>
+<td>${r.dplus}</td>
+<td style="color:${r.color}; font-weight:700;">
+  ${r.wdi.toFixed(1)}
+</td>
+<td style="color:${r.color}; font-weight:700;">
+  ${wdiLabel(r.class)}
+</td>
+  `;
 
    raceBody.appendChild(tr);
  });
@@ -197,8 +191,14 @@ document.querySelectorAll("#raceTable th[data-sort]").forEach(th => {
    else { sortState.column = col; sortState.asc = true; }
 
    races.sort((a,b) => {
-     if (a[col] < b[col]) return sortState.asc ? -1:1;
-     if (a[col] > b[col]) return sortState.asc ? 1:-1;
+   if(col === "wdi"){
+  return sortState.asc 
+    ? (a.wdi - b.wdi) 
+    : (b.wdi - a.wdi);
+}
+
+if (a[col] < b[col]) return sortState.asc ? -1 : 1;
+if (a[col] > b[col]) return sortState.asc ? 1 : -1;
      return 0;
    });
 
@@ -208,7 +208,6 @@ document.querySelectorAll("#raceTable th[data-sort]").forEach(th => {
 
 //---------------------------------------- filtri
 document.getElementById("filterName").addEventListener("input", renderTable);
-document.getElementById("filterModel").addEventListener("change", renderTable);
 
 //---------------------------------------- admin compute
 btnAdminCompute?.addEventListener("click", async () => {
@@ -218,18 +217,17 @@ btnAdminCompute?.addEventListener("click", async () => {
  if (!raceName) return alert("Inserisci il nome gara");
  const text = await gp.text();
  const xml = new DOMParser().parseFromString(text, "application/xml");
- const pts = parseTrack(xml);
- const mt = compute(pts);
- const rs = WizRaceScore.computeFromGpx(pts, mt);
- const cls = getWdiClass(rs.range, rs.RaceScore);
+const pts = parseGPX(text);
+const metrics = computeMetrics(pts);
+const rs = WizTrailWDI.computeFromGpx(pts, metrics);
 
- adminOutput.textContent = `{
+adminOutput.textContent = `{
   "name": "${raceName}",
-  "distance": ${mt.km.toFixed(2)},
-  "dplus": ${mt.gain},
-  "wdi": ${rs.RaceScore.toFixed(2)},
-  "class": "${cls}",
-  "model": "${rs.range}"
+  "distance": ${metrics.km.toFixed(2)},
+  "dplus": ${metrics.gain},
+  "wdi": ${rs.WDI.toFixed(1)},
+  "class": "${rs.class}",
+  "color": "${rs.color}"
 }`;
 });
 
@@ -239,18 +237,19 @@ btnUserCompute?.addEventListener("click", async () => {
  if (!gp) return alert("Carica un GPX");
  const text = await gp.text();
  const xml = new DOMParser().parseFromString(text, "application/xml");
- const pts = parseTrack(xml);
- const mt = compute(pts);
- const rs = WizRaceScore.computeFromGpx(pts, mt);
- const cls = getWdiClass(rs.range, rs.RaceScore);
- const clr = classColor(cls);
+const pts = parseGPX(text);
+const metrics = computeMetrics(pts);
+const rs = WizTrailWDI.computeFromGpx(pts, metrics);
 
- userResult.innerHTML = `
- <h3>La tua gara</h3>
- <p><b>Distanza:</b> ${mt.km.toFixed(2)} km<br>
- <b>D+:</b> ${mt.gain} m<br>
- <b>WDI:</b> <span style="color:${clr};font-weight:700;">${rs.RaceScore.toFixed(2)}</span> (${cls})<br>
- <b>Modello:</b> ${rs.range}</p>`;
+userResult.innerHTML = `
+<h3>La tua gara</h3>
+<p>
+  <b>Distanza:</b> ${metrics.km.toFixed(2)} km<br>
+  <b>D+:</b> ${metrics.gain} m<br>
+  <b>WDI:</b> <span style="color:${rs.color};font-weight:700;">
+    ${rs.WDI.toFixed(1)}
+  </span> (${wdiLabel(rs.class)})<br>
+</p>`;
 });
 </script>
 </body>

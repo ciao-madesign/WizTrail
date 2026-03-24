@@ -1,5 +1,5 @@
 /***************************************************************
- *  WIZTRAIL — PACING PLANNER 2026 (compatibile con index nuovo)
+ *  WIZTRAIL — PACING PLANNER (v2.0 semplificato e realistico)
  ***************************************************************/
 
 /***************************************************************
@@ -50,56 +50,58 @@ function pc_buildSegments(gpxPts, metrics) {
 }
 
 /***************************************************************
- *  COSTO LOCALE SEGMENTO
+ *  COSTO LOCALE SEGMENTO (SEMPLIFICATO E REALISTICO)
  ***************************************************************/
 function pc_segmentCost(seg, params) {
 
   const dist = seg.dist_m;
-
   const slope = (seg.elev_diff ?? 0) / Math.max(dist, 1);
-  const K_UP = 25, K_DOWN = 8;
 
+  // ---------------------------------------------------------
+  // A) PENDENZA (versione semplificata ma realistica)
+  // ---------------------------------------------------------
   let slopeF = 1;
-  if (slope > 0) slopeF = 1 + slope * K_UP;
-  else if (slope < 0) slopeF = 1 + Math.abs(slope) * K_DOWN;
 
-  const pS  = (params.pS  ?? 0) / 100;
-  const pE  = (params.pE  ?? 0) / 100;
-  const pEE = (params.pEE ?? 0) / 100;
-  const pEA = (params.pEA ?? 0) / 100;
+  if (slope > 0) {
+    // salite
+    if (slope < 0.05)       slopeF = 1 + slope * 6;   // +0-30%
+    else if (slope < 0.12)  slopeF = 1 + slope * 10;  // +60-120%
+    else                    slopeF = 1 + slope * 18;  // salite dure
+  }
+  else if (slope < 0) {
+    // discese
+    if (slope > -0.10)      slopeF = 1 - Math.abs(slope) * 2; // lieve accelerazione
+    else                    slopeF = 1 + Math.abs(slope) * 3; // discesa ripida → rallenta
+  }
 
-  const cE  = (params.cE  ?? 0) / 100;
-  const cEE = (params.cEE ?? 0) / 100;
-  const cEA = (params.cEA ?? 0) / 100;
+  // ---------------------------------------------------------
+  // B) TECNICA (globale, semplificata)
+  // ---------------------------------------------------------
+  const terr = params.terrainClass || "Strada";
+  let techF = 1;
 
-  const terrF =
-    pS  * 1 +
-    pE  * (1 + cE) +
-    pEE * (1 + cEE) +
-    pEA * (1 + cEA);
+  if (terr === "E") techF = 1.05;
 
-  const meteo = pc_safeNum(params.meteo ?? 1);
-  const alt   = pc_safeNum(params.alt ?? 1);
-  const fat   = pc_safeNum(params.fatica ?? 1);
-  const S     = pc_safeNum(params.spec ?? 0);
+  if (terr === "EE" && (slope > 0.08 || slope < -0.12))
+      techF = 1.15;
 
-  const totalDist = params.totalDistance_m ?? 1;
-  const frac = seg.endDist_m / totalDist;
+  if (terr === "EA" && (slope > 0.08 || slope < -0.12))
+      techF = 1.30;
 
-  let fatProg = 1;
-  if (frac > 0.4)
-    fatProg = 1 + (fat - 1) * ((frac - 0.4) / 0.6);
+  // ---------------------------------------------------------
+  // C) METEO / ALTITUDINE (coerenti con calcolatore)
+  // ---------------------------------------------------------
+  const meteo = params.meteo ?? 1;
+  const alt   = params.alt   ?? 1;
 
-  const raw = meteo * alt * fatProg;
-
-  const gamma = 0.75;
-  const specAdj = Math.max(1, 1 + (raw - 1) * Math.pow(1 - S, gamma));
-
-  return dist * slopeF * terrF * specAdj;
+  // ---------------------------------------------------------
+  // D) COSTO SEMPLIFICATO
+  // ---------------------------------------------------------
+  return dist * slopeF * techF * meteo * alt;
 }
 
 /***************************************************************
- *  COSTI TOTALI
+ *  COSTI TOTALI DEI SEGMENTI
  ***************************************************************/
 function pc_computeAllCosts(segments, params) {
   const costs = [];
@@ -160,33 +162,22 @@ function buildPacingChunks(segments, params, gran_km) {
 }
 
 /***************************************************************
- *  MODELLO LOCALE TEMPI PER TRATTO
+ *  TEMPI DEI CHUNK (DISTRIBUZIONE PROPORZIONALE)
  ***************************************************************/
 function computeChunkTimes(pacingChunks, params, T_target_sec) {
 
-  function baseVelocity10k() {
-    const t10 = params.t10_sec;
-    return 10000 / t10;
-  }
+  // 1. somma costi di tutti i chunk
+  let totalCost = 0;
+  pacingChunks.forEach(c => totalCost += c.totalCost);
 
-  const v10 = baseVelocity10k();
-  let sumLocal = 0;
-
-  pacingChunks.forEach(chunk => {
-    const dist_m = chunk.dist_km * 1000;
-    const t_base = dist_m / v10;
-
-    const cost_local_avg = chunk.totalCost / Math.max(dist_m, 1);
-    chunk.time_raw = t_base * cost_local_avg;
-
-    sumLocal += chunk.time_raw;
-  });
-
-  const k = T_target_sec / sumLocal;
+  // 2. distribuzione tempo → proporzionale alla difficoltà locale
   let cumulative = 0;
 
   pacingChunks.forEach(chunk => {
-    chunk.time_sec = chunk.time_raw * k;
+
+    const ratio = chunk.totalCost / totalCost;
+    chunk.time_sec = T_target_sec * ratio;
+
     cumulative += chunk.time_sec;
     chunk.cumulative_sec = cumulative;
   });
@@ -251,11 +242,218 @@ function pc_renderTable(pacingChunks, avgPaceSec) {
 }
 
 /***************************************************************
+ *  MAPPA PACING (Leaflet)
+ ***************************************************************/
+let pacingMap = null;
+let pacingLayers = [];
+
+function initPacingMap() {
+  if (!pacingMap) {
+    pacingMap = L.map("pacingMap");
+    const darkBase = L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      { subdomains: "abcd", maxZoom: 17 }
+    );
+    const topo = L.tileLayer(
+      "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      { opacity: 0.35, maxZoom: 16 }
+    );
+    L.layerGroup([darkBase, topo]).addTo(pacingMap);
+  }
+}
+
+function drawPacingMap(pacingChunks, avgPaceSec) {
+  if (!gpxPts || !gpxPts.length) return;
+
+  initPacingMap();
+
+
+  // pulizia layer precedenti
+  pacingLayers.forEach(l => pacingMap.removeLayer(l));
+  pacingLayers = [];
+
+  pacingMap.setView([gpxPts[0][0], gpxPts[0][1]], 13);
+
+  pacingChunks.forEach(chunk => {
+    const paceSec = chunk.time_sec / chunk.dist_km;
+
+    const color =
+      paceSec > avgPaceSec ? "#ff00a8" : "#4fd1c5";
+
+    // costruzione polyline chunk
+    const segPts = chunk.segs.map(s => {
+      const idx = s.index;
+      return [gpxPts[idx][0], gpxPts[idx][1]];
+    });
+
+    const poly = L.polyline(segPts, {
+      color,
+      weight: 6,
+      opacity: 0.95
+    }).addTo(pacingMap);
+
+    pacingLayers.push(poly);
+  });
+
+  // fit globale
+  const allPts = gpxPts.map(p => [p[0], p[1]]);
+  pacingMap.fitBounds(allPts, { padding: [20, 20] });
+}
+
+/***************************************************************
+ *  PROFILO ALTIMETRICO PER PACING (canvas)
+ ***************************************************************/
+let pacingElevState = {
+  x: [], y: [],
+  pxW:0, pxH:0,
+  dpi:1,
+  padding:{top:16,right:16,bottom:26,left:42},
+  min:0, max:0
+};
+
+function pacingSetupCanvas() {
+  const canvas = document.getElementById("pacingElevCanvas");
+  if (!canvas) return null;
+
+  const cssW = canvas.clientWidth;
+  const cssH = canvas.clientHeight;
+
+  pacingElevState.dpi = Math.max(1, window.devicePixelRatio || 1);
+  canvas.width  = Math.round(cssW * pacingElevState.dpi);
+  canvas.height = Math.round(cssH * pacingElevState.dpi);
+
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(pacingElevState.dpi,0,0,pacingElevState.dpi,0,0);
+
+  pacingElevState.pxW = cssW;
+  pacingElevState.pxH = cssH;
+  return ctx;
+}
+
+function pacingComputeProfile(coords) {
+  if (!metrics || !metrics.e.length) return false;
+  const e = metrics.e, d = metrics.d;
+  const n = e.length;
+
+  const pad = pacingElevState.padding;
+  const W = pacingElevState.pxW - pad.left - pad.right;
+  const H = pacingElevState.pxH - pad.top  - pad.bottom;
+
+  let minE = Math.min(...e);
+  let maxE = Math.max(...e);
+  const margin = (maxE - minE) * 0.05;
+  minE -= margin; maxE += margin;
+
+  pacingElevState.min = minE;
+  pacingElevState.max = maxE;
+
+  pacingElevState.x = new Array(n);
+  pacingElevState.y = new Array(n);
+
+  const totalM = d[d.length-1];
+
+  for (let i=0; i<n; i++) {
+    const fx = d[i] / totalM;
+    const fy = (e[i] - minE) / (maxE - minE);
+    pacingElevState.x[i] = pad.left  + fx * W;
+    pacingElevState.y[i] = pad.top   + (1 - fy) * H;
+  }
+  return true;
+}
+
+function pacingDrawProfile() {
+  const canvas = document.getElementById("pacingElevCanvas");
+  const ctx = pacingSetupCanvas();
+  if (!ctx) return;
+
+  if (!pacingComputeProfile()) {
+    ctx.fillStyle="rgba(255,255,255,0.7)";
+    ctx.fillText("Carica un GPX",20,20);
+    return;
+  }
+
+  const pad = pacingElevState.padding;
+  const xs  = pacingElevState.x;
+  const ys  = pacingElevState.y;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // area
+  const baseY = pacingElevState.pxH - pad.bottom;
+  const grad = ctx.createLinearGradient(0, pad.top, 0, baseY);
+  grad.addColorStop(0,'rgba(79,209,197,0.25)');
+  grad.addColorStop(1,'rgba(14,165,233,0.08)');
+
+  ctx.beginPath();
+  ctx.moveTo(xs[0], baseY);
+  for (let i=0; i<xs.length; i++) ctx.lineTo(xs[i], ys[i]);
+  ctx.lineTo(xs[xs.length-1], baseY);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(xs[0], ys[0]);
+  for (let i=1; i<xs.length; i++) ctx.lineTo(xs[i], ys[i]);
+  ctx.strokeStyle = '#4fd1c5';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+/***************************************************************
+ *  SINCRONIZZAZIONE CURSORE MAPPA ↔ PROFILO
+ ***************************************************************/
+let pacingHoverMarker = null;
+
+function pacingAttachEvents() {
+  const canvas = document.getElementById("pacingElevCanvas");
+  const ctx = canvas.getContext("2d");
+  const xs = pacingElevState.x, ys = pacingElevState.y;
+  const pad = pacingElevState.padding;
+
+  if (!pacingHoverMarker && pacingMap) {
+    pacingHoverMarker = L.circleMarker([0,0],{
+      radius:6, color:"#ff0", fillColor:"#ff0"
+    }).addTo(pacingMap);
+  }
+
+  function idxFromX(clientX){
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    let best = 0, bestDist = Infinity;
+    for (let i=0; i<xs.length; i++){
+      const d = Math.abs(xs[i] - x);
+      if (d < bestDist){ bestDist = d; best = i; }
+    }
+    return best;
+  }
+
+  function drawHover(i){
+    pacingDrawProfile(); // redraw base
+
+    ctx.save();
+    ctx.strokeStyle="rgba(255,255,255,0.4)";
+    ctx.beginPath();
+    ctx.moveTo(xs[i], pad.top);
+    ctx.lineTo(xs[i], pacingElevState.pxH - pad.bottom);
+    ctx.stroke();
+    ctx.restore();
+
+    // Sync marker on map
+    const p = gpxPts[i];
+    if (p) pacingHoverMarker.setLatLng([p[0],p[1]]);
+  }
+
+  canvas.onmousemove = e => drawHover(idxFromX(e.clientX));
+  canvas.onmouseleave = e => pacingDrawProfile();
+}
+/***************************************************************
  *  RENDER SUMMARY
  ***************************************************************/
 function pc_renderSummary(avgPaceSec) {
   const box = document.getElementById("pc_summary");
   if (!box) return;
+
   box.innerHTML = `
       <div class="pc-summary-box">
         Passo medio complessivo previsto:
@@ -292,16 +490,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const gran = parseInt(document.getElementById("pc_gran").value, 10);
 
     const params = {
-      pS:  readNum("p_strada"),
-      pE:  readNum("p_e"),
-      pEE: readNum("p_ee"),
-      pEA: readNum("p_ea"),
-      cE:  readNum("c_e"),
-      cEE: readNum("c_ee"),
-      cEA: readNum("c_ea"),
+      terrainClass: document.getElementById("terrain").value,
       meteo: readNum("meteo"),
-      alt:   readNum("alt"),
-      fatica: readNum("fatica"),
+      alt: readNum("alt"),
       spec: readNum("spec")
     };
 
@@ -323,6 +514,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     pc_renderTable(PC_PLAN.pacingChunks, avgPaceSec);
     pc_renderSummary(avgPaceSec);
+drawPacingMap(PC_PLAN.pacingChunks, avgPaceSec);
+pacingDrawProfile();
+pacingAttachEvents();
 
     document.getElementById("pc_results").style.display = "block";
   });
