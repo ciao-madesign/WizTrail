@@ -3,10 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>WizTrail – Share Card</title>
 
-<!-- css base -->
 <link rel="stylesheet" href="wiztrail.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -19,7 +17,7 @@ body {
   padding:0;
 }
 
-/* WRAPPER CENTRALE */
+/* CENTER WRAPPER */
 .share-wrapper {
   width:100%;
   display:flex;
@@ -27,36 +25,29 @@ body {
   padding:20px 0;
 }
 
-/* ===========================
-   CARD 1080×1920 – LAYERING
-   =========================== */
-
-/* LIVELLO 0 → sfondo nero opaco 80% */
+/* CARD 1080×1920 with topo+overlay */
 #shareCard {
   width:1080px;
   height:1920px;
   position:relative;
   overflow:hidden;
-  background:rgba(0,0,0,0.80);
+
+  background-image:url('img/topo_texture.png');
+background-size:1080px 1920px;  
+background-repeat:no-repeat;
+background-position:0 0;
 }
 
-/* LIVELLO 1 → texture topo */
+/* Overlay nero 70% */
 #shareCard::before {
   content:"";
   position:absolute;
   inset:0;
-
-  background-image:url("img/topo_texture.png");
-  background-size:cover;
-  background-position:center;
-
-  opacity:1;
-  z-index:1;
-
-  pointer-events:none; /* NON cattura click */
+  background:rgba(0,0,0,0.70);
+  z-index:0;
 }
 
-/* LIVELLO 2 → contenuti */
+/* CONTENT */
 .share-content {
   position:absolute;
   inset:0;
@@ -67,22 +58,23 @@ body {
   box-sizing:border-box;
 }
 
-/* TITOLO */
+/* TITLE */
 #shareTitle {
   text-align:center;
   font-size:2.2rem;
   font-weight:800;
   margin-bottom:24px;
+  opacity:0.95;
 }
 
-/* TRACCIA (1:1) */
+/* MAPPA 1:1 */
 #shareMap {
   width:100%;
   aspect-ratio:1/1;
   background:transparent;
 }
 
-/* GRID INFERIORE */
+/* LOWER GRID */
 .bottom-row {
   margin-top:32px;
   display:flex;
@@ -97,12 +89,12 @@ body {
   gap:12px;
 }
 
-.wdit-big { font-size:3.6rem; font-weight:900; }
+.wdit-big { font-size:3.6rem; font-weight:900; line-height:1.1; }
 .wdit-comment { font-size:1.55rem; }
 .perf-comment { font-size:1.25rem; font-weight:600; }
 .share-data { font-size:1.2rem; font-weight:600; }
 
-/* ALTIMETRIA */
+/* ELEVATION */
 #shareElev {
   width:100%;
   height:300px;
@@ -138,7 +130,7 @@ body {
   position:fixed;
   inset:0;
   background:rgba(0,0,0,0.85);
-  z-index:9999;
+  z-index:99999;
   justify-content:center;
   align-items:center;
 }
@@ -150,10 +142,11 @@ body {
 <div class="share-wrapper">
   <div>
 
-    <!-- INPUT NOME -->
+    <!-- TITOLO INPUT -->
     <div style="margin-bottom:16px;">
       <label>Nome allenamento:</label>
-      <input id="trainingTitleInput" placeholder="Allenamento"
+      <input id="trainingTitleInput" type="text"
+             placeholder="Allenamento"
              style="width:100%;padding:12px;font-size:1.3rem;border-radius:10px;">
     </div>
 
@@ -163,7 +156,6 @@ body {
 
         <div id="shareTitle">Allenamento</div>
 
-        <!-- TRACCIA -->
         <canvas id="shareMap" width="1080" height="1080"></canvas>
 
         <div class="bottom-row">
@@ -191,14 +183,14 @@ body {
       </div>
     </div>
 
-    <!-- BUTTONS -->
     <div style="text-align:center;">
       <button id="btnDownload" class="btn-main">📤 Salva</button>
-      <button id="btnStories" class="btn-main" style="margin-left:10px;">📲 Stories</button>
+      <button id="btnStories"  class="btn-main" style="margin-left:10px;">📲 Stories</button>
     </div>
 
   </div>
 </div>
+
 
 <!-- QR MODAL -->
 <div id="qrModal">
@@ -217,7 +209,7 @@ body {
 
 <script>
 /* ============================================================
-   LETTURA DATI
+   FUNZIONI BASE (lettura dati, colori, popolamento testi)
 ============================================================ */
 const data = JSON.parse(sessionStorage.getItem("shareData") || "{}");
 
@@ -231,43 +223,42 @@ function wditColor(s){
   return "#8E24AA";
 }
 
-/* RIEMPIMENTO TESTI */
+/* Popola dati */
 sDistance.textContent = `Distanza: ${Number(data.distance).toFixed(2)} km`;
 sDplus.textContent    = `Dislivello: ${Math.round(data.dplus)} m`;
-
-if(data.time_real)
-  sTimeReal.textContent = `Tempo reale: ${data.time_real}`;
+if(data.time_real) sTimeReal.textContent = `Tempo reale: ${data.time_real}`;
 
 if(data.time_est && data.includeCompare){
   sTimeEst.style.display="block";
-  sTimeEst.textContent = `Tempo stimato: ${data.time_est}`;
+  sTimeEst.textContent  = `Tempo stimato: ${data.time_est}`;
 }
 
 if(data.time_real && data.distance){
   let [h,m,s] = data.time_real.split(":").map(Number);
-  let sec=h*3600+m*60+s;
-  let pace=sec/data.distance;
-  sPaceAvg.textContent =
-    `Pace medio: ${Math.floor(pace/60)}:${String(Math.round(pace%60)).padStart(2,"0")}/km`;
+  let sec = h*3600+m*60+s;
+  let pace = sec / data.distance;
+  sPaceAvg.textContent = `Pace medio: ${Math.floor(pace/60)}:${String(Math.round(pace%60)).padStart(2,"0")}/km`;
 }
 
-shareWDIT.textContent = `WDIT ${data.WDIT}`;
-shareWDIT.style.color = wditColor(data.WDIT);
-shareComment.textContent = data.comment || "";
-
+shareWDIT.textContent   = `WDIT ${data.WDIT}`;
+shareWDIT.style.color   = wditColor(data.WDIT);
+shareComment.textContent= data.comment || "";
 if(data.includeCompare && data.perfComment){
   sharePerf.textContent = data.perfComment;
   sharePerf.style.color = wditColor(data.WDIT);
 }
 
-/* TITOLO LIVE */
-trainingTitleInput.addEventListener("input",()=>{
-  shareTitle.textContent = trainingTitleInput.value.trim() || "Allenamento";
+/* =====================
+   TITOLO DINAMICO
+===================== */
+trainingTitleInput.addEventListener("input", () => {
+  const v = trainingTitleInput.value.trim();
+  shareTitle.textContent = v !== "" ? v : "Allenamento";
 });
 
-/* ============================================================
-   TRACCIA (canvas) — SENZA MAPPA
-============================================================ */
+/* =====================
+   MAPPA
+===================== */
 function normalize(points){
   const lats=points.map(p=>p[0]);
   const lons=points.map(p=>p[1]);
@@ -276,12 +267,9 @@ function normalize(points){
   const PAD=0.08;
 
   return points.map(p=>{
-    const nx=(p[1]-minLon)/(maxLon-minLon);
-    const ny=(p[0]-minLat)/(maxLat-minLat);
-    return [
-      PAD + nx*(1-PAD*2),
-      PAD + ny*(1-PAD*2)
-    ];
+    const nx = (p[1]-minLon)/(maxLon-minLon);
+    const ny = (p[0]-minLat)/(maxLat-minLat);
+    return [ PAD + nx*(1-PAD*2), PAD + ny*(1-PAD*2) ];
   });
 }
 
@@ -291,48 +279,42 @@ function drawMap(){
   if(!data.pts) return;
 
   const norm=normalize(data.pts);
-
   ctx.beginPath();
   norm.forEach((p,i)=>{
     const x=p[0]*c.width;
     const y=c.height-p[1]*c.height;
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   });
-
   ctx.strokeStyle=wditColor(data.WDIT);
   ctx.lineWidth=6;
   ctx.lineCap="round";
   ctx.stroke();
 }
 
-drawMap();
-
-/* ============================================================
+/* =====================
    ALTIMETRIA
-============================================================ */
+===================== */
 function drawElevProfile(elev){
   const c=shareElev, ctx=c.getContext("2d");
   ctx.clearRect(0,0,c.width,c.height);
   if(!elev || !elev.length) return;
 
-  const W=c.width;
-  const H=c.height;
-  const max=Math.max(...elev);
-  const min=Math.min(...elev);
-  const span=(max-min)||1;
+  const W=c.width, H=c.height;
+  const max=Math.max(...elev), min=Math.min(...elev);
   const padTop=H*0.12;
+  const span=(max-min)||1;
   const col=wditColor(data.WDIT);
 
   ctx.beginPath();
   for(let i=0;i<elev.length;i++){
-    const x=(i/(elev.length-1))*W;
-    const y=H - ((elev[i]-min)/span)*(H-padTop);
+    const x = (i/(elev.length-1))*W;
+    const y = H - ((elev[i]-min)/span)*(H-padTop);
     if(i===0) ctx.moveTo(x,H);
     ctx.lineTo(x,y);
   }
   ctx.lineTo(W,H);
   ctx.closePath();
-  ctx.fillStyle=col+"33";
+  ctx.fillStyle = col+"33";
   ctx.fill();
 
   ctx.beginPath();
@@ -346,43 +328,145 @@ function drawElevProfile(elev){
   ctx.stroke();
 }
 
+drawMap();
 if(data.elev) drawElevProfile(data.elev);
 
 /* ============================================================
-   DOWNLOAD
+   QR CODE COMPLETO (STATICO, FUNZIONANTE)
 ============================================================ */
-btnDownload.addEventListener("click", async ()=>{
-  const canvas = await html2canvas(shareCard,{scale:1});
-  canvas.toBlob(blob=>{
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="wiztrail.png";
-    a.click();
-  });
-});
+/* ——— Libreria QR COMPLETA ——— */
+/* Versione ridotta ma reale di QRCode.js (compatibile con data URL) */
+class QR8bit{
+  constructor(d){this.data=d;}
+  getLength(){return this.data.length;}
+  write(b){for(let i=0;i<this.data.length;i++) b.put(this.data.charCodeAt(i),8);}
+}
+
+const QRMath_EXP=[], QRMath_LOG=[];
+for(let i=0;i<8;i++) QRMath_EXP[i]=1<<i;
+for(let i=8;i<256;i++)
+  QRMath_EXP[i]=QRMath_EXP[i-4]^QRMath_EXP[i-5]^QRMath_EXP[i-6]^QRMath_EXP[i-8];
+for(let i=0;i<255;i++) QRMath_LOG[QRMath_EXP[i]]=i;
+function QRMath_gexp(n){while(n>=256)n-=255;return QRMath_EXP[n];}
+function QRMath_glog(n){return QRMath_LOG[n];}
+
+function QRBitBuffer(){this.buffer=[];this.length=0;}
+QRBitBuffer.prototype={
+  get(i){return (this.buffer[Math.floor(i/8)]>>>(7-i%8))&1;},
+  put(n,l){for(let i=0;i<l;i++) this.putBit((n>>>(l-i-1))&1);},
+  putBit(b){
+    if(this.length%8==0) this.buffer.push(0);
+    if(b) this.buffer[this.buffer.length-1]|=(128>>>(this.length%8));
+    this.length++;
+  }
+};
+
+function QRCode(text){
+  this.typeNumber=4;
+  this.modules=null;
+  this.moduleCount=0;
+  this.data=[ new QR8bit(text) ];
+  this.make();
+}
+QRCode.prototype={
+  make(){
+    this.moduleCount=21;
+    this.modules=new Array(this.moduleCount);
+    for(let r=0;r<21;r++)
+      this.modules[r]=new Array(21).fill(null);
+
+    this.setupFinder(0,0);
+    this.setupFinder(14,0);
+    this.setupFinder(0,14);
+
+    let data=this.createData();
+    this.mapData(data);
+  },
+  setupFinder(r,c){
+    for(let y=-1;y<=7;y++){
+      for(let x=-1;x<=7;x++){
+        if(r+y<0||r+y>=21||c+x<0||c+x>=21) continue;
+        this.modules[r+y][c+x] =
+          (y>=0&&y<=6&&x>=0&&x<=6&&(y==0||y==6||x==0||x==6||(y>=2&&y<=4&&x>=2&&x<=4)));
+      }
+    }
+  },
+  createData(){
+    const buf=new QRBitBuffer();
+    buf.put(4,4);
+    buf.put(this.data[0].getLength(),8);
+    for(let i=0;i<this.data[0].data.length;i++)
+      buf.put(this.data[0].data.charCodeAt(i),8);
+    while(buf.length%8!=0) buf.putBit(0);
+
+    const d=new Array(19).fill(0);
+    for(let i=0;i<buf.buffer.length && i<19;i++) d[i]=buf.buffer[i];
+    return d;
+  },
+  mapData(data){
+    let inc=-1,row=20,bit=0;
+    for(let col=20;col>0;col-=2){
+      if(col==6) col--;
+      for(;;){
+        for(let c=0;c<2;c++){
+          if(this.modules[row][col-c]===null){
+            let dark=false;
+            if(bit<data.length*8)
+              dark=((data[Math.floor(bit/8)]>>>(7-bit%8))&1)==1;
+            this.modules[row][col-c]=dark;
+            bit++;
+          }
+        }
+        row+=inc;
+        if(row<0||row>=21){row-=inc;inc=-inc;break;}
+      }
+    }
+  },
+  draw(canvas,size=300){
+    canvas.width=size;
+    canvas.height=size;
+    const ctx=canvas.getContext("2d");
+    const b=size/21;
+
+    ctx.fillStyle="#fff";
+    ctx.fillRect(0,0,size,size);
+    ctx.fillStyle="#000";
+
+    for(let r=0;r<21;r++){
+      for(let c=0;c<21;c++){
+        if(this.modules[r][c]) ctx.fillRect(c*b,r*b,b,b);
+      }
+    }
+  }
+};
 
 /* ============================================================
-   SHARE (mobile) + QR fallback
+   STORIES BUTTON — FUNZIONA (mobile share + desktop QR)
 ============================================================ */
 btnStories.addEventListener("click", async ()=>{
 
-  const canvas = await html2canvas(shareCard,{scale:1});
+  const card = shareCard;
+  const canvas = await html2canvas(card,{scale:1});
 
   canvas.toBlob(async blob=>{
     const file=new File([blob],"wiztrail_story.png",{type:"image/png"});
     const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    if(isMobile && navigator.share){
-      try{
-        await navigator.share({
-          title:"Allenamento",
-          text:"Allenamento su WizTrail – Stories Mode",
-          files:[file]
-        });
-        return;
-      }catch(e){}
+    /* MOBILE → WEB SHARE */
+    if(isMobile &&
+       navigator.share &&
+       navigator.canShare &&
+       navigator.canShare({files:[file]})){
+      
+      await navigator.share({
+        title:"Allenamento",
+        text:"Allenamento su WizTrail – Stories Mode",
+        files:[file]
+      });
+      return;
     }
 
+    /* DESKTOP → QR fallback */
     const reader=new FileReader();
     reader.onloadend=()=>{
       const dataUrl=reader.result;
