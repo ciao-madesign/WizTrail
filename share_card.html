@@ -27,49 +27,43 @@ body {
 }
 
 /* CARD 1080×1920 */
-/* CARD 1080×1920 — sfondo nero */
 #shareCard {
   width:1080px;
   height:1920px;
   position:relative;
   overflow:hidden;
 
-  background:#000; /* sfondo nero solido */
+  /* LIVELLO 0 — nero opacità 80% */
+  background:rgba(0,0,0,0.80);
 }
 
-/* LIVELLO 1 — texture topo */
+/* LIVELLO 1 — topo texture */
 #shareCard::before {
   content:"";
-  position:absolute;
-  inset:0;
+   width:1080px;
+  height:1920px;
+  position:relative;
+  overflow:hidden;
+
   background-image:url("img/topo_texture.png");
-  background-size:cover;
-  background-position:center;
+   width:1080px;
+  height:1920px;
+  position:relative;
+  overflow:hidden;
 
-  opacity:1;        /* texture piena */
+  opacity:1;            /* texture piena */
   z-index:1;
-  pointer-events:none;   /* <---- fondamentale */
+  pointer-events:none;  /* IMPORTANTISSIMO — non blocca click */
 }
 
-/* LIVELLO 2 — overlay nero 95% */
-#shareCard::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,0.95);
-
-  z-index:2;
-  pointer-events:none;   /* <---- fondamentale */
-}
-
-/* LIVELLO 3 — contenuti cliccabili */
+/* LIVELLO 2 — contenuti */
 .share-content {
   position:absolute;
   inset:0;
-  z-index:3;
+  z-index:2;
+  padding:48px;
   display:flex;
   flex-direction:column;
-  padding:48px;
   box-sizing:border-box;
 }
 
