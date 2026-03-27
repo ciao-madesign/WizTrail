@@ -6,6 +6,7 @@
 
 <title>WizTrail – Share Card</title>
 
+<!-- css base -->
 <link rel="stylesheet" href="wiztrail.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -26,44 +27,43 @@ body {
   padding:20px 0;
 }
 
-/* CARD 1080×1920 */
+/* ===========================
+   CARD 1080×1920 – LAYERING
+   =========================== */
+
+/* LIVELLO 0 → sfondo nero opaco 80% */
 #shareCard {
   width:1080px;
   height:1920px;
   position:relative;
   overflow:hidden;
-
-  /* LIVELLO 0 — nero opacità 80% */
   background:rgba(0,0,0,0.80);
 }
 
-/* LIVELLO 1 — topo texture */
+/* LIVELLO 1 → texture topo */
 #shareCard::before {
   content:"";
-   width:1080px;
-  height:1920px;
-  position:relative;
-  overflow:hidden;
+  position:absolute;
+  inset:0;
 
   background-image:url("img/topo_texture.png");
-   width:1080px;
-  height:1920px;
-  position:relative;
-  overflow:hidden;
+  background-size:cover;
+  background-position:center;
 
-  opacity:1;            /* texture piena */
+  opacity:1;
   z-index:1;
-  pointer-events:none;  /* IMPORTANTISSIMO — non blocca click */
+
+  pointer-events:none; /* NON cattura click */
 }
 
-/* LIVELLO 2 — contenuti */
+/* LIVELLO 2 → contenuti */
 .share-content {
   position:absolute;
   inset:0;
   z-index:2;
-  padding:48px;
   display:flex;
   flex-direction:column;
+  padding:48px;
   box-sizing:border-box;
 }
 
@@ -75,14 +75,14 @@ body {
   margin-bottom:24px;
 }
 
-/* MAPPA (solo traccia) 1:1 */
+/* TRACCIA (1:1) */
 #shareMap {
   width:100%;
   aspect-ratio:1/1;
   background:transparent;
 }
 
-/* LAYOUT INFERIORE */
+/* GRID INFERIORE */
 .bottom-row {
   margin-top:32px;
   display:flex;
@@ -163,7 +163,7 @@ body {
 
         <div id="shareTitle">Allenamento</div>
 
-        <!-- TRACCIA SENZA MAPPA -->
+        <!-- TRACCIA -->
         <canvas id="shareMap" width="1080" height="1080"></canvas>
 
         <div class="bottom-row">
@@ -191,6 +191,7 @@ body {
       </div>
     </div>
 
+    <!-- BUTTONS -->
     <div style="text-align:center;">
       <button id="btnDownload" class="btn-main">📤 Salva</button>
       <button id="btnStories" class="btn-main" style="margin-left:10px;">📲 Stories</button>
@@ -261,8 +262,7 @@ if(data.includeCompare && data.perfComment){
 
 /* TITOLO LIVE */
 trainingTitleInput.addEventListener("input",()=>{
-  shareTitle.textContent =
-    trainingTitleInput.value.trim() || "Allenamento";
+  shareTitle.textContent = trainingTitleInput.value.trim() || "Allenamento";
 });
 
 /* ============================================================
@@ -362,7 +362,7 @@ btnDownload.addEventListener("click", async ()=>{
 });
 
 /* ============================================================
-   SHARE (mobile) + QR (desktop)
+   SHARE (mobile) + QR fallback
 ============================================================ */
 btnStories.addEventListener("click", async ()=>{
 
