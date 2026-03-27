@@ -29,52 +29,70 @@ body {
   padding:20px 0;
 }
 
-.preview-container {
-  width:min(100%, 360px);      /* ridotta ma proporzionata */
-  aspect-ratio:9/16;           /* stessa forma della card finale */
-  transform-origin: top left;
-  position:relative;
+.mobile-layout {
+  width:100%;
+  max-width:420px;       /* mobile-friendly */
+  margin:auto;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
 }
 
-/* ==== CARD FINALE 1080×1920 ==== */
+.ui-panel {
+  width:100%;
+  padding:0 20px;
+}
+
+.preview-container {
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
+
+/* CARD 1080×1920 */
 #shareCard {
   width:1080px;
   height:1920px;
-
   transform:scale(calc(min(100%,360px) / 1080));
-
   transform-origin: top left;
+
   position:absolute;
   top:0; left:0;
-
   overflow:hidden;
   position:relative;
-
-  /* LAYER 1 — TEXTURE PIXEL PERFECT */
-  background-image:url('img/topo_texture.png');
-  background-size:1080px 1920px;
-  background-repeat:no-repeat;
-
-  /* LAYER 2 — OVERLAY NERO 90% */
 }
+
+/* LAYER 1 — TEXTURE 80% */
 #shareCard::before {
   content:"";
   position:absolute;
   inset:0;
-  background:rgba(0,0,0,0.90);
+  background-image:url('img/topo_texture.png');
+  background-size:1080px 1920px;
+  background-repeat:no-repeat;
+  opacity:0.80; /* <--- texture 80% */
   z-index:0;
 }
 
-/* ==== CONTENUTO ==== */
+/* LAYER 2 — OVERLAY NERO 90% */
+#shareCard::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.95); 
+  z-index:1;
+}
+
+/* CONTENUTO */
 .share-content {
   position:absolute;
   inset:0;
-  z-index:2;
+  z-index:2; /* <--- sopra texture + overlay */
   display:flex;
   flex-direction:column;
-  box-sizing:border-box;
   padding:48px;
   gap:24px;
+  box-sizing:border-box;
 }
 
 #shareTitle {
@@ -159,58 +177,55 @@ body {
 
 <div class="share-wrapper">
 
-  <div class="preview-container">
+  <div class="mobile-layout">
 
-    <div id="shareCard">
+      <!-- INPUT SOPRA, SEMPRE VISIBILE -->
+      <div class="ui-panel">
+        <label>Nome allenamento:</label>
+        <input id="trainingTitleInput" placeholder="Allenamento"
+               style="width:100%;padding:12px;font-size:1.2rem;border-radius:10px;">
+      </div>
 
-      <div class="share-content">
+      <!-- CARD SCALATA E CENTRATA -->
+      <div class="preview-container">
+         <div id="shareCard">
+            <div class="share-content">
 
-        <!-- TITOLO -->
-        <div id="shareTitle">Allenamento</div>
+              <div id="shareTitle">Allenamento</div>
+              <canvas id="shareMap" width="1080" height="1080"></canvas>
 
-        <!-- MAPPA REALISTICA -->
-        <canvas id="shareMap" width="1080" height="1080"></canvas>
+              <div class="bottom-row">
+                <div class="left-col">
+                  <div id="shareWDIT" class="wdit-big"></div>
+                  <div id="shareComment" class="wdit-comment"></div>
+                  <div id="sharePerf" class="perf-comment"></div>
+                </div>
+                <div class="right-col">
+                  <div id="sDistance" class="share-data"></div>
+                  <div id="sDplus"   class="share-data"></div>
+                  <div id="sTimeReal" class="share-data"></div>
+                  <div id="sTimeEst"  class="share-data" style="display:none;"></div>
+                  <div id="sPaceAvg"  class="share-data"></div>
+                  <canvas id="shareElev" width="1080" height="300"></canvas>
+                </div>
+              </div>
 
-        <div class="bottom-row">
+              <div class="share-footer">
+                Powered by <strong>WizTrail</strong> • wiztrail.app
+              </div>
 
-          <div class="left-col">
-            <div id="shareWDIT" class="wdit-big"></div>
-            <div id="shareComment" class="wdit-comment"></div>
-            <div id="sharePerf" class="perf-comment"></div>
-          </div>
+            </div>
+         </div>
+      </div>
 
-          <div class="right-col">
-            <div id="sDistance" class="share-data"></div>
-            <div id="sDplus" class="share-data"></div>
-            <div id="sTimeReal" class="share-data"></div>
-            <div id="sTimeEst" class="share-data" style="display:none;"></div>
-            <div id="sPaceAvg" class="share-data"></div>
+      <!-- BOTTONI SOTTO -->
+      <div class="ui-panel" style="margin-top:20px;text-align:center;">
+        <button id="btnDownload" class="btn-main">📤 Salva</button>
+        <button id="btnStories" class="btn-main" style="margin-left:10px;">📲 Stories</button>
+      </div>
 
-            <canvas id="shareElev" width="1080" height="300"></canvas>
-          </div>
-
-        </div>
-
-        <div class="share-footer">
-          Powered by <strong>WizTrail</strong> • wiztrail.app
-        </div>
-
-      </div> <!-- share-content -->
-
-    </div> <!-- shareCard -->
-
-  </div> <!-- preview-container -->
-
-</div> <!-- wrapper -->
-
-<div style="text-align:center;">
-  <div style="max-width:360px;margin:auto;">
-      <label>Nome allenamento:</label>
-      <input id="trainingTitleInput" placeholder="Allenamento" 
-             style="width:100%;padding:12px;font-size:1.2rem;border-radius:10px;">
-      <button id="btnDownload" class="btn-main">📤 Salva</button>
-      <button id="btnStories" class="btn-main" style="margin-left:10px;">📲 Stories</button>
   </div>
+
 </div>
 
 
