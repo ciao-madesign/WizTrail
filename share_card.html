@@ -43,26 +43,21 @@ body {
   padding:0 20px;
 }
 
+/* ==== PATCH PREVIEW MOBILE 9:16 SENZA SCROLL ==== */
 .preview-container {
   width:100%;
   display:flex;
   justify-content:center;
+  overflow:hidden; /* Importantissimo */
+  height: calc( min(100vw, 420px) / 1080 * 1920 );  
 }
 
-/* CARD 1080×1920 */
 #shareCard {
-  width:1080px;
-  height:1920px;
-  transform:scale(calc(min(100%,360px) / 1080));
-  transform-origin: top left;
-
-  position:absolute;
-  top:0; left:0;
-  overflow:hidden;
-  position:relative;
+  transform: scale(calc( min(100vw, 420px) / 1080 ));
+  transform-origin: top center;
 }
 
-/* LAYER 1 — TEXTURE 80% */
+/* Layer texture 80% */
 #shareCard::before {
   content:"";
   position:absolute;
@@ -70,78 +65,66 @@ body {
   background-image:url('img/topo_texture.png');
   background-size:1080px 1920px;
   background-repeat:no-repeat;
-  opacity:0.80; /* <--- texture 80% */
+  opacity:0.80;     /* texture 80% */
   z-index:0;
 }
 
-/* LAYER 2 — OVERLAY NERO 90% */
+/* Layer overlay nero 90% */
 #shareCard::after {
   content:"";
   position:absolute;
   inset:0;
-  background:rgba(0,0,0,0.95); 
+  background:rgba(0,0,0,0.90); /* overlay 90% */
   z-index:1;
 }
 
-/* CONTENUTO */
+/* Il contenuto deve rimanere sopra */
 .share-content {
   position:absolute;
   inset:0;
-  z-index:2; /* <--- sopra texture + overlay */
-  display:flex;
-  flex-direction:column;
-  padding:48px;
-  gap:24px;
-  box-sizing:border-box;
-}
+  z-index:2;
+}/* ==== PATCH PROPORZIONI 1080×1920 ==== */
 
+/* TITOLO – 130px */
 #shareTitle {
-  text-align:center;
-  font-size:2.2rem;
-  font-weight:800;
-  margin-bottom:12px;
-  opacity:0.95;
+  height:130px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;              /* elimina margini verticali */
+  padding:0;
 }
 
-/* MAPPA QUADRATA */
+/* MAPPA – 900px (fissa) */
 #shareMap {
-  width:100%;
-  aspect-ratio:1/1;
-  background:transparent;
+  width:900px !important;
+  height:900px !important;
+  flex-shrink:0;
 }
 
-/* GRIGLIA DATI INFERIORE */
+/* SEZIONE CENTRALE (WDIT + DATI) – 400px */
 .bottom-row {
+  height:400px;
+  flex-shrink:0;
   display:flex;
-  gap:20px;
-  flex:1;
+  justify-content:space-between;
 }
 
-.left-col, .right-col {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-.wdit-big { font-size:3.6rem; font-weight:900; }
-.wdit-comment { font-size:1.6rem; }
-.perf-comment { font-size:1.3rem; font-weight:600; }
-.share-data { font-size:1.25rem; font-weight:600; }
-
-/* ALTIMETRIA */
+/* PROFILO ALTIMETRICO – 300px */
 #shareElev {
-  width:100%;
-  height:300px;
-  background:transparent;
+  width:900px !important;
+  height:300px !important;
+  flex-shrink:0;
 }
 
-/* FOOTER */
+/* FOOTER – 100px */
 .share-footer {
-  text-align:center;
-  font-size:1.25rem;
-  font-weight:600;
-  margin-top:20px;
+  height:100px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
+  padding:0;
 }
 
 /* BOTTONI */
