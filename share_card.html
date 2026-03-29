@@ -186,6 +186,12 @@ body { background:#000; color:#fff; font-family:Inter,system-ui; }
     </button>
   </div>
 </div>
+<!-- TORNA AL TRAINING ANALYZER -->
+<div style="text-align:center; margin-top:16px;">
+    training-analyzer.html
+        ← Torna al Training Analyzer
+    </button>
+</div>
 
 
 
@@ -571,19 +577,19 @@ btnStories.addEventListener("click", async () => {
         const file = new File([blob], "wiztrail_story.png", { type: "image/png" });
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-        // 🔥 FIX: rimosso navigator.canShare({files})
-        if (isMobile && navigator.share) {
-            try {
-                await navigator.share({
-                    title: "Il mio allenamento",
-                    text: "Allenamento su WizTrail – Stories Mode",
-                    files: [file]
-                });
-                return; // share riuscita → fine
-            } catch (e) {
-                // se l’utente annulla → mostra QR
-            }
-        }
+   // MOBILE: share nativa SOLO se supporta i file
+if (isMobile && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+        await navigator.share({
+            title: "Il mio allenamento",
+            text: "Allenamento su WizTrail – Stories Mode",
+            files: [file]
+        });
+        return;
+    } catch (e) {
+        // utente annulla → continua al fallback QR
+    }
+}
 
         // fallback QR per desktop o mobile non compatibile
         const dataUrl = await new Promise(res => {
