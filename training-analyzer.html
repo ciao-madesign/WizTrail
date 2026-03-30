@@ -235,11 +235,11 @@ btnAnalyze.addEventListener("click",async()=>{
  const pts=g.pts, times=g.times;
  if(!pts.length) return alert("GPX non valido");
 
- /* TEMPO REALE AUTOMATICO */
- if(times.length>1){
-  const realSec=times[times.length-1]-times[0];
-  timeRealInput.value=fmtSec(realSec);
- }
+/* TEMPO REALE AUTOMATICO — usa il tempo della traccia solo se il campo è vuoto */
+if (!timeRealInput.value.trim() && times.length > 1) {
+    const realSec = times[times.length - 1] - times[0];
+    timeRealInput.value = fmtSec(realSec);
+}
 
  const mt=computeMetrics(pts);
  const real=parseTimeToSec(timeRealInput.value);
