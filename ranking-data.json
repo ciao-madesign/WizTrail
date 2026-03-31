@@ -4,8 +4,8 @@
     "distance": 42.20,
     "dplus": 2700,
     "wdi": 48.1,
-    "class": "epico",
-    "color": "#E91E63"
+    "class": "Pro",
+    "color": "#34A853"
   },
   {
     "name": "Orsa Pravello - Trincea Trail",
@@ -15,23 +15,7 @@
     "class": "Pro",
     "color": "#34A853"
   },
-  {
-    "name": "Chianti Marathon Trail",
-    "distance": 46.42,
-    "dplus": 2801.7106726486286,
-    "wdi": 80,
-    "class": "Advanced",
-    "color": "#F4C20D"
-  },
-  {
-    "name": "Chianti Half Trail",
-    "distance": 20.8,
-    "dplus": 1678.223593750035,
-    "wdi": 52.2,
-    "class": "Pro",
-    "color": "#34A853"
-  },
-  {
+   {
     "name": "Lavaredo 80K",
     "distance": 79.19,
     "dplus": 4908.536904953107,
@@ -62,5 +46,237 @@
     "wdi": 67.3,
     "class": "Pro",
     "color": "#34A853"
+  },
+  {
+    "name": "CDF 12K",
+    "distance": 12.18,
+    "dplus": 502.37000000000006,
+    "wdi": 31.8,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "CDF 28",
+    "distance": 28.61,
+    "dplus": 1378.3600000000006,
+    "wdi": 51.4,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "CDF 38K",
+    "distance": 37.05,
+    "dplus": 1990.0000000000011,
+    "wdi": 64.3,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "CDF 50K",
+    "distance": 48.65,
+    "dplus": 2563.479999999998,
+    "wdi": 79.2,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "CDF 70K",
+    "distance": 67.28,
+    "dplus": 3886.2,
+    "wdi": 107.8,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "UTLAC 30",
+    "distance": 29.65,
+    "dplus": 1702.1369999999995,
+    "wdi": 53.5,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Black Canyon 100",
+    "distance": 95.04,
+    "dplus": 1610,
+    "wdi": 105.3,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "Bettelmatt Race",
+    "distance": 23.52,
+    "dplus": 1589.3498900000006,
+    "wdi": 51.6,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "BUT",
+    "distance": 55.64,
+    "dplus": 3826.5628700000007,
+    "wdi": 96.1,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "LUT Cortina Skyrace",
+    "distance": 20.41,
+    "dplus": 1527.345000000006,
+    "wdi": 50,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Dolomiti di Brenta Trail",
+    "distance": 45.4,
+    "dplus": 4480,
+    "wdi": 96.8,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "LUT 50",
+    "distance": 47.77,
+    "dplus": 2823.442651781251,
+    "wdi": 81.3,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "LUT120",
+    "distance": 120.25,
+    "dplus": 6311.70924870308,
+    "wdi": 177.8,
+    "class": "Extreme",
+    "color": "#F79617"
+  },
+  {
+    "name": "LUT 20",
+    "distance": 19.51,
+    "dplus": 1080.3812255859375,
+    "wdi": 43.2,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Ortles Haute Route 35",
+    "distance": 34.47,
+    "dplus": 2271.449999999997,
+    "wdi": 64.2,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Ortles Haute Route Trail",
+    "distance": 121.7,
+    "dplus": 9066.050000000021,
+    "wdi": 198,
+    "class": "Elite",
+    "color": "#E91E63"
+  },
+  {
+    "name": "Sella Ronda Trail",
+    "distance": 43.64,
+    "dplus": 2241.5790000000015,
+    "wdi": 70.4,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Dolomyths Skyrun",
+    "distance": 21.65,
+    "dplus": 1868.4715400000018,
+    "wdi": 54,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "TOR30",
+    "distance": 29.57,
+    "dplus": 2052.4920312499994,
+    "wdi": 59.7,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "TOR100",
+    "distance": 105.87,
+    "dplus": 8508.489687500001,
+    "wdi": 182.3,
+    "class": "Elite",
+    "color": "#E91E63"
+  },
+  {
+    "name": "TOR130 tot dret",
+    "distance": 136.1,
+    "dplus": 11468.67171875,
+    "wdi": 233.1,
+    "class": "Elite",
+    "color": "#E91E63"
+  },
+  {
+    "name": "TOR330",
+    "distance": 336.46,
+    "dplus": 29536.546624999988,
+    "wdi": 546,
+    "class": "Legend",
+    "color": "#8E24AA"
+  },
+  {
+    "name": "Transvulcania Marathon",
+    "distance": 43.23,
+    "dplus": 1939.200000000002,
+    "wdi": 68.2,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Transvulcania Ultramarathon",
+    "distance": 74.01,
+    "dplus": 4551.7999999998065,
+    "wdi": 119.9,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "Transpelmo Skyrace",
+    "distance": 18.7,
+    "dplus": 1583.7725217332802,
+    "wdi": 50.5,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "UTLAC 60",
+    "distance": 65.55,
+    "dplus": 4236.125000000013,
+    "wdi": 108.7,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "UTLO 21",
+    "distance": 21.07,
+    "dplus": 1635.6897735595703,
+    "wdi": 51.6,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "UTLO 34",
+    "distance": 33.04,
+    "dplus": 816157,
+    "wdi": 4717.8,
+    "class": "Legend",
+    "color": "#8E24AA"
+  },
+  {
+    "name": "UTLO 55",
+    "distance": 53.83,
+    "dplus": 1118324.9005889893,
+    "wdi": 4714.6,
+    "class": "Legend",
+    "color": "#8E24AA"
   }
 ]
