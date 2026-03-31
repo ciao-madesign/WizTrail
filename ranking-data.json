@@ -1,10 +1,66 @@
 [
   {
-    "name": "Zegama",
+    "name": "Zegama-Aizkorri",
     "distance": 42.20,
     "dplus": 2700,
     "wdi": 48.1,
     "class": "epico",
     "color": "#E91E63"
+  },
+  {
+    "name": "Orsa Pravello - Trincea Trail",
+    "distance": 16.88,
+    "dplus": 1309,
+    "wdi": 46.3,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Chianti Marathon Trail",
+    "distance": 46.42,
+    "dplus": 2801.7106726486286,
+    "wdi": 80,
+    "class": "Advanced",
+    "color": "#F4C20D"
+  },
+  {
+    "name": "Chianti Half Trail",
+    "distance": 20.8,
+    "dplus": 1678.223593750035,
+    "wdi": 52.2,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Lavaredo 80K",
+    "distance": 79.19,
+    "dplus": 4908.536904953107,
+    "wdi": 127.7,
+    "class": "Extreme",
+    "color": "#F79617"
+  },
+  {
+    "name": "VUT90",
+    "distance": 89.38,
+    "dplus": 6808.438000000016,
+    "wdi": 153.4,
+    "class": "Extreme",
+    "color": "#F79617"
+  },
+  {
+    "name": "VUT35",
+    "distance": 37.35,
+    "dplus": 2634.3019999999997,
+    "wdi": 71,
+    "class": "Pro",
+    "color": "#34A853"
+  },
+  {
+    "name": "Valtellina Wine Trail",
+    "distance": 40.66,
+    "dplus": 2088.5210000000015,
+    "wdi": 67.3,
+    "class": "Pro",
+    "color": "#34A853"
   }
 ]
