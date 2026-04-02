@@ -1,19 +1,21 @@
 [
-    {
+  {
     "name": "Orsa Pravello - Trincea Trail",
     "distance": 16.88,
     "dplus": 1309,
     "wdi": 46.3,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/orsa_pravello_trincea_trail.gpx"
   },
-   {
+  {
     "name": "Lavaredo 80K",
     "distance": 79.19,
     "dplus": 4908,
     "wdi": 127.7,
     "class": "Extreme",
-    "color": "#F79617"
+    "color": "#F79617",
+    "gpx": "gpx/lavaredo_80k.gpx"
   },
   {
     "name": "VUT90",
@@ -21,7 +23,8 @@
     "dplus": 6808,
     "wdi": 153.4,
     "class": "Extreme",
-    "color": "#F79617"
+    "color": "#F79617",
+    "gpx": "gpx/vut90.gpx"
   },
   {
     "name": "VUT35",
@@ -29,7 +32,8 @@
     "dplus": 2634,
     "wdi": 71,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/vut35.gpx"
   },
   {
     "name": "Valtellina Wine Trail",
@@ -37,7 +41,8 @@
     "dplus": 2088,
     "wdi": 67.3,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/valtellina_wine_trail.gpx"
   },
   {
     "name": "CDF 12K",
@@ -45,7 +50,8 @@
     "dplus": 502,
     "wdi": 31.8,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/cdf_12k.gpx"
   },
   {
     "name": "CDF 28",
@@ -53,7 +59,8 @@
     "dplus": 1378,
     "wdi": 51.4,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/cdf_28.gpx"
   },
   {
     "name": "CDF 38K",
@@ -61,7 +68,8 @@
     "dplus": 1990,
     "wdi": 64.3,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/cdf_38k.gpx"
   },
   {
     "name": "CDF 50K",
@@ -69,7 +77,8 @@
     "dplus": 2563,
     "wdi": 79.2,
     "class": "Advanced",
-    "color": "#F4C20D"
+    "color": "#F4C20D",
+    "gpx": "gpx/cdf_50k.gpx"
   },
   {
     "name": "CDF 70K",
@@ -77,7 +86,8 @@
     "dplus": 3886,
     "wdi": 107.8,
     "class": "Advanced",
-    "color": "#F4C20D"
+    "color": "#F4C20D",
+    "gpx": "gpx/cdf_70k.gpx"
   },
   {
     "name": "UTLAC 30",
@@ -85,7 +95,8 @@
     "dplus": 1702,
     "wdi": 53.5,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/utlac_30.gpx"
   },
   {
     "name": "Black Canyon 100",
@@ -93,7 +104,8 @@
     "dplus": 1610,
     "wdi": 105.3,
     "class": "Advanced",
-    "color": "#F4C20D"
+    "color": "#F4C20D",
+    "gpx": "gpx/black_canyon_100.gpx"
   },
   {
     "name": "Bettelmatt Race",
@@ -101,7 +113,8 @@
     "dplus": 1589,
     "wdi": 51.6,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/bettelmatt_race.gpx"
   },
   {
     "name": "BUT",
@@ -109,7 +122,8 @@
     "dplus": 3826,
     "wdi": 96.1,
     "class": "Advanced",
-    "color": "#F4C20D"
+    "color": "#F4C20D",
+    "gpx": "gpx/but.gpx"
   },
   {
     "name": "LUT Cortina Skyrace",
@@ -117,7 +131,8 @@
     "dplus": 1527,
     "wdi": 50,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/lut_cortina_skyrace.gpx"
   },
   {
     "name": "Dolomiti di Brenta Trail",
@@ -125,7 +140,8 @@
     "dplus": 4480,
     "wdi": 96.8,
     "class": "Advanced",
-    "color": "#F4C20D"
+    "color": "#F4C20D",
+    "gpx": "gpx/dolomiti_brenta_trail.gpx"
   },
   {
     "name": "LUT 50",
@@ -133,7 +149,8 @@
     "dplus": 2823,
     "wdi": 81.3,
     "class": "Advanced",
-    "color": "#F4C20D"
+    "color": "#F4C20D",
+    "gpx": "gpx/lut_50.gpx"
   },
   {
     "name": "LUT120",
@@ -141,7 +158,8 @@
     "dplus": 6311,
     "wdi": 177.8,
     "class": "Extreme",
-    "color": "#F79617"
+    "color": "#F79617",
+    "gpx": "gpx/lut120.gpx"
   },
   {
     "name": "LUT 20",
@@ -149,7 +167,8 @@
     "dplus": 1080,
     "wdi": 43.2,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/lut_20.gpx"
   },
   {
     "name": "Ortles Haute Route 35",
@@ -157,7 +176,8 @@
     "dplus": 2271,
     "wdi": 64.2,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/ortles_hr_35.gpx"
   },
   {
     "name": "Ortles Haute Route Trail",
@@ -165,7 +185,8 @@
     "dplus": 9066,
     "wdi": 198,
     "class": "Elite",
-    "color": "#E91E63"
+    "color": "#E91E63",
+    "gpx": "gpx/ortles_hr_trail.gpx"
   },
   {
     "name": "Sella Ronda Trail",
@@ -173,7 +194,8 @@
     "dplus": 2241,
     "wdi": 70.4,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/sella_ronda_trail.gpx"
   },
   {
     "name": "Dolomyths Skyrun",
@@ -181,7 +203,8 @@
     "dplus": 1868,
     "wdi": 54,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/dolomyths_skyrun.gpx"
   },
   {
     "name": "TOR30",
@@ -189,7 +212,8 @@
     "dplus": 2052,
     "wdi": 59.7,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/tor30.gpx"
   },
   {
     "name": "TOR100",
@@ -197,7 +221,8 @@
     "dplus": 8508,
     "wdi": 182.3,
     "class": "Elite",
-    "color": "#E91E63"
+    "color": "#E91E63",
+    "gpx": "gpx/tor100.gpx"
   },
   {
     "name": "TOR130 tot dret",
@@ -205,7 +230,8 @@
     "dplus": 11468,
     "wdi": 233.1,
     "class": "Elite",
-    "color": "#E91E63"
+    "color": "#E91E63",
+    "gpx": "gpx/tor130_totdret.gpx"
   },
   {
     "name": "TOR330",
@@ -213,7 +239,8 @@
     "dplus": 29536,
     "wdi": 546,
     "class": "Legend",
-    "color": "#8E24AA"
+    "color": "#8E24AA",
+    "gpx": "gpx/tor330.gpx"
   },
   {
     "name": "Transvulcania Marathon",
@@ -221,7 +248,8 @@
     "dplus": 1939,
     "wdi": 68.2,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/transvulcania_marathon.gpx"
   },
   {
     "name": "Transvulcania Ultramarathon",
@@ -229,7 +257,8 @@
     "dplus": 4551,
     "wdi": 119.9,
     "class": "Advanced",
-    "color": "#F4C20D"
+    "color": "#F4C20D",
+    "gpx": "gpx/transvulcania_ultra.gpx"
   },
   {
     "name": "Transpelmo Skyrace",
@@ -237,7 +266,8 @@
     "dplus": 1583,
     "wdi": 50.5,
     "class": "Pro",
-    "color": "#34A853"
+    "color": "#34A853",
+    "gpx": "gpx/transpelmo_skyrace.gpx"
   },
   {
     "name": "UTLAC 60",
@@ -245,6 +275,7 @@
     "dplus": 4236,
     "wdi": 108.7,
     "class": "Advanced",
-    "color": "#F4C20D"
+    "color": "#F4C20D",
+    "gpx": "gpx/utlac_60.gpx"
   }
 ]

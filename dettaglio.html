@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WizTrail – Dettaglio Gara (WDI)</title>
 <link rel="stylesheet" href="wiztrail.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
@@ -22,11 +22,11 @@
 
 <h1 style="margin-bottom:14px;">Dettaglio Percorso — WDI</h1>
 
-<button class="btn secondary"
-340px;min-height:260px;border-radius:12px;overflow:hidden;">
+<button class="btn secondary" onclick00%;height:340px;min-height:260px;border-radius:12px;overflow:hidden;">
   </div>
 </div>
 
+<!-- PROFILO -->
 <div class="card">
   <h2>Profilo Altimetrico</h2>
   <canvas id="elevCanvas"
@@ -34,6 +34,7 @@
   </canvas>
 </div>
 
+<!-- DATI -->
 <div class="card">
   <h2>Dati Percorso</h2>
   <div class="grid grid-2" style="row-gap:18px;column-gap:18px;">
@@ -50,6 +51,7 @@
   </div>
 </div>
 
+<!-- WDI -->
 <div class="card" id="wdiCard"
      style="text-align:center;padding-top:20px;padding-bottom:24px;">
   <h2>WDI — WizTrail Difficulty Index</h2>
@@ -59,122 +61,161 @@
 
 </div>
 
-<script src="wiztrail-racescore.js?v=20260318"></script>
+<script src="wiztrail-racescore.js"></script>
+
 <script>
 
-/* -------------------------------
-   Leaflet map init
---------------------------------*/
-let map=null, poly=null;
+// ================================
+// Leaflet init
+// ================================
+let map = null, poly = null, rs = null;
+
 function initMap(){
-  if(map) return;
-  map=L.map("mapLeaflet");
-  const dark=L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    {subdomains:"abcd", maxZoom:19});
-  const topo=L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    {opacity:0.35, maxZoom:17});
+  if (map) return;
+  map = L.map("mapLeaflet");
+
+  const dark = L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    { subdomains:"abcd", maxZoom:19 }
+  );
+
+  const topo = L.tileLayer(
+    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    { opacity:0.35, maxZoom:17 }
+  );
+
   L.layerGroup([dark, topo]).addTo(map);
-  map.setView([46,8],5);
+  map.setView([46,8], 5);
 }
 
 function drawLeaflet(pts){
   initMap();
-  if(poly) poly.remove();
+  if (poly) poly.remove();
+
   poly = L.polyline(
     pts.map(p => [p[0], p[1]]),
-    {
-        color: rs.color,   // colore WDI v9.1
-        weight: 4
-    }
+    { color: rs?.color || "#ffaa00", weight:4 }
   ).addTo(map);
 
-  map.fitBounds(poly.getBounds());
+  try {
+    map.fitBounds(poly.getBounds(), { padding:[20,20] });
+  } catch(e) {
+    console.warn("fitBounds failed:", e);
+  }
 }
 
+
+// ================================
+// Elevation
+// ================================
 function drawElevation(c, e){
-  if(!e.length) return;
-  const ctx=c.getContext("2d"), max=Math.max(...e), min=Math.min(...e);
-  const w=c.width, h=c.height;
+  if (!e.length) return;
+
+  const ctx = c.getContext("2d"),
+        max = Math.max(...e),
+        min = Math.min(...e),
+        w = c.width,
+        h = c.height;
+
   ctx.clearRect(0,0,w,h);
   ctx.beginPath();
+
   e.forEach((v,i)=>{
-    const x=i/e.length*w;
-    const y=h-((v-min)/(max-min))*h;
-    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    const x = (i / (e.length - 1)) * w;
+    const y = h - ((v - min) / (max - min)) * h;
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
   });
-  ctx.strokeStyle="#ffaa00";
-  ctx.lineWidth=2;
+
+  ctx.strokeStyle = "#ffaa00";
+  ctx.lineWidth = 2;
   ctx.stroke();
 }
 
-/* -------------------------------
-   GPX loader
---------------------------------*/
+
+// ================================
+// GPX loader
+// ================================
 async function loadGPX(){
   const gpx = sessionStorage.getItem("currentRaceGPX");
-  if(!gpx){ alert("GPX non trovato"); return; }
+
+  if (!gpx){
+    alert("GPX non trovato.\nApri questa pagina cliccando una gara nel ranking.");
+    return;
+  }
 
   const xml = new DOMParser().parseFromString(gpx, "application/xml");
-  const pts=[];
+  const pts = [];
+
   [...xml.getElementsByTagName("trkpt")].forEach(p=>{
-    const lat=parseFloat(p.getAttribute("lat"));
-    const lon=parseFloat(p.getAttribute("lon"));
-    const ele=parseFloat(p.getElementsByTagName("ele")[0]?.textContent||0);
-    pts.push([lat,lon,ele]);
+    const lat = parseFloat(p.getAttribute("lat"));
+    const lon = parseFloat(p.getAttribute("lon"));
+    const ele = parseFloat(p.getElementsByTagName("ele")[0]?.textContent || 0);
+    pts.push([lat, lon, ele]);
   });
 
-  const metrics=computeMetrics(pts);
-  rs=WizTrailWDI.computeFromGpx(pts, metrics);
+  if (!pts.length){
+    alert("GPX vuoto o non valido.");
+    return;
+  }
 
-  // UI fill
-  distVal.textContent = metrics.km.toFixed(2)+" km";
-  dplusVal.textContent = metrics.gain+" m";
-  altMedVal.textContent   = "—";
-  altMaxVal.textContent   = "—";
-  varVal.textContent      = "—";
-  ascVal.textContent      = "—";
-  descVal.textContent     = "—";
-  roughVal.textContent    = "—";
+  const metrics = computeMetrics(pts);
+  rs = WizTrailWDI.computeFromGpx(pts, metrics);
+
+  // UI
+  distVal.textContent  = metrics.km.toFixed(2) + " km";
+  dplusVal.textContent = metrics.gain + " m";
+
+  altMedVal.textContent  = "—";
+  altMaxVal.textContent  = "—";
+  varVal.textContent     = "—";
+  ascVal.textContent     = "—";
+  descVal.textContent    = "—";
+  roughVal.textContent   = "—";
 
   wdiScore.textContent = rs.WDI.toFixed(1);
   wdiScore.style.color = rs.color;
+
   wdiClass.textContent = rs.class;
   wdiClass.style.color = rs.color;
 
-  // Fix per render Leaflet su mobile
-  setTimeout(() => drawLeaflet(pts), 60);
+  setTimeout(()=> drawLeaflet(pts), 80);
 
+  elevCanvas.width = elevCanvas.clientWidth;
+  elevCanvas.height = elevCanvas.clientHeight;
   drawElevation(elevCanvas, metrics.e);
 }
 
-/* -------------------------------
-   computeMetrics — versione ottimizzata (D+ intero)
---------------------------------*/
-function computeMetrics(pts){
-  const R=6371000;
-  let d=[0], e=[], gain=0;
-  for(let i=0;i<pts.length;i++){
-    e.push(pts[i][2]);
-    if(i===0) continue;
 
-    const lat1=pts[i-1][0]*Math.PI/180, lon1=pts[i-1][1]*Math.PI/180;
-    const lat2=pts[i][0]*Math.PI/180, lon2=pts[i][1]*Math.PI/180;
+// ================================
+// Metriche (D+ intero)
+// ================================
+function computeMetrics(pts){
+  const R = 6371000;
+  let d=[0], e=[], gain=0;
+
+  for (let i=0; i<pts.length; i++){
+    e.push(pts[i][2]);
+
+    if (i === 0) continue;
+
+    const lat1=pts[i-1][0]*Math.PI/180,
+          lon1=pts[i-1][1]*Math.PI/180,
+          lat2=pts[i][0]*Math.PI/180,
+          lon2=pts[i][1]*Math.PI/180;
 
     const a = Math.sin((lat2-lat1)/2)**2 +
               Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
 
-    const dist = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a))*R;
+    const dist = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * R;
 
     d.push(d[d.length-1] + dist);
 
-    // ✅ Aumento D+ arrotondato all'intero più vicino
-    if(e[i] - e[i-1] > 0)
+    if (e[i] > e[i-1])
       gain += Math.round(e[i] - e[i-1]);
   }
 
-  // ✅ D+ finale intero garantito
   return {
-    km: d[d.length-1]/1000,
+    km: d[d.length-1] / 1000,
     gain: Math.round(gain),
     e,
     d

@@ -161,22 +161,43 @@ races
    const tr = document.createElement("tr");
    tr.style.cursor = "pointer";
 tr.style.borderLeft = "4px solid " + r.color;
+tr.style.backgroundColor = r.color + "20";  
 tr.style.transition = "background 0.2s ease, border 0.2s ease";
-   tr.addEventListener("click", () => {
-     window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
-   });
+  tr.addEventListener("click", () => {
+  if (!r.gpx) {
+    alert("GPX non disponibile per questa gara.");
+    return;
+  }
 
- tr.innerHTML = `
+  fetch(r.gpx)
+    .then(res => res.text())
+    .then(gpxText => {
+      sessionStorage.setItem("currentRaceGPX", gpxText);
+      window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
+    })
+    .catch(err => {
+      alert("Errore nel caricamento GPX.");
+      console.error(err);
+    });
+});
+tr.addEventListener("mouseenter", () => {
+  tr.style.backgroundColor = r.color + "33"; // ~20% opacità
+});
+tr.addEventListener("mouseleave", () => {
+  tr.style.backgroundColor = r.color + "20"; // torna al velo leggero
+});
+
+tr.innerHTML = `
 <td>${r.name}</td>
-<td>${r.distance}</td>
-<td>${r.dplus}</td>
+<td>${Math.round(r.distance)}</td>
+<td>${Math.round(r.dplus)}</td>
 <td style="color:${r.color}; font-weight:700;">
   ${r.wdi.toFixed(1)}
 </td>
 <td style="color:${r.color}; font-weight:700;">
   ${wdiLabel(r.class)}
 </td>
-  `;
+`;
 
    raceBody.appendChild(tr);
  });

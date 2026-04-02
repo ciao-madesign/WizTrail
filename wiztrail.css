@@ -539,3 +539,10 @@ table {
 .card {
     margin-top: 16px;
 }
+
+/* Spaziatura righe tabella ranking */
+#raceTable td,
+#raceTable th {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
