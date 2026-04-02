@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WizTrail – Share Strava</title>
+<link rel="stylesheet" href="wiztrail.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body data-theme="dark">
+<div class="wrap">
+
+<h1>WizTrail — Share Card</h1>
+
+<div id="card" class="card" style="padding:20px;text-align:center;">
+  <h2 id="runTitle">Attività</h2>
+  <div id="map" style="width:100%;height:300px;border-radius:12px;margin-top:12px"></div>
+  <canvas id="elev" style="width:100%;height:200px;margin-top:16px;border-radius:12px"></canvas>
+
+  <h3 id="wditVal" style="font-size:2.2rem;margin-top:18px"></h3>
+  <h4 id="wditClass"></h4>
+
+  <button id="shareBtn" class="btn" style="margin-top:20px;">
+    Condividi su Instagram
+  </button>
+</div>
+
+</div>
+
+<script src="wiztrail-wdit.js"></script>
+<script src="wiztrail-pacing.js"></script>
+
+<script>
+const token = localStorage.getItem("strava_token");
+const id = new URLSearchParams(location.search).get("id");
+
+async function loadStreams() {
+  const url = `https://www.strava.com/api/v3/activities/${id}/streams` +
+              `?keys=latlng,altitude,time,distance&key_by_type=true`;
+
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const streams = await res.json();
+
+  return {
+    latlng: streams.latlng.data,
+    elev: streams.altitude.data,
+    dist: streams.distance.data,
+    time: streams.time.data
+  };
+}
+
+function buildMetrics(streams) {
+  const pts = streams.latlng.map(([lat, lon], i) =>
+    [lat, lon, streams.elev[i]]
+  );
+
+  // ricreo metrics compatibili con i tuoi moduli
+  const e = streams.elev.slice();
+  const d = streams.dist.slice();
+  const gain = streams.elev.reduce((s, v, i) => {
+    if (i === 0) return 0;
+    return s + Math.max(0, v - streams.elev[i-1]);
+  }, 0);
+
+  return {
+    pts,
+    metrics: {
+      e,
+      d,
+      km: d[d.length-1] / 1000,
+      gain: Math.round(gain)
+    }
+  };
+}
+
+async function render() {
+  const streams = await loadStreams();
+  const { pts, metrics } = buildMetrics(streams);
+
+  runTitle.textContent = "Attività Strava";
+  
+  // MAPPA
+  const m = L.map("map");
+  const dark=L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    {subdomains:"abcd", maxZoom:19}).addTo(m);
+
+  const poly = L.polyline(pts.map(p=>[p[0],p[1]]), {color:"#4fd1c5", weight:4}).addTo(m);
+  m.fitBounds(poly.getBounds());
+
+  // ALTIMETRIA (stessa logica tua)
+  const c = elev.getContext("2d");
+  // (qui potresti riusare drawElevation del tuo file)
+
+  // WDIT
+  const resW = WizTrailWDIT.computeFromGpx(pts, metrics);
+  wditVal.textContent = resW.WDIT.toFixed(2);
+  wditVal.style.color = resW.factors.FRIP > 0.2 ? "#ff00a8" : "#4fd1c5";
+  wditClass.textContent = resW.class;
+
+  // SHARE
+  shareBtn.onclick = async () => {
+    const blob = await html2canvas(card).then(c => c.toBlob());
+    const file = new File([blob], "wiztrail.png", { type: "image/png" });
+
+    if (navigator.share) {
+      await navigator.share({
+        files: [file],
+        title: "WizTrail Share Card"
+      });
+    } else {
+      alert("Condividi manualmente l’immagine generata.");
+    }
+  };
+}
+
+render();
+</script>
+
+<!-- html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</body>
+</html>

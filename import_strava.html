@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Importa Attività da Strava</title>
+</head>
+<body style="font-family:system-ui;padding:20px;">
+
+<h1>Importa attività da Strava</h1>
+<p>Seleziona un’attività da analizzare con WizTrail.</p>
+
+<ul id="activityList"></ul>
+
+<script>
+const token = localStorage.getItem("strava_token");
+if (!token) {
+  location.href = "index.html";
+}
+
+async function loadActivities() {
+  const res = await fetch(
+    "https://www.strava.com/api/v3/athlete/activities?per_page=30",
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  const acts = await res.json();
+
+  const list = document.getElementById("activityList");
+  acts.forEach(a => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <button onclick="openActivity(${a.id})">
+        ${a.name} – ${(a.distance/1000).toFixed(1)} km
+      </button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+function openActivity(id) {
+  location.href = `share.html?source=strava&id=ACTIVITY_ID
+`;
+}
+
+loadActivities();
+</script>
+
+</body>
+</html>
