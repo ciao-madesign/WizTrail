@@ -20,23 +20,23 @@
 
 <div class="wrap">
 
-<h1>Dettaglio Percorso — WDI</h1>
-<button class="btn secondary" onclick="location.href='index.html'">← Torna</button>
+<h1 style="margin-bottom:14px;">Dettaglio Percorso — WDI</h1>
 
-<div class="card" style="margin-top:20px;">
-  <h2>Mappa</h2>
-  <div id="mapLeaflet" style="width:100%;height:300px;border-radius:8px;"></div>
+<button class="btn secondary"
+340px;min-height:260px;border-radius:12px;overflow:hidden;">
+  </div>
 </div>
 
 <div class="card">
   <h2>Profilo Altimetrico</h2>
-  <canvas id="elevCanvas" width="600" height="200"
-          style="width:100%;height:200px;border-radius:8px;"></canvas>
+  <canvas id="elevCanvas"
+          style="width:100%;height:220px;display:block;border-radius:12px;">
+  </canvas>
 </div>
 
 <div class="card">
   <h2>Dati Percorso</h2>
-  <div class="grid grid-2">
+  <div class="grid grid-2" style="row-gap:18px;column-gap:18px;">
     <div><h3>Distanza</h3><div class="val" id="distVal">— km</div></div>
     <div><h3>D+</h3><div class="val" id="dplusVal">— m</div></div>
 
@@ -50,7 +50,8 @@
   </div>
 </div>
 
-<div class="card" id="wdiCard" style="text-align:center;">
+<div class="card" id="wdiCard"
+     style="text-align:center;padding-top:20px;padding-bottom:24px;">
   <h2>WDI — WizTrail Difficulty Index</h2>
   <div id="wdiScore" style="font-size:3rem;font-weight:900;margin-top:10px;">—</div>
   <div id="wdiClass" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
@@ -79,24 +80,26 @@ function initMap(){
 function drawLeaflet(pts){
   initMap();
   if(poly) poly.remove();
-poly = L.polyline(
+  poly = L.polyline(
     pts.map(p => [p[0], p[1]]),
     {
         color: rs.color,   // colore WDI v9.1
         weight: 4
     }
-).addTo(map);
+  ).addTo(map);
+
   map.fitBounds(poly.getBounds());
 }
 
 function drawElevation(c, e){
   if(!e.length) return;
   const ctx=c.getContext("2d"), max=Math.max(...e), min=Math.min(...e);
-  ctx.clearRect(0,0,c.width,c.height);
+  const w=c.width, h=c.height;
+  ctx.clearRect(0,0,w,h);
   ctx.beginPath();
   e.forEach((v,i)=>{
-    const x=i/e.length*c.width;
-    const y=c.height-((v-min)/(max-min))*c.height;
+    const x=i/e.length*w;
+    const y=h-((v-min)/(max-min))*h;
     i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
   });
   ctx.strokeStyle="#ffaa00";
@@ -112,7 +115,7 @@ async function loadGPX(){
   if(!gpx){ alert("GPX non trovato"); return; }
 
   const xml = new DOMParser().parseFromString(gpx, "application/xml");
-  const pts=[], times=[];
+  const pts=[];
   [...xml.getElementsByTagName("trkpt")].forEach(p=>{
     const lat=parseFloat(p.getAttribute("lat"));
     const lon=parseFloat(p.getAttribute("lon"));
@@ -121,29 +124,31 @@ async function loadGPX(){
   });
 
   const metrics=computeMetrics(pts);
-  const rs=WizTrailWDI.computeFromGpx(pts, metrics);
+  rs=WizTrailWDI.computeFromGpx(pts, metrics);
 
   // UI fill
   distVal.textContent = metrics.km.toFixed(2)+" km";
   dplusVal.textContent = metrics.gain+" m";
-altMedVal.textContent   = "—";
-altMaxVal.textContent   = "—";
-varVal.textContent      = "—";
-ascVal.textContent      = "—";
-descVal.textContent     = "—";
-roughVal.textContent    = "—";
+  altMedVal.textContent   = "—";
+  altMaxVal.textContent   = "—";
+  varVal.textContent      = "—";
+  ascVal.textContent      = "—";
+  descVal.textContent     = "—";
+  roughVal.textContent    = "—";
 
   wdiScore.textContent = rs.WDI.toFixed(1);
   wdiScore.style.color = rs.color;
   wdiClass.textContent = rs.class;
   wdiClass.style.color = rs.color;
 
-  drawLeaflet(pts);
+  // Fix per render Leaflet su mobile
+  setTimeout(() => drawLeaflet(pts), 60);
+
   drawElevation(elevCanvas, metrics.e);
 }
 
 /* -------------------------------
-   computeMetrics (copiato da analyzer)
+   computeMetrics — versione ottimizzata (D+ intero)
 --------------------------------*/
 function computeMetrics(pts){
   const R=6371000;
@@ -162,10 +167,18 @@ function computeMetrics(pts){
 
     d.push(d[d.length-1] + dist);
 
+    // ✅ Aumento D+ arrotondato all'intero più vicino
     if(e[i] - e[i-1] > 0)
-      gain += e[i] - e[i-1];
+      gain += Math.round(e[i] - e[i-1]);
   }
-  return { km: d[d.length-1]/1000, gain, e, d };
+
+  // ✅ D+ finale intero garantito
+  return {
+    km: d[d.length-1]/1000,
+    gain: Math.round(gain),
+    e,
+    d
+  };
 }
 
 loadGPX();
