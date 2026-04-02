@@ -92,12 +92,14 @@
 function parseGPX(text){
   const xml = new DOMParser().parseFromString(text, "application/xml");
   const pts = [];
+
   [...xml.getElementsByTagName("trkpt")].forEach(p => {
     const lat = parseFloat(p.getAttribute("lat"));
     const lon = parseFloat(p.getAttribute("lon"));
     const ele = parseFloat(p.getElementsByTagName("ele")[0]?.textContent || 0);
     pts.push([lat, lon, ele]);
   });
+
   return pts;
 }
 </script>
