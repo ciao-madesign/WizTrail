@@ -1,8 +1,9 @@
 // ===============================
-//  WizTrail PWA – Service Worker
-//  Version bump: CHANGE THIS to force update
+// WizTrail PWA – Service Worker (FIXED 2026)
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-03-19";
+
+const CACHE_VERSION = "wiztrail-v2026-04-fixed";
+
 const CORE_CACHE = [
   "/WizTrail/",
   "/WizTrail/index.html",
@@ -15,7 +16,6 @@ const CORE_CACHE = [
   "/WizTrail/img/logo.svg"
 ];
 
-// Pagine statiche extra da mettere in cache
 const PAGE_CACHE = [
   "/WizTrail/wdi.html",
   "/WizTrail/pacing.html",
@@ -23,71 +23,78 @@ const PAGE_CACHE = [
   "/WizTrail/dettaglio.html",
   "/WizTrail/install.html",
   "/WizTrail/training-analyzer.html",
-  "/WizTrail/share_card.html",
+  "/WizTrail/share_card.html"
 ];
 
-// Unione liste
 const URLS_TO_CACHE = [...CORE_CACHE, ...PAGE_CACHE];
 
-
 // ===============================
-// INSTALL — pre-cache
+// INSTALL
 // ===============================
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => {
-      return cache.addAll(URLS_TO_CACHE);
-    })
+    caches.open(CACHE_VERSION).then(cache => cache.addAll(URLS_TO_CACHE))
   );
-  self.skipWaiting(); // forza subito nuova versione
+  self.skipWaiting();
 });
 
-
 // ===============================
-// ACTIVATE — elimina vecchie cache
+// ACTIVATE
 // ===============================
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter((key) => key !== CACHE_VERSION)
-            .map((key) => caches.delete(key))
-      );
-    })
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k)))
+    )
   );
   self.clients.claim();
 });
 
+// ===============================
+// FETCH — FIXATO (nessun clone doppio)
+// ===============================
 
-// ===============================
-// FETCH — network first per HTML, cache first per asset
-// ===============================
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // HTML → rete prima, fallback cache
+  // HTML = network first
   if (req.headers.get("accept")?.includes("text/html")) {
     event.respondWith(
-      fetch(req).catch(() => caches.match(req))
+      fetch(req)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_VERSION).then(cache => cache.put(req, clone));
+          return res;
+        })
+        .catch(() => caches.match(req))
     );
     return;
   }
 
-  // Per JS/CSS/img → cache first
+  // STATIC ASSETS = cache first + safe update
   event.respondWith(
-    caches.match(req).then((cacheRes) => {
-      return (
-        cacheRes ||
-        fetch(req).then((netRes) => {
-          // Evitiamo di cachet html2canvas (lib online)
-          if (!req.url.includes("html2canvas")) {
-            caches.open(CACHE_VERSION).then((cache) => {
-              cache.put(req, netRes.clone());
-            });
+    caches.match(req).then(cached => {
+      if (cached) {
+        // aggiorna in background evitando doppio consumo
+        fetch(req).then(netRes => {
+          if (netRes && netRes.ok && !req.url.includes("html2canvas")) {
+            const clone = netRes.clone();
+            caches.open(CACHE_VERSION).then(cache => cache.put(req, clone));
+          }
+        }).catch(() => {}); // silenzioso
+        return cached;
+      }
+
+      // no cache → rete
+      return fetch(req)
+        .then(netRes => {
+          if (netRes && netRes.ok && !req.url.includes("html2canvas")) {
+            const clone = netRes.clone();
+            caches.open(CACHE_VERSION).then(cache => cache.put(req, clone));
           }
           return netRes;
         })
-      );
+        .catch(() => new Response("Offline", { status: 503 }));
     })
   );
 });
