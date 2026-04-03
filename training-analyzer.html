@@ -39,6 +39,11 @@
 <!-- IMPORT -->
 <div class="card" style="margin-top:20px;">
 <h2>Carica la tua attività</h2>
+<div style="margin-top:12px;">
+  <button class="btn" onclick="loginStrava()">
+    🔗 Importa da Strava
+  </button>
+</div>
 <p class="mini">Carica la traccia per analizzare la difficoltà del tuo allenamento.</p>
 <input type="file"
        id="gpxFile"
@@ -289,6 +294,16 @@ setTimeout(() => {
 
 function parseTimeToSec(t){const p=t.split(":" ).map(Number);if(p.length!==3)return null;return p[0]*3600+p[1]*60+p[2];}
 
+
+function loginStrava() {
+  const clientId = "219532";
+
+  const redirectUri = window.location.origin + "/auth_strava.html";
+
+  const url = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=auto&scope=activity:read_all`;
+
+  window.location.href = url;
+}
 </script>
 </body>
 </html>
