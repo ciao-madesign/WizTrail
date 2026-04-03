@@ -1,24 +1,19 @@
 export default async function handler(req, res) {
   const token = req.headers.authorization?.split(" ")[1];
+  const { id } = req.query;
 
-  if (!token) {
-    return res.status(401).json({ error: "Missing token" });
+  if (!token || !id) {
+    return res.status(400).json({ error: "Missing data" });
   }
 
-  try {
-    const response = await fetch(
-      "https://www.strava.com/api/v3/athlete/activities?per_page=30",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
+  const url = `https://www.strava.com/api/v3/activities/${id}/streams?keys=latlng,altitude,time,distance&key_by_type=true`;
 
-    const data = await response.json();
-    res.status(200).json(data);
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
+  const data = await response.json();
+  res.status(200).json(data);
 }
