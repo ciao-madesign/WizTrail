@@ -298,7 +298,7 @@ function parseTimeToSec(t){const p=t.split(":" ).map(Number);if(p.length!==3)ret
 function loginStrava() {
   const clientId = "219532";
 
-  const redirectUri = window.location.origin + "/auth_strava.html";
+  const redirectUri = "https://wiztrail.vercel.app/auth_strava.html";
 
   const url = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=auto&scope=activity:read_all`;
 
