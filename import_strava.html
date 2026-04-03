@@ -18,13 +18,17 @@ if (!token) {
 }
 
 async function loadActivities() {
-  const res = await fetch(
-    "https://www.strava.com/api/v3/athlete/activities?per_page=30",
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const res = await fetch("/api/strava/activities", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
   const acts = await res.json();
 
   const list = document.getElementById("activityList");
+  list.innerHTML = "";
+
   acts.forEach(a => {
     const li = document.createElement("li");
     li.innerHTML = `
@@ -36,10 +40,6 @@ async function loadActivities() {
   });
 }
 
-function openActivity(id) {
-  location.href = `share.html?source=strava&id=ACTIVITY_ID
-`;
-}
 
 loadActivities();
 </script>
