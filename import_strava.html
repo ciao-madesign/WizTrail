@@ -13,33 +13,42 @@
 
 <script>
 const token = localStorage.getItem("strava_token");
+
 if (!token) {
   location.href = "index.html";
 }
 
 async function loadActivities() {
-  const res = await fetch("/api/strava/activities", {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  try {
+    const res = await fetch("/api/strava/activities", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
-  const acts = await res.json();
+    const acts = await res.json();
 
-  const list = document.getElementById("activityList");
-  list.innerHTML = "";
+    const list = document.getElementById("activityList");
+    list.innerHTML = "";
 
-  acts.forEach(a => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <button onclick="openActivity(${a.id})">
-        ${a.name} – ${(a.distance/1000).toFixed(1)} km
-      </button>
-    `;
-    list.appendChild(li);
-  });
+    acts.forEach(a => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <button onclick="openActivity(${a.id})">
+          ${a.name} – ${(a.distance/1000).toFixed(1)} km
+        </button>
+      `;
+      list.appendChild(li);
+    });
+
+  } catch (err) {
+    document.body.innerHTML += "<p>Errore caricamento attività.</p>";
+  }
 }
 
+function openActivity(id) {
+  location.href = `share.html?source=strava&id=${id}`;
+}
 
 loadActivities();
 </script>
