@@ -9,31 +9,26 @@
 <h2>Connessione a Strava…</h2>
 
 <script>
-// 1) Estrae ?code= dalla URL
 const params = new URLSearchParams(location.search);
 const code = params.get("code");
+
 if (!code) {
   document.body.innerHTML += "<p>Errore: parametro code mancante.</p>";
 }
 
-// 2) Scambia CODE → ACCESS TOKEN
 async function exchange() {
-  const res = await fetch("https://www.strava.com/api/v3/oauth/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      client_id: "219532",
-      client_secret: "4986d5ed06edd33fef201a2eb9a566d2febe6138",
-      code,
-      grant_type: "authorization_code"
-    })
-  });
-  const data = await res.json();
-  if (data.access_token) {
-    localStorage.setItem("strava_token", data.access_token);
-    location.href = "import_strava.html";
-  } else {
-    document.body.innerHTML += "<p>Errore autentificazione.</p>";
+  try {
+    const res = await fetch(`/api/strava/exchange?code=${code}`);
+    const data = await res.json();
+
+    if (data.access_token) {
+      localStorage.setItem("strava_token", data.access_token);
+      location.href = "import_strava.html";
+    } else {
+      document.body.innerHTML += "<p>Errore autenticazione.</p>";
+    }
+  } catch (err) {
+    document.body.innerHTML += "<p>Errore server.</p>";
   }
 }
 
