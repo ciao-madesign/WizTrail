@@ -17,10 +17,15 @@ export default async function handler(req, res) {
 
     const streams = await response.json();
 
-    // 🔥 DEBUG (fondamentale)
-    if (!streams || !streams.altitude || !streams.distance || !streams.latlng) {
+    // 🔥 CHECK SICUREZZA
+    if (
+      !streams ||
+      !streams.latlng?.data ||
+      !streams.altitude?.data ||
+      !streams.distance?.data
+    ) {
       return res.status(400).json({
-        error: "Invalid Strava data",
+        error: "Strava streams incompleti",
         debug: streams
       });
     }
