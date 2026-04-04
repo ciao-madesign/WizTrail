@@ -99,6 +99,11 @@
 
 <script src="wiztrail-wdit.js"></script>
 <script>
+
+const params = new URLSearchParams(window.location.search);
+const source = params.get("source");
+const activityId = params.get("id");
+
 /* Tema */
 themeSel.addEventListener("change", e => document.body.setAttribute("data-theme", e.target.value));
 
@@ -302,6 +307,54 @@ function loginStrava() {
   const url = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=auto&scope=activity:read_all`;
 
   window.location.href = url;
+}
+async function loadFromStrava(activityId) {
+  const token = localStorage.getItem("strava_token");
+
+  if (!token) {
+    alert("Non autenticato con Strava");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/analyze?id=${activityId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    // 🔥 SIMULA GPX FLOW
+    const pts = data.pts;
+    const elev = data.elev;
+    const mt = data.metrics;
+
+    results.style.display="block";
+    distVal.textContent = mt.km.toFixed(2)+" km";
+    dplusVal.textContent = Math.round(mt.gain)+" m";
+
+    wditScore.textContent = data.wdit.toFixed(2);
+    wditScore.style.color = wditColor(data.wdit);
+
+    wditComment.textContent = data.label;
+    wditComment.style.color = wditColor(data.wdit);
+
+    drawLeaflet(pts, wditColor(data.wdit));
+
+    setTimeout(() => {
+      elevCanvas.width = elevCanvas.clientWidth;
+      elevCanvas.height = elevCanvas.clientHeight;
+      drawElevation(elevCanvas, elev);
+    }, 50);
+
+  } catch (err) {
+    alert("Errore caricamento attività");
+  }
+}
+// AUTO LOAD STRAVA
+if (source === "strava" && activityId) {
+  loadFromStrava(activityId);
 }
 </script>
 </body>
