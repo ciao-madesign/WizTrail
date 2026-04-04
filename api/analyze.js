@@ -1,5 +1,3 @@
-import "../lib/wdit.js";
-
 export default async function handler(req, res) {
   const token = req.headers.authorization?.split(" ")[1];
   const { id } = req.query;
@@ -9,7 +7,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1️⃣ STREAMS STRAVA
     const url = `https://www.strava.com/api/v3/activities/${id}/streams?keys=latlng,altitude,time,distance&key_by_type=true`;
 
     const response = await fetch(url, {
@@ -20,7 +17,14 @@ export default async function handler(req, res) {
 
     const streams = await response.json();
 
-    // 2️⃣ PREPARAZIONE DATI
+    // 🔥 DEBUG (fondamentale)
+    if (!streams || !streams.altitude || !streams.distance || !streams.latlng) {
+      return res.status(400).json({
+        error: "Invalid Strava data",
+        debug: streams
+      });
+    }
+
     const elev = streams.altitude.data;
     const dist = streams.distance.data;
 
@@ -41,10 +45,8 @@ export default async function handler(req, res) {
       d: dist
     };
 
-    // 🔥 3️⃣ WDIT (CORRETTO)
     const result = WizTrailWDIT.computeFromGpx(pts, metrics);
 
-    // 4️⃣ RISPOSTA
     res.status(200).json({
       wdit: result.WDIT,
       label: result.class,
@@ -54,6 +56,7 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
+    console.error("ANALYZE ERROR:", err);
     res.status(500).json({ error: "Analysis failed" });
   }
 }
