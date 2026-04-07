@@ -115,6 +115,12 @@ function fmtSec(sec){
  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
+useEstimate.addEventListener("change", () => {
+  if (!window.currentPts || !window.currentMetrics) return;
+
+  updateEstimateUI(window.currentMetrics, window.currentRealTime);
+});
+
 function parseGPX(text){
  const xml=new DOMParser().parseFromString(text,"application/xml");
  const pts=[];
@@ -169,6 +175,7 @@ ctx.strokeStyle = wditColor(currentTrainingWDIT);
   ctx.lineWidth = 2;
   ctx.stroke();
 }
+
 
 function wditColor(score) {
   if (score < 0.45) return "#2BB7DA";   // leggero -> teal
@@ -262,20 +269,35 @@ function renderAnalysis(pts, mt, realTimeStr = null) {
   wditComment.textContent = result.class;
   wditComment.style.color = wditColor(result.WDIT);
 
-  window.currentTrainingWDIT = result.WDIT;
+window.currentPts = pts;
+window.currentMetrics = mt;
+window.currentRealTime = realTimeStr;
 
-  // STIMA
+  window.currentTrainingWDIT = result.WDIT;
+updateEstimateUI(mt, realTimeStr);
+
+function updateEstimateUI(mt, realTimeStr) {
+
   let estSec = null;
+
   if (useEstimate.checked) {
+
     estSec = Math.round(mt.km * 7 * 60 + mt.gain * 0.6);
+
     timeEst.textContent = fmtSec(estSec);
     estBlock.style.display = "block";
     shareCompareBlock.style.display = "block";
+
+    const realSec = realTimeStr ? parseTimeToSec(realTimeStr) : null;
+    perfComment.textContent = performanceComment(realSec, estSec);
+
   } else {
     estBlock.style.display = "none";
     shareCompareBlock.style.display = "none";
+    perfComment.textContent = "";
   }
-
+}
+ 
   // MAPPA + ELEV
   drawLeaflet(pts, wditColor(result.WDIT));
 
