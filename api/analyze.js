@@ -17,16 +17,20 @@ export default async function handler(req, res) {
 
     const streams = await response.json();
 
-    // 🔥 CHECK SICUREZZA
+    // 🔥 FIX CRITICO
+    if (!streams || Object.keys(streams).length === 0) {
+      return res.status(400).json({
+        error: "Attività senza dati (Strava non restituisce streams)"
+      });
+    }
+
     if (
-      !streams ||
-      !streams.latlng?.data ||
-      !streams.altitude?.data ||
-      !streams.distance?.data
+      !streams.latlng ||
+      !streams.altitude ||
+      !streams.distance
     ) {
       return res.status(400).json({
-        error: "Strava streams incompleti",
-        debug: streams
+        error: "Attività non supportata (dati incompleti)"
       });
     }
 
@@ -62,6 +66,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error("ANALYZE ERROR:", err);
-    res.status(500).json({ error: "Analysis failed" });
+    res.status(500).json({ error: "Errore analisi attività" });
   }
 }
