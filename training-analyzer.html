@@ -358,8 +358,6 @@ if (!res.ok || data.error) {
   return;
 }
 
-// 🔥 SOLO DOPO controllo → calcolo WDIT
-const result = WizTrailWDIT.computeFromGpx(data.pts, data.metrics);
 
 const pts = data.pts;
 const mt = data.metrics;
@@ -367,12 +365,7 @@ const mt = data.metrics;
 // tempo non disponibile per ora
 renderAnalysis(pts, mt, null);
 
-    setTimeout(() => {
-      elevCanvas.width = elevCanvas.clientWidth;
-      elevCanvas.height = elevCanvas.clientHeight;
-      drawElevation(elevCanvas, elev);
-    }, 50);
-
+    
   } catch (err) {
     alert("Errore caricamento attività");
   }
