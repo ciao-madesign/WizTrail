@@ -54,7 +54,6 @@ export default async function handler(req, res) {
       d: dist
     };
 
-    const result = WizTrailWDIT.computeFromGpx(pts, metrics);
 
    res.status(200).json({
   metrics,
