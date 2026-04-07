@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WizTrail – Training Analyzer (WDIT)</title>
-<link rel="manifest" href="/WizTrail/manifest.webmanifest">
+<link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -324,13 +324,14 @@ async function loadFromStrava(activityId) {
     });
 
 const data = await res.json();
-// 🔥 calcolo WDIT nel frontend
-const result = WizTrailWDIT.computeFromGpx(data.pts, data.metrics);
 
 if (!res.ok || data.error) {
   alert(data.error || "Errore analisi");
   return;
 }
+
+// 🔥 SOLO DOPO controllo → calcolo WDIT
+const result = WizTrailWDIT.computeFromGpx(data.pts, data.metrics);
 
     // 🔥 SIMULA GPX FLOW
     const pts = data.pts;
@@ -347,7 +348,7 @@ wditScore.style.color = wditColor(result.WDIT);
 wditComment.textContent = result.class;
 wditComment.style.color = wditColor(result.WDIT);
 
-    drawLeaflet(pts, wditColor(data.wdit));
+    drawLeaflet(pts, wditColor(result.WDIT));
 
     setTimeout(() => {
       elevCanvas.width = elevCanvas.clientWidth;
