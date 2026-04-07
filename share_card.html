@@ -26,24 +26,33 @@ body { background:#000; color:#fff; font-family:Inter,system-ui; }
 
 /* CARD PRINCIPALE */
 #shareCard {
-    width: 100%;
-    max-width: 1100px;     
-    padding: 28px 24px 40px 24px;  
-    margin: 0 auto;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
-  border:1px solid rgba(255,255,255,0.05);
-  color:#fff;
-  box-shadow:0 0 30px rgba(0,0,0,0.45);
+  width: 360px;
+  height: 640px; /* 9:16 */
+  margin: auto;
+  padding: 16px;
+  border-radius: 20px;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* GRIGLIA */
-.bottom-row {
-  margin-top:24px;
-  display:flex;
-  gap:18px;
-}
+<div style="text-align:center; margin-top:10px;">
+  <div id="shareWDIT" class="wdit-big" style="font-size:3.5rem;"></div>
+  <div id="shareComment" class="wdit-comment"></div>
+  <div id="sharePerf" class="perf-comment"></div>
+</div>
+
+<div style="margin-top:12px;">
+  <div id="sDistance" class="share-data"></div>
+  <div id="sDplus" class="share-data"></div>
+  <div id="sTimeReal" class="share-data"></div>
+  <div id="sTimeEst" class="share-data" style="display:none;"></div>
+  <div id="sPaceAvg" class="share-data"></div>
+</div>
+
+<canvas id="shareElev" height="120"></canvas>
 
 .left-col, .right-col {
   flex:1;
@@ -108,6 +117,8 @@ body { background:#000; color:#fff; font-family:Inter,system-ui; }
   align-items:center;
 }
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -134,7 +145,7 @@ body { background:#000; color:#fff; font-family:Inter,system-ui; }
       </div>
 
       <!-- MAPPA QUADRATA -->
-      <canvas id="shareMap" width="1000" height="500"></canvas>
+      <div id="shareMap" style="height: 45%; border-radius:14px;"></div>
 
       <!-- SEZIONE INFERIORE -->
       <div class="bottom-row">
@@ -248,89 +259,47 @@ titleInput.addEventListener("input", () => {
   shareTitle.textContent = v !== "" ? v : "Allenamento";
 });
 
+let shareMapInstance = null;
+let mapReady = false;
 
-// =====================================================
-// NORMALIZZAZIONE
-// =====================================================
-function normalize(points){
-  const lats = points.map(p=>p[0]);
-  const lons = points.map(p=>p[1]);
-  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-  const minLon = Math.min(...lons), maxLon = Math.max(...lons);
-  const PAD = 0.08;
-  return points.map(p=>{
-    const nx = (p[1]-minLon)/(maxLon-minLon);
-    const ny = (p[0]-minLat)/(maxLat-minLat);
-    return [
-      PAD + nx*(1-PAD*2),
-      PAD + ny*(1-PAD*2)
-    ];
-  });
-}
+function drawLeafletMap() {
 
+  if (!data.pts || data.pts.length === 0) return;
 
-// =====================================================
-// MAPPA
-// =====================================================
-function drawMap(){
-  const c = shareMap;
-  const ctx = c.getContext("2d");
-
-  const g = ctx.createLinearGradient(0,0,0,c.height);
-  g.addColorStop(0,"rgba(15,15,15,0.60)");
-  g.addColorStop(1,"rgba(20,20,20,0.40)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,c.width,c.height);
-
-  // noise
-  const noise = document.createElement("canvas");
-  noise.width = c.width;
-  noise.height = c.height;
-  const nctx = noise.getContext("2d");
-  const noiseData = nctx.createImageData(c.width, c.height);
-  for(let i=0;i<noiseData.data.length;i+=4){
-    const v = Math.random()*40;
-    noiseData.data[i]=v;
-    noiseData.data[i+1]=v;
-    noiseData.data[i+2]=v;
-    noiseData.data[i+3]=35;
-  }
-  nctx.putImageData(noiseData,0,0);
-  ctx.globalAlpha = 0.14;
-  ctx.drawImage(noise,0,0);
-  ctx.globalAlpha = 1;
-
-  drawTrack();
-
-  const fade = ctx.createLinearGradient(0,0,c.width,0);
-  fade.addColorStop(0,"rgba(0,0,0,0.40)");
-  fade.addColorStop(0.08,"rgba(0,0,0,0)");
-  fade.addColorStop(0.92,"rgba(0,0,0,0)");
-  fade.addColorStop(1,"rgba(0,0,0,0.40)");
-  ctx.fillStyle = fade;
-  ctx.fillRect(0,0,c.width,c.height);
-}
-
-function drawTrack(){
-  if(!data.pts) return;
-  const c = shareMap;
-  const ctx = c.getContext("2d");
-
-  const norm = normalize(data.pts);
-
-  ctx.beginPath();
-  norm.forEach((p,i)=>{
-    const x = p[0]*c.width;
-    const y = c.height - p[1]*c.height;
-    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  const map = L.map("shareMap", {
+    zoomControl: false,
+    attributionControl: false
   });
 
-  ctx.strokeStyle = wditColor(data.WDIT);
-  ctx.lineWidth = 6;
-  ctx.lineCap = "round";
-  ctx.stroke();
-}
+  shareMapInstance = map;
 
+  const dark = L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    { subdomains: "abcd", maxZoom: 18 }
+  );
+
+  const topo = L.tileLayer(
+    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    { opacity: 0.35, maxZoom: 17 }
+  );
+
+  const base = L.layerGroup([dark, topo]).addTo(map);
+
+  const latlngs = data.pts.map(p => [p[0], p[1]]);
+
+  const polyline = L.polyline(latlngs, {
+    color: wditColor(data.WDIT),
+    weight: 4
+  }).addTo(map);
+
+  map.fitBounds(polyline.getBounds(), { padding: [20, 20] });
+
+  // 🔥 KEY: aspetta caricamento tile
+  base.on("load", () => {
+    mapReady = true;
+    console.log("MAP READY ✅");
+  });
+}
 
 
 // =====================================================
@@ -354,7 +323,7 @@ function drawElevProfile(elev){
 
   const max = Math.max(...elev);
   const min = Math.min(...elev);
-  const padTop = H*0.12;
+  const padTop = H*0.25;
   const span = (max-min)||1;
   const lineColor = wditColor(data.WDIT);
 
@@ -392,41 +361,56 @@ function drawElevProfile(elev){
   ctx.fillRect(0,0,W,H);
 }
 
-drawMap();
+setTimeout(() => {
+  drawLeafletMap();
+
+  // aspetta che la mappa sia pronta prima dello screenshot
+  setTimeout(() => {
+    console.log("Map ready for capture");
+  }, 500);
+
+}, 100);
 if(data.elev) drawElevProfile(data.elev);
 
 
 btnDownload.addEventListener("click", async () => {
-    const card = shareCard;
-    const oldRadius = card.style.borderRadius;
-    card.style.borderRadius = "0px";
 
-    const resultCanvas = await html2canvas(card, { scale: 2 });
-    card.style.borderRadius = oldRadius;
+  if (!mapReady) {
+    alert("Attendi il caricamento della mappa...");
+    return;
+  }
 
-    resultCanvas.toBlob(async blob => {
-        const file = new File([blob], "wiztrail.png", { type: "image/png" });
+  const card = shareCard;
+  const oldRadius = card.style.borderRadius;
+  card.style.borderRadius = "0px";
 
-        // 🔥 FIX: rimosso navigator.canShare({files})
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: "Il mio allenamento",
-                    files: [file]
-                });
-                return; // se condiviso, fine
-            } catch (e) {
-                // se l’utente annulla → si passa al fallback
-            }
-        }
+  // 🔥 piccolo delay per sicurezza render
+  await new Promise(r => setTimeout(r, 200));
 
-        // fallback desktop o mobile non compatibile
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "wiztrail.png";
-        a.click();
-    });
+  const resultCanvas = await html2canvas(card, {
+    scale: 2,
+    useCORS: true
+  });
+
+  card.style.borderRadius = oldRadius;
+
+  resultCanvas.toBlob(async blob => {
+
+    const file = new File([blob], "wiztrail.png", { type: "image/png" });
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+        return;
+      } catch(e){}
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "wiztrail.png";
+    a.click();
+  });
 });
 
 
@@ -564,35 +548,50 @@ QRCode.prototype={
 
 
 // =====================================================
-// STORIES 1:1 + QR
+// STORIES (FIX MAP READY + EXPORT PERFETTO)
 // =====================================================
 btnStories.addEventListener("click", async () => {
+
+    // 🔥 BLOCCA se la mappa non è pronta
+    if (!mapReady) {
+        alert("Attendi il caricamento della mappa...");
+        return;
+    }
+
     const card = document.getElementById("shareCard");
     const oldRadius = card.style.borderRadius;
     card.style.borderRadius = "0px";
 
-    const canvas = await html2canvas(card, { scale: 2 });
+    // 🔥 piccolo delay per sicurezza rendering Leaflet
+    await new Promise(r => setTimeout(r, 200));
+
+    const canvas = await html2canvas(card, {
+        scale: 2,
+        useCORS: true
+    });
+
     card.style.borderRadius = oldRadius;
 
     canvas.toBlob(async blob => {
+
         const file = new File([blob], "wiztrail_story.png", { type: "image/png" });
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-   // MOBILE: share nativa SOLO se supporta i file
-if (isMobile && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-        await navigator.share({
-            title: "Il mio allenamento",
-            text: "Allenamento su WizTrail – Stories Mode",
-            files: [file]
-        });
-        return;
-    } catch (e) {
-        // utente annulla → continua al fallback QR
-    }
-}
+        // 📱 SHARE NATIVO (solo se supporta file)
+        if (isMobile && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    title: "Il mio allenamento",
+                    text: "Allenamento su WizTrail – Stories Mode",
+                    files: [file]
+                });
+                return;
+            } catch (e) {
+                // utente annulla → fallback QR
+            }
+        }
 
-        // fallback QR per desktop o mobile non compatibile
+        // 🧠 fallback QR
         const dataUrl = await new Promise(res => {
             const r = new FileReader();
             r.onloadend = () => res(r.result);
