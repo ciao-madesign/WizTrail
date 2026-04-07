@@ -325,6 +325,18 @@ async function loadFromStrava(activityId) {
 
     const data = await res.json();
 
+console.log("ANALYZE RESPONSE:", data); // 👈 DEBUG
+
+if (!res.ok) {
+  alert("Errore backend: " + (data.error || "sconosciuto"));
+  return;
+}
+
+if (data.error) {
+  alert(data.error);
+  return;
+}
+
     // 🔥 SIMULA GPX FLOW
     const pts = data.pts;
     const elev = data.elev;
