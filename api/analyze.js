@@ -56,13 +56,11 @@ export default async function handler(req, res) {
 
     const result = WizTrailWDIT.computeFromGpx(pts, metrics);
 
-    res.status(200).json({
-      wdit: result.WDIT,
-      label: result.class,
-      metrics,
-      pts,
-      elev
-    });
+   res.status(200).json({
+  metrics,
+  pts,
+  elev
+});
 
   } catch (err) {
     console.error("ANALYZE ERROR:", err);
