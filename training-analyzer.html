@@ -324,6 +324,8 @@ async function loadFromStrava(activityId) {
     });
 
 const data = await res.json();
+// 🔥 calcolo WDIT nel frontend
+const result = WizTrailWDIT.computeFromGpx(data.pts, data.metrics);
 
 if (!res.ok || data.error) {
   alert(data.error || "Errore analisi");
@@ -339,11 +341,11 @@ if (!res.ok || data.error) {
     distVal.textContent = mt.km.toFixed(2)+" km";
     dplusVal.textContent = Math.round(mt.gain)+" m";
 
-    wditScore.textContent = data.wdit.toFixed(2);
-    wditScore.style.color = wditColor(data.wdit);
+wditScore.textContent = result.WDIT.toFixed(2);
+wditScore.style.color = wditColor(result.WDIT);
 
-    wditComment.textContent = data.label;
-    wditComment.style.color = wditColor(data.wdit);
+wditComment.textContent = result.class;
+wditComment.style.color = wditColor(result.WDIT);
 
     drawLeaflet(pts, wditColor(data.wdit));
 
