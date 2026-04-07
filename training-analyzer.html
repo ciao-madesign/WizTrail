@@ -12,6 +12,32 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
+<!-- STRAVA MODAL -->
+<div id="stravaModal" style="
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.85);
+  z-index:9999;
+  overflow:auto;
+">
+
+  <div style="max-width:700px;margin:40px auto;padding:20px;">
+
+    <h2 style="margin-bottom:10px;">Seleziona attività</h2>
+    <p class="mini">Le tue ultime attività da Strava</p>
+
+    <div id="stravaLoading">Caricamento...</div>
+
+    <div id="stravaList" style="margin-top:20px;display:flex;flex-direction:column;gap:12px;"></div>
+
+    <button class="btn secondary" onclick="closeStravaModal()" style="margin-top:20px;">
+      Chiudi
+    </button>
+
+  </div>
+</div>
 <body data-theme="dark">
 <header class="app-header">
 <div class="app-brand">
@@ -40,7 +66,7 @@
 <div class="card" style="margin-top:20px;">
 <h2>Carica la tua attività</h2>
 <div style="margin-top:12px;">
-  <button class="btn" onclick="loginStrava()">
+ <button class="btn" onclick="openStravaModal()">
     🔗 Importa da Strava
   </button>
 </div>
@@ -409,6 +435,74 @@ renderAnalysis(pts, mt, realTimeStr);
 if (source === "strava" && activityId) {
   loadFromStrava(activityId);
 btnAnalyze.style.display = "none";
+}
+
+function openStravaModal() {
+  stravaModal.style.display = "block";
+  loadStravaActivities();
+}
+
+function closeStravaModal() {
+  stravaModal.style.display = "none";
+}
+
+async function loadStravaActivities() {
+
+  const token = localStorage.getItem("strava_token");
+
+  if (!token) {
+    loginStrava();
+    return;
+  }
+
+  stravaLoading.style.display = "block";
+  stravaList.innerHTML = "";
+
+  try {
+    const res = await fetch("/api/strava/activities", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const acts = await res.json();
+
+    stravaLoading.style.display = "none";
+
+    acts.slice(0, 20).forEach(a => {
+
+      const card = document.createElement("div");
+
+      card.style = `
+        background:#111;
+        padding:14px;
+        border-radius:12px;
+        cursor:pointer;
+        border:1px solid rgba(255,255,255,0.05);
+      `;
+
+      card.innerHTML = `
+        <div style="font-weight:600;">${a.name}</div>
+        <div class="mini">
+          ${(a.distance/1000).toFixed(1)} km • ${Math.round(a.total_elevation_gain)} m
+        </div>
+      `;
+
+      card.onclick = () => {
+        closeStravaModal();
+        loadFromStrava(a.id);
+      };
+
+      stravaList.appendChild(card);
+    });
+
+  } catch (e) {
+    stravaLoading.textContent = "Errore caricamento attività";
+  }
+}
+// se arrivi da auth → apri lista automaticamente
+if (localStorage.getItem("strava_token") && source !== "strava") {
+  // opzionale: non auto-aprire sempre
 }
 </script>
 </body>
