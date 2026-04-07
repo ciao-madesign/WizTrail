@@ -54,11 +54,27 @@ export default async function handler(req, res) {
       d: dist
     };
 
+// 🔥 PRENDI DATI ATTIVITÀ (TEMPO)
+const activityRes = await fetch(
+  `https://www.strava.com/api/v3/activities/${id}`,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  }
+);
+
+const activity = await activityRes.json();
+
+// tempo in secondi
+const movingTime = activity.moving_time || null;
+
 
    res.status(200).json({
   metrics,
   pts,
-  elev
+  elev,
+movingTime
 });
 
   } catch (err) {
