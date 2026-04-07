@@ -323,17 +323,10 @@ async function loadFromStrava(activityId) {
       }
     });
 
-    const data = await res.json();
+const data = await res.json();
 
-console.log("ANALYZE RESPONSE:", data); // 👈 DEBUG
-
-if (!res.ok) {
-  alert("Errore backend: " + (data.error || "sconosciuto"));
-  return;
-}
-
-if (data.error) {
-  alert(data.error);
+if (!res.ok || data.error) {
+  alert(data.error || "Errore analisi");
   return;
 }
 
