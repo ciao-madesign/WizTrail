@@ -361,9 +361,13 @@ if (!res.ok || data.error) {
 
 const pts = data.pts;
 const mt = data.metrics;
+let realTimeStr = null;
 
-// tempo non disponibile per ora
-renderAnalysis(pts, mt, null);
+if (data.movingTime) {
+  realTimeStr = fmtSec(data.movingTime);
+}
+
+renderAnalysis(pts, mt, realTimeStr);
 
     
   } catch (err) {
