@@ -211,6 +211,30 @@ function performanceComment(realSec, estSec){
 
   return "Non si molla, c'è margine di miglioramento! 💪";  // oltre +5%
 }
+
+function updateEstimateUI(mt, realTimeStr) {
+
+  let estSec = null;
+
+  if (useEstimate.checked) {
+
+    estSec = Math.round(mt.km * 7 * 60 + mt.gain * 0.6);
+window.currentEstSec = estSec;
+
+    timeEst.textContent = fmtSec(estSec);
+    estBlock.style.display = "block";
+    shareCompareBlock.style.display = "block";
+
+    const realSec = realTimeStr ? parseTimeToSec(realTimeStr) : null;
+    perfComment.textContent = performanceComment(realSec, estSec);
+
+  } else {
+    estBlock.style.display = "none";
+    shareCompareBlock.style.display = "none";
+    perfComment.textContent = "";
+  }
+}
+
 /* MAPPA LEAFLET */
 let map=null,poly=null;
 function initMap(){
@@ -276,27 +300,6 @@ window.currentRealTime = realTimeStr;
   window.currentTrainingWDIT = result.WDIT;
 updateEstimateUI(mt, realTimeStr);
 
-function updateEstimateUI(mt, realTimeStr) {
-
-  let estSec = null;
-
-  if (useEstimate.checked) {
-
-    estSec = Math.round(mt.km * 7 * 60 + mt.gain * 0.6);
-
-    timeEst.textContent = fmtSec(estSec);
-    estBlock.style.display = "block";
-    shareCompareBlock.style.display = "block";
-
-    const realSec = realTimeStr ? parseTimeToSec(realTimeStr) : null;
-    perfComment.textContent = performanceComment(realSec, estSec);
-
-  } else {
-    estBlock.style.display = "none";
-    shareCompareBlock.style.display = "none";
-    perfComment.textContent = "";
-  }
-}
  
   // MAPPA + ELEV
   drawLeaflet(pts, wditColor(result.WDIT));
@@ -313,7 +316,7 @@ function updateEstimateUI(mt, realTimeStr) {
       distance: mt.km,
       dplus: mt.gain,
       time_real: realTimeStr,
-      time_est: estSec ? fmtSec(estSec) : null,
+      time_est: window.currentEstSec ? fmtSec(window.currentEstSec) : null,
       includeCompare: shareCompare.checked,
       WDIT: result.WDIT.toFixed(2),
       comment: getComment(result.WDIT),
@@ -327,6 +330,12 @@ function updateEstimateUI(mt, realTimeStr) {
 /* ANALISI */
 btnAnalyze.addEventListener("click", async () => {
 
+  // 👉 CASO STRAVA: NON fare nulla (già analizzato)
+  if (source === "strava") {
+    return;
+  }
+
+  // 👉 CASO GPX
   const file = gpxFile.files[0];
   if (!file) return alert("Carica un GPX");
 
@@ -399,6 +408,7 @@ renderAnalysis(pts, mt, realTimeStr);
 // AUTO LOAD STRAVA
 if (source === "strava" && activityId) {
   loadFromStrava(activityId);
+btnAnalyze.style.display = "none";
 }
 </script>
 </body>
