@@ -12,9 +12,17 @@
 body { background:#000; color:#fff; font-family:Inter,system-ui; }
 
 .share-wrapper {
-  max-width:900px;
-  margin:0 auto 40px auto;
-  padding:20px;
+  display: flex;
+  flex-direction: column;   /* 🔥 FIX */
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.bottom-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .card-preview {
@@ -26,33 +34,18 @@ body { background:#000; color:#fff; font-family:Inter,system-ui; }
 
 /* CARD PRINCIPALE */
 #shareCard {
-  width: 360px;
-  height: 640px; /* 9:16 */
-  margin: auto;
+  width: 100%;
+  max-width: 360px;
+  height: 640px;
+  margin: 0 auto;
   padding: 16px;
   border-radius: 20px;
   background: #000;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  box-sizing: border-box;
 }
 
 /* GRIGLIA */
-<div style="text-align:center; margin-top:10px;">
-  <div id="shareWDIT" class="wdit-big" style="font-size:3.5rem;"></div>
-  <div id="shareComment" class="wdit-comment"></div>
-  <div id="sharePerf" class="perf-comment"></div>
-</div>
 
-<div style="margin-top:12px;">
-  <div id="sDistance" class="share-data"></div>
-  <div id="sDplus" class="share-data"></div>
-  <div id="sTimeReal" class="share-data"></div>
-  <div id="sTimeEst" class="share-data" style="display:none;"></div>
-  <div id="sPaceAvg" class="share-data"></div>
-</div>
-
-<canvas id="shareElev" height="120"></canvas>
 
 .left-col, .right-col {
   flex:1;
@@ -176,9 +169,15 @@ body { background:#000; color:#fff; font-family:Inter,system-ui; }
     </div>
 
     <!-- BOTTONI -->
-    <div style="text-align:center;">
-      <button id="btnDownload" class="btn-main">📤 Salva</button>
-      <button id="btnStories" class="btn-main" style="margin-left:10px;">📲 Stories</button>
+  <div style="
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  margin-top:16px;
+  width:100%;
+">
+     <button id="btnDownload" class="btn-main" style="flex:1;">📤 Salva</button>
+<button id="btnStories" class="btn-main" style="flex:1;">📲 Stories</button>
     </div>
 
   </div>
@@ -201,7 +200,8 @@ body { background:#000; color:#fff; font-family:Inter,system-ui; }
 </div>
 <!-- TORNA AL TRAINING ANALYZER -->
 <div style="text-align:center; margin-top:16px;">
-  <button class="btn secondary" onclick Training Analyzer
+  <button class="btn secondary" onclick="history.back()">
+    ← Torna indietro
   </button>
 </div>
 
@@ -262,6 +262,31 @@ titleInput.addEventListener("input", () => {
 let shareMapInstance = null;
 let mapReady = false;
 
+// 🔥 funzione robusta per aspettare i tile
+function waitForTiles(map) {
+  return new Promise(resolve => {
+
+    let loaded = 0;
+    let total = 0;
+
+    map.eachLayer(layer => {
+      if (layer instanceof L.TileLayer) {
+        total++;
+
+        layer.on("load", () => {
+          loaded++;
+          if (loaded >= total) {
+            resolve();
+          }
+        });
+      }
+    });
+
+    // fallback sicurezza (mobile / rete lenta)
+    setTimeout(resolve, 1200);
+  });
+}
+
 function drawLeafletMap() {
 
   if (!data.pts || data.pts.length === 0) return;
@@ -283,7 +308,7 @@ function drawLeafletMap() {
     { opacity: 0.35, maxZoom: 17 }
   );
 
-  const base = L.layerGroup([dark, topo]).addTo(map);
+  L.layerGroup([dark, topo]).addTo(map);
 
   const latlngs = data.pts.map(p => [p[0], p[1]]);
 
@@ -292,10 +317,26 @@ function drawLeafletMap() {
     weight: 4
   }).addTo(map);
 
-  map.fitBounds(polyline.getBounds(), { padding: [20, 20] });
+  const bounds = polyline.getBounds();
 
-  // 🔥 KEY: aspetta caricamento tile
-  base.on("load", () => {
+  // primo fit
+  map.fitBounds(bounds, { padding: [20, 20] });
+
+  // 🔥 FIX CENTRATURA REALE
+  setTimeout(() => {
+    map.invalidateSize();
+
+    map.fitBounds(bounds, {
+      padding: [50, 50] // più aria → perfetto per stories
+    });
+
+    // leggero zoom out per evitare tagli edge
+    map.setZoom(map.getZoom() - 0.2);
+
+  }, 100);
+
+  // 🔥 MAP READY VERA (tile caricati)
+  waitForTiles(map).then(() => {
     mapReady = true;
     console.log("MAP READY ✅");
   });
@@ -375,10 +416,10 @@ if(data.elev) drawElevProfile(data.elev);
 
 btnDownload.addEventListener("click", async () => {
 
-  if (!mapReady) {
-    alert("Attendi il caricamento della mappa...");
-    return;
-  }
+if (!mapReady) {
+  alert("Attendi il caricamento della mappa (1 secondo)...");
+  await new Promise(r => setTimeout(r, 800));
+}
 
   const card = shareCard;
   const oldRadius = card.style.borderRadius;
