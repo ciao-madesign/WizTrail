@@ -177,8 +177,7 @@ overflow: hidden;
   margin-top:16px;
   width:100%;
 ">
-     <button id="btnDownload" class="btn-main" style="flex:1;">📤 Salva</button>
-<button id="btnStories" class="btn-main" style="flex:1;">📲 Stories</button>
+<button id="btnStories" class="btn-main" style="width:100%;">📲 Stories</button>
     </div>
 
   </div>
@@ -415,61 +414,6 @@ setTimeout(() => {
 if(data.elev) drawElevProfile(data.elev);
 
 
-btnDownload.addEventListener("click", async () => {
-
-if (!mapReady) {
-  alert("Attendi il caricamento della mappa (1 secondo)...");
-  await new Promise(r => setTimeout(r, 800));
-}
-
-  const card = shareCard;
-  const oldRadius = card.style.borderRadius;
-  card.style.borderRadius = "0px";
-
-  // 🔥 piccolo delay per sicurezza render
- await new Promise(r => setTimeout(r, 200));
-
-// 🔥 QUI
-if (shareMapInstance) {
-
-  const center = shareMapInstance.getCenter();
-  const zoom = shareMapInstance.getZoom();
-
-  // 🔥 reset completo (chiave del fix)
-  shareMapInstance.setView(center, zoom, { animate: false });
-
-  shareMapInstance.invalidateSize();
-
-  // 🔥 forza sincronizzazione layer
-  await new Promise(r => setTimeout(r, 500));
-}
-await new Promise(r => requestAnimationFrame(r));
-
-const canvas = await html2canvas(card, {
-  scale: 2,
-  useCORS: true
-});
-
-  card.style.borderRadius = oldRadius;
-
- canvas.toBlob(async blob => {
-
-    const file = new File([blob], "wiztrail.png", { type: "image/png" });
-
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file] });
-        return;
-      } catch(e){}
-    }
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "wiztrail.png";
-    a.click();
-  });
-});
 
 
 // =====================================================
@@ -651,17 +595,20 @@ await new Promise(r => requestAnimationFrame(r));
         const file = new File([blob], "wiztrail_story.png", { type: "image/png" });
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-        // 📱 SHARE NATIVO (solo se supporta file)
-   if (navigator.share) {
+   // 📱 SHARE NATIVO SOLO SE SUPPORTA FILE
+if (
+  navigator.canShare &&
+  navigator.canShare({ files: [file] })
+) {
   try {
     await navigator.share({
-      title: "Il mio allenamento",
-      text: "Allenamento su WizTrail – Stories Mode",
-      files: [file]
+      files: [file],
+      title: "WizTrail"
     });
     return;
   } catch (e) {
-    console.log("Share fallback", e);
+    console.log("Share aborted", e);
+    return; // 🔥 NON andare al QR
   }
 }
 
