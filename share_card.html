@@ -42,6 +42,7 @@ body { background:#000; color:#fff; font-family:Inter,system-ui; }
   border-radius: 20px;
   background: #000;
   box-sizing: border-box;
+overflow: hidden;
 }
 
 /* GRIGLIA */
@@ -426,16 +427,32 @@ if (!mapReady) {
   card.style.borderRadius = "0px";
 
   // 🔥 piccolo delay per sicurezza render
-  await new Promise(r => setTimeout(r, 200));
+ await new Promise(r => setTimeout(r, 200));
 
-  const resultCanvas = await html2canvas(card, {
-    scale: 2,
-    useCORS: true
-  });
+// 🔥 QUI
+if (shareMapInstance) {
+
+  const center = shareMapInstance.getCenter();
+  const zoom = shareMapInstance.getZoom();
+
+  // 🔥 reset completo (chiave del fix)
+  shareMapInstance.setView(center, zoom, { animate: false });
+
+  shareMapInstance.invalidateSize();
+
+  // 🔥 forza sincronizzazione layer
+  await new Promise(r => setTimeout(r, 500));
+}
+await new Promise(r => requestAnimationFrame(r));
+
+const canvas = await html2canvas(card, {
+  scale: 2,
+  useCORS: true
+});
 
   card.style.borderRadius = oldRadius;
 
-  resultCanvas.toBlob(async blob => {
+ canvas.toBlob(async blob => {
 
     const file = new File([blob], "wiztrail.png", { type: "image/png" });
 
@@ -605,6 +622,22 @@ btnStories.addEventListener("click", async () => {
 
     // 🔥 piccolo delay per sicurezza rendering Leaflet
     await new Promise(r => setTimeout(r, 200));
+// 🔥 FIX MAPPA (UGUALE AL DOWNLOAD)
+if (shareMapInstance) {
+
+  const center = shareMapInstance.getCenter();
+  const zoom = shareMapInstance.getZoom();
+
+  // 🔥 reset completo (chiave del fix)
+  shareMapInstance.setView(center, zoom, { animate: false });
+
+  shareMapInstance.invalidateSize();
+
+  // 🔥 forza sincronizzazione layer
+  await new Promise(r => setTimeout(r, 500));
+}
+
+await new Promise(r => requestAnimationFrame(r));
 
     const canvas = await html2canvas(card, {
         scale: 2,
@@ -619,18 +652,18 @@ btnStories.addEventListener("click", async () => {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
         // 📱 SHARE NATIVO (solo se supporta file)
-        if (isMobile && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-                await navigator.share({
-                    title: "Il mio allenamento",
-                    text: "Allenamento su WizTrail – Stories Mode",
-                    files: [file]
-                });
-                return;
-            } catch (e) {
-                // utente annulla → fallback QR
-            }
-        }
+   if (navigator.share) {
+  try {
+    await navigator.share({
+      title: "Il mio allenamento",
+      text: "Allenamento su WizTrail – Stories Mode",
+      files: [file]
+    });
+    return;
+  } catch (e) {
+    console.log("Share fallback", e);
+  }
+}
 
         // 🧠 fallback QR
         const dataUrl = await new Promise(res => {
