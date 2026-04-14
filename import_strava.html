@@ -1,51 +1,119 @@
 <!doctype html>
-<html>
+<html lang="it">
 <head>
-<meta charset="utf-8">
-<title>Importa Attività da Strava</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Importa attività da Strava — WizTrail</title>
+  <link rel="stylesheet" href="wiztrail.css">
+  <meta name="theme-color" content="#002b2b">
 </head>
-<body style="font-family:system-ui;padding:20px;">
+<body data-theme="dark">
 
-<h1>Importa attività da Strava</h1>
-<p>Seleziona un’attività da analizzare con WizTrail.</p>
+<header class="app-header">
+  <div class="app-brand">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </div>
+</header>
 
-<ul id="activityList"></ul>
+<div class="wrap">
+  <h1>Importa attività da Strava</h1>
+  <button class="btn secondary" onclick="location.href='training-analyzer.html'">← Torna indietro</button>
+
+  <div class="card" style="margin-top:20px;">
+    <p class="mini">Seleziona un'attività da analizzare con WizTrail.</p>
+    <div id="statusMsg" style="margin:16px 0;"></div>
+    <ul id="activityList" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;"></ul>
+  </div>
+
+  <div class="footer">WizTrail © 2026</div>
+</div>
 
 <script>
-const token = sessionStorage.getItem("strava_token");
+  (function () {
+    const token = sessionStorage.getItem('strava_token');
 
-if (!token) {
-  location.href = "training-analyzer.html";
-}
-
-async function loadActivities() {
-  const res = await fetch("/api/strava/activities", {
-    headers: {
-      Authorization: `Bearer ${token}`
+    if (!token) {
+      location.href = 'training-analyzer.html';
+      return;
     }
-  });
 
-  const acts = await res.json();
+    const statusMsg   = document.getElementById('statusMsg');
+    const activityList = document.getElementById('activityList');
 
-  const list = document.getElementById("activityList");
-  list.innerHTML = "";
+    function setStatus(msg) {
+      statusMsg.textContent = msg;
+    }
 
-  acts.forEach(a => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <button onclick="openActivity(${a.id})">
-        ${a.name} – ${(a.distance/1000).toFixed(1)} km
-      </button>
-    `;
-    list.appendChild(li);
-  });
-}
+    async function loadActivities() {
+      setStatus('Caricamento attività…');
 
-function openActivity(id) {
-  location.href = `training-analyzer.html?source=strava&id=${id}`;
-}
+      let res;
+      try {
+        res = await fetch('/api/strava/activities', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+      } catch {
+        setStatus('Errore di rete. Riprova più tardi.');
+        return;
+      }
 
-loadActivities();
+      if (!res.ok) {
+        // Token scaduto o non valido → torna al login
+        sessionStorage.removeItem('strava_token');
+        sessionStorage.removeItem('strava_athlete_id');
+        location.href = 'training-analyzer.html';
+        return;
+      }
+
+      let acts;
+      try {
+        acts = await res.json();
+      } catch {
+        setStatus('Risposta non valida dal server.');
+        return;
+      }
+
+      setStatus('');
+
+      if (!acts.length) {
+        setStatus('Nessuna attività trovata.');
+        return;
+      }
+
+      activityList.innerHTML = '';
+      acts.slice(0, 20).forEach(a => {
+        const li  = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.className = 'btn secondary';
+        btn.style     = 'width:100%;text-align:left;';
+        btn.innerHTML =
+          '<strong>' + escHtml(a.name) + '</strong>' +
+          '<span class="mini" style="display:block;margin-top:2px;">' +
+            (a.distance / 1000).toFixed(1) + ' km &bull; ' +
+            Math.round(a.total_elevation_gain) + ' m D+' +
+          '</span>';
+        btn.addEventListener('click', () => openActivity(a.id));
+        li.appendChild(btn);
+        activityList.appendChild(li);
+      });
+    }
+
+    function openActivity(id) {
+      location.href = 'training-analyzer.html?source=strava&id=' + encodeURIComponent(id);
+    }
+
+    // Sanifica testo prima di inserirlo nel DOM
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    loadActivities();
+  })();
 </script>
 
 </body>
