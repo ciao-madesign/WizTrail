@@ -395,7 +395,7 @@ function loginStrava() {
   window.location.href = url;
 }
 async function loadFromStrava(activityId) {
-  const token = localStorage.getItem("strava_token");
+  const token = sessionStorage.getItem("strava_token");
 
   if (!token) {
     alert("Non autenticato con Strava");
@@ -449,7 +449,7 @@ function closeStravaModal() {
 
 async function loadStravaActivities() {
 
-  const token = localStorage.getItem("strava_token");
+  const token = sessionStorage.getItem("strava_token");
 
   if (!token) {
     loginStrava();
@@ -498,7 +498,7 @@ const res = await fetch(`/api/strava/activities?token=${token}`);
   }
 }
 // se arrivi da auth → apri lista automaticamente
-if (localStorage.getItem("strava_token") && source !== "strava") {
+if (sessionStorage.getItem("strava_token") && source !== "strava") {
   // opzionale: non auto-aprire sempre
 }
 </script>
