@@ -1,132 +1,124 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WizTrail – Share Card</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WizTrail – Share Card</title>
 
-<link rel="stylesheet" href="wiztrail.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
-<style>
-body { background:#000; color:#fff; font-family:Inter,system-ui; }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-.share-wrapper {
-  display: flex;
-  flex-direction: column;   /* 🔥 FIX */
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-}
+  <style>
+    body { background:#000; color:#fff; font-family:Inter,system-ui; }
 
-.bottom-row {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-}
+    .share-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+    }
 
-.card-preview {
-  background:#111;
-  padding:20px;
-  border-radius:18px;
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
-}
+    .bottom-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
 
-/* CARD PRINCIPALE */
-#shareCard {
-  width: 100%;
-  max-width: 360px;
-  height: 640px;
-  margin: 0 auto;
-  padding: 16px;
-  border-radius: 20px;
-  background: #000;
-  box-sizing: border-box;
-overflow: hidden;
-}
+    .card-preview {
+      background:#111;
+      padding:20px;
+      border-radius:18px;
+      box-shadow:0 0 20px rgba(0,0,0,0.5);
+    }
 
-/* GRIGLIA */
+    #shareCard {
+      width: 100%;
+      max-width: 360px;
+      height: 640px;
+      margin: 0 auto;
+      padding: 16px;
+      border-radius: 20px;
+      background: #000;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
 
+    .left-col, .right-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-.left-col, .right-col {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
+    .wdi-big     { font-size:3rem; font-weight:900; line-height:1.1; }
+    .wdi-comment { font-size:1.25rem; opacity:0.9; }
+    .perf-comment { font-size:1rem; font-weight:600; }
 
-/* TIPOGRAFIA */
-.wdit-big { font-size:3rem; font-weight:900; line-height:1.1; }
-.wdit-comment { font-size:1.25rem; opacity:0.9; }
-.perf-comment { font-size:1rem; font-weight:600; }
+    .share-data {
+      font-size:0.85rem;
+      opacity:0.90;
+      font-weight:500;
+      line-height:1.1;
+    }
 
-.share-data {
-  font-size:0.85rem;
-  opacity:0.90;
-  font-weight:500;
-  line-height:1.1;
-}
+    #shareMap,
+    #shareElev {
+      width:100%;
+      border-radius:12px;
+      margin:14px 0;
+    }
 
-/* CANVAS */
-#shareMap,
-#shareElev {
-  width:100%;
-  border-radius:12px;
-  margin:14px 0;
-}
+    .share-footer {
+      margin-top:24px;
+      padding:10px 0 4px 0;
+      text-align:center;
+      font-size:1rem;
+      opacity:0.75;
+    }
 
-/* FOOTER */
-.share-footer {
-  margin-top:24px;
-  padding:10px 0 4px 0;
-  text-align:center;
-  font-size:1rem;
-  opacity:0.75;
-}
+    .btn-main {
+      display:inline-block;
+      padding:12px 22px;
+      font-size:1.2rem;
+      font-weight:700;
+      border:none;
+      border-radius:12px;
+      background:#00ffcc;
+      color:#000;
+      cursor:pointer;
+      margin-top:18px;
+    }
+    .btn-main:hover { opacity:0.85; }
 
-/* BOTTONI */
-.btn-main {
-  display:inline-block;
-  padding:12px 22px;
-  font-size:1.2rem;
-  font-weight:700;
-  border:none;
-  border-radius:12px;
-  background:#00ffcc;
-  color:#000;
-  cursor:pointer;
-  margin-top:18px;
-}
-.btn-main:hover { opacity:0.85; }
-
-/* QR OVERLAY */
-#qrModal {
-  display:none;
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,0.85);
-  z-index:99999;
-  justify-content:center;
-  align-items:center;
-}
-</style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    #qrModal {
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.85);
+      z-index:99999;
+      justify-content:center;
+      align-items:center;
+    }
+  </style>
 </head>
 
 <body>
 
 <div class="share-wrapper">
 
-<!-- INPUT TITOLO -->
-<div style="margin-bottom:16px;">
-  <label class="mini">Nome allenamento:</label>
-  <input id="trainingTitleInput" type="text"
-         placeholder="Allenamento"
-         class="input-text"
-         style="width:100%;padding:10px;font-size:1.1rem;border-radius:8px;">
-</div>
+  <!-- INPUT TITOLO -->
+  <div style="margin-bottom:16px;">
+    <label class="mini">Nome allenamento:</label>
+    <input id="trainingTitleInput" type="text"
+           placeholder="Allenamento"
+           class="input-text"
+           style="width:100%;padding:10px;font-size:1.1rem;border-radius:8px;">
+  </div>
 
   <div class="card-preview">
 
@@ -138,29 +130,29 @@ overflow: hidden;
            style="text-align:center;font-size:1.8rem;font-weight:700;margin-bottom:18px;opacity:0.95;">
       </div>
 
-      <!-- MAPPA QUADRATA -->
-      <div id="shareMap" style="height: 45%; border-radius:14px;"></div>
+      <!-- MAPPA -->
+      <div id="shareMap" style="height:45%;border-radius:14px;"></div>
 
       <!-- SEZIONE INFERIORE -->
       <div class="bottom-row">
 
-        <!-- WDIT -->
+        <!-- WDI -->
         <div class="left-col">
-          <div id="shareWDIT" class="wdit-big"></div>
-          <div id="shareComment" class="wdit-comment"></div>
+          <div id="shareWDI" class="wdi-big"></div>
+          <div id="shareComment" class="wdi-comment"></div>
           <div id="sharePerf" class="perf-comment"></div>
         </div>
 
         <!-- DATI + ALTIMETRIA -->
         <div class="right-col">
           <div id="sDistance" class="share-data"></div>
-          <div id="sDplus" class="share-data"></div>
+          <div id="sDplus"    class="share-data"></div>
           <div id="sTimeReal" class="share-data"></div>
-          <div id="sTimeEst" class="share-data" style="display:none;"></div>
-          <div id="sPaceAvg" class="share-data"></div>
-
+          <div id="sTimeEst"  class="share-data" style="display:none;"></div>
+          <div id="sPaceAvg"  class="share-data"></div>
           <canvas id="shareElev" width="900" height="260"></canvas>
         </div>
+
       </div>
 
       <div class="share-footer">
@@ -169,461 +161,430 @@ overflow: hidden;
 
     </div>
 
-    <!-- BOTTONI -->
-  <div style="
-  display:flex;
-  gap:12px;
-  justify-content:center;
-  margin-top:16px;
-  width:100%;
-">
-<button id="btnStories" class="btn-main" style="width:100%;">📲 Stories</button>
+    <!-- PULSANTE CONDIVISIONE -->
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:16px;width:100%;">
+      <button id="btnStories" class="btn-main" style="width:100%;">Condividi Stories</button>
     </div>
 
   </div>
 </div>
 
+<!-- TORNA INDIETRO -->
+<div style="text-align:center;margin-top:16px;">
+  <button class="btn secondary" id="btnBack">← Torna indietro</button>
+</div>
 
 <!-- QR MODAL -->
 <div id="qrModal">
-  <div style="background:#111; padding:20px; border-radius:12px; text-align:center;">
+  <div style="background:#111;padding:20px;border-radius:12px;text-align:center;">
     <h2 style="margin-bottom:12px;">Scansiona con il telefono</h2>
     <canvas id="qrCanvas"></canvas>
-    <p style="opacity:0.7; margin-top:10px; font-size:0.9rem;">
-      Usa il telefono per condividere l’immagine nelle Stories.
+    <p style="opacity:0.7;margin-top:10px;font-size:0.9rem;">
+      Usa il telefono per condividere l'immagine nelle Stories.
     </p>
-    <button onclick="qrModal.style.display='none'"
-            style="margin-top:18px; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">
+    <button id="btnCloseQr"
+            style="margin-top:18px;padding:10px 20px;border:none;border-radius:8px;cursor:pointer;">
       Chiudi
     </button>
   </div>
 </div>
-<!-- TORNA AL TRAINING ANALYZER -->
-<div style="text-align:center; margin-top:16px;">
-  <button class="btn secondary" onclick="history.back()">
-    ← Torna indietro
-  </button>
-</div>
-
-
 
 <script>
-// =====================================================
-// LETTURA DATI
-// =====================================================
-const data = JSON.parse(sessionStorage.getItem("shareData") || "{}");
+(function () {
+  'use strict';
 
-function wditColor(score){
-  score = parseFloat(score);
-  if(score < 0.45) return "#2BB7DA";
-  if(score < 0.80) return "#34A853";
-  if(score < 1.20) return "#F4C20D";
-  if(score < 2.20) return "#F79617";
-  if(score < 8.00) return "#E91E63";
-  return "#8E24AA";
-}
+  /* ------------------------------------------------------------------
+     DATI DA sessionStorage
+     ------------------------------------------------------------------ */
+  var data = {};
+  try {
+    data = JSON.parse(sessionStorage.getItem('shareData') || '{}');
+  } catch (e) {
+    data = {};
+  }
 
-sDistance.textContent = `Distanza: ${Number(data.distance).toFixed(2)} km`;
-sDplus.textContent = `Dislivello: ${Math.round(data.dplus)} m`;
+  /* ------------------------------------------------------------------
+     COLORI WDI v5 — soglie sincronizzate con wiztrail-engine.js
+     ------------------------------------------------------------------ */
+  function wdiColor(score) {
+    score = parseFloat(score);
+    if (isNaN(score))  return '#2BB7DA';
+    if (score <  14)   return '#2BB7DA';
+    if (score <  30)   return '#34A853';
+    if (score <  55)   return '#F4C20D';
+    if (score < 105)   return '#F79617';
+    if (score < 165)   return '#E91E63';
+    return '#8E24AA';
+  }
 
-if(data.time_real) sTimeReal.textContent = `Tempo reale: ${data.time_real}`;
-
-if(data.time_est && data.includeCompare){
-  sTimeEst.style.display = "block";
-  sTimeEst.textContent = `Tempo stimato: ${data.time_est}`;
-}
-
-if(data.time_real && data.distance){
-  const [h,m,s] = data.time_real.split(":").map(Number);
-  const sec = h*3600 + m*60 + s;
-  const pace = sec / data.distance;
-  sPaceAvg.textContent = `Pace medio: ${Math.floor(pace/60)}:${String(Math.round(pace%60)).padStart(2,"0")}/km`;
-}
-
-shareWDIT.textContent = `WDIT ${data.WDIT}`;
-shareWDIT.style.color = wditColor(data.WDIT);
-shareComment.textContent = data.comment || "";
-if(data.includeCompare && data.perfComment){
-  sharePerf.textContent = data.perfComment;
-  sharePerf.style.color = wditColor(data.WDIT);
-}
-
-// TITOLO
-const titleInput = document.getElementById("trainingTitleInput");
-const shareTitle = document.getElementById("shareTitle");
-
-shareTitle.textContent = "Allenamento";
-
-titleInput.addEventListener("input", () => {
-  const v = titleInput.value.trim();
-  shareTitle.textContent = v !== "" ? v : "Allenamento";
-});
-
-let shareMapInstance = null;
-let mapReady = false;
-
-// 🔥 funzione robusta per aspettare i tile
-function waitForTiles(map) {
-  return new Promise(resolve => {
-
-    let loaded = 0;
-    let total = 0;
-
-    map.eachLayer(layer => {
-      if (layer instanceof L.TileLayer) {
-        total++;
-
-        layer.on("load", () => {
-          loaded++;
-          if (loaded >= total) {
-            resolve();
-          }
-        });
-      }
-    });
-
-    // fallback sicurezza (mobile / rete lenta)
-    setTimeout(resolve, 1200);
-  });
-}
-
-function drawLeafletMap() {
-
-  if (!data.pts || data.pts.length === 0) return;
-
-  const map = L.map("shareMap", {
-    zoomControl: false,
-    attributionControl: false
+  /* ------------------------------------------------------------------
+     NAVIGAZIONE
+     ------------------------------------------------------------------ */
+  document.getElementById('btnBack').addEventListener('click', function () {
+    history.back();
   });
 
-  shareMapInstance = map;
+  document.getElementById('btnCloseQr').addEventListener('click', function () {
+    document.getElementById('qrModal').style.display = 'none';
+  });
 
-  const dark = L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    { subdomains: "abcd", maxZoom: 18 }
-  );
+  /* ------------------------------------------------------------------
+     DATI TESTUALI
+     ------------------------------------------------------------------ */
+  var wdiScore = parseFloat(data.WDI) || 0;
+  var color    = wdiColor(wdiScore);
 
-  const topo = L.tileLayer(
-    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    { opacity: 0.35, maxZoom: 17 }
-  );
+  document.getElementById('sDistance').textContent =
+    'Distanza: ' + Number(data.distance).toFixed(2) + ' km';
+  document.getElementById('sDplus').textContent =
+    'Dislivello: ' + Math.round(data.dplus) + ' m';
 
-  L.layerGroup([dark, topo]).addTo(map);
+  if (data.time_real) {
+    document.getElementById('sTimeReal').textContent = 'Tempo reale: ' + data.time_real;
+  }
 
-  const latlngs = data.pts.map(p => [p[0], p[1]]);
+  if (data.time_est && data.includeCompare) {
+    var sTimeEst = document.getElementById('sTimeEst');
+    sTimeEst.style.display  = 'block';
+    sTimeEst.textContent    = 'Tempo stimato: ' + data.time_est;
+  }
 
-  const polyline = L.polyline(latlngs, {
-    color: wditColor(data.WDIT),
-    weight: 4
-  }).addTo(map);
+  if (data.time_real && data.distance) {
+    var parts = data.time_real.split(':').map(Number);
+    if (parts.length === 3) {
+      var sec  = parts[0] * 3600 + parts[1] * 60 + parts[2];
+      var pace = sec / data.distance;
+      document.getElementById('sPaceAvg').textContent =
+        'Pace medio: ' + Math.floor(pace / 60) + ':' +
+        String(Math.round(pace % 60)).padStart(2, '0') + '/km';
+    }
+  }
 
-  const bounds = polyline.getBounds();
+  var shareWDI = document.getElementById('shareWDI');
+  shareWDI.textContent  = 'WDI ' + (data.WDI || '—');
+  shareWDI.style.color  = color;
 
-  // primo fit
-  map.fitBounds(bounds, { padding: [20, 20] });
+  var shareComment = document.getElementById('shareComment');
+  shareComment.textContent = data.WDI_class || data.comment || '';
 
-  // 🔥 FIX CENTRATURA REALE
-  setTimeout(() => {
-    map.invalidateSize();
+  // perfComment non è scritto da training-analyzer — blocco rimosso
 
-    map.fitBounds(bounds, {
-      padding: [50, 50] // più aria → perfetto per stories
+  /* ------------------------------------------------------------------
+     TITOLO
+     ------------------------------------------------------------------ */
+  var titleInput  = document.getElementById('trainingTitleInput');
+  var shareTitle  = document.getElementById('shareTitle');
+  shareTitle.textContent = 'Allenamento';
+
+  titleInput.addEventListener('input', function () {
+    var v = titleInput.value.trim();
+    shareTitle.textContent = v !== '' ? v : 'Allenamento';
+  });
+
+  /* ------------------------------------------------------------------
+     MAPPA LEAFLET
+     ------------------------------------------------------------------ */
+  var shareMapInstance = null;
+  var mapReady         = false;
+
+  function waitForTiles(map) {
+    return new Promise(function (resolve) {
+      var loaded = 0;
+      var total  = 0;
+      map.eachLayer(function (layer) {
+        if (layer instanceof L.TileLayer) {
+          total++;
+          layer.on('load', function () {
+            loaded++;
+            if (loaded >= total) resolve();
+          });
+        }
+      });
+      setTimeout(resolve, 1200); // fallback rete lenta
     });
+  }
 
-    // leggero zoom out per evitare tagli edge
-    map.setZoom(map.getZoom() - 0.2);
+  function drawLeafletMap() {
+    if (!data.pts || !data.pts.length) return;
 
+    var map = L.map('shareMap', {
+      zoomControl: false,
+      attributionControl: false
+    });
+    shareMapInstance = map;
+
+    L.layerGroup([
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        { subdomains: 'abcd', maxZoom: 18 }),
+      L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        { opacity: 0.35, maxZoom: 17 })
+    ]).addTo(map);
+
+    var latlngs  = data.pts.map(function (p) { return [p[0], p[1]]; });
+    var polyline = L.polyline(latlngs, { color: color, weight: 4 }).addTo(map);
+    var bounds   = polyline.getBounds();
+
+    map.fitBounds(bounds, { padding: [20, 20] });
+
+    setTimeout(function () {
+      map.invalidateSize();
+      map.fitBounds(bounds, { padding: [50, 50] });
+      map.setZoom(map.getZoom() - 0.2);
+    }, 100);
+
+    waitForTiles(map).then(function () {
+      mapReady = true;
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     PROFILO ALTIMETRICO
+     ------------------------------------------------------------------ */
+  function drawElevProfile(elev) {
+    var c   = document.getElementById('shareElev');
+    var ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+    if (!elev || !elev.length) return;
+
+    var W = c.width;
+    var H = c.height;
+
+    var bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, 'rgba(15,15,15,0.60)');
+    bg.addColorStop(1, 'rgba(20,20,20,0.40)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    var max    = Math.max.apply(null, elev);
+    var min    = Math.min.apply(null, elev);
+    var padTop = H * 0.25;
+    var span   = (max - min) || 1;
+
+    // area fill
+    ctx.beginPath();
+    for (var i = 0; i < elev.length; i++) {
+      var x    = (i / (elev.length - 1)) * W;
+      var norm = (elev[i] - min) / span;
+      var y    = H - (norm * (H - padTop));
+      if (i === 0) ctx.moveTo(x, H);
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fillStyle = color + '33';
+    ctx.fill();
+
+    // linea
+    ctx.beginPath();
+    for (var j = 0; j < elev.length; j++) {
+      var xj    = (j / (elev.length - 1)) * W;
+      var normj = (elev[j] - min) / span;
+      var yj    = H - (normj * (H - padTop));
+      j === 0 ? ctx.moveTo(xj, yj) : ctx.lineTo(xj, yj);
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 3;
+    ctx.lineCap     = 'round';
+    ctx.stroke();
+
+    // fade laterale
+    var fade = ctx.createLinearGradient(0, 0, W, 0);
+    fade.addColorStop(0,    'rgba(0,0,0,0.45)');
+    fade.addColorStop(0.08, 'rgba(0,0,0,0)');
+    fade.addColorStop(0.92, 'rgba(0,0,0,0)');
+    fade.addColorStop(1,    'rgba(0,0,0,0.45)');
+    ctx.fillStyle = fade;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  /* ------------------------------------------------------------------
+     INIT RENDER
+     ------------------------------------------------------------------ */
+  setTimeout(function () {
+    drawLeafletMap();
   }, 100);
 
-  // 🔥 MAP READY VERA (tile caricati)
-  waitForTiles(map).then(() => {
-    mapReady = true;
-    console.log("MAP READY ✅");
-  });
-}
+  if (data.elev) drawElevProfile(data.elev);
 
+  /* ------------------------------------------------------------------
+     QR CODE
+     ------------------------------------------------------------------ */
+  function QR8bit(d) { this.data = d; }
+  QR8bit.prototype.getLength = function () { return this.data.length; };
+  QR8bit.prototype.write = function (b) {
+    for (var i = 0; i < this.data.length; i++) b.put(this.data.charCodeAt(i), 8);
+  };
 
-// =====================================================
-// ALTIMETRIA
-// =====================================================
-function drawElevProfile(elev){
-  const c = shareElev;
-  const ctx = c.getContext("2d");
+  var QRMath_EXP = [], QRMath_LOG = [];
+  for (var _i = 0; _i < 8; _i++) QRMath_EXP[_i] = 1 << _i;
+  for (var _i = 8; _i < 256; _i++)
+    QRMath_EXP[_i] = QRMath_EXP[_i-4] ^ QRMath_EXP[_i-5] ^ QRMath_EXP[_i-6] ^ QRMath_EXP[_i-8];
+  for (var _i = 0; _i < 255; _i++) QRMath_LOG[QRMath_EXP[_i]] = _i;
+  function QRMath_gexp(n) { while (n >= 256) n -= 255; return QRMath_EXP[n]; }
+  function QRMath_glog(n) { return QRMath_LOG[n]; }
 
-  ctx.clearRect(0,0,c.width,c.height);
-  if(!elev || !elev.length) return;
-
-  const W = c.width;
-  const H = c.height;
-
-  const bg = ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,"rgba(15,15,15,0.60)");
-  bg.addColorStop(1,"rgba(20,20,20,0.40)");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0,0,W,H);
-
-  const max = Math.max(...elev);
-  const min = Math.min(...elev);
-  const padTop = H*0.25;
-  const span = (max-min)||1;
-  const lineColor = wditColor(data.WDIT);
-
-  ctx.beginPath();
-  for(let i=0;i<elev.length;i++){
-    const x = (i/(elev.length-1))*W;
-    const norm = (elev[i]-min)/span;
-    const y = H - (norm*(H-padTop));
-    if(i===0) ctx.moveTo(x,H);
-    ctx.lineTo(x,y);
+  function QRPolynomial(num, shift) {
+    var off = 0;
+    while (off < num.length && num[off] === 0) off++;
+    this.num = new Array(num.length - off + shift);
+    for (var i = 0; i < num.length - off; i++) this.num[i] = num[i + off];
   }
-  ctx.lineTo(W,H);
-  ctx.closePath();
-  ctx.fillStyle = lineColor+"33";
-  ctx.fill();
-
-  ctx.beginPath();
-  for(let i=0;i<elev.length;i++){
-    const x = (i/(elev.length-1))*W;
-    const norm = (elev[i]-min)/span;
-    const y = H - (norm*(H-padTop));
-    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-  }
-  ctx.strokeStyle = lineColor;
-  ctx.lineWidth = 3;
-  ctx.lineCap = "round";
-  ctx.stroke();
-
-  const fade = ctx.createLinearGradient(0,0,W,0);
-  fade.addColorStop(0,"rgba(0,0,0,0.45)");
-  fade.addColorStop(0.08,"rgba(0,0,0,0)");
-  fade.addColorStop(0.92,"rgba(0,0,0,0)");
-  fade.addColorStop(1,"rgba(0,0,0,0.45)");
-  ctx.fillStyle = fade;
-  ctx.fillRect(0,0,W,H);
-}
-
-setTimeout(() => {
-  drawLeafletMap();
-
-  // aspetta che la mappa sia pronta prima dello screenshot
-  setTimeout(() => {
-    console.log("Map ready for capture");
-  }, 500);
-
-}, 100);
-if(data.elev) drawElevProfile(data.elev);
-
-
-
-
-// =====================================================
-// QR CODE (REAL)
-// =====================================================
-/* Codice QR completo e funzionante */
-class QR8bit{
-  constructor(d){this.data=d;}
-  getLength(){return this.data.length;}
-  write(b){for(let i=0;i<this.data.length;i++) b.put(this.data.charCodeAt(i),8);}
-}
-const QRMath_EXP=[];
-const QRMath_LOG=[];
-for(let i=0;i<8;i++) QRMath_EXP[i]=1<<i;
-for(let i=8;i<256;i++)
-  QRMath_EXP[i]=QRMath_EXP[i-4]^QRMath_EXP[i-5]^QRMath_EXP[i-6]^QRMath_EXP[i-8];
-for(let i=0;i<255;i++) QRMath_LOG[QRMath_EXP[i]]=i;
-function QRMath_gexp(n){while(n>=256)n-=255;return QRMath_EXP[n];}
-function QRMath_glog(n){return QRMath_LOG[n];}
-
-function QRPolynomial(num,shift){
-  let off=0;while(off<num.length&&num[off]==0) off++;
-  this.num=new Array(num.length-off+shift);
-  for(let i=0;i<num.length-off;i++) this.num[i]=num[i+off];
-}
-QRPolynomial.prototype={
-  get(i){return this.num[i]},
-  getLength(){return this.num.length},
-  multiply(e){
-    let n=new Array(this.getLength()+e.getLength()-1).fill(0);
-    for(let i=0;i<this.getLength();i++){
-      for(let j=0;j<e.getLength();j++)
-        n[i+j]^=QRMath_gexp(QRMath_glog(this.get(i))+QRMath_glog(e.get(j)));
+  QRPolynomial.prototype = {
+    get: function (i) { return this.num[i]; },
+    getLength: function () { return this.num.length; },
+    multiply: function (e) {
+      var n = new Array(this.getLength() + e.getLength() - 1).fill(0);
+      for (var i = 0; i < this.getLength(); i++)
+        for (var j = 0; j < e.getLength(); j++)
+          n[i+j] ^= QRMath_gexp(QRMath_glog(this.get(i)) + QRMath_glog(e.get(j)));
+      return new QRPolynomial(n, 0);
+    },
+    mod: function (e) {
+      if (this.getLength() - e.getLength() < 0) return this;
+      var ratio = QRMath_glog(this.get(0)) - QRMath_glog(e.get(0));
+      var n = this.num.slice();
+      for (var i = 0; i < e.getLength(); i++)
+        n[i] ^= QRMath_gexp(QRMath_glog(e.get(i)) + ratio);
+      return new QRPolynomial(n, 0).mod(e);
     }
-    return new QRPolynomial(n,0);
-  },
-  mod(e){
-    if(this.getLength()-e.getLength()<0) return this;
-    let ratio=QRMath_glog(this.get(0))-QRMath_glog(e.get(0));
-    let n=this.num.slice();
-    for(let i=0;i<e.getLength();i++)
-      n[i]^=QRMath_gexp(QRMath_glog(e.get(i))+ratio);
-    return new QRPolynomial(n,0).mod(e);
-  }
-};
+  };
 
-function QRBitBuffer(){this.buffer=[];this.length=0;}
-QRBitBuffer.prototype={
-  put(n,l){for(let i=0;i<l;i++) this.putBit(((n>>(l-i-1))&1));},
-  get(i){return ((this.buffer[Math.floor(i/8)]>>>(7-i%8))&1)},
-  putBit(bit){
-    if(this.length%8==0) this.buffer.push(0);
-    if(bit) this.buffer[this.buffer.length-1]|=(128>>>(this.length%8));
-    this.length++;
-  }
-};
+  function QRBitBuffer() { this.buffer = []; this.length = 0; }
+  QRBitBuffer.prototype = {
+    put: function (n, l) { for (var i = 0; i < l; i++) this.putBit((n >> (l - i - 1)) & 1); },
+    get: function (i) { return (this.buffer[Math.floor(i / 8)] >>> (7 - i % 8)) & 1; },
+    putBit: function (bit) {
+      if (this.length % 8 === 0) this.buffer.push(0);
+      if (bit) this.buffer[this.buffer.length - 1] |= (128 >>> (this.length % 8));
+      this.length++;
+    }
+  };
 
-function QRCode(text){
-  this.typeNumber=4;
-  this.modules=null;
-  this.moduleCount=0;
-  this.data=[ new QR8bit(text) ];
-  this.make();
-}
-QRCode.prototype={
-  make(){
-    this.moduleCount=21;
-    this.modules=new Array(this.moduleCount);
-    for(let r=0;r<this.moduleCount;r++){
-      this.modules[r]=new Array(this.moduleCount).fill(null);
-    }
-    this.setupFinder(0,0);
-    this.setupFinder(14,0);
-    this.setupFinder(0,14);
-    let data=this.createData();
-    this.mapData(data);
-  },
-  setupFinder(r,c){
-    for(let y=-1;y<=7;y++){
-      for(let x=-1;x<=7;x++){
-        if(r+y<0||r+y>=21||c+x<0||c+x>=21) continue;
-        this.modules[r+y][c+x]=(y>=0&&y<=6&&x>=0&&x<=6&&(y==0||y==6||x==0||x==6||(y>=2&&y<=4&&x>=2&&x<=4)));
-      }
-    }
-  },
-  createData(){
-    const buf=new QRBitBuffer();
-    buf.put(4,4);
-    buf.put(this.data[0].getLength(),8);
-    for(let i=0;i<this.data[0].data.length;i++)
-      buf.put(this.data[0].data.charCodeAt(i),8);
-    while(buf.length%8!=0) buf.putBit(0);
-    const total=19;
-    const d=new Array(total).fill(0);
-    for(let i=0;i<buf.buffer.length;i++) d[i]=buf.buffer[i];
-    return d;
-  },
-  mapData(data){
-    let inc=-1,row=20,bit=0;
-    for(let col=20;col>0;col-=2){
-      if(col==6) col--;
-      for(;;){
-        for(let c=0;c<2;c++){
-          if(this.modules[row][col-c]===null){
-            let dark=false;
-            if(bit<data.length*8){
-              dark=((data[Math.floor(bit/8)]>>>(7-bit%8))&1)==1;
-            }
-            this.modules[row][col-c]=dark;
-            bit++;
-          }
+  function QRCode(text) {
+    this.moduleCount = 0;
+    this.modules     = null;
+    this.data        = [new QR8bit(text)];
+    this.make();
+  }
+  QRCode.prototype = {
+    make: function () {
+      this.moduleCount = 21;
+      this.modules = [];
+      for (var r = 0; r < 21; r++) this.modules[r] = new Array(21).fill(null);
+      this.setupFinder(0, 0); this.setupFinder(14, 0); this.setupFinder(0, 14);
+      this.mapData(this.createData());
+    },
+    setupFinder: function (r, c) {
+      for (var y = -1; y <= 7; y++) {
+        for (var x = -1; x <= 7; x++) {
+          if (r+y < 0 || r+y >= 21 || c+x < 0 || c+x >= 21) continue;
+          this.modules[r+y][c+x] =
+            (y >= 0 && y <= 6 && x >= 0 && x <= 6 &&
+             (y === 0 || y === 6 || x === 0 || x === 6 ||
+              (y >= 2 && y <= 4 && x >= 2 && x <= 4)));
         }
-        row+=inc;
-        if(row<0||row>=21){row-=inc;inc=-inc;break;}
       }
-    }
-  },
-  draw(canvas,size=300){
-    canvas.width=size;
-    canvas.height=size;
-    const ctx=canvas.getContext("2d");
-    const m=21;
-    const b=size/m;
-    ctx.fillStyle="#fff";
-    ctx.fillRect(0,0,size,size);
-    ctx.fillStyle="#000";
-    for(let r=0;r<m;r++){
-      for(let c=0;c<m;c++){
-        if(this.modules[r][c]) ctx.fillRect(c*b,r*b,b,b);
+    },
+    createData: function () {
+      var buf = new QRBitBuffer();
+      buf.put(4, 4);
+      buf.put(this.data[0].getLength(), 8);
+      for (var i = 0; i < this.data[0].data.length; i++)
+        buf.put(this.data[0].data.charCodeAt(i), 8);
+      while (buf.length % 8 !== 0) buf.putBit(0);
+      var d = new Array(19).fill(0);
+      for (var j = 0; j < buf.buffer.length; j++) d[j] = buf.buffer[j];
+      return d;
+    },
+    mapData: function (data) {
+      var inc = -1, row = 20, bit = 0;
+      for (var col = 20; col > 0; col -= 2) {
+        if (col === 6) col--;
+        for (;;) {
+          for (var c = 0; c < 2; c++) {
+            if (this.modules[row][col - c] === null) {
+              var dark = bit < data.length * 8 &&
+                         ((data[Math.floor(bit / 8)] >>> (7 - bit % 8)) & 1) === 1;
+              this.modules[row][col - c] = dark;
+              bit++;
+            }
+          }
+          row += inc;
+          if (row < 0 || row >= 21) { row -= inc; inc = -inc; break; }
+        }
       }
+    },
+    draw: function (canvas, size) {
+      size = size || 300;
+      canvas.width = size; canvas.height = size;
+      var ctx = canvas.getContext('2d');
+      var b   = size / 21;
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+      ctx.fillStyle = '#000';
+      for (var r = 0; r < 21; r++)
+        for (var c = 0; c < 21; c++)
+          if (this.modules[r][c]) ctx.fillRect(c * b, r * b, b, b);
     }
-  }
-};
+  };
 
-
-// =====================================================
-// STORIES (FIX MAP READY + EXPORT PERFETTO)
-// =====================================================
-btnStories.addEventListener("click", async () => {
-
-    // 🔥 BLOCCA se la mappa non è pronta
+  /* ------------------------------------------------------------------
+     CONDIVISIONE STORIES
+     ------------------------------------------------------------------ */
+  document.getElementById('btnStories').addEventListener('click', async function () {
     if (!mapReady) {
-        alert("Attendi il caricamento della mappa...");
-        return;
+      alert('Attendi il caricamento della mappa...');
+      return;
     }
 
-    const card = document.getElementById("shareCard");
-    const oldRadius = card.style.borderRadius;
-    card.style.borderRadius = "0px";
+    var card      = document.getElementById('shareCard');
+    var oldRadius = card.style.borderRadius;
+    card.style.borderRadius = '0px';
 
-    // 🔥 piccolo delay per sicurezza rendering Leaflet
-    await new Promise(r => setTimeout(r, 200));
-// 🔥 FIX MAPPA (UGUALE AL DOWNLOAD)
-if (shareMapInstance) {
+    await new Promise(function (r) { setTimeout(r, 200); });
 
-  const center = shareMapInstance.getCenter();
-  const zoom = shareMapInstance.getZoom();
+    if (shareMapInstance) {
+      var center = shareMapInstance.getCenter();
+      var zoom   = shareMapInstance.getZoom();
+      shareMapInstance.setView(center, zoom, { animate: false });
+      shareMapInstance.invalidateSize();
+      await new Promise(function (r) { setTimeout(r, 500); });
+    }
 
-  // 🔥 reset completo (chiave del fix)
-  shareMapInstance.setView(center, zoom, { animate: false });
+    await new Promise(function (r) { requestAnimationFrame(r); });
 
-  shareMapInstance.invalidateSize();
-
-  // 🔥 forza sincronizzazione layer
-  await new Promise(r => setTimeout(r, 500));
-}
-
-await new Promise(r => requestAnimationFrame(r));
-
-    const canvas = await html2canvas(card, {
-        scale: 2,
-        useCORS: true
-    });
-
+    var canvas = await html2canvas(card, { scale: 2, useCORS: true });
     card.style.borderRadius = oldRadius;
 
-    canvas.toBlob(async blob => {
+    canvas.toBlob(async function (blob) {
+      var file = new File([blob], 'wiztrail_story.png', { type: 'image/png' });
 
-        const file = new File([blob], "wiztrail_story.png", { type: "image/png" });
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'WizTrail' });
+          return;
+        } catch (e) {
+          return;
+        }
+      }
 
-   // 📱 SHARE NATIVO SOLO SE SUPPORTA FILE
-if (
-  navigator.canShare &&
-  navigator.canShare({ files: [file] })
-) {
-  try {
-    await navigator.share({
-      files: [file],
-      title: "WizTrail"
+      // Fallback QR
+      var dataUrl = await new Promise(function (res) {
+        var r = new FileReader();
+        r.onloadend = function () { res(r.result); };
+        r.readAsDataURL(blob);
+      });
+
+      var qr = new QRCode(dataUrl);
+      qr.draw(document.getElementById('qrCanvas'), 300);
+      document.getElementById('qrModal').style.display = 'flex';
     });
-    return;
-  } catch (e) {
-    console.log("Share aborted", e);
-    return; // 🔥 NON andare al QR
-  }
-}
+  });
 
-        // 🧠 fallback QR
-        const dataUrl = await new Promise(res => {
-            const r = new FileReader();
-            r.onloadend = () => res(r.result);
-            r.readAsDataURL(blob);
-        });
+})();
+</script>
 
-        const qr = new QRCode(dataUrl);
-        qr.draw(document.getElementById("qrCanvas"), 300);
-        document.getElementById("qrModal").style.display = "flex";
-    });
-});
+</body>
+</html>
 </script>
 
 </body>
