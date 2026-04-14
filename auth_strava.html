@@ -1,39 +1,53 @@
 <!doctype html>
-<html>
+<html lang="it">
 <head>
-<meta charset="utf-8">
-<title>Autenticazione Strava → WizTrail</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Autenticazione Strava → WizTrail</title>
+  <link rel="stylesheet" href="wiztrail.css">
+  <meta name="theme-color" content="#002b2b">
 </head>
-<body style="font-family:system-ui;padding:20px;">
+<body data-theme="dark" style="font-family:system-ui;padding:40px 20px;text-align:center;">
 
-<h2>Connessione a Strava…</h2>
+  <p id="status">Connessione a Strava in corso…</p>
 
-<script>
-const params = new URLSearchParams(location.search);
-const code = params.get("code");
+  <script>
+    (async function () {
+      const params = new URLSearchParams(location.search);
+      const code   = params.get('code');
+      const status = document.getElementById('status');
 
-if (!code) {
-  document.body.innerHTML += "<p>Errore: parametro code mancante.</p>";
-}
+      // Nessun code → redirect silenzioso
+      if (!code) {
+        status.textContent = 'Parametro mancante. Reindirizzamento…';
+        setTimeout(() => { location.href = 'training-analyzer.html'; }, 1500);
+        return;
+      }
 
-async function exchange() {
-  try {
-    const res = await fetch(`/api/strava/exchange?code=${code}`);
-    const data = await res.json();
+      try {
+        const res  = await fetch('/api/strava/callback?code=' + encodeURIComponent(code));
+        const data = await res.json();
 
-    if (data.access_token) {
-      localStorage.setItem("strava_token", data.access_token);
-      location.href = "import_strava.html";
-    } else {
-      document.body.innerHTML += "<p>Errore autenticazione.</p>";
-    }
-  } catch (err) {
-    document.body.innerHTML += "<p>Errore server.</p>";
-  }
-}
+        if (!res.ok || !data.access_token) {
+          status.textContent = 'Autenticazione non riuscita. Reindirizzamento…';
+          setTimeout(() => { location.href = 'training-analyzer.html'; }, 2000);
+          return;
+        }
 
-exchange();
-</script>
+        // Salva token e vai all'import
+        sessionStorage.setItem('strava_token', data.access_token);
+        if (data.athlete_id) {
+          sessionStorage.setItem('strava_athlete_id', String(data.athlete_id));
+        }
+
+        location.href = 'import_strava.html';
+
+      } catch (err) {
+        status.textContent = 'Errore di rete. Reindirizzamento…';
+        setTimeout(() => { location.href = 'training-analyzer.html'; }, 2000);
+      }
+    })();
+  </script>
 
 </body>
 </html>
