@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WizTrail – Training Analyzer (WDIT)</title>
-<link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#002b2b">
-<link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="wiztrail.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WizTrail – Training Analyzer</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#002b2b">
+  <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body data-theme="dark">
-<!-- STRAVA MODAL -->
+
+<!-- MODAL STRAVA -->
 <div id="stravaModal" style="
   display:none;
   position:fixed;
@@ -23,484 +24,511 @@
   z-index:9999;
   overflow:auto;
 ">
-
   <div style="max-width:700px;margin:40px auto;padding:20px;">
-
     <h2 style="margin-bottom:10px;">Seleziona attività</h2>
     <p class="mini">Le tue ultime attività da Strava</p>
-
     <div id="stravaLoading">Caricamento...</div>
-
     <div id="stravaList" style="margin-top:20px;display:flex;flex-direction:column;gap:12px;"></div>
-
-    <button class="btn secondary" onclick="closeStravaModal()" style="margin-top:20px;">
-      Chiudi
-    </button>
-
+    <button class="btn secondary" id="btnCloseModal" style="margin-top:20px;">Chiudi</button>
   </div>
 </div>
 
 <header class="app-header">
-<div class="app-brand">
-<img src="img/logo.svg" alt="WizTrail" class="brand-img">
-<span class="brand-name">WizTrail</span>
-</div>
+  <div class="app-brand">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </div>
 </header>
+
 <div id="wizBanner" class="wiz-banner">
-<a href="install.html" class="wiz-banner-link">📱 Aggiungi WizTrail alla Home!</a>
+  <a href="install.html" class="wiz-banner-link">Aggiungi WizTrail alla Home</a>
 </div>
 
 <div class="wrap">
-<h1>
-<span>Training Analyzer — WDIT</span>
-<span class="theme-ctrl">
-<label class="mini">Tema</label>
-<select id="themeSel">
-<option value="dark" selected>Scuro</option>
-<option value="light">Chiaro</option>
-</select>
-</span>
-</h1>
-<button class="btn secondary" onclick="location.href='index.html'">← Torna alla home</button>
+  <h1>
+    <span>Training Analyzer</span>
+    <span class="theme-ctrl">
+      <label class="mini">Tema</label>
+      <select id="themeSel">
+        <option value="dark" selected>Scuro</option>
+        <option value="light">Chiaro</option>
+      </select>
+    </span>
+  </h1>
 
-<!-- IMPORT -->
-<div class="card" style="margin-top:20px;">
-<h2>Carica la tua attività</h2>
-<div style="margin-top:12px;">
- <button class="btn" onclick="openStravaModal()">
-    🔗 Importa da Strava
-  </button>
+  <button class="btn secondary" onclick="location.href='index.html'">← Torna alla home</button>
+
+  <!-- IMPORT -->
+  <div class="card" style="margin-top:20px;">
+    <h2>Carica la tua attività</h2>
+
+    <div style="margin-top:12px;">
+      <button class="btn" id="btnStrava">Importa da Strava</button>
+    </div>
+
+    <p class="mini">Carica la traccia per analizzare la difficoltà del tuo allenamento.</p>
+
+    <input type="file"
+           id="gpxFile"
+           accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml">
+
+    <div style="margin-top:12px;">
+      <label>Tempo reale (modificabile)</label>
+      <input id="timeRealInput" type="text" placeholder="hh:mm:ss" class="input-text">
+    </div>
+
+    <div style="margin-top:12px;">
+      <label><input type="checkbox" id="useEstimate"> Usa la stima del calcolatore</label>
+    </div>
+
+    <div id="shareCompareBlock" style="margin-top:8px;display:none;">
+      <label><input type="checkbox" id="shareCompare"> Confronta tempo stimato vs tempo reale</label>
+    </div>
+
+    <button class="btn" id="btnAnalyze">Analizza</button>
+  </div>
+
+  <!-- RISULTATI -->
+  <div id="results" style="display:none;margin-top:20px;">
+
+    <div class="card">
+      <h2>Mappa 2D</h2>
+      <div id="mapLeaflet" style="width:100%;height:300px;border-radius:8px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Profilo altimetrico</h2>
+      <canvas id="elevCanvas" width="600" height="200" style="width:100%;height:200px;border-radius:8px;"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>Dati allenamento</h2>
+      <div class="grid grid-2">
+        <div><h3>Distanza</h3><div class="val" id="distVal">— km</div></div>
+        <div><h3>D+</h3><div class="val" id="dplusVal">— m</div></div>
+        <div><h3>Tempo reale</h3><div class="val" id="timeReal">—</div></div>
+        <div id="estBlock" style="display:none;"><h3>Tempo stimato</h3><div class="val" id="timeEst">—</div></div>
+      </div>
+    </div>
+
+    <div class="card" id="wditCard" style="text-align:center;">
+      <h2>Difficulty Index — Training</h2>
+      <div id="wditScore" style="font-size:3.2rem;font-weight:900;margin-top:10px;">—</div>
+      <div id="wditComment" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
+      <div id="perfComment" style="font-size:1.2rem;margin-top:10px;font-weight:600;"></div>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <button class="btn" id="btnShare">Condividi</button>
+    </div>
+
+  </div>
+
+  <div class="footer">WizTrail © 2026</div>
 </div>
-<p class="mini">Carica la traccia per analizzare la difficoltà del tuo allenamento.</p>
-<input type="file"
-       id="gpxFile"
-       accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml">
-<div style="margin-top:12px;">
-<label>Tempo reale (modificabile)</label>
-<input id="timeRealInput" type="text" placeholder="hh:mm:ss" class="input-text">
-</div>
 
-<div style="margin-top:12px;">
-<label><input type="checkbox" id="useEstimate"> Usa la stima del calcolatore</label>
-</div>
-
-<div id="shareCompareBlock" style="margin-top:8px;display:none;">
-<label><input type="checkbox" id="shareCompare"> Confronta tempo stimato vs tempo reale</label>
-</div>
-
-<button class="btn" id="btnAnalyze">Analizza</button>
-</div>
-
-<!-- RISULTATI -->
-<div id="results" style="display:none;margin-top:20px;">
-
-<div class="card">
-<h2>Mappa 2D (Leaflet)</h2>
-<div id="mapLeaflet" style="width:100%;height:300px;border-radius:8px;"></div>
-</div>
-
-<div class="card"><h2>Profilo altimetrico</h2><canvas id="elevCanvas" width="600" height="200" style="width:100%;height:200px;border-radius:8px;"></canvas></div>
-
-<div class="card">
-<h2>Dati allenamento</h2>
-<div class="grid grid-2">
-<div><h3>Distanza</h3><div class="val" id="distVal">— km</div></div>
-<div><h3>D+</h3><div class="val" id="dplusVal">— m</div></div>
-<div><h3>Tempo reale</h3><div class="val" id="timeReal">—</div></div>
-<div id="estBlock" style="display:none;"><h3>Tempo stimato</h3><div class="val" id="timeEst">—</div></div>
-</div>
-</div>
-
-<div class="card" id="wditCard" style="text-align:center;">
-<h2>WDIT — WizTrail Difficulty Index (Training)</h2>
-<div id="wditScore" style="font-size:3.2rem;font-weight:900;margin-top:10px;">—</div>
-<div id="wditComment" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
-<div id="perfComment" style="font-size:1.2rem;margin-top:10px;font-weight:600;"></div>
-</div>
-
-<div class="card" style="text-align:center;"><button class="btn" id="btnShare">Condividi</button></div>
-</div>
-
-<div class="footer">WizTrail © 2026</div>
-</div>
-
-<script src="wiztrail-wdit.js"></script>
+<script src="wiztrail-engine.js"></script>
 <script>
+(function () {
+  'use strict';
 
-const params = new URLSearchParams(window.location.search);
-const source = params.get("source");
-const activityId = params.get("id");
+  /* ------------------------------------------------------------------
+     PARAMS
+     ------------------------------------------------------------------ */
+  const params     = new URLSearchParams(window.location.search);
+  const source     = params.get('source');
+  const activityId = params.get('id');
 
-/* Tema */
-themeSel.addEventListener("change", e => document.body.setAttribute("data-theme", e.target.value));
+  /* ------------------------------------------------------------------
+     TEMA
+     ------------------------------------------------------------------ */
+  document.getElementById('themeSel').addEventListener('change', function (e) {
+    document.body.setAttribute('data-theme', e.target.value);
+  });
 
-/* FORMAT TIME */
-function fmtSec(sec){
- const h=Math.floor(sec/3600);
- const m=Math.floor((sec%3600)/60);
- const s=Math.floor(sec%60);
- return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
+  /* ------------------------------------------------------------------
+     MODAL STRAVA
+     ------------------------------------------------------------------ */
+  document.getElementById('btnStrava').addEventListener('click', openStravaModal);
+  document.getElementById('btnCloseModal').addEventListener('click', closeStravaModal);
 
-useEstimate.addEventListener("change", () => {
-  if (!window.currentPts || !window.currentMetrics) return;
-
-  updateEstimateUI(window.currentMetrics, window.currentRealTime);
-});
-
-function parseGPX(text){
- const xml=new DOMParser().parseFromString(text,"application/xml");
- const pts=[];
- const times=[];
- [...xml.getElementsByTagName("trkpt")].forEach(p=>{
-  const lat=parseFloat(p.getAttribute("lat"));
-  const lon=parseFloat(p.getAttribute("lon"));
-  const ele=parseFloat(p.getElementsByTagName("ele")[0]?.textContent||0);
-  pts.push([lat,lon,ele]);
-  const t=p.getElementsByTagName("time")[0]?.textContent;
-  if(t) times.push(Date.parse(t)/1000);
- });
- return {pts,times};
-}
-
-function computeMetrics(pts){
- const R=6371000;
- let d=[0],e=[],gain=0;
- for(let i=0;i<pts.length;i++){
-  e.push(pts[i][2]);
-  if(i===0) continue;
-  const lat1=pts[i-1][0]*Math.PI/180, lon1=pts[i-1][1]*Math.PI/180;
-  const lat2=pts[i][0]*Math.PI/180, lon2=pts[i][1]*Math.PI/180;
-  const a=Math.sin((lat2-lat1)/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
-  const dist=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*R;
-  d.push(d[d.length-1]+dist);
-  if(e[i]-e[i-1]>0) gain+=e[i]-e[i-1];
- }
- return {km:d[d.length-1]/1000,gain,e,d};
-}
-
-function drawElevation(c, e){
-  if (!e || !e.length) return;
-  const ctx = c.getContext("2d");
-  ctx.clearRect(0,0,c.width,c.height);
-
-  const max = Math.max(...e);
-  const min = Math.min(...e);
-  const H = c.height;
-  const W = c.width;
-
-  // linea altimetrica
-  ctx.beginPath();
-  for (let i=0; i<e.length; i++) {
-    const x = (i / (e.length - 1)) * W;
-    const y = H - ((e[i] - min) / (max - min)) * H;
-    if (i === 0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
+  function openStravaModal() {
+    document.getElementById('stravaModal').style.display = 'block';
+    loadStravaActivities();
   }
 
-ctx.strokeStyle = wditColor(currentTrainingWDIT);
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
-
-
-function wditColor(score) {
-  if (score < 0.45) return "#2BB7DA";   // leggero -> teal
-  if (score < 0.80) return "#34A853";   // buono
-  if (score < 1.20) return "#F4C20D";   // impegnativo
-  if (score < 2.20) return "#F79617";   // molto impegnativo
-  if (score < 8.00) return "#E91E63";   // estremo -> fucsia
-  return "#8E24AA";                     // leggendario
-}
-
-function getComment(w){
-if(w<0.45)return"Giro tranquillo 🌿";
-if(w<0.80)return"Buon allenamento 🏃‍♂️";
-if(w<1.25)return"Gran galoppata 💪";
-if(w<2.20)return"Bella sudata 🔥";
-return"Beast mode 💀";}
-
-function performanceComment(realSec, estSec){
-  if(!realSec || !estSec) return "";
-
-  const deltaPerc = (realSec - estSec) / estSec;
-
-  // TEMPO REALE MIGLIORE DELLO STIMATO
-  if(deltaPerc < -0.10)
-    return "Serve un un estintore... sei on fiiire! 🔥";          // oltre -10%
-
-  if(deltaPerc < 0)
-    return "Si volaaa! 🚀";                      // tra 0% e -10%
-
-  // TEMPO REALE PEGGIORE DELLO STIMATO
-  if(deltaPerc <= 0.05)
-    return "In scioltezza! 💅";                // tra 0% e +5%
-
-  return "Non si molla, c'è margine di miglioramento! 💪";  // oltre +5%
-}
-
-function updateEstimateUI(mt, realTimeStr) {
-
-  let estSec = null;
-
-  if (useEstimate.checked) {
-
-    estSec = Math.round(mt.km * 7 * 60 + mt.gain * 0.6);
-window.currentEstSec = estSec;
-
-    timeEst.textContent = fmtSec(estSec);
-    estBlock.style.display = "block";
-    shareCompareBlock.style.display = "block";
-
-    const realSec = realTimeStr ? parseTimeToSec(realTimeStr) : null;
-    perfComment.textContent = performanceComment(realSec, estSec);
-
-  } else {
-    estBlock.style.display = "none";
-    shareCompareBlock.style.display = "none";
-    perfComment.textContent = "";
-  }
-}
-
-/* MAPPA LEAFLET */
-let map=null,poly=null;
-function initMap(){
-  if(map) return;
-
-  map = L.map("mapLeaflet");
-
-  const dark = L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    { subdomains: "abcd", maxZoom: 18, opacity: 1 }
-  );
-
-  const topo = L.tileLayer(
-    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    { opacity: 0.35, maxZoom: 17 }
-  );
-
-  L.layerGroup([dark, topo]).addTo(map);
-  map.setView([46.5, 8.3], 5);
-}
-
-function drawLeaflet(pts, wditColorVal){
-  initMap();
-  if(poly) poly.remove();
-  poly = L.polyline(
-    pts.map(p => [p[0],p[1]]),
-    {
-      color: wditColorVal,
-      weight: 4
-    }
-  ).addTo(map);
-  map.fitBounds(poly.getBounds());
-}
-
-function renderAnalysis(pts, mt, realTimeStr = null) {
-
-  results.style.display = "block";
-
-  // DISTANZA + D+
-  distVal.textContent = mt.km.toFixed(2) + " km";
-  dplusVal.textContent = Math.round(mt.gain) + " m";
-
-  // TEMPO
-  if (realTimeStr) {
-    timeReal.textContent = realTimeStr;
-  } else {
-    timeReal.textContent = "—";
+  function closeStravaModal() {
+    document.getElementById('stravaModal').style.display = 'none';
   }
 
-  // WDIT
-  const result = WizTrailWDIT.computeFromGpx(pts, mt);
-
-  wditScore.textContent = result.WDIT.toFixed(2);
-  wditScore.style.color = wditColor(result.WDIT);
-
-  wditComment.textContent = result.class;
-  wditComment.style.color = wditColor(result.WDIT);
-
-window.currentPts = pts;
-window.currentMetrics = mt;
-window.currentRealTime = realTimeStr;
-
-  window.currentTrainingWDIT = result.WDIT;
-updateEstimateUI(mt, realTimeStr);
-
- 
-  // MAPPA + ELEV
-  drawLeaflet(pts, wditColor(result.WDIT));
-
-  setTimeout(() => {
-    elevCanvas.width = elevCanvas.clientWidth;
-    elevCanvas.height = elevCanvas.clientHeight;
-    drawElevation(elevCanvas, mt.e);
-  }, 50);
-
-  // SHARE
-  btnShare.onclick = () => {
-    sessionStorage.setItem("shareData", JSON.stringify({
-      distance: mt.km,
-      dplus: mt.gain,
-      time_real: realTimeStr,
-      time_est: window.currentEstSec ? fmtSec(window.currentEstSec) : null,
-      includeCompare: shareCompare.checked,
-      WDIT: result.WDIT.toFixed(2),
-      comment: getComment(result.WDIT),
-      pts: pts,
-      elev: mt.e
-    }));
-    window.location.href = "share_card.html";
-  };
-}
-
-/* ANALISI */
-btnAnalyze.addEventListener("click", async () => {
-
-  // 👉 CASO STRAVA: NON fare nulla (già analizzato)
-  if (source === "strava") {
-    return;
+  /* ------------------------------------------------------------------
+     UTILITIES
+     ------------------------------------------------------------------ */
+  function fmtSec(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = Math.floor(sec % 60);
+    return String(h).padStart(2, '0') + ':' +
+           String(m).padStart(2, '0') + ':' +
+           String(s).padStart(2, '0');
   }
 
-  // 👉 CASO GPX
-  const file = gpxFile.files[0];
-  if (!file) return alert("Carica un GPX");
-
-  const text = await file.text();
-  const g = parseGPX(text);
-
-  if (!g.pts.length) return alert("GPX non valido");
-
-  let realTime = timeRealInput.value;
-
-  if (!realTime && g.times.length > 1) {
-    const sec = g.times[g.times.length - 1] - g.times[0];
-    realTime = fmtSec(sec);
+  function parseTimeToSec(t) {
+    const p = t.split(':').map(Number);
+    if (p.length !== 3 || p.some(isNaN)) return null;
+    return p[0] * 3600 + p[1] * 60 + p[2];
   }
 
-  const mt = computeMetrics(g.pts);
-
-  renderAnalysis(g.pts, mt, realTime);
-});
-
-function parseTimeToSec(t){const p=t.split(":" ).map(Number);if(p.length!==3)return null;return p[0]*3600+p[1]*60+p[2];}
-
-function loginStrava() {
-  const clientId = "219532";
-
-  const redirectUri = `${window.location.origin}/auth_strava.html`;
-
-  const url = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=auto&scope=activity:read_all`;
-
-  window.location.href = url;
-}
-async function loadFromStrava(activityId) {
-  const token = sessionStorage.getItem("strava_token");
-
-  if (!token) {
-    alert("Non autenticato con Strava");
-    return;
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
-  try {
-    const res = await fetch(`/api/analyze?id=${activityId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+  /* ------------------------------------------------------------------
+     GPX PARSER (locale)
+     ------------------------------------------------------------------ */
+  function parseGPX(text) {
+    const xml   = new DOMParser().parseFromString(text, 'application/xml');
+    const pts   = [];
+    const times = [];
+    [...xml.getElementsByTagName('trkpt')].forEach(function (p) {
+      const lat = parseFloat(p.getAttribute('lat'));
+      const lon = parseFloat(p.getAttribute('lon'));
+      const ele = parseFloat(p.getElementsByTagName('ele')[0]?.textContent || 0);
+      pts.push([lat, lon, ele]);
+      const t = p.getElementsByTagName('time')[0]?.textContent;
+      if (t) times.push(Date.parse(t) / 1000);
     });
-
-const data = await res.json();
-
-if (!res.ok || data.error) {
-  alert(data.error || "Errore analisi");
-  return;
-}
-
-
-const pts = data.pts;
-const mt = data.metrics;
-let realTimeStr = null;
-
-if (data.movingTime) {
-  realTimeStr = fmtSec(data.movingTime);
-}
-
-renderAnalysis(pts, mt, realTimeStr);
-
-    
-  } catch (err) {
-    alert("Errore caricamento attività");
-  }
-}
-// AUTO LOAD STRAVA
-if (source === "strava" && activityId) {
-  loadFromStrava(activityId);
-btnAnalyze.style.display = "none";
-}
-
-function openStravaModal() {
-  stravaModal.style.display = "block";
-  loadStravaActivities();
-}
-
-function closeStravaModal() {
-  stravaModal.style.display = "none";
-}
-
-async function loadStravaActivities() {
-
-  const token = sessionStorage.getItem("strava_token");
-
-  if (!token) {
-    loginStrava();
-    return;
+    return { pts, times };
   }
 
-  stravaLoading.style.display = "block";
-  stravaList.innerHTML = "";
+  /* ------------------------------------------------------------------
+     COMPUTE METRICS (locale — usato solo per GPX caricato da file)
+     ------------------------------------------------------------------ */
+  function computeMetrics(pts) {
+    const R  = 6371000;
+    const d  = [0];
+    const e  = [];
+    let gain = 0;
 
-  try {
-const res = await fetch(`/api/strava/activities?token=${token}`);
+    for (let i = 0; i < pts.length; i++) {
+      e.push(pts[i][2]);
+      if (i === 0) continue;
+      const lat1 = pts[i - 1][0] * Math.PI / 180;
+      const lon1 = pts[i - 1][1] * Math.PI / 180;
+      const lat2 = pts[i][0]     * Math.PI / 180;
+      const lon2 = pts[i][1]     * Math.PI / 180;
+      const a    = Math.sin((lat2 - lat1) / 2) ** 2
+                 + Math.cos(lat1) * Math.cos(lat2) * Math.sin((lon2 - lon1) / 2) ** 2;
+      const dist = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * R;
+      d.push(d[d.length - 1] + dist);
+      if (e[i] - e[i - 1] > 0) gain += e[i] - e[i - 1];
+    }
 
-    const acts = await res.json();
+    return { km: d[d.length - 1] / 1000, gain, e, d };
+  }
 
-    stravaLoading.style.display = "none";
+  /* ------------------------------------------------------------------
+     DRAW ELEVATION
+     ------------------------------------------------------------------ */
+  function drawElevation(canvas, e) {
+    if (!e || !e.length) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    acts.slice(0, 20).forEach(a => {
+    const max = Math.max(...e);
+    const min = Math.min(...e);
+    const H   = canvas.height;
+    const W   = canvas.width;
 
-      const card = document.createElement("div");
+    ctx.beginPath();
+    for (let i = 0; i < e.length; i++) {
+      const x = (i / (e.length - 1)) * W;
+      const y = H - ((e[i] - min) / (max - min)) * H;
+      if (i === 0) ctx.moveTo(x, y);
+      else         ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = WizTrail.getColor(window.currentTrainingWDIT || 0);
+    ctx.lineWidth   = 2;
+    ctx.stroke();
+  }
 
-      card.style = `
-        background:#111;
-        padding:14px;
-        border-radius:12px;
-        cursor:pointer;
-        border:1px solid rgba(255,255,255,0.05);
-      `;
+  /* ------------------------------------------------------------------
+     PERFORMANCE COMMENT
+     ------------------------------------------------------------------ */
+  function performanceComment(realSec, estSec) {
+    if (!realSec || !estSec) return '';
+    const delta = (realSec - estSec) / estSec;
+    if (delta < -0.10) return 'Prestazione eccezionale, ben oltre la stima.';
+    if (delta <  0)    return 'Sopra le aspettative.';
+    if (delta <= 0.05) return 'In linea con la stima.';
+    return 'Margine di miglioramento disponibile.';
+  }
 
-      card.innerHTML = `
-        <div style="font-weight:600;">${a.name}</div>
-        <div class="mini">
-          ${(a.distance/1000).toFixed(1)} km • ${Math.round(a.total_elevation_gain)} m
-        </div>
-      `;
+  /* ------------------------------------------------------------------
+     STIMA TEMPO
+     ------------------------------------------------------------------ */
+  document.getElementById('useEstimate').addEventListener('change', function () {
+    if (!window.currentPts || !window.currentMetrics) return;
+    updateEstimateUI(window.currentMetrics, window.currentRealTime);
+  });
 
-      card.onclick = () => {
+  function updateEstimateUI(mt, realTimeStr) {
+    const useEstimate        = document.getElementById('useEstimate');
+    const timeEst            = document.getElementById('timeEst');
+    const estBlock           = document.getElementById('estBlock');
+    const shareCompareBlock  = document.getElementById('shareCompareBlock');
+    const perfComment        = document.getElementById('perfComment');
+
+    if (useEstimate.checked) {
+      const estSec = Math.round(mt.km * 7 * 60 + mt.gain * 0.6);
+      window.currentEstSec = estSec;
+
+      timeEst.textContent           = fmtSec(estSec);
+      estBlock.style.display        = 'block';
+      shareCompareBlock.style.display = 'block';
+
+      const realSec = realTimeStr ? parseTimeToSec(realTimeStr) : null;
+      perfComment.textContent = performanceComment(realSec, estSec);
+    } else {
+      estBlock.style.display          = 'none';
+      shareCompareBlock.style.display = 'none';
+      perfComment.textContent         = '';
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     MAPPA LEAFLET
+     ------------------------------------------------------------------ */
+  let map  = null;
+  let poly = null;
+
+  function initMap() {
+    if (map) return;
+    map = L.map('mapLeaflet');
+    L.layerGroup([
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        { subdomains: 'abcd', maxZoom: 18, opacity: 1 }),
+      L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        { opacity: 0.35, maxZoom: 17 })
+    ]).addTo(map);
+    map.setView([46.5, 8.3], 5);
+  }
+
+  function drawLeaflet(pts, color) {
+    initMap();
+    if (poly) poly.remove();
+    poly = L.polyline(pts.map(function (p) { return [p[0], p[1]]; }),
+      { color: color, weight: 4 }).addTo(map);
+    map.fitBounds(poly.getBounds());
+  }
+
+  /* ------------------------------------------------------------------
+     RENDER ANALYSIS
+     ------------------------------------------------------------------ */
+  function renderAnalysis(pts, mt, realTimeStr) {
+    realTimeStr = realTimeStr || null;
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('distVal').textContent   = mt.km.toFixed(2) + ' km';
+    document.getElementById('dplusVal').textContent  = Math.round(mt.gain) + ' m';
+    document.getElementById('timeReal').textContent  = realTimeStr || '—';
+
+    const result = WizTrail.computeFromGpx(pts, mt);
+
+    const wditScore   = document.getElementById('wditScore');
+    const wditComment = document.getElementById('wditComment');
+    wditScore.textContent   = result.WDI.toFixed(1);
+    wditScore.style.color   = result.color;
+    wditComment.textContent = result.class;
+    wditComment.style.color = result.color;
+
+    window.currentPts         = pts;
+    window.currentMetrics     = mt;
+    window.currentRealTime    = realTimeStr;
+    window.currentTrainingWDIT = result.WDI;
+
+    updateEstimateUI(mt, realTimeStr);
+    drawLeaflet(pts, result.color);
+
+    setTimeout(function () {
+      const c  = document.getElementById('elevCanvas');
+      c.width  = c.clientWidth;
+      c.height = c.clientHeight;
+      drawElevation(c, mt.e);
+    }, 50);
+
+    document.getElementById('btnShare').onclick = function () {
+      sessionStorage.setItem('shareData', JSON.stringify({
+        distance:       mt.km,
+        dplus:          mt.gain,
+        time_real:      realTimeStr,
+        time_est:       window.currentEstSec ? fmtSec(window.currentEstSec) : null,
+        includeCompare: document.getElementById('shareCompare').checked,
+        WDI:            result.WDI.toFixed(1),
+        WDI_class:      result.class,
+        TechScore:      result.TechScore.toFixed(1),
+        techClass:      result.techClass,
+        comment:        result.class,
+        pts:            pts,
+        elev:           mt.e
+      }));
+      window.location.href = 'share_card.html';
+    };
+  }
+
+  /* ------------------------------------------------------------------
+     ANALISI DA FILE GPX
+     ------------------------------------------------------------------ */
+  document.getElementById('btnAnalyze').addEventListener('click', async function () {
+    if (source === 'strava') return;
+
+    const file = document.getElementById('gpxFile').files[0];
+    if (!file) { alert('Carica un GPX'); return; }
+
+    const text = await file.text();
+    const g    = parseGPX(text);
+    if (!g.pts.length) { alert('GPX non valido'); return; }
+
+    let realTime = document.getElementById('timeRealInput').value.trim();
+    if (!realTime && g.times.length > 1) {
+      realTime = fmtSec(g.times[g.times.length - 1] - g.times[0]);
+    }
+
+    renderAnalysis(g.pts, computeMetrics(g.pts), realTime);
+  });
+
+  /* ------------------------------------------------------------------
+     STRAVA — LOGIN
+     ------------------------------------------------------------------ */
+  function loginStrava() {
+    const clientId   = '219532';
+    const redirectUri = window.location.origin + '/auth_strava.html';
+    window.location.href =
+      'https://www.strava.com/oauth/authorize' +
+      '?client_id='       + clientId +
+      '&response_type=code' +
+      '&redirect_uri='    + encodeURIComponent(redirectUri) +
+      '&approval_prompt=auto' +
+      '&scope=activity:read_all';
+  }
+
+  /* ------------------------------------------------------------------
+     STRAVA — CARICA ATTIVITÀ DAL MODAL
+     ------------------------------------------------------------------ */
+  async function loadStravaActivities() {
+    const token        = sessionStorage.getItem('strava_token');
+    const stravaLoading = document.getElementById('stravaLoading');
+    const stravaList    = document.getElementById('stravaList');
+
+    if (!token) {
+      loginStrava();
+      return;
+    }
+
+    stravaLoading.style.display = 'block';
+    stravaLoading.textContent   = 'Caricamento...';
+    stravaList.innerHTML        = '';
+
+    let res;
+    try {
+      res = await fetch('/api/strava/activities', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+    } catch {
+      stravaLoading.textContent = 'Errore di rete.';
+      return;
+    }
+
+    if (!res.ok) {
+      sessionStorage.removeItem('strava_token');
+      sessionStorage.removeItem('strava_athlete_id');
+      stravaLoading.textContent = 'Sessione scaduta. Riconnettiti a Strava.';
+      return;
+    }
+
+    let acts;
+    try {
+      acts = await res.json();
+    } catch {
+      stravaLoading.textContent = 'Risposta non valida dal server.';
+      return;
+    }
+
+    stravaLoading.style.display = 'none';
+
+    acts.slice(0, 20).forEach(function (a) {
+      const card = document.createElement('div');
+      card.style.cssText = [
+        'background:#111',
+        'padding:14px',
+        'border-radius:12px',
+        'cursor:pointer',
+        'border:1px solid rgba(255,255,255,0.05)'
+      ].join(';');
+      card.innerHTML =
+        '<div style="font-weight:600;">' + escHtml(a.name) + '</div>' +
+        '<div class="mini">' +
+          (a.distance / 1000).toFixed(1) + ' km &bull; ' +
+          Math.round(a.total_elevation_gain) + ' m D+' +
+        '</div>';
+      card.addEventListener('click', function () {
         closeStravaModal();
         loadFromStrava(a.id);
-      };
-
+      });
       stravaList.appendChild(card);
     });
-
-  } catch (e) {
-    stravaLoading.textContent = "Errore caricamento attività";
   }
-}
-// se arrivi da auth → apri lista automaticamente
-if (sessionStorage.getItem("strava_token") && source !== "strava") {
-  // opzionale: non auto-aprire sempre
-}
+
+  /* ------------------------------------------------------------------
+     STRAVA — CARICA SINGOLA ATTIVITÀ
+     ------------------------------------------------------------------ */
+  async function loadFromStrava(id) {
+    const token = sessionStorage.getItem('strava_token');
+    if (!token) { loginStrava(); return; }
+
+    let res;
+    try {
+      res = await fetch('/api/strava/activity?mode=analyze&id=' + encodeURIComponent(id), {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+    } catch {
+      alert('Errore di rete durante il caricamento.');
+      return;
+    }
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      alert('Risposta non valida dal server.');
+      return;
+    }
+
+    if (!res.ok || data.error) {
+      alert(data.error || 'Errore analisi attività.');
+      return;
+    }
+
+    renderAnalysis(
+      data.pts,
+      data.metrics,
+      data.movingTime ? fmtSec(data.movingTime) : null
+    );
+  }
+
+  /* ------------------------------------------------------------------
+     AUTO LOAD DA URL (?source=strava&id=...)
+     ------------------------------------------------------------------ */
+  if (source === 'strava' && activityId) {
+    document.getElementById('btnAnalyze').style.display = 'none';
+    loadFromStrava(activityId);
+  }
+
+})();
 </script>
 </body>
 </html>
