@@ -12,7 +12,7 @@
 <ul id="activityList"></ul>
 
 <script>
-const token = localStorage.getItem("strava_token");
+const token = sessionStorage.getItem("strava_token");
 
 if (!token) {
   location.href = "training-analyzer.html";
