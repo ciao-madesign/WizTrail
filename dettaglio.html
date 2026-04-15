@@ -61,7 +61,7 @@
 
 </div>
 
-<script src="wiztrail-racescore.js"></script>
+<script src="wiztrail-engine.js"></script>
 
 <script>
 
@@ -159,7 +159,7 @@ async function loadGPX(){
   }
 
   const metrics = computeMetrics(pts);
-  rs = WizTrailWDI.computeFromGpx(pts, metrics);
+  rs = WizTrail.computeFromGpx(pts, metrics);
 
   // UI
   distVal.textContent  = metrics.km.toFixed(2) + " km";

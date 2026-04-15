@@ -3,14 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WizTrail — Ranking difficoltà gare trail</title>
-<meta name="description" content="Classifica WDI delle gare trail più famose. Scopri quanto è difficile la tua prossima gara e confrontala con il tuo GPX.">
-<meta property="og:title" content="WizTrail — Ranking difficoltà gare trail" />
-<meta property="og:description" content="Classifica WDI delle gare trail. Confronta la tua gara e scopri il tuo livello." />
-<meta property="og:type" content="website" />
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="WizTrail — Ranking gare trail">
-<meta name="twitter:description" content="Classifica WDI delle gare trail più famose. Confronta la tua.">
+<title>WizTrail – Classifica WDI</title>
 <link rel="manifest" href="/WizTrail/manifest.webmanifest">
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
@@ -94,7 +87,7 @@
 <div class="footer">WizTrail © 2026</div>
 </div>
 
-<script src="wiztrail-racescore.js"></script>
+<script src="wiztrail-engine.js"></script>
 <script>
 function parseGPX(text){
   const xml = new DOMParser().parseFromString(text, "application/xml");
@@ -249,7 +242,7 @@ btnAdminCompute?.addEventListener("click", async () => {
  const xml = new DOMParser().parseFromString(text, "application/xml");
 const pts = parseGPX(text);
 const metrics = computeMetrics(pts);
-const rs = WizTrailWDI.computeFromGpx(pts, metrics);
+const rs = WizTrail.computeFromGpx(pts, metrics);
 
 adminOutput.textContent = `{
   "name": "${raceName}",
@@ -257,7 +250,9 @@ adminOutput.textContent = `{
   "dplus": ${metrics.gain},
   "wdi": ${rs.WDI.toFixed(1)},
   "class": "${rs.class}",
-  "color": "${rs.color}"
+  "color": "${rs.color}",
+  "techScore": ${rs.TechScore.toFixed(1)},
+  "techClass": "${rs.techClass}"
 }`;
 });
 
@@ -269,7 +264,7 @@ btnUserCompute?.addEventListener("click", async () => {
  const xml = new DOMParser().parseFromString(text, "application/xml");
 const pts = parseGPX(text);
 const metrics = computeMetrics(pts);
-const rs = WizTrailWDI.computeFromGpx(pts, metrics);
+const rs = WizTrail.computeFromGpx(pts, metrics);
 
 userResult.innerHTML = `
 <h3>La tua gara</h3>

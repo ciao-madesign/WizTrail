@@ -2,86 +2,74 @@
 <html lang="it">
 <head>
   <meta name="google-site-verification" content="mwv09enOB_Ruy-bMimm7xVFifXKwPl2nRCbbKnzoWT0" />
-<meta name="description" content="WizTrail è una piattaforma per la previsione e analisi predittiva della performance nel trail running.">
-<meta name="keywords" content="WizTrail, dashboard, data analysis, data insights, visualizzazione dati, trail, performance prediction">
-<meta name="author" content="madesign">
-<meta name="robots" content="index, follow">
-<!-- Open Graph -->
-<meta property="og:title" content="WizTrail — Analizza la difficoltà del tuo trail" />
-<meta property="og:description" content="Carica il GPX, ottieni il WDI e stima il tuo tempo di gara. Gratuito, client-side, nessun dato inviato a server." />
-<meta property="og:url" content="https://ciao-madesign.github.io/WizTrail/" />
-<meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/assets/cover.jpg" />
-<meta property="og:type" content="website" />
+  <meta name="description" content="WizTrail è una piattaforma per la previsione e analisi predittiva della performance nel trail running.">
+  <meta name="keywords" content="WizTrail, dashboard, data analysis, data insights, visualizzazione dati, trail, performance prediction">
+  <meta name="author" content="madesign">
+  <meta name="robots" content="index, follow">
 
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="WizTrail — Analizza la difficoltà del tuo trail">
-<meta name="twitter:description" content="Carica il GPX, ottieni il WDI e stima il tuo tempo di gara. Gratuito, nessun dato inviato a server.">
-<meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/assets/cover.jpg">
+  <!-- Open Graph -->
+  <meta property="og:title" content="WizTrail – Dashboard & Data Insights" />
+  <meta property="og:description" content="analisi predittiva della performance nel trail running." />
+  <meta property="og:url" content="https://ciao-madesign.github.io/WizTrail/" />
+  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/assets/cover.jpg" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="WizTrail – Dashboard & Data Insights">
+  <meta name="twitter:description" content="analisi predittiva della performance nel trail running">
+  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/assets/cover.jpg">
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WizTrail — Analizza la difficoltà del tuo trail</title>
+  <title>WizTrail</title>
 
   <!-- PWA -->
   <link rel="manifest" href="/WizTrail/manifest.webmanifest">
   <meta name="theme-color" content="#002b2b">
 
   <!-- iOS PWA -->
-  <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/WizTrail/icons/logo-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="WizTrail">
 
   <!-- Leaflet -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
 
   <!-- WizTrail CSS -->
   <link rel="stylesheet" href="wiztrail.css">
 </head>
+
 <body data-theme="dark">
 
 <header class="app-header">
   <div class="app-brand">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
-         <defs>
-        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stop-color="#4fd1c5"/>
-          <stop offset="1" stop-color="#0ea5e9"/>
-        </linearGradient>
-      </defs>
-      <circle cx="12" cy="12" r="10" fill="url(#g)"/>
-      <path d="M7 12l3 3 7-7" fill="none" stroke="#021" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
     <span class="brand-name">WizTrail</span>
   </div>
-  <div class="app-header-actions">
-    <!-- opzionale: spazio per bottoni/tema -->
-  </div>
+  <div class="app-header-actions"></div>
 </header>
-<!-- Banner Installazione PWA / Tutorial -->
+
+<!-- Banner Installazione PWA -->
 <div id="wizBanner" class="wiz-banner">
-  <a href="install.html" class="wiz-banner-link">
-    📱 Aggiungi WizTrail alla Home!
-  </a>
+  <a href="install.html" class="wiz-banner-link">📱 Aggiungi WizTrail alla Home!</a>
 </div>
+
 <!-- Toolbar Link WDI -->
 <div class="wdi-toolbar">
-<a href="training-analyzer.html" class="wdi-btn">Training Analyzer</a>
+  <a href="training-analyzer.html" class="wdi-btn">Training Analyzer</a>
   <a href="ranking.html" class="wdi-btn">Ranking WDI</a>
-  <a href="wdi.html" class="wdi-btn">Cos'è il WDI?</a>
-<a href="pacing.html" class="wdi-btn">Metodo Pacing</a>
-
+  <a href="WDI.html" class="wdi-btn">Cos'è il WDI?</a>
+  <a href="pacing.html" class="wdi-btn">Metodo Pacing</a>
 </div>
+
 <div class="wrap">
   <section id="intro" class="site-intro" aria-label="Introduzione">
     <p>Stima la tua performance in gara combinando i tuoi dati con le caratteristiche del percorso.</p>
@@ -110,1410 +98,440 @@
   </div>
 
   <!-- PANEL: CALCOLATORE -->
-<section id="calc" class="panel active">
+  <section id="calc" class="panel active">
+    <div class="card grid grid-2">
 
-  <div class="card grid grid-2">
+      <!-- Colonna sinistra -->
+      <div>
+        <fieldset>
+          <legend>Traccia GPS (opzionale)</legend>
+          <label>Carica GPX/TCX</label>
+          <input id="gpxfile" type="file" accept=".gpx,.tcx"/>
+          <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
 
-    <!-- ------------------------- -->
-    <!-- COLONNA SINISTRA          -->
-    <!-- ------------------------- -->
-    <div>
-
-      <fieldset>
-        <legend>Traccia GPS (opzionale)</legend>
-        <label>Carica GPX/TCX</label>
-        <input id="gpxfile" type="file" accept=".gpx,.tcx"/>
-        <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Parametri atleta</legend>
-        <label>Tempo 10 km (mm:ss)</label>
-        <input id="t10k" type="text" value="50:00"/>
-      </fieldset>
-
-      <fieldset>
-        <legend>Parametri gara</legend>
-        <label>Distanza (km)</label>
-        <input id="dist" type="number" step="0.001" value="21.097"/>
-
-        <label>D+ (m)</label>
-        <input id="dplus" type="number" step="1" value="0"/>
-      </fieldset>
-
-    </div>
-
-
-
-    <!-- ------------------------- -->
-    <!-- COLONNA DESTRA           -->
-    <!-- ------------------------- -->
-    <div>
-
-  <fieldset>
-  <legend>Tecnica del percorso</legend>
-
-  <label>Livello tecnicità</label>
-  <select id="terrain">
-    <option value="Strada">Strada / molto semplice</option>
-    <option value="E">E – Trail semplice</option>
-    <option value="EE">EE – Impegnativo</option>
-    <option value="EA">EA – Tecnico / Esposizione</option>
-  </select>
-
- </fieldset>
-
-      <fieldset>
-        <legend>Condizioni gara</legend>
-        <label>Meteo</label>
-        <select id="meteo">
-          <option value="1.00">Fresco</option>
-          <option value="1.02">Mite</option>
-          <option value="1.04" selected>Caldo</option>
-          <option value="1.07">Molto caldo</option>
-        </select>
-
-        <label>Altitudine</label>
-        <select id="alt">
-          <option value="1.00">≤500 m</option>
-          <option value="1.01">500–1000 m</option>
-          <option value="1.02" selected>1000–1500 m</option>
-          <option value="1.03">1500–2000 m</option>
-          <option value="1.04">&gt;2000 m</option>
-        </select>
-
-        <label>Accumulo fatica</label>
-        <select id="fatica">
-          <option value="1.00">Basso</option>
-          <option value="1.02">Medio</option>
-          <option value="1.03" selected>Alto</option>
-        </select>
-
-        <label>Familiarità</label>
-        <input id="spec" type="range" min="0" max="1" step="0.1" value="0.2"/>
-<div class="mini" style="margin-top:4px;">
-  S = 0.2 → amatore medio;  
-  S = 0.4 → amatore avanzato;  
-  S = 0.8 → atleta competitivo.
-</div>
-
-        <label>Margine ±%</label>
-        <input id="margin" type="number" value="10"/>
-      </fieldset>
-
-      <div class="toolbar">
-        <button class="btn" id="calcBtn">Calcola</button>
-        <button class="btn secondary" id="resetBtn">Reset</button>
-      </div>
-
-      <div id="calc_tips" class="card" style="display:none; margin-top:8px;">
-        <div id="calc_tips_header" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
-          <h3 style="margin:0;">Suggerimenti</h3>
-          <button id="calc_tips_toggle" class="btn secondary" style="padding:6px 10px; font-size:13px;">Mostra suggerimenti</button>
-        </div>
-        <div id="calc_tips_body" class="mini" style="display:none; margin-top:10px;"></div>
-      </div>
-
-      <div id="msg" class="mini"></div>
-
-      <div class="toolbar">
-        <button class="btn" id="btnFotoJson">Riepilogo (JSON)</button>
-        <p class="mini">I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
-      </div>
-
-      <!-- KPI FINALI -->
-      <div class="grid" style="margin-top:8px">
-
-        <div class="kpi">
-          <h3>Tempo finale</h3>
-          <div class="val" id="outFinal">—:—</div>
-        </div>
-
-        <div class="kpi">
-          <h3>Basso</h3>
-          <div class="val" id="outLow">—:—</div>
-        </div>
-
-        <div class="kpi">
-          <h3>Alto</h3>
-          <div class="val" id="outHigh">—:—</div>
-        </div>
-
-        <div class="kpi">
-          <h3>WDI (WizTrail Difficulty Index)</h3>
-
-          <div class="val"
-               id="outRaceScore"
-               style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">
-              —
+          <!-- SLIDER SUPERFICIE -->
+          <div style="margin-top:12px;">
+            <label>Tipo di terreno prevalente</label>
+            <input type="range" id="surfaceSlider" min="1" max="5" value="3" step="1"
+                   style="width:100%; margin:6px 0;">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7;">
+              <span>Strada</span><span>Sentiero</span><span>Misto</span><span>Ghiaione</span><span>Roccia</span>
+            </div>
+            <div class="mini" style="opacity:0.6; margin-top:4px;">
+              Fattore indicativo — incide ≤2% sul WDI finale
+            </div>
           </div>
 
-          <div id="outRaceScoreSub"
-               style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;">
+          <!-- TOGGLE ENHANCED OSM -->
+          <div style="margin-top:14px;">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+              <input type="checkbox" id="enhancedToggle">
+              <span>✦ Enhanced Mode (OSM terrain analysis)</span>
+            </label>
+            <div id="enhancedDisclosure" style="display:none; margin-top:8px; padding:10px;
+                 background:rgba(255,200,0,0.1); border-radius:8px; font-size:0.82rem;">
+              ⚠️ Enhanced Mode analizza la superficie del terreno tramite OpenStreetMap.<br>
+              Le coordinate GPS vengono inviate a Overpass API (servizio esterno).<br>
+              Attivando accetti l'invio dei dati a servizi terzi.
+              <br><br>
+              <button id="enhancedConfirm" class="btn"
+                      style="font-size:0.8rem; padding:4px 12px;">Attiva Enhanced</button>
+              <button id="enhancedCancel"
+                      style="font-size:0.8rem; padding:4px 12px; margin-left:8px;
+                             background:none; border:none; cursor:pointer; opacity:0.7;">Annulla</button>
+            </div>
+            <div id="enhancedStatus" style="display:none; font-size:0.8rem; margin-top:6px; opacity:0.8;"></div>
           </div>
+        </fieldset>
 
-        </div>
+        <fieldset>
+          <legend>Parametri atleta</legend>
+          <label>Tempo 10 km (mm:ss)</label>
+          <input id="t10k" type="text" value="50:00"/>
+        </fieldset>
 
+        <fieldset>
+          <legend>Parametri gara</legend>
+          <label>Distanza (km)</label>
+          <input id="dist" type="number" step="0.001" value="21.097"/>
+          <label>D+ (m)</label>
+          <input id="dplus" type="number" step="1" value="0"/>
+        </fieldset>
       </div>
 
-    </div> <!-- fine colonna destra -->
+      <!-- Colonna destra -->
+      <div>
+        <fieldset>
+          <legend>Tecnica del percorso</legend>
+          <label>Livello tecnicità</label>
+          <select id="terrain">
+            <option value="Strada">Strada / molto semplice</option>
+            <option value="E">E – Trail semplice</option>
+            <option value="EE">EE – Impegnativo</option>
+            <option value="EA">EA – Tecnico / Esposizione</option>
+          </select>
+        </fieldset>
 
-  </div> <!-- chiusura card + grid -->
+        <fieldset>
+          <legend>Condizioni gara</legend>
+          <label>Meteo</label>
+          <select id="meteo">
+            <option value="1.00">Fresco</option>
+            <option value="1.02">Mite</option>
+            <option value="1.04" selected>Caldo</option>
+            <option value="1.07">Molto caldo</option>
+          </select>
 
-</section>
+          <label>Altitudine</label>
+          <select id="alt">
+            <option value="1.00">≤500 m</option>
+            <option value="1.01">500–1000 m</option>
+            <option value="1.02" selected>1000–1500 m</option>
+            <option value="1.03">1500–2000 m</option>
+            <option value="1.04">&gt;2000 m</option>
+          </select>
 
-<!-- PANEL: PACING -->
-<section id="pacing" class="panel">
-  <div class="card">
+          <label>Accumulo fatica</label>
+          <select id="fatica">
+            <option value="1.00">Basso</option>
+            <option value="1.02">Medio</option>
+            <option value="1.03" selected>Alto</option>
+          </select>
 
+          <label>Familiarità</label>
+          <input id="spec" type="range" min="0" max="1" step="0.1" value="0.2"/>
+          <div class="mini" style="margin-top:4px;">
+            S = 0.2 → amatore medio; S = 0.4 → amatore avanzato; S = 0.8 → atleta competitivo.
+          </div>
+
+          <label>Margine ±%</label>
+          <input id="margin" type="number" value="10"/>
+        </fieldset>
+
+        <div class="toolbar">
+          <button class="btn" id="calcBtn">Calcola</button>
+          <button class="btn secondary" id="resetBtn">Reset</button>
+        </div>
+
+        <div id="calc_tips" class="card" style="display:none; margin-top:8px;">
+          <div id="calc_tips_header" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+            <h3 style="margin:0;">Suggerimenti</h3>
+            <button id="calc_tips_toggle" class="btn secondary" style="padding:6px 10px; font-size:13px;">Mostra suggerimenti</button>
+          </div>
+          <div id="calc_tips_body" class="mini" style="display:none; margin-top:10px;"></div>
+        </div>
+
+        <div id="msg" class="mini"></div>
+
+        <div class="toolbar">
+          <button class="btn" id="btnFotoJson">Riepilogo (JSON)</button>
+          <p class="mini">I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
+        </div>
+
+        <!-- KPI FINALI -->
+        <div class="grid" style="margin-top:8px">
+          <div class="kpi">
+            <h3>Tempo finale</h3>
+            <div class="val" id="outFinal">—:—</div>
+          </div>
+          <div class="kpi">
+            <h3>Basso</h3>
+            <div class="val" id="outLow">—:—</div>
+          </div>
+          <div class="kpi">
+            <h3>Alto</h3>
+            <div class="val" id="outHigh">—:—</div>
+          </div>
+          <div class="kpi">
+            <h3>WDI (WizTrail Difficulty Index)</h3>
+            <div class="val" id="outRaceScore"
+                 style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
+            <div id="outRaceScoreSub"
+                 style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
+          </div>
+          <!-- TECHSCORE KPI -->
+          <div class="kpi" id="techScoreBox" style="display:none;">
+            <h3>TechScore</h3>
+            <div class="val" id="outTechScore"
+                 style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
+            <div id="outTechScoreSub"
+                 style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
+          </div>
+        </div>
+      </div><!-- /colonna destra -->
+
+    </div><!-- /card grid -->
+  </section>
+
+  <!-- PANEL: PACING -->
+  <section id="pacing" class="panel">
+    <div class="card">
       <h2>Pacing Planner</h2>
-
-      <!-- Warning se manca GPX -->
       <div id="pc_warning" class="error" style="display:none; margin-bottom:12px;">
-          ⚠️ Carica una traccia GPX/TCX nel tab Calcolatore prima di generare il pacing.
+        ⚠️ Carica una traccia GPX/TCX nel tab Calcolatore prima di generare il pacing.
       </div>
-
-<div class="card" style="margin-top:16px;">
-  <h2>Mappa + Profilo altimetrico</h2>
-
-  <div style="display:flex; gap:12px; flex-wrap:wrap;">
-    
-    <!-- MAPPA PACING -->
-    <div id="pacingMap" 
-         style="flex:1; min-width:300px; height:300px; border-radius:8px;">
-    </div>
-
-    <!-- PROFILO ALTIMETRICO PACING -->
-    <canvas id="pacingElevCanvas"
-            style="flex:1; min-width:300px; height:300px; border-radius:8px;">
-    </canvas>
-
-  </div>
-</div>
-
-      <!-- Tempo obiettivo -->
+      <div class="card" style="margin-top:16px;">
+        <h2>Mappa + Profilo altimetrico</h2>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <div id="pacingMap" style="flex:1; min-width:300px; height:300px; border-radius:8px;"></div>
+          <canvas id="pacingElevCanvas" style="flex:1; min-width:300px; height:300px; border-radius:8px;"></canvas>
+        </div>
+      </div>
       <div class="grid" style="margin-bottom:12px;">
         <div>
           <label>Tempo obiettivo gara (hh:mm:ss)</label>
           <input id="pc_target" type="text" placeholder="02:30:00">
         </div>
-
         <div>
           <label>Distanza tra i checkpoint (km)</label>
           <select id="pc_gran">
             <option value="5">5 km</option>
             <option value="10">10 km</option>
-<option value="1">1 km</option>
+            <option value="1">1 km</option>
           </select>
         </div>
       </div>
-
       <div class="toolbar">
         <button class="btn" id="pc_generate">Genera pacing</button>
       </div>
-
-      <!-- Risultati -->
       <div id="pc_results" style="display:none; margin-top:14px;">
-
-        <!-- Box riepilogo -->
         <div id="pc_summary" style="margin-bottom:12px;"></div>
-
-        <!-- Tabella pacing -->
         <div id="pc_table" class="responsive-table"></div>
       </div>
-
-  </div>
-</section>
-
-
-<!-- PANEL: MAPPA 2D -->
-<section id="map2d" class="panel">
-  <div class="card">
-    <h2>Mappa 2D</h2>
-    <div id="leafletMap"></div>
-
-    <!-- ⬇️ NUOVO: profilo altimetrico -->
-    <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
-    <!-- ⬆️ -->
-
-    <button class="btn" id="btnFit">Centra sulla traccia</button>
-    <button class="btn secondary" id="btnKml">Scarica KML</button>
-    <div class="banner-3d">
-      Stampa la tua traccia in <b>3D!</b><br>
-      Trasformala in un ricordo (medaglia, modellino, trofeo...)<br>
-      <a>#Servizio in arrivo</a>
     </div>
-  </div>
-</section>
-<!-- PANEL: HOWTO -->
-<section id="howto" class="panel">
-  <div class="card">
-    <h2>How‑to</h2>
+  </section>
 
-<!-- ========================= -->
-<!-- 1) CALCOLATORE -->
-<!-- ========================= -->
-<details open>
-  <summary><b>1) Calcolatore — come usare i parametri</b></summary>
-  <div style="margin-top:10px">
-
-    <h3>1. Carica una traccia GPS (opzionale ma consigliato)</h3>
-    <ul>
-      <li><b>Carica un file GPX/TCX</b> dalla gara: WizTrail calcola automaticamente
-          distanza, D+ e pendenze punto‑per‑punto.</li>
-      <li>I dati del GPX migliorano la stima e permettono il <b>pacing realistico</b>.</li>
-      <li>Se non hai un GPX, puoi compilare distanza e D+ a mano.</li>
-    </ul>
-
-    <h3>2. Imposta i dati atleta</h3>
-    <p><b>Tempo 10 km (mm:ss)</b> = il tuo passo “di riferimento”.  
-       WizTrail usarà questo ritmo per calcolare la velocità base.</p>
-    <div class="mini">
-      Suggerimento: usa un test recente o un tempo da 5–15 km convertito.
+  <!-- PANEL: MAPPA 2D -->
+  <section id="map2d" class="panel">
+    <div class="card">
+      <h2>Mappa 2D</h2>
+      <div id="leafletMap"></div>
+      <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
+      <button class="btn" id="btnFit">Centra sulla traccia</button>
+      <button class="btn secondary" id="btnKml">Scarica KML</button>
+      <div class="banner-3d">
+        Stampa la tua traccia in <b>3D!</b><br>
+        Trasformala in un ricordo (medaglia, modellino, trofeo...)<br>
+        <a>#Servizio in arrivo</a>
+      </div>
     </div>
+  </section>
 
-    <h3>3. Parametri gara</h3>
-    <ul>
-      <li><b>Distanza (km)</b> — lunghezza effettiva del percorso.</li>
-      <li><b>D+ (m)</b> — dislivello positivo totale.</li>
-         </ul>
-
-    <h3>4. Tercnica del percorso</h3>
-    <p>Indica il livello tecnico globale del percorso: Strada, E, EE o EA.
-Influisce solo su salite e discese ripide, aumentando il tempo previsto nei tratti impegnativi.
-    <ul>
-      <li><b>Strada</b> — scorrevole, quasi sempre corribile</li>
-      <li><b>E</b> — sentiero semplice</li>
-      <li><b>EE</b> — tecnico: radici, pietre, tratti stretti</li>
-      <li><b>EA</b> — molto tecnico, esposto o instabile</li>
-    </ul></p>
- 
-
-    <h3>5. Condizioni gara</h3>
-    <ul>
-      <li><b>Meteo</b> — il caldo aumenta la penalità</li>
-      <li><b>Altitudine</b> — oltre ~1000m si perde efficienza.</li>
-      <li><b>Fatica</b> — Se non sei abituato a gare lunghe aumenta il valore di questo parametro.</li>
-      <li><b>Specificità (S)</b> — quanto sei abituato a quel tipo di gara:
-          salite, quota, fondo, pendenze.</li>
-      <li><b>Margine ±%</b> — genera il tempo “ottimistico” e “prudente”.</li>
-    </ul>
-
-    <h3>6. Come leggere il risultato</h3>
-    <ul>
-      <li><b>Tempo finale</b> — la stima più probabile.</li>
-      <li><b>Basso/Alto</b> — i limiti del tuo range realistico.</li>
-      <li><b>WDI</b> — indica la <b>difficoltà  della gara secondo il WDI</b>
-          (tecnicità, verticalità, profilo…).
-      </li>
-    </ul>
-
-    <h3>7. Trucchetto rapido</h3>
-    <p>Se il risultato “non ti torna”, spesso dipende da:</p>
-    <ul class="mini">
-      <li>S troppo alto → stima troppo ottimista</li>
-      <li>Meteo/altitudine ignorati → penalità più alta</li>
-    </ul>
-
-  </div>
-</details>
-
-<!-- ========================= -->
-<!-- 2) PACING PLANNER -->
-<!-- ========================= -->
-<details>
-  <summary><b>2) Pacing Planner </b></summary>
-  <div style="margin-top:10px">
-
-    <h3>1. Non serve ricaricare la traccia</h3>
-    <p>
-      Il Pacing Planner utilizza automaticamente lo <b>stesso GPX</b> caricato nel
-      Calcolatore: distanza, dislivello e difficoltà dei segmenti sono già disponibili.
-    </p>
-
-    <h3>2. Perché il pacing è realistico (v2.0)</h3>
-    <p>
-      Il pacing non è un semplice “ritmo medio” lineare: usa una versione
-      semplificata del motore del calcolatore pc_granper valutare la <b>difficoltà
-      locale</b> del percorso. 
-    </p>
-
-    <p>
-      Il percorso viene suddiviso in <b>micro‑segmenti</b> (pochi metri), e ogni tratto
-      da 5 km o 10 km (“chunk”) viene valutato in base a:
-    </p>
-    <ul>
-      <li><b>pendenza</b>: salite lente, discese moderate più veloci;</li>
-      <li><b>tecnicità globale</b> (Strada / E / EE / EA);</li>
-      <li><b>altitudine</b> e <b>meteo</b> (penalità leggere ma realistiche);</li>
-    </ul>
-
-    <p>
-      A differenza del calcolatore, il Pacing Planner <b>non applica fatica cumulativa</b>,
-      così il passo rimane più omogeneo e coerente con l’idea di una strategia di gara
-      costante.
-    </p>
-
-    <h3>3. Ritmo regolare, adattato alla difficoltà</h3>
-    <p>
-      Il tempo totale che inserisci (es. 6 ore) viene distribuito proporzionalmente
-      alla <b>difficoltà relativa</b> dei chunk:
-    </p>
-    <ul>
-      <li>chunk facili → <b>ritmo più veloce</b>;</li>
-      <li>chunk difficili → <b>ritmo più lento</b>;</li>
-      <li>primo e ultimo km sono simili se il terreno è simile → <b>pacing realistico</b>;</li>
-    </ul>
-
-    <div class="mini">
-      Questo approccio permette di pianificare un ritmo costante, con variazioni
-      solo dove il percorso lo richiede realmente.
+  <!-- PANEL: HOWTO -->
+  <section id="howto" class="panel">
+    <div class="card">
+      <h2>How‑to</h2>
+      <details open>
+        <summary><b>1) Calcolatore — come usare i parametri</b></summary>
+        <div style="margin-top:10px">
+          <h3>1. Carica una traccia GPS (opzionale ma consigliato)</h3>
+          <ul>
+            <li>Carica un file GPX/TCX dalla gara: WizTrail calcola automaticamente distanza, D+ e pendenze punto‑per‑punto.</li>
+            <li>I dati del GPX migliorano la stima e permettono il <b>pacing realistico</b>.</li>
+          </ul>
+          <h3>2. Imposta i dati atleta</h3>
+          <p><b>Tempo 10 km (mm:ss)</b> = il tuo passo "di riferimento". WizTrail userà questo ritmo per calcolare la velocità base.</p>
+          <h3>3. Parametri gara</h3>
+          <ul>
+            <li><b>Distanza (km)</b> — lunghezza effettiva del percorso.</li>
+            <li><b>D+ (m)</b> — dislivello positivo totale.</li>
+          </ul>
+          <h3>4. Tecnica del percorso</h3>
+          <ul>
+            <li><b>Strada</b> — scorrevole, quasi sempre corribile</li>
+            <li><b>E</b> — sentiero semplice</li>
+            <li><b>EE</b> — tecnico: radici, pietre, tratti stretti</li>
+            <li><b>EA</b> — molto tecnico, esposto o instabile</li>
+          </ul>
+          <h3>5. Condizioni gara</h3>
+          <ul>
+            <li><b>Meteo</b> — il caldo aumenta la penalità</li>
+            <li><b>Altitudine</b> — oltre ~1000m si perde efficienza</li>
+            <li><b>Fatica</b> — aumenta per gare lunghe a cui non sei abituato</li>
+            <li><b>Specificità (S)</b> — quanto sei abituato a salite, quota, fondo e pendenze</li>
+            <li><b>Margine ±%</b> — genera il tempo ottimistico e prudente</li>
+          </ul>
+          <h3>6. Come leggere il risultato</h3>
+          <ul>
+            <li><b>Tempo finale</b> — la stima più probabile</li>
+            <li><b>Basso/Alto</b> — i limiti del tuo range realistico</li>
+            <li><b>WDI</b> — difficoltà della gara (tecnicità, verticalità, profilo)</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary><b>2) Pacing Planner</b></summary>
+        <div style="margin-top:10px">
+          <h3>1. Non serve ricaricare la traccia</h3>
+          <p>Il Pacing Planner utilizza automaticamente lo stesso GPX caricato nel Calcolatore.</p>
+          <h3>2. Ritmo regolare, adattato alla difficoltà</h3>
+          <ul>
+            <li>chunk facili → <b>ritmo più veloce</b></li>
+            <li>chunk difficili → <b>ritmo più lento</b></li>
+          </ul>
+          <h3>3. Come leggere la tabella</h3>
+          <ul>
+            <li><b>KM</b> → fine del tratto</li>
+            <li><b>Tempo</b> → tempo cumulato previsto</li>
+            <li><b>Pace tratto</b> → ritmo medio solo di quel segmento</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary><b>3) Mappa 2D — traccia e altimetria</b></summary>
+        <div style="margin-top:10px">
+          <p>La traccia si disegna automaticamente dopo aver caricato il GPX. Il profilo altimetrico è interattivo: spostando il mouse vedrai la posizione sulla mappa.</p>
+          <p>Con <b>Scarica KML</b> puoi esportare la traccia per Google Earth.</p>
+        </div>
+      </details>
+      <details>
+        <summary><b>4) Post‑gara — analizza la tua gara</b></summary>
+        <div style="margin-top:10px">
+          <p>Importa lo snapshot JSON pre-gara e compila i dati reali per generare un report completo con confronto previsto vs reale.</p>
+        </div>
+      </details>
     </div>
-
-    <h3>4. Come leggere la tabella</h3>
-    <ul>
-      <li><b>KM</b> → fine del tratto (5 km o 10 km);</li>
-      <li><b>Tempo</b> → tempo cumulato previsto alla fine del chunk;</li>
-      <li><b>Pace tratto</b> → ritmo medio solo di quel segmento;</li>
-    </ul>
-
-    <p>
-      Se un tratto ha 8:20/km e quello successivo 6:10/km è perfettamente normale:
-      significa che il primo contempla maggiori salite o passaggi tecnici.
-    </p>
-
-    <h3>5. Suggerimenti pratici</h3>
-    <ul>
-      <li>
-        Usa il pacing per <b>capire dove spingere</b> e dove
-        <b>risparmiare energie</b>.
-      </li>
-      <li>
-        Se un tratto è particolarmente lento, spesso coincide con un punto chiave
-        del percorso (salita ripida o discesa tecnica).
-      </li>
-      <li>
-        Non cercare di “seguire alla lettera” ogni ritmo: considera il pacing come
-        <b>linea guida</b> per non partire troppo forte e gestire meglio la gara.
-      </li>
-    </ul>
-
-  </div>
-</details>
-
-<!-- ========================= -->
-<!-- 3) MAPPA 2D -->
-<!-- ========================= -->
-<details>
-  <summary><b>3) Mappa 2D — traccia e altimetria</b></summary>
-  <div style="margin-top:10px">
-
-    <h3>1. Visualizzazione</h3>
-    <ul>
-      <li>La traccia si disegna automaticamente dopo aver caricato il GPX.</li>
-      <li>Puoi <b>centrare</b> la visuale con l’apposito pulsante.</li>
-      <li>Il profilo altimetrico è interattivo:
-          spostando il mouse vedrai la posizione sulla mappa.</li>
-    </ul>
-
-    <h3>2. Stile mappa</h3>
-    <ul>
-      <li>Mappa <b>dark</b> ottimizzata per il tema scuro.</li>
-      <li><b>Overlay topografico</b> con curve di livello
-          per leggere meglio le pendenze.</li>
-    </ul>
-
-    <h3>3. KML</h3>
-    <p>Con <b>Scarica KML</b> puoi esportare la traccia per Google Earth
-       e servizi 3D/visualizzazione.</p>
-
-  </div>
-</details>
-
-<!-- ========================= -->
-<!-- 4) POST-GARA -->
-<!-- ========================= -->
-<details>
-  <summary><b>4) Post‑gara — analizza la tua gara</b></summary>
-  <div style="margin-top:10px">
-
-    <h3>1. Importa i dati</h3>
-    <ul>
-      <li><b>Snapshot JSON</b> — importa la tua previsione pre‑gara (opzionale).</li>
-      <li><b>GPX reale</b> — per ottenere distanza e D+ effettivi.</li>
-    </ul>
-
-    <h3>2. Inserisci i dati reali della gara</h3>
-    <ul>
-      <li>Tempo reale</li>
-      <li>Soste</li>
-      <li>Terreno percepito</li>
-      <li>Meteo percepito</li>
-      <li>Pacing percepito</li>
-      <li>Note</li>
-    </ul>
-
-    <h3>3. Cosa mostra il report</h3>
-    <ul>
-      <li><b>Previsto vs Reale</b> — differenza in tempo e percentuale.</li>
-      <li><b>Pace</b> — quanto sei andato più veloce/lento.</li>
-      <li><b>Commento</b> — spiegazione dinamica del risultato.</li>
-        </ul>
-
-    <h3>4. Perché è utile</h3>
-    <p>Il modulo post‑gara ti aiuta a capire <b>perché</b> la gara è andata così,
-       e quali parametri del calcolatore devi migliorare.</p>
-
-  </div>
-</details>
-
-<!-- ========================= -->
-<!-- 5) LICENZE -->
-<!-- ========================= -->
-<details>
-  <summary><b>5) Licenze &amp; Policy</b></summary>
-  <div style="margin-top:10px">
-    <p>WizTrail usa tecnologie open‑source:</p>
-    <ul>
-      <li><b>Leaflet</b> per la mappa interattiva</li>
-      <li><b>Carto</b> per il layer dark</li>
-      <li><b>OpenTopoMap</b> per il layer topografico</li>
-    </ul>
-    <p>Nessun dato viene inviato a server: tutto rimane sul tuo dispositivo.</p>
-  </div>
-</details>
-
-  </div>
-</section>
-
-<!-- PANEL: FONDAMENTI -->
-<section id="fond" class="panel">
-  <div class="card">
-    <h2>Fondamenti scientifici e criteri di calcolo</h2>
-
-    <p>
-      Il modello WizTrail utilizza un approccio integrato per stimare in modo realistico
-      la performance nel trail running, combinando:
-      <b>modelli fisiologici moderni</b>, 
-      <b>analisi energetica della pendenza</b>, 
-      <b>effetti ambientali</b>
-      e una <b>lettura segmentata del GPX</b> con filtri anti-rumore.
-    </p>
-
-    <p class="mini">
-      Il motore di calcolo dell'indice WDI  è separato dal calcolatore 
-      e descrive la difficoltà oggettiva del percorso.  
-      Qui sono documentati i criteri del <b>Calcolatore</b> 
-      e del <b>Pacing Planner</b>.
-    </p>
-
-    <!-- ======================================================== -->
-    <!-- 1) RIEGEL ADATTIVO -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>1) Predizione su distanza: Riegel adattivo</b></summary>
-      <div style="margin-top:10px">
-
-        <p>
-          Il modello parte dalla relazione di <b>Riegel</b>, tradizionalmente usata
-          per stimare tempi su distanze maggiori a partire da un riferimento:
-        </p>
-
-<pre>T₂ = T₁ × (D₂ / D₁)^b</pre>
-
-        <p>
-          L’esponente <b>b</b> non è costante: 
-          studi sulla distribuzione intensità/durata (Daniels, Seiler)
-          mostrano che aumenta con la distanza, simulando la crescente fatica aerobica.
-        </p>
-
-        <p>
-          WizTrail usa quindi un <b>Riegel adattivo</b>: 
-          questo fornisce il <b>tempo teorico su piano</b>,
-          prima di considerare pendenze, tecnica, quota e condizioni.
-        </p>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 2) PENDENZA → VELOCITÀ (MODELLO v2.0) -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>2) Pendenza → velocità: salite, discese, fisiologia reale</b></summary>
-      <div style="margin-top:10px">
-
-        <p>
-          Il Time Estimator v2.0 non usa più “km equivalenti”.  
-          Invece, applica una funzione fisiologica che traduce la <b>pendenza reale</b> 
-          in <b>velocità locale</b>.
-        </p>
-
-        <ul>
-          <li><b>Salita</b>: il passo rallenta in modo <b>non lineare</b>.
-              Una salita del 15–20% può valere il doppio/triplo del ritmo di pianura.</li>
-          <li><b>Discesa</b>: moderatamente più veloce fino a ~10%, 
-              poi rallenta per controllo eccentrico.</li>
-          <li><b>Discesa ripida</b>: oltre il 15% la velocità cala sensibilmente.</li>
-        </ul>
-
-        <p>
-          Questo approccio è coerente con le curve energetiche di Minetti 
-          (Human Locomotion on Sloped Terrain, 2002),
-          eliminate le distorsioni create da α.
-        </p>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 3) TECNICITÀ DEL TERRENO -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>3) Tecnica del terreno (E / EE / EA)</b></summary>
-      <div style="margin-top:10px">
-
-        <p>
-          Nel Trail la velocità non dipende solo dalla pendenza, ma anche dalla 
-          <b>tecnicità del fondo</b>. WizTrail usa le categorie CAI:
-        </p>
-
-        <ul>
-          <li><b>E</b> — sentiero semplice</li>
-          <li><b>EE</b> — impegnativo (radici, pietre, passaggi stretti)</li>
-          <li><b>EA</b> — molto difficile o esposto</li>
-        </ul>
-
-        <p>
-          Il modello v2.0 applica la penalità tecnica <b>solo dove serve</b>:
-          salite ripide e discese impegnative, mai in pianura.
-        </p>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 4) FATICA PROGRESSIVA DINAMICA -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>4) Fatica progressiva</b></summary>
-      <div style="margin-top:10px">
-
-        <p>
-          La fatica non dipende solo dalla distanza, ma dal <b>tempo reale</b>
-          già trascorso in gara.  
-          WizTrail v2.0 utilizza:
-        </p>
-
-<pre>fatigue = 1 + (t_ore / 12)^1.3</pre>
-
-        <p>
-          Il modello riproduce bene il comportamento reale:
-        </p>
-
-        <ul>
-          <li>gare brevi → fatica quasi nulla</li>
-          <li>gare medie (4–6h) → impatto moderato</li>
-          <li>ultra 10–15h → +15–25%</li>
-          <li>endurance estreme → crescita molto marcata</li>
-        </ul>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 5) METEO E ALTITUDINE -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>5) Meteo e altitudine</b></summary>
-      <div style="margin-top:10px">
-
-        <h4>Meteo</h4>
-        <p>
-          Il caldo riduce la capacità aerobica e rallenta i tempi,
-          soprattutto nelle gare lunghe.
-          Il modello applica un effetto crescente con le <b>ore totali</b>.
-        </p>
-
-        <h4>Altitudine</h4>
-        <p>
-          L’efficienza aerobica cala progressivamente oltre i 1500 m.
-          WizTrail applica un <b>coefficiente altitudine</b> 
-          basato sulla quota media del percorso.
-        </p>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 6) SPECIFICITÀ (S) -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>6) Specificità dell’atleta (S)</b></summary>
-      <div style="margin-top:10px">
-
-        <p>
-          La specificità <b>S</b> (0–1) indica quanto l’atleta è abituato
-          a salite, discese tecniche e trail impegnativi.
-        </p>
-
-        <ul>
-          <li><b>0.1–0.2</b> → amatore medio (grande gap piano–salita)</li>
-          <li><b>0.3–0.4</b> → amatore avanzato</li>
-          <li><b>0.7–0.8</b> → atleta competitivo</li>
-        </ul>
-
-        <p>
-          S riduce il rallentamento in salita e migliora la gestione della tecnica.
-        </p>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 7) WDI v9.1 -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>7) WDI — WizTrail Difficulty Index </b></summary>
-      <div style="margin-top:10px">
-
-        <p>
-          Il WDI misura la <b>difficoltà oggettiva</b> dei percorsi in base al GPX:
-          distanza, D+, pendenze e tecnicità attenuata.
-        </p>
-
-        <h4>Formula</h4>
-<pre>
-WDI = (Dist_eff + Dplus_eff + SlopePct) × TecFactor
-</pre>
-
-        <h4>Classificazione</h4>
-<pre>
-0–30      Sport
-30–75     Pro
-75–120    Advanced
-120–180   Extreme
-180–350   Elite
->350      Legend
-</pre>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 8) PACING CHUNK-BASED v2.0 -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>8) Pacing Planner v2.0: perché è realistico</b></summary>
-      <div style="margin-top:10px">
-
-        <p>
-          Il pacing non è calcolato come “ritmo medio”, ma come somma di 
-          <b>micro‑segmenti</b> identici a quelli usati nel Time Estimator v2.0.
-        </p>
-
-        <p>
-          I segmenti vengono aggregati in “chunk” da 5–10 km, ciascuno con:
-        </p>
-
-        <ul>
-          <li>pendenza reale filtrata</li>
-          <li>tecnica locale</li>
-          <li>quota</li>
-          <li>meteo</li>
-          <li>fatica progressiva accumulata</li>
-        </ul>
-
-        <p>
-          Il risultato è un ritmo per tratto estremamente fedele alla dinamica reale di gara.
-        </p>
-
-      </div>
-    </details>
-
-    <!-- ======================================================== -->
-    <!-- 9) FORMULA RIASSUNTIVA -->
-    <!-- ======================================================== -->
-    <details>
-      <summary><b>9) Formula riassuntiva</b></summary>
-      <div style="margin-top:10px">
-
-<pre style="white-space:pre-wrap;">
-Tempo previsto =
-  (Riegel adattivo)
-× (pendenza → velocità locale)
-× (tecnicità nelle salite/discese ripide)
-× (fatica progressiva)
-× (meteo × altitudine)
-× (specificità S)
-
-WDI =
-  (Dist_eff + Dplus_eff + SlopePct) × TecFactor
-
-Pacing Planner =
-  micro-segmenti → aggregazione chunk → tempo cumulato realistico
-</pre>
-
-      </div>
-    </details>
-
-  </div>
-</section>
-
- <!-- PANEL: POSTGARA -->
-<section id="postgara" class="panel">
-  <div class="card">
-
-    <h2>Report Post‑gara</h2>
-    <p>Importa i dati o compila manualmente i campi per generare il report.</p>
-
-    <!-- Import snapshot JSON -->
-    <fieldset>
-      <label>Carica riepilogo (JSON)</label>
-      <input id="postgaraJsonInput" type="file" accept="application/json">
-      <button class="btn" id="btnImportSnapshot">Carica</button>
-    </fieldset>
-
-    <!-- Import traccia GPX/TCX reale -->
-    <fieldset>
-      <label>Carica i dati gara effettivi (GPX)</label>
-      <input id="pg_gpx_file" type="file" accept=".gpx,.tcx,application/gpx+xml">
-      <button class="btn" id="btnPgImportGpx">Carica</button>
-    </fieldset>
-
-    <!-- Dati post-gara -->
-    <fieldset>
-      <legend>Dati gara reali</legend>
-
-      <label>Identificativo gara</label>
-      <input id="pg_idgara" type="text" placeholder="Es: Trail dei Monti 2026">
-
-      <label>Distanza (km)</label>
-      <input id="pg_dist" type="number" step="0.001">
-
-      <label>D+ (m)</label>
-      <input id="pg_dplus" type="number">
-
-      <label>Tempo previsto (hh:mm:ss)</label>
-      <input id="pg_prev" type="text" placeholder="02:45:00">
-
-      <label>Tempo reale (hh:mm:ss)</label>
-      <input id="pg_real" type="text" placeholder="03:12:00">
-
-      <!-- RIMOSSO: Rallentamento in salita -->
-      <!-- RIMOSSO: Altitudine percepita -->
-      <!-- RIMOSSO: α usato in previsione -->
-
-      <label>Soste totali (minuti)</label>
-      <input id="pg_soste" type="number" value="0">
-
-      <label>Tecnicità del terreno percepita</label>
-      <select id="pg_terr">
-        <option value="Strada">Molto semplice</option>
-        <option value="E">Moderata</option>
-        <option value="EE">Impegnativa</option>
-        <option value="EA">Molto difficile</option>
-      </select>
-
-      <label>Meteo percepito</label>
-      <select id="pg_meteo">
-        <option>Mite</option>
-        <option>Fresco</option>
-        <option>Caldo</option>
-        <option>Molto caldo</option>
-      </select>
-
-      <label>Pacing percepito</label>
-      <select id="pg_pacing">
-        <option value="regolare">Regolare</option>
-        <option value="forte">Partito troppo forte</option>
-        <option value="lento">Partito troppo piano</option>
-      </select>
-
-      <label>Note</label>
-      <input id="pg_note" type="text">
-
-    </fieldset>
-
-    <!-- Genera Report -->
-    <button class="btn" id="btnGeneraReport">Genera Report</button>
-
-    <div id="pg_output" style="margin-top:20px;"></div>
-
-    <!-- Download -->
-    <div id="pg_downloads" style="margin-top:20px; display:none;">
-      <button class="btn" id="btnPgJson">Scarica report</button>
-      <p class="mini">
-        I file JSON possono essere aperti con strumenti di lettura testuale.
-        I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.
-      </p>
+  </section>
+
+  <!-- PANEL: FONDAMENTI -->
+  <section id="fond" class="panel">
+    <div class="card">
+      <h2>Fondamenti scientifici e criteri di calcolo</h2>
+      <p>Il modello WizTrail utilizza un approccio integrato: <b>modelli fisiologici moderni</b>, <b>analisi energetica della pendenza</b>, <b>effetti ambientali</b> e una <b>lettura segmentata del GPX</b> con filtri anti-rumore.</p>
+      <details>
+        <summary><b>1) Predizione su distanza: Riegel adattivo</b></summary>
+        <div style="margin-top:10px">
+          <p>WizTrail usa un <b>Riegel adattivo</b> con esponente variabile in base alla distanza, che simula la crescente fatica aerobica.</p>
+          <pre>T₂ = T₁ × (D₂ / D₁)^b</pre>
+        </div>
+      </details>
+      <details>
+        <summary><b>2) Pendenza → velocità: salite, discese, fisiologia reale</b></summary>
+        <div style="margin-top:10px">
+          <ul>
+            <li><b>Salita</b>: il passo rallenta in modo non lineare (fino a 2–3×)</li>
+            <li><b>Discesa</b>: moderatamente più veloce fino a ~10%, poi rallenta</li>
+            <li><b>Discesa ripida</b>: oltre il 15% la velocità cala sensibilmente</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary><b>3) Fatica progressiva</b></summary>
+        <div style="margin-top:10px">
+          <pre>fatigue = 1 + (t_ore / 12)^1.3</pre>
+          <ul>
+            <li>gare brevi → fatica quasi nulla</li>
+            <li>gare medie (4–6h) → impatto moderato</li>
+            <li>ultra 10–15h → +15–25%</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary><b>4) WDI — WizTrail Difficulty Index v5.0</b></summary>
+        <div style="margin-top:10px">
+          <pre>WDI = (VolumeScore + TechScore × 0.35) × DistFactor × AltFactor</pre>
+          <pre>Sport&lt;14 | Pro&lt;30 | Advanced&lt;55 | Extreme&lt;105 | Elite&lt;165 | Legend</pre>
+          <p>TechScore (0–100): Facile / Moderato / Tecnico / Molto tecnico / Alpinistico / Estremo</p>
+        </div>
+      </details>
     </div>
+  </section>
 
-  </div>
-</section>
+  <!-- PANEL: POST-GARA -->
+  <section id="postgara" class="panel">
+    <div class="card">
+      <h2>Report Post‑gara</h2>
+      <p>Importa i dati o compila manualmente i campi per generare il report.</p>
+      <fieldset>
+        <label>Carica riepilogo (JSON)</label>
+        <input id="postgaraJsonInput" type="file" accept="application/json">
+        <button class="btn" id="btnImportSnapshot">Carica</button>
+      </fieldset>
+      <fieldset>
+        <label>Carica i dati gara effettivi (GPX)</label>
+        <input id="pg_gpx_file" type="file" accept=".gpx,.tcx,application/gpx+xml">
+        <button class="btn" id="btnPgImportGpx">Carica</button>
+      </fieldset>
+      <fieldset>
+        <legend>Dati gara reali</legend>
+        <label>Identificativo gara</label>
+        <input id="pg_idgara" type="text" placeholder="Es: Trail dei Monti 2026">
+        <label>Distanza (km)</label>
+        <input id="pg_dist" type="number" step="0.001">
+        <label>D+ (m)</label>
+        <input id="pg_dplus" type="number">
+        <label>Tempo previsto (hh:mm:ss)</label>
+        <input id="pg_prev" type="text" placeholder="02:45:00">
+        <label>Tempo reale (hh:mm:ss)</label>
+        <input id="pg_real" type="text" placeholder="03:12:00">
+        <label>Soste totali (minuti)</label>
+        <input id="pg_soste" type="number" value="0">
+        <label>Tecnicità del terreno percepita</label>
+        <select id="pg_terr">
+          <option value="Strada">Molto semplice</option>
+          <option value="E">Moderata</option>
+          <option value="EE">Impegnativa</option>
+          <option value="EA">Molto difficile</option>
+        </select>
+        <label>Meteo percepito</label>
+        <select id="pg_meteo">
+          <option>Mite</option><option>Fresco</option>
+          <option>Caldo</option><option>Molto caldo</option>
+        </select>
+        <label>Pacing percepito</label>
+        <select id="pg_pacing">
+          <option value="regolare">Regolare</option>
+          <option value="forte">Partito troppo forte</option>
+          <option value="lento">Partito troppo piano</option>
+        </select>
+        <label>Note</label>
+        <input id="pg_note" type="text">
+      </fieldset>
+      <button class="btn" id="btnGeneraReport">Genera Report</button>
+      <div id="pg_output" style="margin-top:20px;"></div>
+      <div id="pg_downloads" style="margin-top:20px; display:none;">
+        <button class="btn" id="btnPgJson">Scarica report</button>
+        <p class="mini">I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
+      </div>
+    </div>
+  </section>
 
-<!-- PANEL: LIC -->
-<section id="lic" class="panel">
-  <div class="card">
-    <h2>Licenze &amp; Policy</h2>
+  <!-- PANEL: LICENZE -->
+  <section id="lic" class="panel">
+    <div class="card">
+      <h2>Licenze &amp; Policy</h2>
+      <p>WizTrail utilizza esclusivamente tecnologie open‑source. Nessun dato dell'utente viene inviato a server esterni: tutto avviene in locale.</p>
+      <ul>
+        <li><b>Leaflet</b> — libreria open‑source per mappe interattive (BSD License). <span class="mini">© Leaflet contributors</span></li>
+        <li><b>Carto Basemaps</b> — mappa 2D dark/light. <span class="mini">© CartoDB — CC-BY 4.0</span></li>
+        <li><b>OpenTopoMap</b> — overlay topografico. <span class="mini">© OpenTopoMap (CC-BY-SA)</span></li>
+        <li><b>OpenStreetMap</b> — dati cartografici. <span class="mini">© OpenStreetMap contributors (ODbL 1.0)</span></li>
+        <li><b>WizTrail WDI</b> — indice proprietario. <span class="mini">© WizTrail — all rights reserved</span></li>
+      </ul>
+    </div>
+  </section>
 
+  <div class="footer">WizTrail © 2026
     <p>
-      WizTrail utilizza esclusivamente tecnologie open‑source e servizi cartografici
-      che rispettano le policy di utilizzo e attribuzione dei rispettivi provider.
-      Nessun dato dell’utente viene inviato a server esterni: tutto avviene in locale.
+      <a href="https://www.youtube.com/@WizTrail" target="_blank" rel="noopener"
+         style="color:var(--accent); font-weight:600;">📺 Visita il mio canale YouTube</a>
     </p>
-
-    <ul>
-
-      <li>
-        <b>Leaflet</b> — 
-        libreria open‑source per mappe interattive (BSD License).  
-        <br>
-        <span class="mini">© Leaflet contributors</span>
-      </li>
-
-      <li>
-        <b>Carto Basemaps (DarkMatter / Light)</b> —  
-        utilizzati per la mappa 2D in modalità chiara/scura.  
-        <br>
-        <span class="mini">© CartoDB — Licensed under CC-BY 4.0</span>
-      </li>
-
-      <li>
-        <b>OpenTopoMap</b> —  
-        utilizzata come overlay topografico (curve di livello, morfologia).  
-        <br>
-        <span class="mini">© OpenTopoMap (CC-BY-SA), dati © OpenStreetMap contributors</span>
-      </li>
-
-      <li>
-        <b>Dati OpenStreetMap</b> —  
-        utilizzati indirettamente tramite provider conformi alla  
-        <a href="https://wiki.openstreetmap.org/wiki/Tile_usage_policy" target="_blank">
-          Tile Usage Policy
-        </a>.  
-        <br>
-        <span class="mini">© OpenStreetMap contributors (ODbL 1.0)</span>
-      </li>
-
-      <li>
-        <b>WizTrail RaceScore WDI</b> —  
-        indice proprietario WizTrail (WizTrail Difficulty Index),  
-        basato su analisi multi‑fattore di distanza, verticalità, tecnicità,
-        morfologia e ripidità massima.
-        <br>
-        <span class="mini">© WizTrail — all rights reserved</span>
-      </li>
-
-      <li>
-        <b>Algoritmi locali</b> —  
-        il calcolo della performance, del pacing e del post‑gara avviene  
-        interamente sul dispositivo dell’utente, senza comunicazione esterna.
-      </li>
-
-    </ul>
-
   </div>
-</section>
-
-  <div class="footer">WizTrail © 2026 
-<p>
-      <a href="https://www.youtube.com/@WizTrail" target="_blank" rel="noopener" style="color:var(--accent); font-weight:600;">
-        📺 Visita il mio canale YouTube
-      </a>
-    </p>
-</div>
-</div> <!-- /wrap -->
-<!-- ===========================
-     SCRIPT APP
-=========================== -->
-<script>
-function wdiLabel(cls){
-  switch(cls){
-    case "Sport": return "Sport";
-    case "Pro": return "Pro";
-    case "Advanced": return "Advanced";
-    case "Extreme": return "Extreme";
-    case "Elite": return "Elite";
-    case "Legend": return "Legend";
-  }
-  return cls;
-}
-</script>
-<script>
-/* THEME */
-document.getElementById("themeSel").addEventListener("change", e => {
-  document.body.setAttribute("data-theme", e.target.value);
-});
-
-/* TABS */
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
-
-    /* MAPPA */
-  if (btn.dataset.tab === "map2d") {
-  initLeaflet();
-
-  setTimeout(() => {
-    // ridisegna la traccia DOPO la creazione della mappa
-    if (typeof drawTrack === "function") drawTrack();
-
-    // ridisegna profilo (ok)
-    if (typeof drawProfile === "function") drawProfile();
-
-    fitTrack();
-  }, 120);
-}
-
-    /* [AGGIUNTA AVVISO PACING] */
-    if (btn.dataset.tab === "pacing") {
-      const warn = document.getElementById("pc_warning");
-
-      // Se la traccia NON è stata caricata nel tab Calcolatore
-      if (!gpxPts || !gpxPts.length) {
-        warn.style.display = "block";
-      } else {
-        warn.style.display = "none";
-      }
-    }
-    /* FINE AGGIUNTA */
-  });
-});
-
-/* HAVERSINE */
-function hav(a,b,c,d){
-  const R = 6371000;
-  const t = Math.PI/180;
-  const dLat = (c-a)*t;
-  const dLon = (d-b)*t;
-  const k = Math.sin(dLat/2)**2 +
-            Math.cos(a*t)*Math.cos(c*t)*Math.sin(dLon/2)**2;
-  return 2 * R * Math.asin(Math.sqrt(k));
-}
-
-/* PARSE GPX / TCX */
-function parseTrack(xml){
-  const pts=[];
-  const g=xml.getElementsByTagName("trkpt");
-  if(g.length){
-    [...g].forEach(n=>{
-      const la=parseFloat(n.getAttribute("lat"));
-      const lo=parseFloat(n.getAttribute("lon"));
-      const e=n.getElementsByTagName("ele")[0];
-      pts.push([la,lo,e ? parseFloat(e.textContent) : 0]);
-    });
-    return pts;
-  }
-  const t=xml.getElementsByTagName("Trackpoint");
-  [...t].forEach(n=>{
-    const p=n.getElementsByTagName("Position")[0];
-    if(!p)return;
-    const la=p.getElementsByTagName("LatitudeDegrees")[0];
-    const lo=p.getElementsByTagName("LongitudeDegrees")[0];
-    const el=n.getElementsByTagName("AltitudeMeters")[0];
-    pts.push([
-      la ? parseFloat(la.textContent) : 0,
-      lo ? parseFloat(lo.textContent) : 0,
-      el ? parseFloat(el.textContent) : 0
-    ]);
-  });
-  return pts;
-}
-
-/* COMPUTE METRICS */
-function compute(pts){
-  if(pts.length<2) return {km:0,gain:0,e:[],d:[]};
-  const elev = pts.map(p => p[2]);
-  const d = [0];
-  let dist=0, gain=0;
-  for(let i=1; i<pts.length; i++){
-    const dd = hav(pts[i-1][0], pts[i-1][1], pts[i][0], pts[i][1]);
-    if(dd < 300) dist += dd;
-    d[i] = dist;
-    const de = elev[i] - elev[i-1];
-    if(de > 1) gain += de;
-  }
-  return { km: dist/1000, gain, e: elev, d };
-}
-
-/* GLOBAL STATE */
-let gpxPts = [];
-let metrics = {e:[], d:[]};
-let currentWDI = null;  
-let lastRS = null;  
-
-/* LOAD GPX (solo nel tab Calcolatore) */
-document.getElementById("gpxfile").addEventListener("change", async e => {
-  const f = e.target.files[0];
-  if(!f) return;
-
-  const txt = await f.text();
-  const xml = new DOMParser().parseFromString(txt,"application/xml");
-
-  gpxPts = parseTrack(xml);
-  metrics = compute(gpxPts);
-
-  document.getElementById("dist").value = metrics.km.toFixed(3);
-  document.getElementById("dplus").value = metrics.gain;
-  document.getElementById("gpxInfo").textContent =
-    `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km, D+: ${metrics.gain} m`;
-
-  drawTrack();
-  drawProfile && drawProfile();
-});
-
-/* ============================================================
-   A) FILTRI GPS ANTIRUMORE
-   ============================================================ */
-
-// Smooth altimetry (moving average)
-function smoothElevation(elev, windowSize = 5) {
-  const smoothed = [];
-  const w = Math.floor(windowSize / 2);
-  for (let i = 0; i < elev.length; i++) {
-    let sum = 0, count = 0;
-    for (let k = -w; k <= w; k++) {
-      const idx = i + k;
-      if (idx >= 0 && idx < elev.length) {
-        sum += elev[idx];
-        count++;
-      }
-    }
-    smoothed.push(sum / count);
-  }
-  return smoothed;
-}
-
-// Limit extreme slope jumps (anti-GPS spikes)
-function clampSlope(dh, dd, maxSlope = 0.35) {
-  const rawSlope = dh / dd;
-  if (Math.abs(rawSlope) > maxSlope) {
-    return Math.sign(rawSlope) * maxSlope;
-  }
-  return rawSlope;
-}
-
-/* ============================================================
-   B) COSTRUZIONE SEGMENTI (50–100 m)
-   ============================================================ */
-
-function computeSegments(pts, dist, elev, segLength = 80) {
-
-  const segments = [];
-  let accDist = 0;
-  let lastIndex = 0;
-
-  for (let i = 1; i < pts.length; i++) {
-    const d = dist[i] - dist[lastIndex];
-
-    if (d >= segLength) {
-      const dh = elev[i] - elev[lastIndex];
-      const dd = d;
-
-      // pendenza filtrata anti-rumore
-      const p = clampSlope(dh, dd);
-
-      segments.push({
-        dist: dd,        // distanza del segmento in metri
-        dh: dh,          // dislivello reale del segmento
-        slope: p,        // pendenza filtrata
-        idxStart: lastIndex,
-        idxEnd: i
-      });
-
-      lastIndex = i;
-    }
-  }
-
-  return segments;
-}
-
-/* ============================================================
-   C) pendenza → velocità locale (con Specificità S)
-   ============================================================ */
-
-function velocityFromSlope(p, S, velBase) {
-
-  // Pianura: restituisce velBase
-  if (Math.abs(p) < 0.015) {
-    return velBase;
-  }
-
-  // SALITA
-  if (p > 0) {
-    let fatt = 1 + 3.5 * p;
-    fatt *= (1 + (1 - S)); 
-    if (fatt > 2.0) fatt = 2.0;
-    return velBase / fatt;
-  }
-
-  // DISCESA
-  if (p < 0 && p > -0.10) {
-    let fatt = 1 - 0.5 * Math.abs(p);
-    if (fatt < 0.85) fatt = 0.85;
-    return velBase / fatt;
-  }
-
-  // DISCESA RIPIDA
-  if (p <= -0.10) {
-    let fatt = 1 + Math.abs(p);
-    return velBase / fatt;
-  }
-}
-
-/* ============================================================
-   D) Penalità tecnica E / EE / EA
-   ============================================================ */
-
-function technicalPenalty(slope, terrainClass) {
-  // Classe tecnica definita dall’utente (E/EE/EA)
-  // Applichiamo penalità solo in salita ripida e discesa ripida
-
-  if (terrainClass === "E") return 0; // quasi nulla
-  if (terrainClass === "EE") {
-    if (slope > 0.08 || slope < -0.10) return 0.12; // +12%
-  }
-  if (terrainClass === "EA") {
-    if (slope > 0.08 || slope < -0.10) return 0.28; // +28%
-  }
-
-  return 0;
-}
-
-/* ============================================================
-   E) Fatica dinamica (in base al tempo reale accumulato)
-   ============================================================ */
-
-function fatigueFactor(t_hours) {
-  return 1 + Math.pow(t_hours / 12, 1.3);
-}
-
-/* LEAFLET */
-let map=null, poly=null, hoverMarker=null;
-
-function initLeaflet(){
-  if(map) return;
-  map = L.map("leafletMap");
- // BASE: Dark Matter (sfondo scuro)
-const darkBase = L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", 
-  {
-    subdomains: "abcd",
-    maxZoom: 19,
-    attribution: "© OpenStreetMap, © CartoDB"
-  }
-);
-
-// OVERLAY: Curve di livello + dettagli topo
-const topoOverlay = L.tileLayer(
-  "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-  {
-    maxZoom: 17,
-    opacity: 0.35,        // 🔥 così il layer sembra dark-topo
-    attribution: "© OpenTopoMap (CC-BY-SA)"
-  }
-);
-
-// AGGIUNGI ALLA MAPPA
-L.layerGroup([darkBase, topoOverlay]).addTo(map);
-
-  hoverMarker = L.circleMarker([0,0],{
-    radius:6,
-    color:"#ff0",
-    fillColor:"#ff0"
-  });
-
-  map.setView([46.5,8.3],5);
-}
-
-function drawTrack(){
-  if(!map || !gpxPts.length) return;
-  if(poly) map.removeLayer(poly);
-  poly = L.polyline(gpxPts.map(p => [p[0], p[1]]),{
-    color: getColorWDI(currentWDI),
-    weight:4
-  }).addTo(map);
-  fitTrack();
-}
-
-function fitTrack(){
-  if(poly) map.fitBounds(poly.getBounds(), {padding:[20,20]});
-}
-
-document.getElementById("btnFit").onclick = fitTrack;
-
-
-/* KML */
-document.getElementById("btnKml").onclick = () => {
-  if(!gpxPts.length){
-    alert("Carica prima un GPX");
-    return;
-  }
-  const coords = gpxPts.map(p => `${p[1]},${p[0]},${p[2]}`).join(" ");
-  const kml = `<?xml version="1.0"?>
-<kml xmlns="http://www.opengis.net/kml/2.2"><Document>
-<Placemark><name>Percorso</name>
-<LineString><coordinates>${coords}</coordinates></LineString>
-</Placemark></Document></kml>`;
-  const blob = new Blob([kml], {type:"application/vnd.google-earth.kml+xml"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "wiztrail.kml";
-  a.click();
-};
-
-
-/* CALCOLO TEMPO */
-const readNum = id => parseFloat(
-  document.getElementById(id).value.replace(",",".")
-) || 0;
-
-/* ============================================================
-   F) TIME ESTIMATOR v2.0 — pipeline completa
-   ============================================================ */
-
-document.getElementById("calcBtn").onclick = () => {
-
-  const msg = document.getElementById("msg");
-  msg.textContent = "";
-
-  // === Input atleta ===
-  const t10 = document.getElementById("t10k").value;
-  if(!/^[0-9]+:[0-5][0-9]$/.test(t10)){
-    msg.textContent = "Formato 10K non valido";
-    return;
-  }
-  const m10 = parseInt(t10.split(":")[0]) + parseInt(t10.split(":")[1]) / 60;
-  const paceBase = m10 / 10;    // min/km
-  const velBase = 60 / paceBase; // km/h
-  const velBase_ms = velBase * 1000 / 3600;
-
-  // === Input corsa (tecnica, condizioni) ===
- const terrainClass = document.getElementById("terrain").value;
-
-  const S = readNum("spec"); // specificità
-  const meteo = readNum("meteo");
-  const alt = readNum("alt");
-  const margin = readNum("margin")/100;
-
-  // === GPX necessario ===
-  if (!gpxPts || !gpxPts.length) {
-    msg.textContent = "Carica un GPX per usare il modello v2.0";
-    return;
-  }
-
-  // === computeMetrics ===
-  const m = compute(gpxPts);
-
-  // === smoothing altimetrico ===
-  const elev_s = smoothElevation(m.e);
-
-  // === costruiamo segmenti ===
-  const segments = computeSegments(gpxPts, m.d, elev_s);
-
-  // === loop segmento per segmento ===
-  let T = 0; // tempo totale in secondi
-
-  segments.forEach(seg => {
-
-    const p = seg.slope; 
-    const dist_m = seg.dist;
-
-    // velocità locale in base alla pendenza e specificità
-    const velLocal = velocityFromSlope(p, S, velBase);
-
-    // penalità tecnica
-    const tech = technicalPenalty(p, terrainClass);
-
-    const velTech = velLocal / (1 + tech);
-
-    // tempo grezzo segmento
-    let t_raw = dist_m / (velTech * 1000/3600);
-
-    // fatica dinamica
-    const t_hours = T / 3600;
-    const fat = fatigueFactor(t_hours);
-
-    const t_final = t_raw * fat;
-
-    T += t_final;
-  });
-
-  // === fattori finali meteo / altitudine ===
-  const T_hours = T / 3600;
-  const meteoFactor = 1 + (meteo - 1) * (T_hours / 5);
-  const altFactor   = alt;
-
-  T *= meteoFactor;
-  T *= altFactor;
-
-const rs = WizTrailWDI.computeFromGpx(gpxPts, metrics);
-currentWDI = rs.WDI;
-lastRS = rs;
-document.getElementById("outRaceScore").textContent = rs.WDI.toFixed(1);
-document.getElementById("outRaceScore").style.color = rs.color;
-
-document.getElementById("outRaceScoreSub").innerHTML = `
-  <div style="
-    display:inline-block;
-    padding:4px 10px;
-    border-radius:12px;
-    font-weight:700;
-    color:#021;
-    background:${rs.color};
-    margin-bottom:8px;
-    ">
-    ${wdiLabel(rs.class)}
-  </div>
-  <br><br>
-  <span class="mini">
-  Difficoltà stimata con WizTrail WDI v9.1
-  </span>
-`;
-
-  // Output finale
-  const fmt = t => {
-    const s = Math.round(t);
-    const h = Math.floor(s/3600);
-    const m = Math.floor((s%3600)/60);
-    const se= s%60;
-    return `${h}:${String(m).padStart(2,"0")}:${String(se).padStart(2,"0")}`;
-  };
-
-  document.getElementById("outFinal").textContent = fmt(T);
-  document.getElementById("outLow").textContent   = fmt(T*(1-margin));
-  document.getElementById("outHigh").textContent  = fmt(T*(1+margin));
-  msg.textContent = "OK";
-};
-
-
-function getColorWDI(wdi){
-  if(wdi < 30)  return "#2BB7DA";
-  if(wdi < 75)  return "#34A853";
-  if(wdi < 120) return "#F4C20D";
-  if(wdi < 180) return "#F79617";
-  if(wdi < 350) return "#E91E63";
-  return "#8E24AA";
-}
-
-/* RESET */
-document.getElementById("resetBtn").onclick = () => location.reload();
-</script>
-<!-- ===== Banner iOS PWA (solo Safari iPhone/iPad) ===== -->
-<div id="installIos" class="install-ios" role="dialog" aria-live="polite" aria-label="Suggerimento installazione app su iPhone">
+</div><!-- /wrap -->
+
+<!-- Banner iOS PWA -->
+<div id="installIos" class="install-ios" role="dialog" aria-live="polite"
+     aria-label="Suggerimento installazione app su iPhone" style="display:none;">
   <div class="install-ios__inner">
-    <img class="install-ios__icon" src="/WizTrail/icons/icon-192.png" alt="" aria-hidden="true">
+    <img class="install-ios__icon" src="/WizTrail/icons/logo-192.png" alt="" aria-hidden="true">
     <div>
       <p class="install-ios__title">Installa WizTrail su iPhone</p>
       <p class="install-ios__text">
         Apri il menu
         <span class="install-ios__share" aria-label="Pulsante Condividi di Safari">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l4 4h-3v6h-2V7H8l4-4zm-7 9h2v7h10v-7h2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3l4 4h-3v6h-2V7H8l4-4zm-7 9h2v7h10v-7h2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7z"/>
+          </svg>
           Condividi
         </span>
         e scegli <b>Aggiungi a Home</b>.
@@ -1524,388 +542,27 @@ document.getElementById("resetBtn").onclick = () => location.reload();
   </div>
 </div>
 
-<!-- Service Worker (GitHub Pages in /WizTrail/) -->
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/WizTrail/service-worker.js");
-  }
-</script>
-<script>
-(function () {
-  const STORAGE_KEY = "wiztrail_ios_banner_closed_v1";
+<!-- ===========================
+     SCRIPT — ordine di caricamento
+     1. Engine già separati (non modificati)
+     2. Nuovi moduli Fase 1
+     3. main.js — entry point
+=========================== -->
 
-  // Evita se già chiuso
-  if (localStorage.getItem(STORAGE_KEY) === "1") return;
-
-  // iOS detection
-  const ua = window.navigator.userAgent || "";
-  const isIOS = /iP(hone|od|ad)/i.test(ua);
-
-  // Safari-only (escludi Chrome/Firefox/Opera/Samsung su iOS)
-  const isWebkit = /WebKit/i.test(ua);
-  const isCriOS = /CriOS/i.test(ua);
-  const isFxiOS = /FxiOS/i.test(ua);
-  const isOpera = /OPiOS/i.test(ua);
-  const isSamsung = /SamsungBrowser/i.test(ua);
-  const isSafari = isIOS && isWebkit && !isCriOS && !isFxiOS && !isOpera && !isSamsung;
-
-  // Già “Aggiunta a Home” (standalone)?
-  const isStandalone = (window.navigator.standalone === true) ||
-                       (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
-
-  if (isSafari && !isStandalone) {
-    const el = document.getElementById("installIos");
-    const closeBtn = document.getElementById("installIosClose");
-    if (el && closeBtn) {
-      el.style.display = "block";
-      closeBtn.addEventListener("click", () => {
-        el.style.display = "none";
-        localStorage.setItem(STORAGE_KEY, "1");
-      }, { once: true });
-    }
-  }
-})();
-</script>
-<script src="wiztrail-report.js"></script>
-<script>
-/* ====== PROFILO ALTIMETRICO (Canvas) ====== */
-/* Dipendenze: gpxPts, metrics (compute), map, hoverMarker */
-let elevCanvas = null, elevCtx = null;
-let elevState = {
-  pxW: 0, pxH: 0,
-  dpi: Math.max(1, window.devicePixelRatio || 1),
-  padding: { top: 16, right: 14, bottom: 26, left: 42 },
-  x: [],   // x pixel per ciascun punto
-  y: [],   // y pixel per ciascun punto
-  min: 0,  // quota minima
-  max: 0,  // quota massima
-  distKm: [] // distanza cumulata (km) per punto
-};
-
-function _setupCanvasSize() {
-  elevCanvas = document.getElementById('elevCanvas');
-  if (!elevCanvas) return false;
-  const cssW = elevCanvas.clientWidth || elevCanvas.offsetWidth || 600;
-  const cssH = elevCanvas.clientHeight || 160;
-  elevState.dpi = Math.max(1, window.devicePixelRatio || 1);
-  elevCanvas.width  = Math.round(cssW * elevState.dpi);
-  elevCanvas.height = Math.round(cssH * elevState.dpi);
-  elevCtx = elevCanvas.getContext('2d');
-  elevCtx.setTransform(elevState.dpi, 0, 0, elevState.dpi, 0, 0); // unità = CSS px
-  elevState.pxW = cssW;
-  elevState.pxH = cssH;
-  return true;
-}
-
-function _formatKm(x) { return x.toFixed(2).replace('.', ','); }
-function _formatM(x)  { return Math.round(x) + ' m'; }
-
-/* Costruisce coordinate schermo da metrics/gpxPts */
-function _computeProfileCoords() {
-  if (!metrics || !metrics.e || !metrics.d || !metrics.e.length || !metrics.d.length) return false;
-
-  // Serie
-  const elev = metrics.e;     // array elevazioni (m)
-  const dist = metrics.d;     // array distanza cumulata (metri)
-  const n = elev.length;
-  if (n < 2) return false;
-
-  const pad = elevState.padding;
-  const W = elevState.pxW - pad.left - pad.right;
-  const H = elevState.pxH - pad.top  - pad.bottom;
-
-  // Range verticale con piccolo margine (5%)
-  let minE = Math.min(...elev.filter(Number.isFinite));
-  let maxE = Math.max(...elev.filter(Number.isFinite));
-  if (!Number.isFinite(minE) || !Number.isFinite(maxE) || minE === maxE) {
-    minE = (minE || 0) - 1; maxE = (maxE || 0) + 1;
-  }
-  const margin = (maxE - minE) * 0.05;
-  minE -= margin; maxE += margin;
-
-  const totalM = dist[dist.length - 1] || 0.0001;
-
-  elevState.x = new Array(n);
-  elevState.y = new Array(n);
-  elevState.min = minE;
-  elevState.max = maxE;
-  elevState.distKm = dist.map(m => m / 1000);
-
-  for (let i = 0; i < n; i++) {
-    const fx = (dist[i] / totalM);
-    const fy = (elev[i] - minE) / (maxE - minE);
-    elevState.x[i] = pad.left + fx * W;
-    elevState.y[i] = pad.top  + (1 - fy) * H;
-  }
-  return true;
-}
-
-/* Grid e assi */
-function _drawAxes() {
-  const ctx = elevCtx, pad = elevState.padding;
-  const W = elevState.pxW, H = elevState.pxH;
-  ctx.clearRect(0, 0, W, H);
-
-  // Fondo
-  ctx.fillStyle = 'rgba(255,255,255,0.03)';
-  ctx.fillRect(0, 0, W, H);
-
-  // Assi e griglia
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.lineWidth = 1;
-
-  // Orizzontali (quota) — 4 tacche
-  const lines = 4;
-  for (let i = 0; i <= lines; i++) {
-    const y = pad.top + (i / lines) * (H - pad.top - pad.bottom);
-    ctx.beginPath();
-    ctx.moveTo(pad.left, y);
-    ctx.lineTo(W - pad.right, y);
-    ctx.stroke();
-  }
-
-  // Verticali (distanza) — 5 tacche
-  const vLines = 5;
-  for (let i = 0; i <= vLines; i++) {
-    const x = pad.left + (i / vLines) * (W - pad.left - pad.right);
-    ctx.beginPath();
-    ctx.moveTo(x, pad.top);
-    ctx.lineTo(x, H - pad.bottom);
-    ctx.stroke();
-  }
-
-  // Etichette min/max quota
-  ctx.fillStyle = 'rgba(232,242,255,0.85)';
-  ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.fillText(_formatM(elevState.max), 6, 6);
-  ctx.textBaseline = 'bottom';
-  ctx.fillText(_formatM(elevState.min), 6, H - 6);
-
-  // Etichetta distanza totale
-  const totKm = elevState.distKm[elevState.distKm.length - 1] || 0;
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText(`${_formatKm(totKm)} km`, W - 6, H - 6);
-}
-
-/* Traccia profilo con fill gradiente */
-function _drawProfileLine() {
-  const ctx = elevCtx, pad = elevState.padding;
-  const xs = elevState.x, ys = elevState.y;
-  if (!xs.length) return;
-
-  // Area riempita
-  const baseY = elevState.pxH - pad.bottom;
-
-  const grad = ctx.createLinearGradient(0, pad.top, 0, baseY);
-  grad.addColorStop(0, 'rgba(79, 209, 197, 0.25)'); // #4fd1c5
-  grad.addColorStop(1, 'rgba(14, 165, 233, 0.08)'); // #0ea5e9
-
-  ctx.beginPath();
-  ctx.moveTo(xs[0], baseY);
-  for (let i = 0; i < xs.length; i++) ctx.lineTo(xs[i], ys[i]);
-  ctx.lineTo(xs[xs.length - 1], baseY);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // Linea profilo
-  ctx.beginPath();
-  ctx.moveTo(xs[0], ys[0]);
-  for (let i = 1; i < xs.length; i++) ctx.lineTo(xs[i], ys[i]);
-  ctx.strokeStyle = '#4fd1c5';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
-
-/* Hover + sincronizzazione mappa */
-function _attachProfileEvents() {
-  if (!elevCanvas) return;
-  const pad = elevState.padding;
-  const xs = elevState.x, ys = elevState.y;
-  const n  = xs.length;
-
-  const tip = document.createElement('div');
-  tip.style.position = 'absolute';
-  tip.style.pointerEvents = 'none';
-  tip.style.padding = '4px 6px';
-  tip.style.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  tip.style.background = 'rgba(0,0,0,0.65)';
-  tip.style.color = '#e8f2ff';
-  tip.style.border = '1px solid rgba(255,255,255,0.15)';
-  tip.style.borderRadius = '6px';
-  tip.style.transform = 'translate(-50%,-120%)';
-  tip.style.display = 'none';
-  // container pos relativo
-  elevCanvas.parentElement.style.position = elevCanvas.parentElement.style.position || 'relative';
-  elevCanvas.parentElement.appendChild(tip);
-
-  function indexFromClientX(clientX) {
-    const rect = elevCanvas.getBoundingClientRect();
-    const x = (clientX - rect.left); // in CSS px
-    // ricerca binaria “povera”
-    let lo = 0, hi = n - 1;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (xs[mid] < x) lo = mid + 1;
-      else hi = mid;
-    }
-    const i = Math.max(0, Math.min(n - 1, lo));
-    // scegli tra i e i-1 quello più vicino
-    if (i > 0 && Math.abs(xs[i - 1] - x) < Math.abs(xs[i] - x)) return i - 1;
-    return i;
-  }
-
-  function drawHover(i) {
-    const ctx = elevCtx;
-    // ridisegna base
-    _drawAxes(); _drawProfileLine();
-
-    // linea verticale + punto
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(xs[i], pad.top); ctx.lineTo(xs[i], elevState.pxH - pad.bottom); ctx.stroke();
-    ctx.fillStyle = '#ffb020';
-    ctx.beginPath(); ctx.arc(xs[i], ys[i], 3, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-
-    // tooltip
-    const km = elevState.distKm[i] || 0;
-    const m  = metrics.e[i] || 0;
-    tip.textContent = `${_formatKm(km)} km • ${_formatM(m)}`;
-    tip.style.left = `${xs[i]}px`;
-    tip.style.top  = `${ys[i]}px`;
-    tip.style.display = 'block';
-  }
-
-  function syncMap(i) {
-    if (!map || !hoverMarker || !gpxPts || !gpxPts[i]) return;
-    const p = gpxPts[i];
-    hoverMarker.setLatLng([p[0], p[1]]).addTo(map);
-  }
-
-  function handleMove(clientX) {
-    if (!n) return;
-    const i = indexFromClientX(clientX);
-    drawHover(i);
-    syncMap(i);
-  }
-
-  function leave() {
-    tip.style.display = 'none';
-    _drawAxes(); _drawProfileLine();
-  }
-
-  // Mouse
-  elevCanvas.addEventListener('mousemove', (e) => handleMove(e.clientX));
-  elevCanvas.addEventListener('mouseleave', leave);
-
-  // Touch
-  elevCanvas.addEventListener('touchstart', (e) => {
-    if (!e.touches || !e.touches.length) return;
-    handleMove(e.touches[0].clientX);
-  }, {passive: true});
-  elevCanvas.addEventListener('touchmove', (e) => {
-    if (!e.touches || !e.touches.length) return;
-    handleMove(e.touches[0].clientX);
-  }, {passive: true});
-  elevCanvas.addEventListener('touchend', leave);
-
-  // Resize
-  window.addEventListener('resize', () => { drawProfile(); }, { passive: true });
-}
-
-/* API pubblica */
-function drawProfile() {
-  if (!gpxPts || gpxPts.length < 2) {
-    const c = document.getElementById('elevCanvas');
-    if (c) {
-      _setupCanvasSize();
-      elevCtx.clearRect(0, 0, elevState.pxW, elevState.pxH);
-      elevCtx.fillStyle = 'rgba(232,242,255,0.7)';
-      elevCtx.font = '13px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-      elevCtx.fillText('Carica una traccia GPX/TCX per vedere il profilo.', 12, 24);
-    }
-    return;
-  }
-  if (!_setupCanvasSize()) return;
-  if (!_computeProfileCoords()) return;
-  _drawAxes();
-  _drawProfileLine();
-  _attachProfileEvents();
-}
-</script>
-
-
-<script src="wiztrail-racescore.js?v=20260318"></script>
-
-<script>
-// Obsoleto — rimosso nella versione WDI v9.1
-function renderRaceScoreCard(){ return; }
-</script>
-
+<!-- Engine esistenti (invariati) -->
+<script src="wiztrail-engine.js?v=20260401"></script>
+<!-- wiztrail-osm.js viene caricato dinamicamente da main.js solo su richiesta utente -->
 <script src="wiztrail-pacing.js?v=20260320"></script>
-<script>
-document.getElementById("btnFotoJson")?.addEventListener("click", () => {
-
-  // sicurezza: servono tempo finale + RS + parametri
-  const T_final = document.getElementById("outFinal")?.textContent || null;
-  const T_low   = document.getElementById("outLow")?.textContent   || null;
-  const T_high  = document.getElementById("outHigh")?.textContent  || null;
-  const RS      = document.getElementById("outRaceScore")?.textContent || null;
-
-  // costruzione oggetto JSON
-  const snapshot = {
-    timestamp: new Date().toISOString(),
-    distance_km:  document.getElementById("dist").value,
-    d_plus_m:     document.getElementById("dplus").value,
-    t10k:         document.getElementById("t10k").value,
-    terreno: {
-      strada: document.getElementById("p_strada").value,
-      e:      document.getElementById("p_e").value,
-      ee:     document.getElementById("p_ee").value,
-      ea:     document.getElementById("p_ea").value
-    },
-    rallentamenti: {
-      e:  document.getElementById("c_e").value,
-      ee: document.getElementById("c_ee").value,
-      ea: document.getElementById("c_ea").value
-    },
-    condizioni: {
-      meteo:   document.getElementById("meteo").value,
-      alt:     document.getElementById("alt").value,
-      fatica:  document.getElementById("fatica").value,
-      spec:    document.getElementById("spec").value,
-      margin:  document.getElementById("margin").value
-    },
-    risultato: {
-      tempo_finale: T_final,
-      low:          T_low,
-      high:         T_high,
-     RaceScore: lastRS ? lastRS.WDI.toFixed(1) : null,
-WDI_class: lastRS ? lastRS.class : null,
-WDI_color: lastRS ? lastRS.color : null,
-    }
-  };
-
-  // conversione in file .json
-  const blob = new Blob([JSON.stringify(snapshot, null, 2)], {type: "application/json"});
-  const url  = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "wiztrail-riepilogo.json";
-  a.click();
-
-  URL.revokeObjectURL(url);
-});
-</script>
+<script src="wiztrail-report.js"></script>
 <script src="wiztrail-postgara.js?v=20260318"></script>
+
+<!-- Nuovi moduli Fase 1 -->
+<script src="gpx-parser.js"></script>
+<script src="map.js"></script>
+<script src="ui.js"></script>
+
+<!-- Entry point -->
+<script src="main.js"></script>
+
 </body>
 </html>
-
-
-

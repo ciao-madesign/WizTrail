@@ -20,7 +20,7 @@ Disallow: /dettaglio.html
 # Permetti invece Ranking, WDI, Pacing e Homepage
 Allow: /index.html
 Allow: /ranking.html
-Allow: /wdi.html
+Allow: /WDI.html
 Allow: /pacing.html
 
 # Sitemap ufficiale

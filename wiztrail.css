@@ -546,3 +546,22 @@ table {
     padding-top: 12px !important;
     padding-bottom: 12px !important;
 }
+
+/* ============================================================
+   WDI v5 — classi via data-attribute (opzionale, per styling dichiarativo)
+   Uso: element.setAttribute("data-wdi-class", rs.class)
+        element.setAttribute("data-tech-class", rs.techClass)
+   ============================================================ */
+[data-wdi-class="Sport"]          { --wdi-color: #2BB7DA; }
+[data-wdi-class="Pro"]            { --wdi-color: #34A853; }
+[data-wdi-class="Advanced"]       { --wdi-color: #F4C20D; }
+[data-wdi-class="Extreme"]        { --wdi-color: #F79617; }
+[data-wdi-class="Elite"]          { --wdi-color: #E91E63; }
+[data-wdi-class="Legend"]         { --wdi-color: #8E24AA; }
+
+[data-tech-class="Facile"]        { --tech-color: #2BB7DA; }
+[data-tech-class="Moderato"]      { --tech-color: #34A853; }
+[data-tech-class="Tecnico"]       { --tech-color: #F4C20D; }
+[data-tech-class="Molto tecnico"] { --tech-color: #F79617; }
+[data-tech-class="Alpinistico"]   { --tech-color: #E91E63; }
+[data-tech-class="Estremo"]       { --tech-color: #8E24AA; }
