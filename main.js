@@ -343,61 +343,7 @@
     }
   });
 
-  /* ------------------------------------------------------------------
-     TOGGLE ENHANCED OSM
-     ------------------------------------------------------------------ */
-  let enhancedConfirmed = false;
-  const enhancedToggle  = document.getElementById('enhancedToggle');
-  const enhancedDisc    = document.getElementById('enhancedDisclosure');
-  const enhancedStatus  = document.getElementById('enhancedStatus');
-
-  enhancedToggle?.addEventListener('change', function () {
-    if (this.checked && !enhancedConfirmed) {
-      enhancedDisc.style.display = 'block';
-      this.checked = false;
-    } else if (!this.checked) {
-      window.lastOsmResult         = null;
-      enhancedStatus.style.display = 'none';
-    }
-  });
-
-  document.getElementById('enhancedConfirm')?.addEventListener('click', async function () {
-    enhancedDisc.style.display = 'none';
-    enhancedToggle.checked     = true;
-    enhancedConfirmed          = true;
-
-    if (!window.WizOSM) {
-      await new Promise(function(res, rej) {
-        const s = document.createElement('script');
-        s.src = 'wiztrail-osm.js';
-        s.onload = res;
-        s.onerror = rej;
-        document.head.appendChild(s);
-      });
-    }
-
-    if (window.gpxPts && window.gpxPts.length && window.WizOSM) {
-      enhancedStatus.style.display = 'block';
-      enhancedStatus.textContent   = '✦ Analisi OSM in corso...';
-      window.lastOsmResult = await window.WizOSM.analyze(window.gpxPts, window.metrics);
-      const pct = Math.round(window.lastOsmResult.confidence * 100);
-      enhancedStatus.textContent = '✦ Enhanced attivo — Copertura OSM: ' + pct + '%';
-
-      const rs = WizTrail.computeFromGpx(
-        window.gpxPts, window.metrics,
-        window.currentSurfaceLevel, window.lastOsmResult
-      );
-      window.currentWDI = rs.WDI;
-      window.lastRS     = rs;
-      WizUI.showWDI(rs);
-      WizUI.showTechScore(rs);
-    }
-  });
-
-  document.getElementById('enhancedCancel')?.addEventListener('click', function () {
-    enhancedDisc.style.display = 'none';
-    enhancedToggle.checked     = false;
-  });
-
+  // wiztrail-osm.js disabilitato: OSM Enhanced rimosso (0% copertura Overpass API).
+  // Da ripristinare con proxy serverless + CORINE (vedi task Notion).
 
 })();
