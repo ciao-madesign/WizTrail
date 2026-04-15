@@ -3,188 +3,281 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WizTrail – Dettaglio Gara (WDI)</title>
+<title>WizTrail — Dettaglio Gara</title>
+<meta name="description" content="Analisi WDI dettagliata del percorso trail.">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#002b2b">
+<link rel="apple-touch-icon" href="/icons/logo-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="wiztrail.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+#mapLeaflet{width:100%;height:320px;border-radius:0 0 12px 12px;display:block;}
+@media(min-width:640px){#mapLeaflet{height:420px;}}
+.race-hero{padding:20px 0 8px;}
+.race-hero h1{font-size:clamp(1.4rem,4vw,2rem);font-weight:900;margin:0 0 8px;line-height:1.2;}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:0.9rem;color:var(--muted);}
+.meta-pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-weight:600;}
+.wdi-hero{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.wdi-number{font-size:clamp(3rem,10vw,5rem);font-weight:900;line-height:1;transition:color 0.3s;}
+.wdi-info{flex:1;min-width:140px;}
+.wdi-badge{display:inline-block;padding:5px 16px;border-radius:20px;font-size:1.1rem;font-weight:700;color:#021;margin-bottom:8px;}
+.wdi-label{font-size:0.82rem;color:var(--muted);}
+.metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media(min-width:640px){.metrics-grid{grid-template-columns:repeat(4,1fr);}}
+.metric-item{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center;}
+.metric-item h3{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 6px;font-weight:600;}
+.metric-item .val{font-size:1.4rem;font-weight:800;color:var(--ink);}
+#elevCanvas{width:100%;height:180px;display:block;border-radius:8px;}
+@media(min-width:640px){#elevCanvas{height:220px;}}
+.techscore-bar-bg{background:var(--border);border-radius:6px;height:8px;overflow:hidden;margin:6px 0;}
+.techscore-bar-fill{height:100%;border-radius:6px;transition:width 0.6s ease;}
+.techscore-labels{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);}
+</style>
 </head>
-
 <body data-theme="dark">
 
 <header class="app-header">
   <div class="app-brand">
-    <img src="img/logo.svg" class="brand-img">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
   </div>
 </header>
 
+<div id="wizBanner" class="wiz-banner">
+  <a href="install.html" class="wiz-banner-link">📱 Aggiungi WizTrail alla Home!</a>
+</div>
+
+<div id="mapLeaflet"></div>
+
 <div class="wrap">
-
-<h1 style="margin-bottom:14px;">Dettaglio Percorso — WDI</h1>
-
-<button class="btn secondary" onclick00%;height:340px;min-height:260px;border-radius:12px;overflow:hidden;">
+  <div class="back-btn-container" style="margin-top:16px;">
+    <a href="ranking.html" class="back-btn">← Ranking WDI</a>
   </div>
-</div>
 
-<!-- PROFILO -->
-<div class="card">
-  <h2>Profilo Altimetrico</h2>
-  <canvas id="elevCanvas"
-          style="width:100%;height:220px;display:block;border-radius:12px;">
-  </canvas>
-</div>
-
-<!-- DATI -->
-<div class="card">
-  <h2>Dati Percorso</h2>
-  <div class="grid grid-2" style="row-gap:18px;column-gap:18px;">
-    <div><h3>Distanza</h3><div class="val" id="distVal">— km</div></div>
-    <div><h3>D+</h3><div class="val" id="dplusVal">— m</div></div>
-
-    <div><h3>Alt. media</h3><div class="val" id="altMedVal">— m</div></div>
-    <div><h3>Alt. massima</h3><div class="val" id="altMaxVal">— m</div></div>
-
-    <div><h3>Variazioni</h3><div class="val" id="varVal">—</div></div>
-    <div><h3>Ripidità salite</h3><div class="val" id="ascVal">—</div></div>
-    <div><h3>Ripidità discese</h3><div class="val" id="descVal">—</div></div>
-    <div><h3>Roughness</h3><div class="val" id="roughVal">—</div></div>
+  <div class="race-hero">
+    <h1 id="raceName">—</h1>
+    <div class="meta-row">
+      <span class="meta-pill" id="metaDist">— km</span>
+      <span class="meta-pill" id="metaDplus">— m D+</span>
+      <span id="metaDiscipline"></span>
+    </div>
   </div>
+
+  <div class="card" style="margin-top:8px;">
+    <h2 style="margin-bottom:16px;">WDI — Difficulty Index</h2>
+    <div class="wdi-hero">
+      <div class="wdi-number" id="wdiScore">—</div>
+      <div class="wdi-info">
+        <div class="wdi-badge" id="wdiClass">—</div>
+        <div class="wdi-label">WizTrail Difficulty Index v5.0</div>
+        <div id="techWrap" style="display:none;">
+          <div style="font-size:0.8rem;color:var(--muted);margin-top:10px;">
+            TechScore: <strong id="techScoreVal">—</strong> / 100
+            &nbsp;<span id="techScoreClass" style="opacity:0.75;"></span>
+          </div>
+          <div class="techscore-bar-bg">
+            <div class="techscore-bar-fill" id="techScoreBar" style="width:0%;"></div>
+          </div>
+          <div class="techscore-labels">
+            <span>Facile</span><span>Moderato</span><span>Tecnico</span><span>Estremo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Profilo Altimetrico</h2>
+    <canvas id="elevCanvas"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>Dati Percorso</h2>
+    <div class="metrics-grid">
+      <div class="metric-item"><h3>Distanza</h3><div class="val" id="distVal">—</div></div>
+      <div class="metric-item"><h3>D+</h3><div class="val" id="dplusVal">—</div></div>
+      <div class="metric-item"><h3>Quota max</h3><div class="val" id="altMaxVal">—</div></div>
+      <div class="metric-item"><h3>Quota media</h3><div class="val" id="altMedVal">—</div></div>
+      <div class="metric-item"><h3>D−</h3><div class="val" id="dlossVal">—</div></div>
+      <div class="metric-item"><h3>Ripidità max</h3><div class="val" id="fripVal">—</div></div>
+      <div class="metric-item"><h3>Variabilità</h3><div class="val" id="slopeVarVal">—</div></div>
+      <div class="metric-item"><h3>Roughness</h3><div class="val" id="roughVal">—</div></div>
+    </div>
+  </div>
+
+  <div class="footer">WizTrail © 2026</div>
 </div>
 
-<!-- WDI -->
-<div class="card" id="wdiCard"
-     style="text-align:center;padding-top:20px;padding-bottom:24px;">
-  <h2>WDI — WizTrail Difficulty Index</h2>
-  <div id="wdiScore" style="font-size:3rem;font-weight:900;margin-top:10px;">—</div>
-  <div id="wdiClass" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
-</div>
-
-</div>
-
-<script src="wiztrail-engine.js"></script>
-<script src="gpx-parser.js"></script>
-<script src="discipline-classifier.js"></script>
-
+<script src="wiztrail-engine.js?v=20260415"></script>
+<script src="gpx-parser.js?v=20260415"></script>
+<script src="discipline-classifier.js?v=20260415"></script>
 <script>
+(function(){
+  'use strict';
+  var map=null,poly=null;
 
-// ================================
-// Leaflet init
-// ================================
-let map = null, poly = null, rs = null;
+  // Tema
+  var saved=localStorage.getItem('wiztrail_theme');
+  if(saved) document.body.setAttribute('data-theme',saved);
 
-function initMap(){
-  if (map) return;
-  map = L.map("mapLeaflet");
-
-  const dark = L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    { subdomains:"abcd", maxZoom:19 }
-  );
-
-  const topo = L.tileLayer(
-    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    { opacity:0.35, maxZoom:17 }
-  );
-
-  L.layerGroup([dark, topo]).addTo(map);
-  map.setView([46,8], 5);
-}
-
-function drawLeaflet(pts){
-  initMap();
-  if (poly) poly.remove();
-
-  poly = L.polyline(
-    pts.map(p => [p[0], p[1]]),
-    { color: rs?.color || "#ffaa00", weight:4 }
-  ).addTo(map);
-
-  try {
-    map.fitBounds(poly.getBounds(), { padding:[20,20] });
-  } catch(e) {
-    console.warn("fitBounds failed:", e);
+  function initMap(){
+    if(map) return;
+    map=L.map('mapLeaflet',{zoomControl:true});
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      {subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap, © CartoDB'}).addTo(map);
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      {opacity:0.35,maxZoom:17,attribution:'© OpenTopoMap'}).addTo(map);
+    map.setView([46,8],5);
   }
-}
 
+  function drawTrack(pts,color){
+    initMap();
+    if(poly){map.removeLayer(poly);poly=null;}
+    poly=L.polyline(pts.map(function(p){return[p[0],p[1]];}),
+      {color:color||'#4fd1c5',weight:4,opacity:0.9}).addTo(map);
+    try{map.fitBounds(poly.getBounds(),{padding:[24,24]});}catch(e){}
+  }
 
-// ================================
-// Elevation
-// ================================
-function drawElevation(c, e){
-  if (!e.length) return;
+  function drawProfile(elev){
+    var canvas=document.getElementById('elevCanvas');
+    if(!canvas||!elev||elev.length<2) return;
+    var dpi=Math.max(1,window.devicePixelRatio||1);
+    var cssW=canvas.clientWidth||600;
+    var cssH=canvas.clientHeight||180;
+    canvas.width=Math.round(cssW*dpi);
+    canvas.height=Math.round(cssH*dpi);
+    var ctx=canvas.getContext('2d');
+    ctx.setTransform(dpi,0,0,dpi,0,0);
+    var pad={top:16,right:14,bottom:26,left:42};
+    var W=cssW-pad.left-pad.right;
+    var H=cssH-pad.top-pad.bottom;
+    var valid=elev.filter(Number.isFinite);
+    var minE=Math.min.apply(null,valid);
+    var maxE=Math.max.apply(null,valid);
+    if(minE===maxE){minE-=1;maxE+=1;}
+    var mg=(maxE-minE)*0.08;
+    minE-=mg;maxE+=mg;
+    // sfondo
+    ctx.clearRect(0,0,cssW,cssH);
+    ctx.fillStyle='rgba(255,255,255,0.02)';ctx.fillRect(0,0,cssW,cssH);
+    // griglia
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
+    for(var i=0;i<=4;i++){var y=pad.top+(i/4)*H;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(cssW-pad.right,y);ctx.stroke();}
+    for(var j=0;j<=5;j++){var x=pad.left+(j/5)*W;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,cssH-pad.bottom);ctx.stroke();}
+    // label
+    ctx.fillStyle='rgba(232,242,255,0.7)';ctx.font='11px system-ui,sans-serif';
+    ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText(Math.round(maxE)+' m',4,pad.top);
+    ctx.textBaseline='bottom';ctx.fillText(Math.round(minE)+' m',4,cssH-pad.bottom+2);
+    // coordinate
+    var xs=[],ys=[];
+    for(var k=0;k<elev.length;k++){
+      xs.push(pad.left+(k/(elev.length-1))*W);
+      ys.push(pad.top+(1-(elev[k]-minE)/(maxE-minE))*H);
+    }
+    // area
+    var baseY=cssH-pad.bottom;
+    var grad=ctx.createLinearGradient(0,pad.top,0,baseY);
+    grad.addColorStop(0,'rgba(79,209,197,0.28)');
+    grad.addColorStop(1,'rgba(14,165,233,0.06)');
+    ctx.beginPath();ctx.moveTo(xs[0],baseY);
+    for(var m=0;m<xs.length;m++) ctx.lineTo(xs[m],ys[m]);
+    ctx.lineTo(xs[xs.length-1],baseY);ctx.closePath();
+    ctx.fillStyle=grad;ctx.fill();
+    // linea
+    ctx.beginPath();ctx.moveTo(xs[0],ys[0]);
+    for(var n=1;n<xs.length;n++) ctx.lineTo(xs[n],ys[n]);
+    ctx.strokeStyle='#4fd1c5';ctx.lineWidth=2;ctx.stroke();
+  }
 
-  const ctx = c.getContext("2d"),
-        max = Math.max(...e),
-        min = Math.min(...e),
-        w = c.width,
-        h = c.height;
+  function fillMetrics(metrics,rs){
+    document.getElementById('distVal').textContent=metrics.km.toFixed(2)+' km';
+    document.getElementById('dplusVal').textContent=Math.round(metrics.gain)+' m';
+    if(metrics.max_altitude>0)
+      document.getElementById('altMaxVal').textContent=Math.round(metrics.max_altitude)+' m';
+    if(metrics.e&&metrics.e.length){
+      var valid=metrics.e.filter(Number.isFinite);
+      var med=valid.reduce(function(a,b){return a+b;},0)/valid.length;
+      document.getElementById('altMedVal').textContent=Math.round(med)+' m';
+    }
+    if(rs.factors){
+      if(rs.factors.loss!==undefined)
+        document.getElementById('dlossVal').textContent=Math.round(rs.factors.loss)+' m';
+      if(rs.factors.FRIP!==undefined)
+        document.getElementById('fripVal').textContent=(rs.factors.FRIP*100).toFixed(0)+'%';
+      if(rs.factors.SlopeVar!==undefined)
+        document.getElementById('slopeVarVal').textContent=rs.factors.SlopeVar.toFixed(3);
+      if(rs.factors.Roughness!==undefined)
+        document.getElementById('roughVal').textContent=rs.factors.Roughness.toFixed(3);
+    }
+    if(rs.TechScore!==undefined){
+      var tw=document.getElementById('techWrap');
+      var tv=document.getElementById('techScoreVal');
+      var tb=document.getElementById('techScoreBar');
+      var tc=document.getElementById('techScoreClass');
+      if(tw){tw.style.display='block';}
+      if(tv){tv.textContent=rs.TechScore.toFixed(1);tv.style.color=rs.techColor;}
+      if(tb){tb.style.width=Math.min(rs.TechScore,100)+'%';tb.style.background=rs.techColor;}
+      if(tc){tc.textContent=rs.techClass||'';tc.style.color=rs.techColor;}
+    }
+  }
 
-  ctx.clearRect(0,0,w,h);
-  ctx.beginPath();
+  function render(){
+    var gpx=sessionStorage.getItem('currentRaceGPX');
+    var meta=JSON.parse(sessionStorage.getItem('currentRaceMeta')||'null');
+    var urlMatch=location.search.match(/[?&]race=([^&]*)/);
+    var urlName=urlMatch?decodeURIComponent(urlMatch[1]):'';
+    var raceName=urlName||(meta&&meta.name)||'Dettaglio Gara';
+    document.title='WizTrail — '+raceName;
+    document.getElementById('raceName').textContent=raceName;
 
-  e.forEach((v,i)=>{
-    const x = (i / (e.length - 1)) * w;
-    const y = h - ((v - min) / (max - min)) * h;
-    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    if(meta){
+      document.getElementById('metaDist').textContent=parseFloat(meta.distance).toFixed(1)+' km';
+      document.getElementById('metaDplus').textContent=Math.round(meta.dplus)+' m D+';
+      if(meta.discipline&&window.DisciplineClassifier)
+        document.getElementById('metaDiscipline').innerHTML=DisciplineClassifier.renderBadge(meta.discipline);
+      var wdiEl=document.getElementById('wdiScore');
+      var clsEl=document.getElementById('wdiClass');
+      wdiEl.textContent=parseFloat(meta.wdi).toFixed(1);
+      wdiEl.style.color=meta.color;
+      clsEl.textContent=meta.class;
+      clsEl.style.background=meta.color;
+    }
+
+    if(!gpx){
+      document.getElementById('raceName').textContent='Apri questa pagina dal Ranking WDI';
+      return;
+    }
+
+    var xml=new DOMParser().parseFromString(gpx,'application/xml');
+    var pts=GPXParser.parseTrack(xml);
+    if(!pts.length) return;
+
+    var metrics=GPXParser.compute(pts);
+    var rs=WizTrail.computeFromGpx(pts,metrics);
+
+    var wdiEl=document.getElementById('wdiScore');
+    var clsEl=document.getElementById('wdiClass');
+    wdiEl.textContent=rs.WDI.toFixed(1);
+    wdiEl.style.color=rs.color;
+    clsEl.textContent=rs.class;
+    clsEl.style.background=rs.color;
+
+    drawTrack(pts,rs.color);
+    requestAnimationFrame(function(){drawProfile(metrics.e);});
+    fillMetrics(metrics,rs);
+  }
+
+  render();
+  window.addEventListener('resize',function(){
+    var gpx=sessionStorage.getItem('currentRaceGPX');
+    if(!gpx) return;
+    var xml=new DOMParser().parseFromString(gpx,'application/xml');
+    var pts=GPXParser.parseTrack(xml);
+    if(pts.length){var m=GPXParser.compute(pts);drawProfile(m.e);}
   });
-
-  ctx.strokeStyle = "#ffaa00";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
-
-
-// ================================
-// GPX loader
-// ================================
-async function loadGPX(){
-  const gpx = sessionStorage.getItem("currentRaceGPX");
-
-  if (!gpx){
-    alert("GPX non trovato.\nApri questa pagina cliccando una gara nel ranking.");
-    return;
-  }
-
-  const xml  = new DOMParser().parseFromString(gpx, "application/xml");
-  const pts  = GPXParser.parseTrack(xml);
-
-  if (!pts.length){
-    alert("GPX vuoto o non valido.");
-    return;
-  }
-
-  const metrics = GPXParser.compute(pts);
-  rs = WizTrail.computeFromGpx(pts, metrics);
-
-  // UI
-  distVal.textContent  = metrics.km.toFixed(2) + " km";
-  dplusVal.textContent = metrics.gain + " m";
-
-  altMedVal.textContent  = "—";
-  altMaxVal.textContent  = metrics.max_altitude > 0
-    ? Math.round(metrics.max_altitude) + " m"
-    : "—";
-  varVal.textContent     = "—";
-  ascVal.textContent     = "—";
-  descVal.textContent    = "—";
-  roughVal.textContent   = "—";
-
-  wdiScore.textContent = rs.WDI.toFixed(1);
-  wdiScore.style.color = rs.color;
-
-  wdiClass.textContent = rs.class;
-  wdiClass.style.color = rs.color;
-
-  setTimeout(()=> drawLeaflet(pts), 80);
-
-  elevCanvas.width = elevCanvas.clientWidth;
-  elevCanvas.height = elevCanvas.clientHeight;
-  drawElevation(elevCanvas, metrics.e);
-}
-
-loadGPX();
-
+})();
 </script>
-
 </body>
 </html>
