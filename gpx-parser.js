@@ -1,8 +1,10 @@
 /**
  * gpx-parser.js — WizTrail GPX/TCX Parser & Metrics
  * Estratto da index.html nel refactoring Fase 1.
- * Esposto come window.GPXParser = { parseTrack, compute, smoothElevation,
- *                                    hav, clampSlope, computeSegments }
+ * Esposto come window.GPXParser = { parseTrack, parseTrackFull, compute,
+ *                                    smoothElevation, hav, clampSlope, computeSegments }
+ * parseTrack(xml)     → [[lat,lon,ele], ...]
+ * parseTrackFull(xml) → { pts, times } — include timestamp per durata reale
  * compute() restituisce { km, gain, e[], d[], max_altitude }
  * max_altitude: prerequisito per il Discipline Classifier (DC-1)
  */
@@ -28,7 +30,16 @@
      Restituisce array di punti [lat, lon, ele]
      ------------------------------------------------------------------ */
   function parseTrack(xml) {
-    const pts = [];
+    return parseTrackFull(xml).pts;
+  }
+
+  /* ------------------------------------------------------------------
+     2b) PARSE TRACK FULL — include timestamp per calcolo durata reale
+     Restituisce { pts: [[lat,lon,ele],...], times: [epoch_sec,...] }
+     ------------------------------------------------------------------ */
+  function parseTrackFull(xml) {
+    const pts   = [];
+    const times = [];
 
     // GPX: <trkpt>
     const g = xml.getElementsByTagName('trkpt');
@@ -38,8 +49,10 @@
         const lo = parseFloat(n.getAttribute('lon'));
         const e  = n.getElementsByTagName('ele')[0];
         pts.push([la, lo, e ? parseFloat(e.textContent) : 0]);
+        const t = n.getElementsByTagName('time')[0]?.textContent;
+        if (t) times.push(Date.parse(t) / 1000);
       });
-      return pts;
+      return { pts, times };
     }
 
     // TCX: <Trackpoint>
@@ -55,8 +68,10 @@
         lo ? parseFloat(lo.textContent) : 0,
         el ? parseFloat(el.textContent) : 0,
       ]);
+      const tEl = n.getElementsByTagName('Time')[0];
+      if (tEl) times.push(Date.parse(tEl.textContent) / 1000);
     });
-    return pts;
+    return { pts, times };
   }
 
   /* ------------------------------------------------------------------
@@ -142,6 +157,6 @@
   /* ------------------------------------------------------------------
      Esposizione globale
      ------------------------------------------------------------------ */
-  window.GPXParser = { parseTrack, compute, smoothElevation, hav, clampSlope, computeSegments };
+  window.GPXParser = { parseTrack, parseTrackFull, compute, smoothElevation, hav, clampSlope, computeSegments };
 
 })();
