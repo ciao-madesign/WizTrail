@@ -2,7 +2,7 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-04-15";
+const CACHE_VERSION = "wiztrail-v2026-04-15b";
 const CORE_CACHE = [
   "/WizTrail/",
   "/WizTrail/index.html",
@@ -12,6 +12,7 @@ const CORE_CACHE = [
   "/WizTrail/wiztrail-report.js",
   "/WizTrail/wiztrail-postgara.js",
   "/WizTrail/gpx-parser.js",
+  "/WizTrail/discipline-classifier.js",
   "/WizTrail/map.js",
   "/WizTrail/ui.js",
   "/WizTrail/main.js",
