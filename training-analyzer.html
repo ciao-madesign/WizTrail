@@ -134,7 +134,8 @@
   <div class="footer">WizTrail © 2026</div>
 </div>
 
-<script src="wiztrail-engine.js"></script>
+<script src="wiztrail-racescore.js"></script>
+<!-- TODO M1: sostituire con wiztrail-engine.js quando il modulo unificato sarà disponibile -->
 <script>
 (function () {
   'use strict';
@@ -258,7 +259,7 @@
       if (i === 0) ctx.moveTo(x, y);
       else         ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = WizTrail.getColor(window.currentTrainingWDI || 0);
+    ctx.strokeStyle = WizTrailWDI.getColor(window.currentTrainingWDI || 0);
     ctx.lineWidth   = 2;
     ctx.stroke();
   }
@@ -344,7 +345,7 @@
     document.getElementById('dplusVal').textContent  = Math.round(mt.gain) + ' m';
     document.getElementById('timeReal').textContent  = realTimeStr || '—';
 
-    const result = WizTrail.computeFromGpx(pts, mt);
+    const result = WizTrailWDI.computeFromGpx(pts, mt);
 
     const trainingScore   = document.getElementById('trainingScore');
     const trainingComment = document.getElementById('trainingComment');
