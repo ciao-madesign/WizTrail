@@ -2,33 +2,33 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-04-15b";
+const CACHE_VERSION = "wiztrail-v2026-04-15c";
 const CORE_CACHE = [
-  "/WizTrail/",
-  "/WizTrail/index.html",
-  "/WizTrail/wiztrail.css",
-  "/WizTrail/wiztrail-engine.js",
-  "/WizTrail/wiztrail-pacing.js",
-  "/WizTrail/wiztrail-report.js",
-  "/WizTrail/wiztrail-postgara.js",
-  "/WizTrail/gpx-parser.js",
-  "/WizTrail/discipline-classifier.js",
-  "/WizTrail/map.js",
-  "/WizTrail/ui.js",
-  "/WizTrail/main.js",
-  "/WizTrail/manifest.webmanifest",
-  "/WizTrail/img/logo.svg"
+  "/",
+  "/index.html",
+  "/wiztrail.css",
+  "/wiztrail-engine.js",
+  "/wiztrail-pacing.js",
+  "/wiztrail-report.js",
+  "/wiztrail-postgara.js",
+  "/gpx-parser.js",
+  "/discipline-classifier.js",
+  "/map.js",
+  "/ui.js",
+  "/main.js",
+  "/manifest.webmanifest",
+  "/img/logo.svg"
 ];
 
 // Pagine statiche extra da mettere in cache
 const PAGE_CACHE = [
-  "/WizTrail/wdi.html",
-  "/WizTrail/pacing.html",
-  "/WizTrail/ranking.html",
-  "/WizTrail/dettaglio.html",
-  "/WizTrail/install.html",
-  "/WizTrail/training-analyzer.html",
-  "/WizTrail/share_card.html",
+  "/wdi.html",
+  "/pacing.html",
+  "/ranking.html",
+  "/dettaglio.html",
+  "/install.html",
+  "/training-analyzer.html",
+  "/share_card.html",
 ];
 
 // Unione liste

@@ -146,7 +146,7 @@ function pg_generateTips(rep){
 
   /* PACING PERCEPITO */
   if (rep.pacing === "forte")
-    tips.push("Nella prossima gara cerca di imposta un pacing iniziale più conservativo, evita di "inseguire" runners più veloci, mantieni il tuo ritmo: se avrai energie potrai aumentare dopo la metà gara (negative split).");
+    tips.push("Nella prossima gara cerca di impostare un pacing iniziale più conservativo, evita di 'inseguire' runners più veloci, mantieni il tuo ritmo: se avrai energie potrai aumentare dopo la metà gara (negative split).");
   else if (rep.pacing === "lento")
     tips.push("Partenza troppo prudente? potresti permetterti un avvio leggermente più veloce per entrare in ritmo più rapidamente e non perdere il treno dei runner più veloci.");
 

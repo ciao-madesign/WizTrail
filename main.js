@@ -264,7 +264,7 @@
      PWA — Service Worker
      ------------------------------------------------------------------ */
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/WizTrail/service-worker.js');
+    navigator.serviceWorker.register('/service-worker.js');
   }
 
   /* ------------------------------------------------------------------
