@@ -91,6 +91,14 @@
 <label><input type="checkbox" id="useEstimate"> Usa la stima del calcolatore</label>
 </div>
 
+<div id="paceBlock" style="margin-top:10px; display:none;">
+  <label>Il tuo passo su piano (mm:ss / km)</label>
+  <input id="paceInput" type="text" placeholder="06:00" value="06:00" class="input-text"
+         style="width:90px;"
+         pattern="^[0-9]{1,2}:[0-5][0-9]$">
+  <span class="mini" style="margin-left:8px; opacity:0.7;">es. 06:00 = 6 min/km</span>
+</div>
+
 <div id="shareCompareBlock" style="margin-top:8px;display:none;">
 <label><input type="checkbox" id="shareCompare"> Confronta tempo stimato vs tempo reale</label>
 </div>
@@ -152,6 +160,12 @@ function fmtSec(sec){
 useEstimate.addEventListener("change", () => {
   if (!window.currentPts || !window.currentMetrics) return;
 
+  updateEstimateUI(window.currentMetrics, window.currentRealTime);
+});
+
+// Ricalcola stima quando l'utente cambia il passo
+document.getElementById('paceInput')?.addEventListener('change', () => {
+  if (!window.currentMetrics || !useEstimate.checked) return;
   updateEstimateUI(window.currentMetrics, window.currentRealTime);
 });
 
@@ -241,12 +255,22 @@ function performanceComment(realSec, estSec){
 
 function updateEstimateUI(mt, realTimeStr) {
 
+  const paceBlock = document.getElementById('paceBlock');
+  if (paceBlock) paceBlock.style.display = useEstimate.checked ? 'block' : 'none';
+
   let estSec = null;
 
   if (useEstimate.checked) {
 
-    estSec = Math.round(mt.km * 7 * 60 + mt.gain * 0.6);
-window.currentEstSec = estSec;
+    // Leggi il pace inserito dall'utente (mm:ss), default 6:00
+    const paceRaw = (document.getElementById('paceInput')?.value || '06:00').trim();
+    const paceParts = paceRaw.split(':').map(Number);
+    const paceSecPerKm = (paceParts.length === 2 && !isNaN(paceParts[0]) && !isNaN(paceParts[1]))
+      ? paceParts[0] * 60 + paceParts[1]
+      : 360; // fallback 6:00
+
+    estSec = Math.round(mt.km * paceSecPerKm + mt.gain * 0.6);
+    window.currentEstSec = estSec;
 
     timeEst.textContent = fmtSec(estSec);
     estBlock.style.display = "block";
@@ -508,4 +532,5 @@ if (sessionStorage.getItem("strava_token") && source !== "strava") {
 }
 </script>
 </body>
+</html>
 </html>
