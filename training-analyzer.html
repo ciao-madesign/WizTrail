@@ -3,7 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WizTrail – Training Analyzer</title>
+  <title>WizTrail — Training Analyzer</title>
+  <meta name="description" content="Analizza la difficoltà dei tuoi allenamenti trail. Carica il GPX o importa da Strava e ottieni il WDI del tuo allenamento.">
+  <meta property="og:title" content="WizTrail — Training Analyzer" />
+  <meta property="og:description" content="Analizza la difficoltà dei tuoi allenamenti trail. Carica il GPX o importa da Strava." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="WizTrail — Training Analyzer">
+  <meta name="twitter:description" content="Analizza la difficoltà dei tuoi allenamenti trail con il WDI.">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#002b2b">
   <link rel="apple-touch-icon" href="/WizTrail/icons/icon-192.png">
@@ -111,10 +118,10 @@
       </div>
     </div>
 
-    <div class="card" id="wditCard" style="text-align:center;">
-      <h2>Difficulty Index — Training</h2>
-      <div id="wditScore" style="font-size:3.2rem;font-weight:900;margin-top:10px;">—</div>
-      <div id="wditComment" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
+    <div class="card" id="trainingScoreCard" style="text-align:center;">
+      <h2>WDI — Training Score</h2>
+      <div id="trainingScore" style="font-size:3.2rem;font-weight:900;margin-top:10px;">—</div>
+      <div id="trainingComment" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
       <div id="perfComment" style="font-size:1.2rem;margin-top:10px;font-weight:600;"></div>
     </div>
 
@@ -251,7 +258,7 @@
       if (i === 0) ctx.moveTo(x, y);
       else         ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = WizTrail.getColor(window.currentTrainingWDIT || 0);
+    ctx.strokeStyle = WizTrail.getColor(window.currentTrainingWDI || 0);
     ctx.lineWidth   = 2;
     ctx.stroke();
   }
@@ -339,17 +346,17 @@
 
     const result = WizTrail.computeFromGpx(pts, mt);
 
-    const wditScore   = document.getElementById('wditScore');
-    const wditComment = document.getElementById('wditComment');
-    wditScore.textContent   = result.WDI.toFixed(1);
-    wditScore.style.color   = result.color;
-    wditComment.textContent = result.class;
-    wditComment.style.color = result.color;
+    const trainingScore   = document.getElementById('trainingScore');
+    const trainingComment = document.getElementById('trainingComment');
+    trainingScore.textContent   = result.WDI.toFixed(1);
+    trainingScore.style.color   = result.color;
+    trainingComment.textContent = result.class;
+    trainingComment.style.color = result.color;
 
-    window.currentPts         = pts;
-    window.currentMetrics     = mt;
-    window.currentRealTime    = realTimeStr;
-    window.currentTrainingWDIT = result.WDI;
+    window.currentPts          = pts;
+    window.currentMetrics      = mt;
+    window.currentRealTime     = realTimeStr;
+    window.currentTrainingWDI  = result.WDI;
 
     updateEstimateUI(mt, realTimeStr);
     drawLeaflet(pts, result.color);
