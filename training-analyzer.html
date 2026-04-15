@@ -130,6 +130,7 @@
 <h2>WDI — Training Score</h2>
 <div id="trainingScore" style="font-size:3.2rem;font-weight:900;margin-top:10px;">—</div>
 <div id="trainingComment" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
+<div id="trainingMotivation" style="font-size:0.95rem;margin-top:8px;opacity:0.75;font-style:italic;"></div>
 <div id="perfComment" style="font-size:1.2rem;margin-top:10px;font-weight:600;"></div>
 </div>
 
@@ -227,12 +228,37 @@ ctx.strokeStyle = WizTrail.getColor(window.currentTrainingWDI || 0);
 
 // colore traccia: usare WizTrail.getColor(wdi)
 
-function getComment(w){
-if(w<0.45)return"Giro tranquillo 🌿";
-if(w<0.80)return"Buon allenamento 🏃‍♂️";
-if(w<1.25)return"Gran galoppata 💪";
-if(w<2.20)return"Bella sudata 🔥";
-return"Beast mode 💀";}
+/* ------------------------------------------------------------------
+   TRAINING SCORE LAYER — layer post-WDI specifico per allenamenti
+   Prende il WDI standard (stesso engine delle gare) e restituisce
+   un giudizio testuale calibrato per il contesto allenamento.
+
+   Soglie calibrate sul range reale degli allenamenti trail (WDI 4–35):
+     < 5   Riscaldamento / giro defatigante
+     < 10  Uscita leggera
+     < 16  Allenamento solido
+     < 25  Sessione intensa
+     < 35  Giornata epica
+     ≥ 35  Territorio da gara
+   ------------------------------------------------------------------ */
+function getTrainingLabel(wdi) {
+  if (wdi < 5)  return { label: 'Riscaldamento',     emoji: '🌿', color: '#2BB7DA' };
+  if (wdi < 10) return { label: 'Uscita leggera',    emoji: '🏃', color: '#34A853' };
+  if (wdi < 16) return { label: 'Allenamento solido',emoji: '💪', color: '#F4C20D' };
+  if (wdi < 25) return { label: 'Sessione intensa',  emoji: '🔥', color: '#F79617' };
+  if (wdi < 35) return { label: 'Giornata epica',    emoji: '⚡', color: '#E91E63' };
+  return         { label: 'Territorio da gara',      emoji: '🏆', color: '#8E24AA' };
+}
+
+/* Commento motivazionale basato su WDI training */
+function getTrainingMotivation(wdi) {
+  if (wdi < 5)  return 'Perfetto per recuperare. Il corpo ringrazia.';
+  if (wdi < 10) return 'Buona base. La costanza fa la differenza.';
+  if (wdi < 16) return 'Allenamento di qualità. Stai costruendo qualcosa.';
+  if (wdi < 25) return 'Sessione tosta. Ecco come si migliora davvero.';
+  if (wdi < 35) return 'Roba seria. Poche persone arrivano qui.';
+  return 'Siamo in territorio da gara. Rispetto.';
+}
 
 function performanceComment(realSec, estSec){
   if(!realSec || !estSec) return "";
@@ -335,16 +361,23 @@ function renderAnalysis(pts, mt, realTimeStr = null) {
     timeReal.textContent = "—";
   }
 
-  // WDI v5
+  // WDI v5 + TrainingScore layer
   const result = WizTrail.computeFromGpx(pts, mt);
+  const tsLabel = getTrainingLabel(result.WDI);
 
   const trainingScore   = document.getElementById('trainingScore');
   const trainingComment = document.getElementById('trainingComment');
-  trainingScore.textContent = result.WDI.toFixed(1);
-  trainingScore.style.color = result.color;
+  const motivationEl    = document.getElementById('trainingMotivation');
 
-  trainingComment.textContent = result.class;
-  trainingComment.style.color = result.color;
+  trainingScore.textContent = result.WDI.toFixed(1);
+  trainingScore.style.color = tsLabel.color;
+
+  trainingComment.textContent = tsLabel.emoji + ' ' + tsLabel.label;
+  trainingComment.style.color = tsLabel.color;
+
+  if (motivationEl) {
+    motivationEl.textContent = getTrainingMotivation(result.WDI);
+  }
 
 window.currentPts = pts;
 window.currentMetrics = mt;
