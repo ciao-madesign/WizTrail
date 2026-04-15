@@ -50,7 +50,16 @@
 <label>Filtra per nome gara</label>
 <input id="filterName" type="text" placeholder="Es: Zegama, UTMB…">
 </div>
-
+<div>
+<label>Disciplina</label>
+<select id="filterDiscipline">
+  <option value="">Tutte</option>
+  <option value="trail">🌲 Trail</option>
+  <option value="sky">⛰️ Sky</option>
+  <option value="mountain">🏔️ Mountain</option>
+  <option value="xc">🏅 XC</option>
+</select>
+</div>
 </div>
 </div>
 
@@ -65,6 +74,7 @@
 <th data-sort="dplus">D+ (m) ↑↓</th>
 <th data-sort="wdi">WDI ↑↓</th>
 <th>Classe</th>
+<th>Disciplina</th>
 </tr>
 </thead>
 <tbody id="raceBody"></tbody>
@@ -94,6 +104,7 @@
 <div class="footer">WizTrail © 2026</div>
 </div>
 
+<script src="discipline-classifier.js"></script>
 <script src="wiztrail-engine.js"></script>
 <script>
 function parseGPX(text){
@@ -159,12 +170,14 @@ function wdiLabel(cls){
 }
 
 function renderTable() {
- const nameFilter = filterName.value.toLowerCase();
+ const nameFilter       = filterName.value.toLowerCase();
+ const disciplineFilter = document.getElementById('filterDiscipline')?.value || '';
 
  raceBody.innerHTML = "";
 
 races
   .filter(r => r.name.toLowerCase().includes(nameFilter))
+  .filter(r => !disciplineFilter || r.discipline === disciplineFilter)
   .forEach(r => {
 
    const tr = document.createElement("tr");
@@ -190,11 +203,15 @@ tr.style.transition = "background 0.2s ease, border 0.2s ease";
     });
 });
 tr.addEventListener("mouseenter", () => {
-  tr.style.backgroundColor = r.color + "33"; // ~20% opacità
+  tr.style.backgroundColor = r.color + "33";
 });
 tr.addEventListener("mouseleave", () => {
-  tr.style.backgroundColor = r.color + "20"; // torna al velo leggero
+  tr.style.backgroundColor = r.color + "20";
 });
+
+const disciplineBadge = r.discipline
+  ? DisciplineClassifier.renderBadge(r.discipline)
+  : '';
 
 tr.innerHTML = `
 <td>${r.name}</td>
@@ -206,6 +223,7 @@ tr.innerHTML = `
 <td style="color:${r.color}; font-weight:700;">
   ${wdiLabel(r.class)}
 </td>
+<td>${disciplineBadge}</td>
 `;
 
    raceBody.appendChild(tr);
@@ -238,6 +256,7 @@ if (a[col] > b[col]) return sortState.asc ? 1 : -1;
 
 //---------------------------------------- filtri
 document.getElementById("filterName").addEventListener("input", renderTable);
+document.getElementById("filterDiscipline")?.addEventListener("change", renderTable);
 
 //---------------------------------------- admin compute
 btnAdminCompute?.addEventListener("click", async () => {
