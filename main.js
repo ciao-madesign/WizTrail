@@ -181,7 +181,22 @@
     const alt    = readNum('alt');
     const margin = readNum('margin') / 100;
 
-    const m       = GPXParser.compute(window.gpxPts);
+    // Calcola metrics dal GPX per coordinate e profilo altimetrico
+    const mGpx = GPXParser.compute(window.gpxPts);
+
+    // Leggi distanza e D+ dai campi form — l'utente può averli corretti manualmente
+    const manualKm   = readNum('dist');
+    const manualGain = readNum('dplus');
+
+    // Costruisce metrics ibrido: coordinate dal GPX, valori numerici dal form
+    // Questo permette di usare un GPX senza elevazione correggendo D+ a mano
+    const m = {
+      ...mGpx,
+      km:   manualKm   > 0 ? manualKm   : mGpx.km,
+      gain: manualGain > 0 ? manualGain : mGpx.gain,
+      loss: manualGain > 0 ? manualGain : mGpx.gain, // stima loss = gain se non disponibile
+    };
+
     const elev_s  = GPXParser.smoothElevation(m.e);
     const segments = GPXParser.computeSegments(window.gpxPts, m.d, elev_s);
 
@@ -195,15 +210,24 @@
       T += t_raw * fat;
     });
 
+    // Se il GPX non ha elevazione, stima il tempo dal D+ manuale
+    // (segments avranno tutti slope=0, quindi T sarà solo da velocità base)
+    // Aggiungiamo una correzione proporzionale al D+ manuale
+    if (mGpx.gain === 0 && manualGain > 0) {
+      // Stima tempo aggiuntivo per il dislivello: ~1 min ogni 8m D+
+      const extraSec = (manualGain / 8) * 60;
+      T += extraSec;
+    }
+
     // Fattori meteo / altitudine
     const T_hours = T / 3600;
-    T *= 1 + (meteo - 1) * (T_hours / 5); // meteo
-    T *= alt;                               // altitudine
+    T *= 1 + (meteo - 1) * (T_hours / 5);
+    T *= alt;
 
-    // WDI
+    // WDI — usa metrics ibrido con D+ manuale
     const rs = WizTrail.computeFromGpx(
       window.gpxPts,
-      window.metrics,
+      m,
       window.currentSurfaceLevel,
       window.lastOsmResult
     );
