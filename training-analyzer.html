@@ -140,6 +140,7 @@
 <div class="footer">WizTrail © 2026</div>
 </div>
 
+<script src="gpx-parser.js"></script>
 <script src="wiztrail-engine.js"></script>
 <script>
 
@@ -171,34 +172,13 @@ document.getElementById('paceInput')?.addEventListener('change', () => {
 });
 
 function parseGPX(text){
- const xml=new DOMParser().parseFromString(text,"application/xml");
- const pts=[];
- const times=[];
- [...xml.getElementsByTagName("trkpt")].forEach(p=>{
-  const lat=parseFloat(p.getAttribute("lat"));
-  const lon=parseFloat(p.getAttribute("lon"));
-  const ele=parseFloat(p.getElementsByTagName("ele")[0]?.textContent||0);
-  pts.push([lat,lon,ele]);
-  const t=p.getElementsByTagName("time")[0]?.textContent;
-  if(t) times.push(Date.parse(t)/1000);
- });
- return {pts,times};
+  const xml = new DOMParser().parseFromString(text, 'application/xml');
+  return GPXParser.parseTrackFull(xml);
+  // Restituisce { pts, times } — compatibile con il codice chiamante
 }
 
 function computeMetrics(pts){
- const R=6371000;
- let d=[0],e=[],gain=0;
- for(let i=0;i<pts.length;i++){
-  e.push(pts[i][2]);
-  if(i===0) continue;
-  const lat1=pts[i-1][0]*Math.PI/180, lon1=pts[i-1][1]*Math.PI/180;
-  const lat2=pts[i][0]*Math.PI/180, lon2=pts[i][1]*Math.PI/180;
-  const a=Math.sin((lat2-lat1)/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
-  const dist=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*R;
-  d.push(d[d.length-1]+dist);
-  if(e[i]-e[i-1]>0) gain+=e[i]-e[i-1];
- }
- return {km:d[d.length-1]/1000,gain,e,d};
+  return GPXParser.compute(pts);
 }
 
 function drawElevation(c, e){
@@ -565,5 +545,4 @@ if (sessionStorage.getItem("strava_token") && source !== "strava") {
 }
 </script>
 </body>
-</html>
 </html>
