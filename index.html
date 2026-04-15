@@ -105,8 +105,9 @@
       <div>
         <fieldset>
           <legend>Traccia GPS (opzionale)</legend>
-          <label>Carica GPX/TCX</label>
-          <input id="gpxfile" type="file" accept=".gpx,.tcx"/>
+          <label>Carica GPX / TCX / XML</label>
+          <input id="gpxfile" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
+          <div class="mini" style="margin-top:4px; opacity:0.6;">Compatibile con Garmin, Suunto, Wikiloc, Komoot e qualsiasi app che esporti GPX</div>
           <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
 
           <!-- SLIDER SUPERFICIE -->
@@ -448,8 +449,8 @@
         <button class="btn" id="btnImportSnapshot">Carica</button>
       </fieldset>
       <fieldset>
-        <label>Carica i dati gara effettivi (GPX)</label>
-        <input id="pg_gpx_file" type="file" accept=".gpx,.tcx,application/gpx+xml">
+        <label>Carica i dati gara effettivi (GPX / TCX / XML)</label>
+        <input id="pg_gpx_file" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml">
         <button class="btn" id="btnPgImportGpx">Carica</button>
       </fieldset>
       <fieldset>
