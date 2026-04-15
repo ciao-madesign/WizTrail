@@ -114,14 +114,31 @@
   function updateGpxInfo(gpxPts, metrics) {
     const el = document.getElementById('gpxInfo');
     if (!el) return;
-    el.textContent =
-      `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km, D+: ${Math.round(metrics.gain)} m`;
 
-    // Pre-riempie distanza e D+ nel form
-    const distEl  = document.getElementById('dist');
+    // Rileva se il GPX manca di dati elevazione
+    const hasElevation = metrics.gain > 0 ||
+      (metrics.e && metrics.e.some(v => v !== 0));
+
+    if (hasElevation) {
+      el.textContent =
+        `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km, D+: ${Math.round(metrics.gain)} m`;
+    } else {
+      el.innerHTML =
+        `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km &nbsp;` +
+        `<span style="color:#F79617; font-weight:600;">` +
+        `⚠ GPX senza dati altimetrici — inserisci D+ manualmente</span>`;
+    }
+
+    // Pre-riempie distanza sempre (viene dal GPS, è affidabile)
+    const distEl = document.getElementById('dist');
+    if (distEl) distEl.value = metrics.km.toFixed(3);
+
+    // Pre-riempie D+ solo se il GPX ha dati elevazione
+    // Se manca, lascia il valore che l'utente ha già inserito (o il default)
     const dplusEl = document.getElementById('dplus');
-    if (distEl)  distEl.value  = metrics.km.toFixed(3);
-    if (dplusEl) dplusEl.value = Math.round(metrics.gain);
+    if (dplusEl && hasElevation) {
+      dplusEl.value = Math.round(metrics.gain);
+    }
   }
 
   /* ------------------------------------------------------------------
