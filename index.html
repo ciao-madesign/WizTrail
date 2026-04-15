@@ -122,27 +122,6 @@
               Fattore indicativo — incide ≤2% sul WDI finale
             </div>
           </div>
-
-          <!-- TOGGLE ENHANCED OSM -->
-          <div style="margin-top:14px;">
-            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-              <input type="checkbox" id="enhancedToggle">
-              <span>✦ Enhanced Mode (OSM terrain analysis)</span>
-            </label>
-            <div id="enhancedDisclosure" style="display:none; margin-top:8px; padding:10px;
-                 background:rgba(255,200,0,0.1); border-radius:8px; font-size:0.82rem;">
-              ⚠️ Enhanced Mode analizza la superficie del terreno tramite OpenStreetMap.<br>
-              Le coordinate GPS vengono inviate a Overpass API (servizio esterno).<br>
-              Attivando accetti l'invio dei dati a servizi terzi.
-              <br><br>
-              <button id="enhancedConfirm" class="btn"
-                      style="font-size:0.8rem; padding:4px 12px;">Attiva Enhanced</button>
-              <button id="enhancedCancel"
-                      style="font-size:0.8rem; padding:4px 12px; margin-left:8px;
-                             background:none; border:none; cursor:pointer; opacity:0.7;">Annulla</button>
-            </div>
-            <div id="enhancedStatus" style="display:none; font-size:0.8rem; margin-top:6px; opacity:0.8;"></div>
-          </div>
         </fieldset>
 
         <fieldset>
@@ -552,19 +531,19 @@
 
 <!-- Engine esistenti (invariati) -->
 <script src="wiztrail-engine.js?v=20260401"></script>
-<!-- wiztrail-osm.js viene caricato dinamicamente da main.js solo su richiesta utente -->
+<!-- wiztrail-osm.js disabilitato: Enhanced Mode rimosso temporaneamente -->
 <script src="wiztrail-pacing.js?v=20260320"></script>
 <script src="wiztrail-report.js"></script>
 <script src="wiztrail-postgara.js?v=20260318"></script>
 
 <!-- Nuovi moduli Fase 1 -->
-<script src="gpx-parser.js"></script>
-<script src="discipline-classifier.js"></script>
-<script src="map.js"></script>
-<script src="ui.js"></script>
+<script src="gpx-parser.js?v=20260415"></script>
+<script src="discipline-classifier.js?v=20260415"></script>
+<script src="map.js?v=20260415"></script>
+<script src="ui.js?v=20260415"></script>
 
 <!-- Entry point -->
-<script src="main.js"></script>
+<script src="main.js?v=20260415"></script>
 
 </body>
 </html>
