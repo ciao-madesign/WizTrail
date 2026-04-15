@@ -162,6 +162,15 @@ tr.style.transition = "background 0.2s ease, border 0.2s ease";
     .then(res => res.text())
     .then(gpxText => {
       sessionStorage.setItem("currentRaceGPX", gpxText);
+      sessionStorage.setItem("currentRaceMeta", JSON.stringify({
+        name:       r.name,
+        distance:   r.distance,
+        dplus:      r.dplus,
+        wdi:        r.wdi,
+        class:      r.class,
+        color:      r.color,
+        discipline: r.discipline || 'trail'
+      }));
       window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
     })
     .catch(err => {
