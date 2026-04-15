@@ -62,6 +62,8 @@
 </div>
 
 <script src="wiztrail-engine.js"></script>
+<script src="gpx-parser.js"></script>
+<script src="discipline-classifier.js"></script>
 
 <script>
 
@@ -143,22 +145,15 @@ async function loadGPX(){
     return;
   }
 
-  const xml = new DOMParser().parseFromString(gpx, "application/xml");
-  const pts = [];
-
-  [...xml.getElementsByTagName("trkpt")].forEach(p=>{
-    const lat = parseFloat(p.getAttribute("lat"));
-    const lon = parseFloat(p.getAttribute("lon"));
-    const ele = parseFloat(p.getElementsByTagName("ele")[0]?.textContent || 0);
-    pts.push([lat, lon, ele]);
-  });
+  const xml  = new DOMParser().parseFromString(gpx, "application/xml");
+  const pts  = GPXParser.parseTrack(xml);
 
   if (!pts.length){
     alert("GPX vuoto o non valido.");
     return;
   }
 
-  const metrics = computeMetrics(pts);
+  const metrics = GPXParser.compute(pts);
   rs = WizTrail.computeFromGpx(pts, metrics);
 
   // UI
@@ -166,7 +161,9 @@ async function loadGPX(){
   dplusVal.textContent = metrics.gain + " m";
 
   altMedVal.textContent  = "—";
-  altMaxVal.textContent  = "—";
+  altMaxVal.textContent  = metrics.max_altitude > 0
+    ? Math.round(metrics.max_altitude) + " m"
+    : "—";
   varVal.textContent     = "—";
   ascVal.textContent     = "—";
   descVal.textContent    = "—";
@@ -183,43 +180,6 @@ async function loadGPX(){
   elevCanvas.width = elevCanvas.clientWidth;
   elevCanvas.height = elevCanvas.clientHeight;
   drawElevation(elevCanvas, metrics.e);
-}
-
-
-// ================================
-// Metriche (D+ intero)
-// ================================
-function computeMetrics(pts){
-  const R = 6371000;
-  let d=[0], e=[], gain=0;
-
-  for (let i=0; i<pts.length; i++){
-    e.push(pts[i][2]);
-
-    if (i === 0) continue;
-
-    const lat1=pts[i-1][0]*Math.PI/180,
-          lon1=pts[i-1][1]*Math.PI/180,
-          lat2=pts[i][0]*Math.PI/180,
-          lon2=pts[i][1]*Math.PI/180;
-
-    const a = Math.sin((lat2-lat1)/2)**2 +
-              Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
-
-    const dist = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * R;
-
-    d.push(d[d.length-1] + dist);
-
-    if (e[i] > e[i-1])
-      gain += Math.round(e[i] - e[i-1]);
-  }
-
-  return {
-    km: d[d.length-1] / 1000,
-    gain: Math.round(gain),
-    e,
-    d
-  };
 }
 
 loadGPX();
