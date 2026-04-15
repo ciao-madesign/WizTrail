@@ -106,40 +106,7 @@
 
 <script src="discipline-classifier.js"></script>
 <script src="wiztrail-engine.js"></script>
-<script>
-function parseGPX(text){
-  const xml = new DOMParser().parseFromString(text, "application/xml");
-  const pts = [];
-
-  [...xml.getElementsByTagName("trkpt")].forEach(p => {
-    const lat = parseFloat(p.getAttribute("lat"));
-    const lon = parseFloat(p.getAttribute("lon"));
-    const ele = parseFloat(p.getElementsByTagName("ele")[0]?.textContent || 0);
-    pts.push([lat, lon, ele]);
-  });
-
-  return pts;
-}
-</script>
-<script>
-function computeMetrics(pts){
-  const R=6371000;
-  let d=[0], e=[], gain=0;
-  for(let i=0;i<pts.length;i++){
-    e.push(pts[i][2]);
-    if(i===0) continue;
-
-    const lat1=pts[i-1][0]*Math.PI/180, lon1=pts[i-1][1]*Math.PI/180;
-    const lat2=pts[i][0]*Math.PI/180, lon2=pts[i][1]*Math.PI/180;
-    const a=Math.sin((lat2-lat1)/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin((lon2-lon1)/2)**2;
-    const dist=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*R;
-
-    d.push(d[d.length-1]+dist);
-    if(e[i]-e[i-1] > 0) gain += e[i]-e[i-1];
-  }
-  return {km:d[d.length-1]/1000,gain,e,d};
-}
-</script>
+<script src="gpx-parser.js"></script>
 <script>
 //---------------------------------------- tema
 const themeSel = document.getElementById("themeSel");
@@ -266,9 +233,15 @@ btnAdminCompute?.addEventListener("click", async () => {
  if (!raceName) return alert("Inserisci il nome gara");
  const text = await gp.text();
  const xml = new DOMParser().parseFromString(text, "application/xml");
-const pts = parseGPX(text);
-const metrics = computeMetrics(pts);
+const pts = GPXParser.parseTrack(xml);
+const metrics = GPXParser.compute(pts);
 const rs = WizTrail.computeFromGpx(pts, metrics);
+const disc = DisciplineClassifier.classify({
+  distance_km: metrics.km,
+  dplus: metrics.gain,
+  max_altitude: metrics.max_altitude,
+  wdi: rs.WDI
+});
 
 adminOutput.textContent = `{
   "name": "${raceName}",
@@ -277,8 +250,10 @@ adminOutput.textContent = `{
   "wdi": ${rs.WDI.toFixed(1)},
   "class": "${rs.class}",
   "color": "${rs.color}",
+  "discipline": "${disc}",
   "techScore": ${rs.TechScore.toFixed(1)},
-  "techClass": "${rs.techClass}"
+  "techClass": "${rs.techClass}",
+  "max_altitude": ${Math.round(metrics.max_altitude)}
 }`;
 });
 
@@ -288,8 +263,8 @@ btnUserCompute?.addEventListener("click", async () => {
  if (!gp) return alert("Carica un GPX");
  const text = await gp.text();
  const xml = new DOMParser().parseFromString(text, "application/xml");
-const pts = parseGPX(text);
-const metrics = computeMetrics(pts);
+const pts = GPXParser.parseTrack(xml);
+const metrics = GPXParser.compute(pts);
 const rs = WizTrail.computeFromGpx(pts, metrics);
 
 userResult.innerHTML = `
