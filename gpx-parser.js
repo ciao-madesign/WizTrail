@@ -3,6 +3,8 @@
  * Estratto da index.html nel refactoring Fase 1.
  * Esposto come window.GPXParser = { parseTrack, compute, smoothElevation,
  *                                    hav, clampSlope, computeSegments }
+ * compute() restituisce { km, gain, e[], d[], max_altitude }
+ * max_altitude: prerequisito per il Discipline Classifier (DC-1)
  */
 (function () {
   'use strict';
@@ -59,10 +61,11 @@
 
   /* ------------------------------------------------------------------
      3) COMPUTE METRICS
-     Calcola { km, gain, e[], d[] } dai punti GPS
+     Calcola { km, gain, e[], d[], max_altitude } dai punti GPS
+     max_altitude: prerequisito per il Discipline Classifier (DC-1)
      ------------------------------------------------------------------ */
   function compute(pts) {
-    if (pts.length < 2) return { km: 0, gain: 0, e: [], d: [] };
+    if (pts.length < 2) return { km: 0, gain: 0, e: [], d: [], max_altitude: 0 };
 
     const elev = pts.map(p => p[2]);
     const d    = [0];
@@ -76,7 +79,10 @@
       if (de > 1) gain += de;
     }
 
-    return { km: dist / 1000, gain, e: elev, d };
+    // reduce invece di Math.max(...elev) per sicurezza su tracce con molti punti
+    const max_altitude = elev.reduce((m, v) => (Number.isFinite(v) && v > m ? v : m), 0);
+
+    return { km: dist / 1000, gain, e: elev, d, max_altitude };
   }
 
   /* ------------------------------------------------------------------
