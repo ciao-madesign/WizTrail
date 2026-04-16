@@ -66,7 +66,7 @@
 
   <!-- HERO LANDING -->
   <div class="hero">
-    <h1>Analizza la difficoltà<br>del tuo <em>trail</em></h1>
+    <h1>Analizza la difficoltà del tuo <em>trail</em></h1>
     <p>Carica il GPX, calcola il WDI e stima il tuo tempo di gara.</p>
   </div>
 
@@ -95,7 +95,7 @@
     <button class="tab-btn" data-tab="map2d">Mappa 2D</button>
     <button class="tab-btn" data-tab="howto">How‑to</button>
     <button class="tab-btn" data-tab="fond">Fondamenti</button>
-    <button class="tab-btn" data-tab="lic">Licenze & Policy</button>
+    <button class="tab-btn" data-tab="lic">Licenze</button>
     <button class="tab-btn" data-tab="postgara">Post‑gara</button>
   </div>
 
@@ -190,15 +190,20 @@
           </fieldset>
         </div>
         <fieldset>
-          <legend>Familiarità percorso</legend>
-          <input id="spec" type="range" min="0" max="1" step="0.1" value="0.2"/>
-          <div class="mini" style="margin-top:4px;">S = 0.2 → amatore medio; S = 0.4 → amatore avanzato; S = 0.8 → atleta competitivo.</div>
+          <legend>Livello</legend>
+          <input id="spec" type="range" min="0" max="1" step="0.1" value="0.2" style="width:100%; margin:6px 0;"/>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7;">
+            <span>Principiante</span><span>Amatore</span><span>Avanzato</span><span>Semi-pro</span><span>Pro</span>
+          </div>
         </fieldset>
       </div><!-- /accordion-body -->
 
-      <div class="toolbar" style="margin-top:16px;">
-        <button class="btn" id="calcBtn">Calcola</button>
-        <button class="btn secondary" id="resetBtn">Reset</button>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px; gap:12px; flex-wrap:wrap;">
+        <div style="display:flex; gap:10px;">
+          <button class="btn" id="calcBtn">Calcola</button>
+          <button class="btn secondary" id="resetBtn">Reset</button>
+        </div>
+        <button id="btnFotoJson" style="background:none; border:none; cursor:pointer; font-size:0.82rem; color:var(--muted); text-decoration:underline; text-underline-offset:3px; font-family:inherit; padding:0;">scarica riepilogo JSON</button>
       </div>
 
       <div id="calc_tips" class="card" style="display:none; margin-top:8px;">
@@ -211,21 +216,28 @@
 
       <div id="msg" class="mini"></div>
 
-      <div class="toolbar">
-        <button class="btn" id="btnFotoJson">Riepilogo (JSON)</button>
-        <p class="mini">I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
-      </div>
-
-      <div class="grid" style="margin-top:8px">
-        <div class="kpi"><h3>Tempo finale</h3><div class="val" id="outFinal">—:—</div></div>
-        <div class="kpi"><h3>Basso</h3><div class="val" id="outLow">—:—</div></div>
-        <div class="kpi"><h3>Alto</h3><div class="val" id="outHigh">—:—</div></div>
-        <div class="kpi">
-          <h3>WDI (WizTrail Difficulty Index)</h3>
-          <div class="val" id="outRaceScore" style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
-          <div id="outRaceScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
+      <!-- KPI primari: WDI + Tempo -->
+      <div id="kpiResults" style="margin-top:16px;">
+        <div class="grid grid-2" style="gap:12px; margin-bottom:12px;">
+          <div class="kpi kpi-primary">
+            <h3>WDI</h3>
+            <div class="val" id="outRaceScore" style="font-size:3rem; font-weight:900; margin-bottom:4px; transition:color 0.3s;">—</div>
+            <div id="outRaceScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
+          </div>
+          <div class="kpi kpi-primary">
+            <h3>Tempo stimato</h3>
+            <div class="val" id="outFinal" style="font-size:2.2rem; font-weight:900;">—:—</div>
+          </div>
         </div>
-        <div class="kpi" id="techScoreBox" style="display:none;">
+        <!-- KPI secondari: range -->
+        <div class="kpi-secondary-row">
+          <span class="kpi-sec-label">Intervallo</span>
+          <span class="kpi-sec-val"><span class="kpi-sec-dim">min</span> <span id="outLow">—:—</span></span>
+          <span class="kpi-sec-sep">–</span>
+          <span class="kpi-sec-val"><span id="outHigh">—:—</span> <span class="kpi-sec-dim">max</span></span>
+        </div>
+        <!-- TechScore (opzionale) -->
+        <div class="kpi" id="techScoreBox" style="display:none; margin-top:12px;">
           <h3>TechScore</h3>
           <div class="val" id="outTechScore" style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
           <div id="outTechScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
@@ -538,5 +550,4 @@
 <script src="main.js?v=20260415b"></script>
 
 </body>
-</html>
 </html>
