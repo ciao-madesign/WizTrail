@@ -371,7 +371,7 @@
       heroBg.style.backgroundImage = `url('${heroImg.src}')`;
       heroBg.classList.add('hero-bg-loaded');
     };
-    heroImg.src = 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=1400&q=80&auto=format&fit=crop';
+    heroImg.src = 'https://source.unsplash.com/8TJbrQGKFyU/1400x480';
   }
 
   document.getElementById('heroCtaBtn')?.addEventListener('click', (e) => {
