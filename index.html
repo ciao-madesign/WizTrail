@@ -62,6 +62,17 @@
   <a href="install.html" class="wiz-banner-link">📱 Aggiungi WizTrail alla Home!</a>
 </div>
 
+<!-- HERO LANDING -->
+<div class="hero">
+  <h1>Analizza la difficoltà<br>del tuo <em>trail</em></h1>
+  <p>Carica il GPX, calcola il WDI e stima il tuo tempo di gara.<br>Gratuito, tutto in locale, nessun dato inviato a server.</p>
+  <div class="hero-cta">
+    <span class="hero-badge">📍 Basato su GPX reale</span>
+    <span class="hero-badge">🔒 Privacy first</span>
+    <span class="hero-badge">⚡ Istantaneo</span>
+  </div>
+</div>
+
 <!-- Toolbar Link WDI -->
 <div class="wdi-toolbar">
   <a href="training-analyzer.html" class="wdi-btn">Training Analyzer</a>
@@ -71,12 +82,9 @@
 </div>
 
 <div class="wrap">
-  <section id="intro" class="site-intro" aria-label="Introduzione">
-    <p>Stima la tua performance in gara combinando i tuoi dati con le caratteristiche del percorso.</p>
-  </section>
 
-  <h1>
-    <span>WizTrail</span>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+    <h1 style="margin:0; font-size:1.1rem; opacity:0;">WizTrail</h1>
     <span class="theme-ctrl">
       <label class="mini">Tema</label>
       <select id="themeSel">
@@ -84,7 +92,7 @@
         <option value="light">Chiaro</option>
       </select>
     </span>
-  </h1>
+  </div>
 
   <!-- NAV TABS -->
   <div class="tabs">
@@ -99,48 +107,51 @@
 
   <!-- PANEL: CALCOLATORE -->
   <section id="calc" class="panel active">
-    <div class="card grid grid-2">
+    <div class="card">
 
-      <!-- Colonna sinistra -->
-      <div>
-        <fieldset>
-          <legend>Traccia GPS (opzionale)</legend>
-          <label>Carica GPX / TCX / XML</label>
-          <input id="gpxfile" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
-          <div class="mini" style="margin-top:4px; opacity:0.6;">Compatibile con Garmin, Suunto, Wikiloc, Komoot e qualsiasi app che esporti GPX</div>
-          <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
-
-          <!-- SLIDER SUPERFICIE -->
-          <div style="margin-top:12px;">
-            <label>Tipo di terreno prevalente</label>
-            <input type="range" id="surfaceSlider" min="1" max="5" value="3" step="1"
-                   style="width:100%; margin:6px 0;">
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7;">
-              <span>Strada</span><span>Sentiero</span><span>Misto</span><span>Ghiaione</span><span>Roccia</span>
-            </div>
-            <div class="mini" style="opacity:0.6; margin-top:4px;">
-              Fattore indicativo — incide ≤2% sul WDI finale
-            </div>
+      <fieldset>
+        <legend>Traccia GPS (opzionale)</legend>
+        <label>Carica GPX / TCX / XML</label>
+        <input id="gpxfile" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
+        <div class="mini" style="margin-top:4px; opacity:0.6;">Compatibile con Garmin, Suunto, Wikiloc, Komoot e qualsiasi app che esporti GPX</div>
+        <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
+        <div id="gpxEmpty" class="gpx-empty" style="display:none;">
+          <span class="gpx-empty-icon">📂</span>
+          <span>Nessun GPX caricato — distanza e D+ possono essere inseriti manualmente</span>
+        </div>
+        <div style="margin-top:12px;">
+          <label>Tipo di terreno prevalente</label>
+          <input type="range" id="surfaceSlider" min="1" max="5" value="3" step="1"
+                 style="width:100%; margin:6px 0;">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7;">
+            <span>Strada</span><span>Sentiero</span><span>Misto</span><span>Ghiaione</span><span>Roccia</span>
           </div>
-        </fieldset>
+          <div class="mini" style="opacity:0.6; margin-top:4px;">Fattore indicativo — incide ≤2% sul WDI finale</div>
+        </div>
+      </fieldset>
 
-        <fieldset>
-          <legend>Parametri atleta</legend>
-          <label>Tempo 10 km (mm:ss)</label>
-          <input id="t10k" type="text" value="50:00"/>
-        </fieldset>
+      <fieldset>
+        <legend>Parametri atleta</legend>
+        <label>Tempo 10 km (mm:ss)</label>
+        <input id="t10k" type="text" value="50:00"/>
+      </fieldset>
 
+      <div class="grid grid-2" style="gap:12px;">
         <fieldset>
-          <legend>Parametri gara</legend>
-          <label>Distanza (km)</label>
+          <legend>Distanza (km)</legend>
           <input id="dist" type="number" step="0.001" value="21.097"/>
-          <label>D+ (m)</label>
+        </fieldset>
+        <fieldset>
+          <legend>D+ (m)</legend>
           <input id="dplus" type="number" step="1" value="0"/>
         </fieldset>
       </div>
 
-      <!-- Colonna destra -->
-      <div>
+      <!-- ACCORDION PARAMETRI AVANZATI -->
+      <button class="accordion-toggle" id="advToggle" aria-expanded="false">
+        <span class="acc-arrow">▼</span> Parametri avanzati
+      </button>
+      <div class="accordion-body" id="advBody">
         <fieldset>
           <legend>Tecnica del percorso</legend>
           <label>Livello tecnicità</label>
@@ -151,96 +162,83 @@
             <option value="EA">EA – Tecnico / Esposizione</option>
           </select>
         </fieldset>
-
+        <div class="grid grid-2" style="gap:12px;">
+          <fieldset>
+            <legend>Meteo</legend>
+            <select id="meteo">
+              <option value="1.00">Fresco</option>
+              <option value="1.02">Mite</option>
+              <option value="1.04" selected>Caldo</option>
+              <option value="1.07">Molto caldo</option>
+            </select>
+          </fieldset>
+          <fieldset>
+            <legend>Altitudine media</legend>
+            <select id="alt">
+              <option value="1.00">≤500 m</option>
+              <option value="1.01">500–1000 m</option>
+              <option value="1.02" selected>1000–1500 m</option>
+              <option value="1.03">1500–2000 m</option>
+              <option value="1.04">&gt;2000 m</option>
+            </select>
+          </fieldset>
+          <fieldset>
+            <legend>Accumulo fatica</legend>
+            <select id="fatica">
+              <option value="1.00">Basso</option>
+              <option value="1.02">Medio</option>
+              <option value="1.03" selected>Alto</option>
+            </select>
+          </fieldset>
+          <fieldset>
+            <legend>Margine ±%</legend>
+            <input id="margin" type="number" value="10"/>
+          </fieldset>
+        </div>
         <fieldset>
-          <legend>Condizioni gara</legend>
-          <label>Meteo</label>
-          <select id="meteo">
-            <option value="1.00">Fresco</option>
-            <option value="1.02">Mite</option>
-            <option value="1.04" selected>Caldo</option>
-            <option value="1.07">Molto caldo</option>
-          </select>
-
-          <label>Altitudine</label>
-          <select id="alt">
-            <option value="1.00">≤500 m</option>
-            <option value="1.01">500–1000 m</option>
-            <option value="1.02" selected>1000–1500 m</option>
-            <option value="1.03">1500–2000 m</option>
-            <option value="1.04">&gt;2000 m</option>
-          </select>
-
-          <label>Accumulo fatica</label>
-          <select id="fatica">
-            <option value="1.00">Basso</option>
-            <option value="1.02">Medio</option>
-            <option value="1.03" selected>Alto</option>
-          </select>
-
-          <label>Familiarità</label>
+          <legend>Familiarità percorso</legend>
           <input id="spec" type="range" min="0" max="1" step="0.1" value="0.2"/>
-          <div class="mini" style="margin-top:4px;">
-            S = 0.2 → amatore medio; S = 0.4 → amatore avanzato; S = 0.8 → atleta competitivo.
-          </div>
-
-          <label>Margine ±%</label>
-          <input id="margin" type="number" value="10"/>
+          <div class="mini" style="margin-top:4px;">S = 0.2 → amatore medio; S = 0.4 → amatore avanzato; S = 0.8 → atleta competitivo.</div>
         </fieldset>
+      </div><!-- /accordion-body -->
 
-        <div class="toolbar">
-          <button class="btn" id="calcBtn">Calcola</button>
-          <button class="btn secondary" id="resetBtn">Reset</button>
+      <div class="toolbar" style="margin-top:16px;">
+        <button class="btn" id="calcBtn">Calcola</button>
+        <button class="btn secondary" id="resetBtn">Reset</button>
+      </div>
+
+      <div id="calc_tips" class="card" style="display:none; margin-top:8px;">
+        <div id="calc_tips_header" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+          <h3 style="margin:0;">Suggerimenti</h3>
+          <button id="calc_tips_toggle" class="btn secondary" style="padding:6px 10px; font-size:13px;">Mostra suggerimenti</button>
         </div>
+        <div id="calc_tips_body" class="mini" style="display:none; margin-top:10px;"></div>
+      </div>
 
-        <div id="calc_tips" class="card" style="display:none; margin-top:8px;">
-          <div id="calc_tips_header" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
-            <h3 style="margin:0;">Suggerimenti</h3>
-            <button id="calc_tips_toggle" class="btn secondary" style="padding:6px 10px; font-size:13px;">Mostra suggerimenti</button>
-          </div>
-          <div id="calc_tips_body" class="mini" style="display:none; margin-top:10px;"></div>
+      <div id="msg" class="mini"></div>
+
+      <div class="toolbar">
+        <button class="btn" id="btnFotoJson">Riepilogo (JSON)</button>
+        <p class="mini">I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
+      </div>
+
+      <div class="grid" style="margin-top:8px">
+        <div class="kpi"><h3>Tempo finale</h3><div class="val" id="outFinal">—:—</div></div>
+        <div class="kpi"><h3>Basso</h3><div class="val" id="outLow">—:—</div></div>
+        <div class="kpi"><h3>Alto</h3><div class="val" id="outHigh">—:—</div></div>
+        <div class="kpi">
+          <h3>WDI (WizTrail Difficulty Index)</h3>
+          <div class="val" id="outRaceScore" style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
+          <div id="outRaceScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
         </div>
-
-        <div id="msg" class="mini"></div>
-
-        <div class="toolbar">
-          <button class="btn" id="btnFotoJson">Riepilogo (JSON)</button>
-          <p class="mini">I file vengono generati localmente sul tuo dispositivo; nessun dato viene inviato a server.</p>
+        <div class="kpi" id="techScoreBox" style="display:none;">
+          <h3>TechScore</h3>
+          <div class="val" id="outTechScore" style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
+          <div id="outTechScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
         </div>
+      </div>
 
-        <!-- KPI FINALI -->
-        <div class="grid" style="margin-top:8px">
-          <div class="kpi">
-            <h3>Tempo finale</h3>
-            <div class="val" id="outFinal">—:—</div>
-          </div>
-          <div class="kpi">
-            <h3>Basso</h3>
-            <div class="val" id="outLow">—:—</div>
-          </div>
-          <div class="kpi">
-            <h3>Alto</h3>
-            <div class="val" id="outHigh">—:—</div>
-          </div>
-          <div class="kpi">
-            <h3>WDI (WizTrail Difficulty Index)</h3>
-            <div class="val" id="outRaceScore"
-                 style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
-            <div id="outRaceScoreSub"
-                 style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
-          </div>
-          <!-- TECHSCORE KPI -->
-          <div class="kpi" id="techScoreBox" style="display:none;">
-            <h3>TechScore</h3>
-            <div class="val" id="outTechScore"
-                 style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
-            <div id="outTechScoreSub"
-                 style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
-          </div>
-        </div>
-      </div><!-- /colonna destra -->
-
-    </div><!-- /card grid -->
+    </div><!-- /card -->
   </section>
 
   <!-- PANEL: PACING -->
