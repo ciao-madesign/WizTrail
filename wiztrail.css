@@ -222,7 +222,109 @@ body[data-theme="light"] fieldset{
 
 /* Intro breve sotto header */
 
-.site-intro {
+/* ===== HERO LANDING ===== */
+.hero {
+  padding: 28px 0 16px;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 900;
+  margin: 0 0 10px;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+.hero p {
+  font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+  color: var(--muted);
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+.hero-cta {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+/* ===== ACCORDION PARAMETRI AVANZATI ===== */
+.accordion-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 8px 0;
+  font-family: inherit;
+  font-weight: 600;
+  width: 100%;
+  text-align: left;
+}
+.accordion-toggle:hover { opacity: 0.8; }
+.accordion-toggle .acc-arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+  font-size: 0.7rem;
+}
+.accordion-toggle.open .acc-arrow { transform: rotate(180deg); }
+.accordion-body {
+  display: none;
+}
+.accordion-body.open { display: block; }
+
+/* ===== ONBOARDING EMPTY STATE ===== */
+.gpx-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 12px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 8px;
+  transition: border-color 0.2s;
+}
+.gpx-empty-icon { font-size: 2rem; opacity: 0.5; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+  .grid.grid-2 { grid-template-columns: 1fr; }
+  .tabs { gap: 6px; }
+  .tab-btn { font-size: 0.78rem; padding: 6px 10px; }
+  .hero { padding: 18px 0 12px; }
+  .btn { min-height: 44px; font-size: 0.95rem; }
+  input[type="text"], input[type="number"], select {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+  input[type="file"] { font-size: 0.85rem; }
+  fieldset { padding: 10px 12px; }
+}
+
+
   padding: 4px 10px;          /* meno spazio interno */
   margin: 8px auto 2px;       /* riduce spazi sopra e sotto */
   max-width: 720px;           /* leggermente più stretta */
