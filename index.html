@@ -141,16 +141,19 @@
         <input id="t10k" type="text" value="50:00"/>
       </fieldset>
 
-      <div class="grid grid-2" style="gap:12px;">
-        <fieldset>
-          <legend>Distanza (km)</legend>
-          <input id="dist" type="number" step="0.001" value="21.097"/>
-        </fieldset>
-        <fieldset>
-          <legend>D+ (m)</legend>
-          <input id="dplus" type="number" step="1" value="0"/>
-        </fieldset>
-      </div>
+      <fieldset>
+        <legend>Parametri gara</legend>
+        <div class="grid grid-2" style="gap:12px; margin-top:8px;">
+          <fieldset>
+            <legend>Distanza (km)</legend>
+            <input id="dist" type="number" step="0.001" value="21.097"/>
+          </fieldset>
+          <fieldset>
+            <legend>D+ (m)</legend>
+            <input id="dplus" type="number" step="1" value="0"/>
+          </fieldset>
+        </div>
+      </fieldset>
 
       <!-- ACCORDION PARAMETRI AVANZATI -->
       <button class="accordion-toggle" id="advToggle" aria-expanded="false">
