@@ -91,6 +91,8 @@ body::after {
 
     backdrop-filter: blur(16px) saturate(130%);
     -webkit-backdrop-filter: blur(16px) saturate(130%);
+
+    animation: wizFadeIn var(--dur-slow) var(--ease-out) both;
 }
 body[data-theme="light"] .wrap{
   background: color-mix(in oklab, var(--card) 78%, transparent);
@@ -126,7 +128,7 @@ h1{
 .tab-btn.active{ background: color-mix(in oklab, var(--accent) 80%, transparent); color:#062827; border-color:transparent; }
 
 .panel{ display:none; background:transparent; }
-.panel.active{ display:block; }
+/* .panel.active { display:block } — vedi sezione microinterazioni */
 
 /* ===== Card & components (GLASS, opzionale ma attivo qui) ===== */
 .card{
@@ -227,10 +229,10 @@ body[data-theme="light"] fieldset{
   padding: 24px 0 8px;
 }
 .hero h1 {
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
   font-weight: 900;
   margin: 0 0 8px;
-  line-height: 1.2;
+  line-height: 1.25;
   color: var(--ink);
 }
 .hero h1 em {
@@ -268,12 +270,129 @@ body[data-theme="light"] fieldset{
   font-size: 0.65rem;
 }
 .accordion-toggle.open .acc-arrow { transform: rotate(180deg); }
-.accordion-body {
-  display: none;
-}
-.accordion-body.open { display: block; }
+/* accordion-body ora usa max-height transition — vedi sezione microinterazioni */
 
-/* ===== ONBOARDING EMPTY STATE ===== */
+/* ===== MICROINTERAZIONI — variabili centralizzate =====
+   Estendibili a tutto il sito copiando le variabili */
+:root {
+  --dur-fast:   150ms;
+  --dur-base:   250ms;
+  --dur-slow:   350ms;
+  --ease-out:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring:cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+/* Fade-in pagina — animazione sul .wrap principale */
+@keyframes wizFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* L'animazione è aggiunta alla regola .wrap esistente riga 82 */
+
+/* Tab panel fade — solo su switch, non al load */
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.panel.active {
+  display: block;
+}
+.panel.active.tab-animated {
+  animation: panelIn var(--dur-fast) var(--ease-out) both;
+}
+
+/* KPI reveal dopo calcolo */
+@keyframes kpiIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.kpi-primary {
+  animation: none; /* si attiva via JS aggiungendo .kpi-animate */
+}
+.kpi-primary.kpi-animate {
+  animation: kpiIn var(--dur-base) var(--ease-spring) both;
+}
+
+/* Bottoni — feedback tattile */
+.btn {
+  transition:
+    background var(--dur-fast),
+    border-color var(--dur-fast),
+    transform 80ms,
+    opacity var(--dur-fast);
+}
+.btn:active { transform: scale(0.97); }
+
+/* Input focus — bordo accent discreto */
+input[type="text"],
+input[type="number"],
+select {
+  transition:
+    border-color var(--dur-fast),
+    box-shadow var(--dur-fast);
+}
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
+}
+
+/* Accordion — animazione max-height */
+.accordion-body {
+  display: block;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-base) var(--ease-out),
+              opacity var(--dur-fast) var(--ease-out);
+  opacity: 0;
+}
+.accordion-body.open {
+  max-height: 800px; /* valore abbondante */
+  opacity: 1;
+}
+
+/* ===== KPI GERARCHIA ===== */
+.kpi-primary {
+  background: color-mix(in oklab, var(--accent) 6%, var(--card));
+  border: 1px solid color-mix(in oklab, var(--accent) 20%, var(--border));
+}
+
+.kpi-secondary-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.88rem;
+}
+.kpi-sec-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  flex: 1;
+}
+.kpi-sec-val {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 1rem;
+}
+.kpi-sec-dim {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+.kpi-sec-sep {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+
 .gpx-empty {
   display: flex;
   flex-direction: column;
