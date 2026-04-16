@@ -362,6 +362,27 @@
   // Da ripristinare con proxy serverless + CORINE (vedi task Notion).
 
   /* ------------------------------------------------------------------
+     HERO — carica immagine Unsplash + CTA scroll
+     ------------------------------------------------------------------ */
+  const heroBg = document.getElementById('heroBgImg');
+  if (heroBg) {
+    const heroImg = new Image();
+    heroImg.onload = () => {
+      heroBg.style.backgroundImage = `url('${heroImg.src}')`;
+      heroBg.classList.add('hero-bg-loaded');
+    };
+    heroImg.src = 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=1400&q=80&auto=format&fit=crop';
+  }
+
+  document.getElementById('heroCtaBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelector('.tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Attiva il tab calcolatore
+    const calcBtn = document.querySelector('[data-tab="calc"]');
+    if (calcBtn) calcBtn.click();
+  });
+
+  /* ------------------------------------------------------------------
      ACCORDION PARAMETRI AVANZATI
      ------------------------------------------------------------------ */
   const advToggle = document.getElementById('advToggle');
