@@ -346,4 +346,35 @@
   // wiztrail-osm.js disabilitato: OSM Enhanced rimosso (0% copertura Overpass API).
   // Da ripristinare con proxy serverless + CORINE (vedi task Notion).
 
+  /* ------------------------------------------------------------------
+     ACCORDION PARAMETRI AVANZATI
+     ------------------------------------------------------------------ */
+  const advToggle = document.getElementById('advToggle');
+  const advBody   = document.getElementById('advBody');
+  if (advToggle && advBody) {
+    advToggle.addEventListener('click', function () {
+      const open = advBody.classList.toggle('open');
+      advToggle.classList.toggle('open', open);
+      advToggle.setAttribute('aria-expanded', open);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     GPX EMPTY STATE — mostra messaggio se nessun GPX caricato
+     ------------------------------------------------------------------ */
+  const gpxEmpty = document.getElementById('gpxEmpty');
+  const gpxInfo  = document.getElementById('gpxInfo');
+  if (gpxEmpty && gpxInfo) {
+    // Mostra empty state inizialmente
+    gpxEmpty.style.display = 'flex';
+    // Nasconde quando GPX caricato
+    document.getElementById('gpxfile')?.addEventListener('change', function (e) {
+      if (e.target.files && e.target.files.length > 0) {
+        gpxEmpty.style.display = 'none';
+      } else {
+        gpxEmpty.style.display = 'flex';
+      }
+    });
+  }
+
 })();
