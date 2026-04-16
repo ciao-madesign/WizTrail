@@ -1,769 +1,395 @@
-:root{
-  --bg:#0a0f14;
-  --card:#121a22;
-  --ink:#e8f2ff;
-  --muted:#a8b3c2;
-  --accent:#4fd1c5;
-  --warn:#ffb020;
-  --error:#ff6b6b;
-  --border:#2a394d;
-  --panel:#0f151c;
-}
-body[data-theme="light"]{
-  --bg:#ffffff;
-  --card:#f7f9fc;
-  --ink:#0a0f14;
-  --muted:#5a6b7f;
-  --accent:#0ea5e9;
-  --warn:#b45309;
-  --error:#b91c1c;
-  --border:#d0d8e3;
-  --panel:#ffffff;
-}
+/**
+ * main.js — WizTrail Entry Point
+ * Estratto da index.html nel refactoring Fase 1.
+ *
+ * Dipende (caricati prima in index.html):
+ *   - Leaflet
+ *   - wiztrail-engine.js     → window.WizTrail
+ *   - wiztrail-pacing.js     → window.WizTrailPacing / funzioni pacing
+ *   - wiztrail-postgara.js   → window.WizTrailPostgara
+ *   - wiztrail-report.js     → window.WizTrailReport
+ *   - gpx-parser.js          → window.GPXParser
+ *   - map.js                 → window.WizMap
+ *   - ui.js                  → window.WizUI
+ *
+ * Stato globale esposto su window per compatibilità con i moduli esistenti:
+ *   window.gpxPts, window.metrics, window.currentWDI, window.lastRS
+ */
+(function () {
+  'use strict';
 
-/* ===== Layout/Box fixes ===== */
-*,*::before,*::after{ box-sizing:border-box; }
+  /* ------------------------------------------------------------------
+     STATO GLOBALE
+     ------------------------------------------------------------------ */
+  window.gpxPts            = [];
+  window.metrics           = { e: [], d: [] };
+  window.currentWDI        = null;
+  window.lastRS            = null;
+  window.currentSurfaceLevel = 3;
+  window.lastOsmResult       = null;
 
-html,body{
-  background:var(--bg);
-  color:var(--ink);
-  font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-  margin:0;
-}
+  /* ------------------------------------------------------------------
+     HELPERS — lettura input numerici
+     Esposta su window per compatibilità con wiztrail-pacing.js
+     ------------------------------------------------------------------ */
+  function readNum(id) {
+    return parseFloat(
+      (document.getElementById(id)?.value || '0').replace(',', '.')
+    ) || 0;
+  }
+  window.readNum = readNum;
 
-/* ===== Background hero removed — clean gradients only ===== */
+  /* ------------------------------------------------------------------
+     TEMA
+     ------------------------------------------------------------------ */
+  document.getElementById('themeSel')?.addEventListener('change', e => {
+    document.body.setAttribute('data-theme', e.target.value);
+  });
 
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -2;
+  /* ------------------------------------------------------------------
+     TAB SWITCHING
+     ------------------------------------------------------------------ */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => {
+        p.classList.remove('active');
+      });
+      btn.classList.add('active');
+      const panel = document.getElementById(btn.dataset.tab);
+      if (panel) {
+        // Force reflow per riattivare animazione CSS
+        void panel.offsetWidth;
+        panel.classList.add('active', 'tab-animated');
+      }
 
-    /* Solo due gradienti, NO immagini */
-    background:
-        radial-gradient(1200px 600px at 80% -10%, rgba(79, 209, 197, 0.25), transparent 60%),
-        radial-gradient(900px 500px at 0% 100%, rgba(14, 165, 233, 0.18), transparent 60%);
+      // Mappa 2D: inizializza e ridisegna
+      if (btn.dataset.tab === 'map2d') {
+        WizMap.init();
+        setTimeout(() => {
+          WizMap.drawTrack();
+          WizMap.drawProfile();
+          WizMap.fitTrack();
+        }, 120);
+      }
 
-    filter: saturate(110%) contrast(102%);
-}
+      // Pacing: avviso se manca GPX
+      if (btn.dataset.tab === 'pacing') {
+        const warn = document.getElementById('pc_warning');
+        if (warn) warn.style.display =
+          (!window.gpxPts || !window.gpxPts.length) ? 'block' : 'none';
+      }
+    });
+  });
 
-body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
+  /* ------------------------------------------------------------------
+     CARICAMENTO GPX / TCX
+     ------------------------------------------------------------------ */
+  document.getElementById('gpxfile')?.addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
 
-    background: linear-gradient(
-        to bottom,
-        rgba(10, 15, 20, 0.45),
-        rgba(10, 15, 20, 0.55) 35%,
-        rgba(10, 15, 20, 0.65) 75%,
-        rgba(10, 15, 20, 0.75)
-    );
+    const txt = await f.text();
+    const xml = new DOMParser().parseFromString(txt, 'application/xml');
 
-    pointer-events: none;
-}
+    window.gpxPts  = GPXParser.parseTrack(xml);
+    window.metrics = GPXParser.compute(window.gpxPts);
 
-/* ===== Header (glass) ===== */
-.app-header{
-  position:sticky; top:0; z-index:50;
-  display:flex; align-items:center; justify-content:space-between;
-  height:56px; padding:8px 16px; margin-bottom:10px;
-  background: color-mix(in oklab, var(--card) 60%, transparent);
-  backdrop-filter: blur(10px) saturate(130%);
-  -webkit-backdrop-filter: blur(10px) saturate(130%);
-  border-bottom:1px solid color-mix(in oklab, var(--border) 70%, transparent);
-}
-.app-brand{ display:inline-flex; align-items:center; gap:10px; }
-.brand-mark,.brand-img{ width:26px; height:26px; display:block; }
-.brand-name{ font-weight:800; letter-spacing:.2px; color:var(--ink); opacity:.95; }
+    WizUI.updateGpxInfo(window.gpxPts, window.metrics);
+    WizMap.drawTrack();
+    WizMap.drawProfile();
+  });
 
-/* ===== Page wrapper (GLASS) ===== */
-.wrap {
-    max-width: 1100px;
-    margin: 18px auto;
-    padding: 0 14px;
+  /* ------------------------------------------------------------------
+     PULSANTE "Centra sulla traccia"
+     ------------------------------------------------------------------ */
+  document.getElementById('btnFit')?.addEventListener('click', () => WizMap.fitTrack());
 
-    position: relative;
-    background: color-mix(in oklab, var(--card) 70%, transparent);
-    border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-    border-radius: 16px;
+  /* ------------------------------------------------------------------
+     EXPORT KML
+     ------------------------------------------------------------------ */
+  document.getElementById('btnKml')?.addEventListener('click', () => {
+    if (!window.gpxPts.length) { alert('Carica prima un GPX'); return; }
 
-    backdrop-filter: blur(16px) saturate(130%);
-    -webkit-backdrop-filter: blur(16px) saturate(130%);
+    const coords = window.gpxPts.map(p => `${p[1]},${p[0]},${p[2]}`).join(' ');
+    const kml    = `<?xml version="1.0"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document>
+<Placemark><n>Percorso</n>
+<LineString><coordinates>${coords}</coordinates></LineString>
+</Placemark></Document></kml>`;
 
-    animation: wizFadeIn var(--dur-slow) var(--ease-out) both;
-}
-body[data-theme="light"] .wrap{
-  background: color-mix(in oklab, var(--card) 78%, transparent);
-}
-@media (max-width: 640px) {
-    .wrap {
-        padding: 0 10px;
-        backdrop-filter: blur(12px) saturate(125%);
-        -webkit-backdrop-filter: blur(12px) saturate(125%);
-        border-radius: 12px;
-        margin: 12px auto;
+    const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = 'wiztrail.kml';
+    a.click();
+  });
+
+  /* ------------------------------------------------------------------
+     ENGINE TIME ESTIMATOR v2.0
+     ------------------------------------------------------------------ */
+
+  function velocityFromSlope(p, S, velBase) {
+    if (Math.abs(p) < 0.015) return velBase;
+
+    if (p > 0) {
+      let fatt = 1 + 3.5 * p;
+      fatt *= (1 + (1 - S));
+      if (fatt > 2.0) fatt = 2.0;
+      return velBase / fatt;
     }
-}
 
-h1{
-  font-size:1.45rem;
-  margin:0 0 10px;
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:8px;
-}
-.theme-ctrl{ display:flex; align-items:center; gap:8px; }
+    if (p < 0 && p > -0.10) {
+      let fatt = 1 - 0.5 * Math.abs(p);
+      if (fatt < 0.85) fatt = 0.85;
+      return velBase / fatt;
+    }
 
-.tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
-.tab-btn{
-  appearance:none; border:1px solid var(--border);
-  background: color-mix(in oklab, var(--panel) 70%, transparent);
-  color:var(--ink); border-radius:10px; padding:10px 12px; font-weight:700; cursor:pointer;
-  backdrop-filter: blur(8px) saturate(120%);
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
-}
-.tab-btn.active{ background: color-mix(in oklab, var(--accent) 80%, transparent); color:#062827; border-color:transparent; }
-
-.panel{ display:none; background:transparent; }
-/* .panel.active { display:block } — vedi sezione microinterazioni */
-
-/* ===== Card & components (GLASS, opzionale ma attivo qui) ===== */
-.card{
-  background: color-mix(in oklab, var(--card) 68%, transparent);
-  border-radius:14px; padding:14px 12px;
-  border:1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  box-shadow:0 8px 28px rgba(0,0,0,.18), 0 1px 0 rgba(255,255,255,.04) inset;
-  backdrop-filter: blur(12px) saturate(130%);
-  -webkit-backdrop-filter: blur(12px) saturate(130%);
-}
-
-fieldset{
-  border:1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  border-radius:12px;
-  padding:10px;
-  margin:8px 0;
-  background: color-mix(in oklab, var(--card) 65%, transparent);
-  backdrop-filter: blur(8px) saturate(125%);
-  -webkit-backdrop-filter: blur(8px) saturate(125%);
-}
-legend{ color:var(--muted); font-size:.95rem; padding:0 6px; }
-label{ display:block; font-weight:600; margin:6px 0 4px; }
-
-input[type=text], input[type=number], select{
-  width:100%;
-  background: color-mix(in oklab, var(--panel) 75%, transparent);
-  color:var(--ink);
-  border:1px solid color-mix(in oklab, var(--border) 75%, transparent);
-  border-radius:10px;
-  padding:8px 10px; /* compatti */
-  font-size:14px;
-  backdrop-filter: blur(6px) saturate(120%);
-  -webkit-backdrop-filter: blur(6px) saturate(120%);
-}
-input[type=file]{ color:var(--ink); font-size:14px; }
-
-.btn{
-  appearance:none; border:none; background:var(--accent); color:#062827;
-  padding:12px 14px; border-radius:10px; font-weight:800; cursor:pointer;
-}
-.btn.secondary{ background:#263243; color:#fff; }
-
-/* ===== Grid tuning: evita sovrapposizioni ===== */
-.grid{ display:grid; gap:12px; }
-@media(min-width:900px){
-  .grid-2{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:16px; }
-}
-.grid-2 > * { min-width:0; }
-
-.kpi{
-  background: color-mix(in oklab, var(--panel) 68%, transparent);
-  border:1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  border-radius:12px; padding:12px;
-  backdrop-filter: blur(8px) saturate(125%);
-  -webkit-backdrop-filter: blur(8px) saturate(125%);
-}
-.kpi h3{ margin:0 0 4px; }
-.kpi .val{ font-size:1.45rem; font-weight:900; }
-
-#leafletMap{
-  width:100%; height:50vh; min-height:320px;
-  border:1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  border-radius:12px; margin-bottom:12px;
-  background: color-mix(in oklab, var(--panel) 68%, transparent);
-  backdrop-filter: blur(6px) saturate(120%);
-  -webkit-backdrop-filter: blur(6px) saturate(120%);
-}
-
-.profile-wrap{
-  background: color-mix(in oklab, var(--panel) 68%, transparent);
-  border:1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  border-radius:12px; padding:8px; margin-top:8px;
-  backdrop-filter: blur(8px) saturate(125%);
-  -webkit-backdrop-filter: blur(8px) saturate(125%);
-}
-
-#elevCanvas{ width:100%; height:160px; display:block; touch-action:pan-y; }
-
-.banner-3d{ margin-top:12px; padding:12px; background: color-mix(in oklab, #113 70%, transparent); border-radius:10px; color:#dff; text-align:center; backdrop-filter: blur(8px) saturate(120%); -webkit-backdrop-filter: blur(8px) saturate(120%); border:1px solid color-mix(in oklab, var(--border) 65%, transparent); }
-body[data-theme="light"] .banner-3d{ background: color-mix(in oklab, #dde9ff 80%, transparent); color:#033; }
-
-.footer{ color:var(--muted); font-size:.85rem; margin:14px 0 6px; }
-
-#distCanvas{ width:100%; height:100px; display:block; touch-action:none; }
-
-/* ===== Light theme: più solidità per leggibilità ===== */
-body[data-theme="light"] .card,
-body[data-theme="light"] .kpi,
-body[data-theme="light"] .profile-wrap,
-body[data-theme="light"] fieldset{
-  background: color-mix(in oklab, var(--card) 82%, transparent);
-}
-
-/* Intro breve sotto header */
-
-/* ===== HERO LANDING ===== */
-.hero {
-  padding: 24px 0 8px;
-}
-.hero h1 {
-  font-size: clamp(1.5rem, 3vw, 1.9rem);
-  font-weight: 900;
-  margin: 0 0 8px;
-  line-height: 1.25;
-  color: var(--ink);
-}
-.hero h1 em {
-  font-style: normal;
-  color: var(--accent);
-}
-.hero p {
-  font-size: 0.95rem;
-  color: var(--muted);
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* ===== ACCORDION PARAMETRI AVANZATI ===== */
-.accordion-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: var(--muted);
-  background: none;
-  border: none;
-  padding: 10px 0 6px;
-  font-family: inherit;
-  font-weight: 500;
-  text-align: left;
-  opacity: 0.8;
-  transition: opacity 0.15s;
-}
-.accordion-toggle:hover { opacity: 1; color: var(--ink); }
-.accordion-toggle .acc-arrow {
-  display: inline-block;
-  transition: transform 0.2s;
-  font-size: 0.65rem;
-}
-.accordion-toggle.open .acc-arrow { transform: rotate(180deg); }
-/* accordion-body ora usa max-height transition — vedi sezione microinterazioni */
-
-/* ===== MICROINTERAZIONI — variabili centralizzate =====
-   Estendibili a tutto il sito copiando le variabili */
-:root {
-  --dur-fast:   150ms;
-  --dur-base:   250ms;
-  --dur-slow:   350ms;
-  --ease-out:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --ease-spring:cubic-bezier(0.34, 1.2, 0.64, 1);
-}
-
-/* Fade-in pagina — animazione sul .wrap principale */
-@keyframes wizFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-/* L'animazione è aggiunta alla regola .wrap esistente riga 82 */
-
-/* Tab panel fade — solo su switch, non al load */
-@keyframes panelIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.panel.active {
-  display: block;
-}
-.panel.active.tab-animated {
-  animation: panelIn var(--dur-fast) var(--ease-out) both;
-}
-
-/* KPI reveal dopo calcolo */
-@keyframes kpiIn {
-  from { opacity: 0; transform: scale(0.97); }
-  to   { opacity: 1; transform: scale(1); }
-}
-.kpi-primary {
-  animation: none; /* si attiva via JS aggiungendo .kpi-animate */
-}
-.kpi-primary.kpi-animate {
-  animation: kpiIn var(--dur-base) var(--ease-spring) both;
-}
-
-/* Bottoni — feedback tattile */
-.btn {
-  transition:
-    background var(--dur-fast),
-    border-color var(--dur-fast),
-    transform 80ms,
-    opacity var(--dur-fast);
-}
-.btn:active { transform: scale(0.97); }
-
-/* Input focus — bordo accent discreto */
-input[type="text"],
-input[type="number"],
-select {
-  transition:
-    border-color var(--dur-fast),
-    box-shadow var(--dur-fast);
-}
-input[type="text"]:focus,
-input[type="number"]:focus,
-select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
-}
-
-/* Accordion — animazione max-height */
-.accordion-body {
-  display: block;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height var(--dur-base) var(--ease-out),
-              opacity var(--dur-fast) var(--ease-out);
-  opacity: 0;
-}
-.accordion-body.open {
-  max-height: 800px; /* valore abbondante */
-  opacity: 1;
-}
-
-/* ===== KPI GERARCHIA ===== */
-.kpi-primary {
-  background: color-mix(in oklab, var(--accent) 6%, var(--card));
-  border: 1px solid color-mix(in oklab, var(--accent) 20%, var(--border));
-}
-
-.kpi-secondary-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.88rem;
-}
-.kpi-sec-label {
-  color: var(--muted);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
-  flex: 1;
-}
-.kpi-sec-val {
-  font-weight: 700;
-  color: var(--ink);
-  font-size: 1rem;
-}
-.kpi-sec-dim {
-  font-size: 0.72rem;
-  color: var(--muted);
-  font-weight: 400;
-}
-.kpi-sec-sep {
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
-
-.gpx-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 18px 12px;
-  border: 2px dashed var(--border);
-  border-radius: 10px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin-top: 8px;
-  transition: border-color 0.2s;
-}
-.gpx-empty-icon { font-size: 2rem; opacity: 0.5; }
-
-/* ===== MOBILE ===== */
-@media (max-width: 600px) {
-  .grid.grid-2 { grid-template-columns: 1fr; }
-  .tabs { gap: 6px; }
-  .tab-btn { font-size: 0.78rem; padding: 6px 10px; }
-  .hero { padding: 18px 0 12px; }
-  .btn { min-height: 44px; font-size: 0.95rem; }
-  input[type="text"], input[type="number"], select {
-    min-height: 44px;
-    font-size: 1rem;
+    // Discesa ripida
+    return velBase / (1 + Math.abs(p));
   }
-  input[type="file"] { font-size: 0.85rem; }
-  fieldset { padding: 10px 12px; }
-}
 
-
-  padding: 4px 10px;          /* meno spazio interno */
-  margin: 8px auto 2px;       /* riduce spazi sopra e sotto */
-  max-width: 720px;           /* leggermente più stretta */
-}
-
-/* Testo più piccolo e colorato come i legend */
-.site-intro p {
-  font-size: 0.88rem;         /* più piccolo dell’originale */
-  line-height: 1.25;          /* più compatto */
-  color: var(--muted);        /* stesso colore dei legend */
-  opacity: 0.9;               /* leggero smorzamento */
-}
-
-
-/* Tema chiaro: leggermente più pieno per leggibilità */
-body[data-theme="light"] .site-intro {
-  background: color-mix(in oklab, var(--card) 82%, transparent);
-}
-/* --- LINEA DI DISTANZA (barra chilometrica) --- */
-#distCanvas {
-  width: 100%;
-  height: 140px;   /* puoi aumentare a piacere */
-  display: block;
-}
-
-.profile-wrap {
-  padding: 10px;
-  border-radius: 12px;
-}
-/* ===== Banner iOS PWA ===== */
-.install-ios {
-  position: fixed;
-  left: 0; right: 0;
-  bottom: 0;
-  z-index: 9999;
-  display: none; /* si abilita da JS */
-  background: rgba(5, 24, 24, 0.96);
-  color: #eafdfb;
-  backdrop-filter: saturate(120%) blur(6px);
-  border-top: 1px solid rgba(255,255,255,0.08);
-  padding: clamp(12px, 2.5vw, 16px);
-  padding-bottom: calc(clamp(12px, 2.5vw, 16px) + env(safe-area-inset-bottom, 0px));
-  font: 15px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-.install-ios__inner {
-  max-width: 880px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  align-items: center;
-}
-.install-ios__icon {
-  width: 44px; height: 44px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.3);
-}
-.install-ios__title {
-  font-weight: 700;
-  margin: 0 0 4px 0;
-}
-.install-ios__text { margin: 0; opacity: .9; }
-.install-ios__hint { margin-top: 6px; font-size: 13px; opacity: .85; }
-.install-ios__close {
-  appearance: none; border: 0; background: transparent;
-  color: #eafdfb; font-size: 24px; line-height: 1;
-  padding: 6px 8px; cursor: pointer; opacity: .9;
-}
-.install-ios__close:hover { opacity: 1; }
-.install-ios__share {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 999px; padding: 4px 10px; white-space: nowrap;
-}
-.install-ios__share svg { width: 14px; height: 14px; fill: currentColor; }
-
-/* Suggerimenti dinamici — resa minimale */
-#calc_tips ul.tips-list { margin: 8px 0 0; padding-left: 18px; }
-#calc_tips li { margin: 4px 0; }
-#calc_tips li.warn { color: var(--warn); font-weight: 600; }
-#calc_tips li.info { color: var(--muted); }
-#calc_tips .tip-ico { margin-right: 6px; }
-
-#calc_tips ul.tips-list {
-  margin: 0; 
-  padding-left: 18px; 
-}
-#calc_tips li { 
-  margin: 6px 0; 
-  line-height: 1.4; 
-}
-#calc_tips li.warn { 
-  color: var(--warn); 
-  font-weight: 600; 
-}
-#calc_tips li.info { 
-  color: var(--muted); 
-}
-#calc_tips_toggle { 
-  white-space: nowrap; 
-}
-/* ===== Banner Installazione (alto a destra) ===== */
-.wiz-banner {
-  position: fixed;
-  top: 8px;
-  right: 12px;
-  z-index: 200; /* sopra tutto ma sotto eventuali overlay */
-  background: color-mix(in oklab, var(--card) 70%, transparent);
-  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  padding: 8px 14px;
-  border-radius: 10px;
-  backdrop-filter: blur(12px) saturate(130%);
-  -webkit-backdrop-filter: blur(12px) saturate(130%);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink);
-  box-shadow: 0 6px 16px rgba(0,0,0,.15);
-  transition: opacity .25s ease, transform .25s ease;
-}
-
-/* link */
-.wiz-banner-link {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.wiz-banner:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0,0,0,.25);
-}
-
-/* Tema chiaro */
-body[data-theme="light"] .wiz-banner {
-  background: color-mix(in oklab, var(--card) 82%, transparent);
-}
-
-.wiz-banner {
-  opacity: 0;
-  transform: translateY(-6px);
-  animation: wbFade 0.55s ease forwards 0.4s;
-}
-
-@keyframes wbFade {
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  function technicalPenalty(slope, terrainClass) {
+    if (terrainClass === 'E')   return 0;
+    if (terrainClass === 'EE' && (slope > 0.08 || slope < -0.10)) return 0.12;
+    if (terrainClass === 'EA' && (slope > 0.08 || slope < -0.10)) return 0.28;
+    return 0;
   }
-}
-.pacing-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
 
-.pacing-table th {
-  text-align: left;
-  padding: 6px 4px;
-  color: var(--muted);
-  border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-}
+  function fatigueFactor(t_hours) {
+    return 1 + Math.pow(t_hours / 12, 1.3);
+  }
 
-.pacing-table td {
-  padding: 6px 4px;
-}
-.pc_canvas {
-  width: 60% !important;    /* Larghezza visiva ridotta */
-  max-width: 650px;         /* (opzionale) limite massimo */
-  height: 260px;            /* altezza visiva */
-  display: block;
-  margin: 0 auto;           /* centrare */
-}
+  /* ------------------------------------------------------------------
+     BOTTONE CALCOLA
+     ------------------------------------------------------------------ */
+  document.getElementById('calcBtn')?.addEventListener('click', () => {
+    WizUI.showError('');
 
-.wdi-toolbar {
-  display: flex;
-  gap: 8px;
-  padding: 10px 4px 0 4px;
-  margin-bottom: 6px;
-  justify-content: center;
-}
+    // Validazione input 10K
+    const t10 = document.getElementById('t10k')?.value || '';
+    if (!/^[0-9]+:[0-5][0-9]$/.test(t10)) {
+      WizUI.showError('Formato 10K non valido');
+      return;
+    }
 
-.wdi-btn {
-background: rgba(255,255,255,0.12);
-  padding: 6px 10px;
-  font-size: 0.78rem;
-  border-radius: 6px;
-  color: var(--text);
-  text-decoration: none;
-  transition: 0.2s;
-  border: 1px solid rgba(255,255,255,0.15);
-}
+    if (!window.gpxPts || !window.gpxPts.length) {
+      WizUI.showError('Carica un GPX per usare il modello v2.0');
+      return;
+    }
 
-.wdi-btn:hover {
-  background: rgba(255,255,255,0.22);
-}
+    const [min10, sec10] = t10.split(':').map(Number);
+    const m10     = min10 + sec10 / 60;
+    const velBase = 60 / (m10 / 10); // km/h
 
-.back-btn {
-  display: inline-block;
-  background: rgba(255,255,255,0.10);
-  border: 1px solid rgba(255,255,255,0.18);
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  color: var(--text);
-  text-decoration: none;
-  margin: 10px auto 14px auto;
-  transition: 0.2s;
-}
+    const terrainClass = document.getElementById('terrain')?.value || 'E';
+    const S      = readNum('spec');
+    const meteo  = readNum('meteo');
+    const alt    = readNum('alt');
+    const margin = readNum('margin') / 100;
 
-.back-btn:hover {
-  background: rgba(255,255,255,0.20);
-}
-#raceBody tr:hover {
-  background-color: rgba(255,255,255,0.05);
-}
+    // Calcola metrics dal GPX per coordinate e profilo altimetrico
+    const mGpx = GPXParser.compute(window.gpxPts);
 
-/* ====== TOOLBAR ====== */
-.wt-header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:14px 18px;
-  background:rgba(0,0,0,0.80);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  position:sticky;
-  top:0;
-  z-index:9999;
-}
+    // Leggi distanza e D+ dai campi form — l'utente può averli corretti manualmente
+    const manualKm   = readNum('dist');
+    const manualGain = readNum('dplus');
 
-/* BRAND */
-.wt-brand {
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.wt-logo { width:34px; height:34px; }
-.wt-title { font-size:1.4rem; font-weight:700; }
+    // Costruisce metrics ibrido: coordinate dal GPX, valori numerici dal form
+    // Questo permette di usare un GPX senza elevazione correggendo D+ a mano
+    const m = {
+      ...mGpx,
+      km:   manualKm   > 0 ? manualKm   : mGpx.km,
+      gain: manualGain > 0 ? manualGain : mGpx.gain,
+      loss: manualGain > 0 ? manualGain : mGpx.gain, // stima loss = gain se non disponibile
+    };
 
-/* DESKTOP NAV */
-.wt-nav {
-  display:flex;
-  gap:22px;
-}
-.wt-nav a {
-  color:#fff;
-  text-decoration:none;
-  font-weight:600;
-  opacity:0.85;
-  transition:opacity .2s;
-}
-.wt-nav a:hover { opacity:1; }
+    const elev_s  = GPXParser.smoothElevation(m.e);
+    const segments = GPXParser.computeSegments(window.gpxPts, m.d, elev_s);
 
-/* MOBILE HAMBURGER */
-.wt-hamburger {
-  display:none;
-  flex-direction:column;
-  gap:5px;
-  cursor:pointer;
-}
-.wt-hamburger span {
-  width:26px;
-  height:3px;
-  background:#fff;
-  border-radius:3px;
-}
+    let T = 0;
+    segments.forEach(seg => {
+      const velLocal  = velocityFromSlope(seg.slope, S, velBase);
+      const tech      = technicalPenalty(seg.slope, terrainClass);
+      const velTech   = velLocal / (1 + tech);
+      const t_raw     = seg.dist / (velTech * 1000 / 3600);
+      const fat       = fatigueFactor(T / 3600);
+      T += t_raw * fat;
+    });
 
-/* MENU MOBILE */
-.wt-mobile-menu {
-  display:none;
-  flex-direction:column;
-  background:rgba(0,0,0,0.92);
-  backdrop-filter:blur(14px);
-  padding:14px;
-  position:fixed;
-  top:62px;
-  right:0;
-  width:70%;
-  height:calc(100% - 62px);
-  z-index:9998;
-}
-.wt-mobile-menu a {
-  padding:12px 4px;
-  color:#fff;
-  font-size:1.2rem;
-  font-weight:600;
-  text-decoration:none;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-}
+    // Se il GPX non ha elevazione, stima il tempo dal D+ manuale
+    // (segments avranno tutti slope=0, quindi T sarà solo da velocità base)
+    // Aggiungiamo una correzione proporzionale al D+ manuale
+    if (mGpx.gain === 0 && manualGain > 0) {
+      // Stima tempo aggiuntivo per il dislivello: ~1 min ogni 8m D+
+      const extraSec = (manualGain / 8) * 60;
+      T += extraSec;
+    }
 
-/* RESPONSIVE */
-@media (max-width: 820px) {
-  .wt-nav { display:none; }
-  .wt-hamburger { display:flex; }
-}
+    // Fattori meteo / altitudine
+    const T_hours = T / 3600;
+    T *= 1 + (meteo - 1) * (T_hours / 5);
+    T *= alt;
 
-/* ===== General Mobile Responsiveness ===== */
+    // WDI — usa metrics ibrido con D+ manuale
+    const rs = WizTrail.computeFromGpx(
+      window.gpxPts,
+      m,
+      window.currentSurfaceLevel,
+      window.lastOsmResult
+    );
+    window.currentWDI = rs.WDI;
+    window.lastRS     = rs;
 
-img, canvas {
-    max-width: 100%;
-    height: auto;
-}
+    WizUI.showWDI(rs);
+    WizUI.showResults(T, margin);
+    WizUI.showError('OK');
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+    // Microinterazione: KPI reveal animation
+    document.querySelectorAll('.kpi-primary').forEach(el => {
+      el.classList.remove('kpi-animate');
+      // Force reflow per riattivare l'animazione
+      void el.offsetWidth;
+      el.classList.add('kpi-animate');
+    });
+  });
 
-.responsive-table {
-    width: 100%;
-    overflow-x: auto;
-}
+  /* ------------------------------------------------------------------
+     RESET
+     ------------------------------------------------------------------ */
+  document.getElementById('resetBtn')?.addEventListener('click', () => location.reload());
 
-.card {
-    margin-top: 16px;
-}
+  /* ------------------------------------------------------------------
+     EXPORT JSON (snapshot pre-gara)
+     ------------------------------------------------------------------ */
+  document.getElementById('btnFotoJson')?.addEventListener('click', () => {
+    const g = id => document.getElementById(id)?.textContent || null;
+    const v = id => document.getElementById(id)?.value || null;
 
-/* Spaziatura righe tabella ranking */
-#raceTable td,
-#raceTable th {
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
-}
+    const snapshot = {
+      timestamp:   new Date().toISOString(),
+      distance_km: v('dist'),
+      d_plus_m:    v('dplus'),
+      t10k:        v('t10k'),
+      condizioni: {
+        meteo:  v('meteo'),
+        alt:    v('alt'),
+        fatica: v('fatica'),
+        spec:   v('spec'),
+        margin: v('margin'),
+      },
+      risultato: {
+        tempo_finale: g('outFinal'),
+        low:          g('outLow'),
+        high:         g('outHigh'),
+        WDI:          window.lastRS ? window.lastRS.WDI.toFixed(1)      : null,
+        WDI_class:    window.lastRS ? window.lastRS.class                : null,
+        WDI_color:    window.lastRS ? window.lastRS.color                : null,
+        TechScore:    window.lastRS ? window.lastRS.TechScore.toFixed(1) : null,
+        techClass:    window.lastRS ? window.lastRS.techClass            : null,
+        techColor:    window.lastRS ? window.lastRS.techColor            : null,
+      },
+    };
 
-/* ============================================================
-   WDI v5 — classi via data-attribute (opzionale, per styling dichiarativo)
-   Uso: element.setAttribute("data-wdi-class", rs.class)
-        element.setAttribute("data-tech-class", rs.techClass)
-   ============================================================ */
-[data-wdi-class="Sport"]          { --wdi-color: #2BB7DA; }
-[data-wdi-class="Pro"]            { --wdi-color: #34A853; }
-[data-wdi-class="Advanced"]       { --wdi-color: #F4C20D; }
-[data-wdi-class="Extreme"]        { --wdi-color: #F79617; }
-[data-wdi-class="Elite"]          { --wdi-color: #E91E63; }
-[data-wdi-class="Legend"]         { --wdi-color: #8E24AA; }
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = 'wiztrail-riepilogo.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
 
-[data-tech-class="Facile"]        { --tech-color: #2BB7DA; }
-[data-tech-class="Moderato"]      { --tech-color: #34A853; }
-[data-tech-class="Tecnico"]       { --tech-color: #F4C20D; }
-[data-tech-class="Molto tecnico"] { --tech-color: #F79617; }
-[data-tech-class="Alpinistico"]   { --tech-color: #E91E63; }
-[data-tech-class="Estremo"]       { --tech-color: #8E24AA; }
+  /* ------------------------------------------------------------------
+     PWA — Service Worker
+     ------------------------------------------------------------------ */
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
+  }
+
+  /* ------------------------------------------------------------------
+     PWA — Banner iOS
+     ------------------------------------------------------------------ */
+  (function () {
+    const STORAGE_KEY = 'wiztrail_ios_banner_closed_v1';
+    if (localStorage.getItem(STORAGE_KEY) === '1') return;
+
+    const ua         = window.navigator.userAgent || '';
+    const isIOS      = /iP(hone|od|ad)/i.test(ua);
+    const isWebkit   = /WebKit/i.test(ua);
+    const isSafari   = isIOS && isWebkit &&
+                       !/CriOS|FxiOS|OPiOS|SamsungBrowser/i.test(ua);
+    const isStandalone = window.navigator.standalone === true ||
+                         window.matchMedia?.('(display-mode: standalone)').matches;
+
+    if (isSafari && !isStandalone) {
+      const el       = document.getElementById('installIos');
+      const closeBtn = document.getElementById('installIosClose');
+      if (el && closeBtn) {
+        el.style.display = 'block';
+        closeBtn.addEventListener('click', () => {
+          el.style.display = 'none';
+          localStorage.setItem(STORAGE_KEY, '1');
+        }, { once: true });
+      }
+    }
+  })();
+
+  /* ------------------------------------------------------------------
+     INIT UI opzionale
+     ------------------------------------------------------------------ */
+  document.addEventListener('DOMContentLoaded', () => {
+    WizUI.initTipsToggle();
+  });
+
+  /* ------------------------------------------------------------------
+     SLIDER SUPERFICIE
+     ------------------------------------------------------------------ */
+  document.getElementById('surfaceSlider')?.addEventListener('input', function () {
+    window.currentSurfaceLevel = parseInt(this.value) || 3;
+    if (window.gpxPts && window.gpxPts.length && window.metrics) {
+      const rs = WizTrail.computeFromGpx(
+        window.gpxPts, window.metrics,
+        window.currentSurfaceLevel, window.lastOsmResult
+      );
+      window.currentWDI = rs.WDI;
+      window.lastRS     = rs;
+      WizUI.showWDI(rs);
+      WizUI.showTechScore(rs);
+    }
+  });
+
+  // wiztrail-osm.js disabilitato: OSM Enhanced rimosso (0% copertura Overpass API).
+  // Da ripristinare con proxy serverless + CORINE (vedi task Notion).
+
+  /* ------------------------------------------------------------------
+     ACCORDION PARAMETRI AVANZATI
+     ------------------------------------------------------------------ */
+  const advToggle = document.getElementById('advToggle');
+  const advBody   = document.getElementById('advBody');
+  if (advToggle && advBody) {
+    advToggle.addEventListener('click', function () {
+      const open = advBody.classList.toggle('open');
+      advToggle.classList.toggle('open', open);
+      advToggle.setAttribute('aria-expanded', open);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     GPX EMPTY STATE — mostra messaggio se nessun GPX caricato
+     ------------------------------------------------------------------ */
+  const gpxEmpty = document.getElementById('gpxEmpty');
+  const gpxInfo  = document.getElementById('gpxInfo');
+  if (gpxEmpty && gpxInfo) {
+    // Mostra empty state inizialmente
+    gpxEmpty.style.display = 'flex';
+    // Nasconde quando GPX caricato
+    document.getElementById('gpxfile')?.addEventListener('change', function (e) {
+      if (e.target.files && e.target.files.length > 0) {
+        gpxEmpty.style.display = 'none';
+      } else {
+        gpxEmpty.style.display = 'flex';
+      }
+    });
+  }
+
+})();
