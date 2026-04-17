@@ -4,11 +4,12 @@
    Espone: window.WizTrail
    Caricato da: index.html (prima di main.js)
 
-   ⚠ SOGLIE PROVVISORIE — ricalibrate dopo test su GPX reali.
+   ⚠ SOGLIE WDI — provvisorie, ricalibrate dopo test su GPX reali.
    Le soglie devono restare sincronizzate con:
      - map.js → getColorWDI()
      - ui.js → showWDI() e showTechScore()
    kT = 0.35 → peso tecnica ~32% sul totale medio
+   buildTechScore: pesi calibrati v1.0 (dataset 96 gare, 47 GPX reali)
    =============================================================== */
 
 window.WizTrail = (function () {
@@ -104,12 +105,19 @@ window.WizTrail = (function () {
   }
 
   function buildTechScore(frip, slopeVar, roughness, gain, km, surfaceLevel) {
-    const normFRIP  = clamp(frip      / 0.60, 0, 1);
-    const normSVar  = clamp(slopeVar  / 0.55, 0, 1);
-    const normRough = clamp(roughness / 0.35, 0, 1);
-    const vertInt   = clamp((gain / km) / 150, 0, 1);
-    const raw = (normFRIP * 0.45 + normSVar * 0.35 + normRough * 0.20) * 0.70
-              + vertInt * 0.30;
+    /* ---------------------------------------------------------------
+       Pesi calibrati v1.0 — dataset 96 gare / 47 GPX reali
+       Algoritmo: Differential Evolution, seed=42, maxiter=500
+       RMSE prima: 32.99 → dopo: 13.51  (–59%)
+       Aggiornare eseguendo scripts/03_calibrate.py nella pipeline
+       di autotraining.
+       --------------------------------------------------------------- */
+    const normFRIP  = clamp(frip      / 0.924, 0, 1);  // era / 0.60
+    const normSVar  = clamp(slopeVar  / 0.180, 0, 1);  // era / 0.55
+    const normRough = clamp(roughness / 0.051, 0, 1);  // era / 0.35
+    const vertInt   = clamp((gain / km) / 74.1, 0, 1); // era / 150
+    const raw = (normFRIP * 0.244 + normSVar * 0.421 + normRough * 0.208) * 0.873
+              + vertInt * 0.127;                        // era * 0.30
     const mult = SURFACE_MULT[surfaceLevel] || 1.00;
     return Math.round(raw * 100 * mult * 10) / 10;
   }

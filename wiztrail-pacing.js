@@ -3,6 +3,86 @@
  ***************************************************************/
 
 /***************************************************************
+ *  MODELLO POWER-LAW v2.1 — stima personalizzata per atleta
+ *  Calibrato su 96 gare (47 GPX reali), focus fascia 10-60km.
+ *  Formula: T = A × km^alpha × (D+/km)^beta × (1+c×tech/10)
+ *               × (pace10km / pace10km_ref)^delta
+ *  Aggiornare i parametri eseguendo run.sh nella pipeline
+ *  di autotraining dopo ogni nuova calibrazione.
+ ***************************************************************/
+const PACING_V2 = {
+  pace10km_ref_min_km: 4.740, // ~47 min su 10km road flat (top 100 uomini)
+  delta: 0.994,               // esponente scaling atleta (quasi-lineare)
+  params: {
+    A:     0.0100,
+    alpha: 1.2228,
+    beta:  0.3140,
+    c:     0.6702,
+  },
+  skyrace_threshold: 60,      // D+/km oltre cui = skyrace
+};
+
+/**
+ * Stima ore di completamento per un atleta specifico.
+ * @param {number} km       Distanza totale in km
+ * @param {number} dplus    Dislivello positivo in metri
+ * @param {number} tech     Technicality 0–10 (da WDI engine)
+ * @param {number} pace10km Passo 10km flat in min/km (es. 52min → 5.2)
+ * @returns {number}        Ore decimali
+ */
+function estimatePersonalTime(km, dplus, tech, pace10km) {
+  const p    = PACING_V2.params;
+  const dpkm = dplus / Math.max(km, 1);
+  const T_ref = p.A
+    * Math.pow(Math.max(km,   1),    p.alpha)
+    * Math.pow(Math.max(dpkm, 0.5),  p.beta)
+    * (1 + p.c * tech / 10);
+  const f = Math.pow(pace10km / PACING_V2.pace10km_ref_min_km, PACING_V2.delta);
+  return T_ref * f;
+}
+
+/**
+ * Parsing input utente: "52:30" o 52 → 5.25 min/km
+ */
+function parse10kmPace(input) {
+  if (typeof input === 'number') return input / 10;
+  const parts   = String(input).trim().split(':');
+  const minutes = parseFloat(parts[0]) + (parts[1] ? parseFloat(parts[1]) / 60 : 0);
+  return minutes / 10;
+}
+
+/** Ore decimali → "Xh YYm" */
+function hoursToHHMM(h) {
+  const hh = Math.floor(h);
+  const mm  = Math.round((h - hh) * 60);
+  return `${hh}h ${String(mm).padStart(2, '0')}m`;
+}
+
+/**
+ * Entry point per la UI.
+ * @param {number} km
+ * @param {number} dplus
+ * @param {number} tech         Technicality 0–10
+ * @param {string|number} time10km_input  Es. "52:00" o 52
+ * @returns {{ ore, display, pace_media_min_km, f_atleta, is_skyrace, dplus_per_km }}
+ */
+function getPacingEstimate(km, dplus, tech, time10km_input) {
+  const pace10km   = parse10kmPace(time10km_input);
+  const T_ore      = estimatePersonalTime(km, dplus, tech, pace10km);
+  const dpkm       = dplus / Math.max(km, 1);
+  return {
+    ore:               T_ore,
+    display:           hoursToHHMM(T_ore),
+    pace_media_min_km: T_ore * 60 / km,
+    pace10km_input:    pace10km,
+    f_atleta:          Math.pow(pace10km / PACING_V2.pace10km_ref_min_km, PACING_V2.delta),
+    is_skyrace:        dpkm > PACING_V2.skyrace_threshold,
+    dplus_per_km:      dpkm,
+  };
+}
+
+
+/***************************************************************
  *  UTILITIES
  ***************************************************************/
 function pc_safeNum(v) { return Number.isFinite(v) ? v : 0; }
