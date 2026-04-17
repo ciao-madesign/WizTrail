@@ -243,6 +243,7 @@
 
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
+    updatePersonalEstimate();
     WizUI.showError('OK');
 
     // Microinterazione: KPI reveal animation
@@ -279,15 +280,16 @@
         margin: v('margin'),
       },
       risultato: {
-        tempo_finale: g('outFinal'),
-        low:          g('outLow'),
-        high:         g('outHigh'),
-        WDI:          window.lastRS ? window.lastRS.WDI.toFixed(1)      : null,
-        WDI_class:    window.lastRS ? window.lastRS.class                : null,
-        WDI_color:    window.lastRS ? window.lastRS.color                : null,
-        TechScore:    window.lastRS ? window.lastRS.TechScore.toFixed(1) : null,
-        techClass:    window.lastRS ? window.lastRS.techClass            : null,
-        techColor:    window.lastRS ? window.lastRS.techColor            : null,
+        tempo_finale:     g('outFinal'),
+        low:              g('outLow'),
+        high:             g('outHigh'),
+        stima_personale:  g('outPersonalTime') || null,
+        WDI:              window.lastRS ? window.lastRS.WDI.toFixed(1)      : null,
+        WDI_class:        window.lastRS ? window.lastRS.class                : null,
+        WDI_color:        window.lastRS ? window.lastRS.color                : null,
+        TechScore:        window.lastRS ? window.lastRS.TechScore.toFixed(1) : null,
+        techClass:        window.lastRS ? window.lastRS.techClass            : null,
+        techColor:        window.lastRS ? window.lastRS.techColor            : null,
       },
     };
 
@@ -381,6 +383,45 @@
     const calcBtn = document.querySelector('[data-tab="calc"]');
     if (calcBtn) calcBtn.click();
   });
+
+  /* ------------------------------------------------------------------
+     STIMA PERSONALE POWER-LAW v2.1
+     Aggiorna il KPI #personalEstimateBox dopo ogni calcolo.
+     Richiede: getPacingEstimate() da wiztrail-pacing.js
+     ------------------------------------------------------------------ */
+  function updatePersonalEstimate() {
+    var box    = document.getElementById('personalEstimateBox');
+    var outVal = document.getElementById('outPersonalTime');
+    var outSub = document.getElementById('outPersonalSub');
+    if (!box || !outVal || !outSub) return;
+
+    // Leggi il passo 10km dall'input
+    var t10raw = (document.getElementById('t10k')?.value || '').trim();
+    if (!t10raw || !/^[0-9]+:[0-5][0-9]$/.test(t10raw)) {
+      box.style.display = 'none';
+      return;
+    }
+
+    // Distanza e D+ (ibrido form + GPX)
+    var km = readNum('dist') || (window.metrics?.km   || 0);
+    var dp = readNum('dplus') || (window.metrics?.gain || 0);
+    if (!km || !dp) { box.style.display = 'none'; return; }
+
+    // TechScore da WDI engine: scala da 0-100 a 0-10
+    var tech = window.lastRS?.TechScore ? window.lastRS.TechScore / 10 : 0;
+
+    // Funzione dal modello power-law (wiztrail-pacing.js)
+    if (typeof getPacingEstimate !== 'function') return;
+    var stima = getPacingEstimate(km, dp, tech, t10raw);
+
+    outVal.textContent = stima.display;
+    outSub.innerHTML   =
+      stima.pace_media_min_km.toFixed(1) + ' min/km medi' +
+      ' &nbsp;|&nbsp; fattore atleta ×' + stima.f_atleta.toFixed(2) +
+      (stima.is_skyrace ? ' &nbsp;|&nbsp; skyrace' : '');
+
+    box.style.display = 'block';
+  }
 
   /* ------------------------------------------------------------------
      ACCORDION PARAMETRI AVANZATI
