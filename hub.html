@@ -725,7 +725,13 @@ async function processGpx(file) {
 
     // Base64
     const arrBuf = await file.arrayBuffer();
-    const b64    = btoa(String.fromCharCode(...new Uint8Array(arrBuf)));
+    const bytes  = new Uint8Array(arrBuf);
+    let binary   = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+    }
+    const b64 = btoa(binary);
 
     STATE.gpxData = { base64: b64, filename: file.name, km, dplus, elevArr: eles, distArr: dists };
 
