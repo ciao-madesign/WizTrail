@@ -765,14 +765,17 @@ function buildPreview() {
   if (!dplus && dplus !== 0) return showMsg('formMsg', 'D+ non valido', 'error');
   hideMsg('formMsg');
 
-  // Stima WDI
-  const REF42 = Math.pow(42, 0.55);
-  const dkm   = dplus / 1000;
-  const VS    = (dkm * 10) / (1 + Math.sqrt(Math.max(dkm, 0.001)) / 8) * 2;
-  const TS    = tech * 10;
-  const DF    = km <= 100 ? Math.pow(km, 0.55) / REF42
-                          : Math.pow(100, 0.55) / REF42 + (Math.pow(km, 0.42) - Math.pow(100, 0.42)) / REF42 * 0.6;
-  const wdi   = Math.round((VS + TS * 0.35) * DF * 10) / 10;
+  // Stima WDI — formula allineata con upload.js lato server
+  const REF42  = Math.pow(42, 0.55);
+  const dkm    = dplus / 1000;
+  const dlkm   = dkm; // stima loss = gain
+  const VS     = (dkm  * 10) / (1 + Math.sqrt(Math.max(dkm,  0.001)) / 8)
+               + (dlkm *  4) / (1 + Math.sqrt(Math.max(dlkm, 0.001)) / 6);
+  const TS     = tech * 10;
+  const DF     = km <= 100
+    ? Math.pow(km, 0.55) / REF42
+    : Math.pow(100, 0.55) / REF42 + (Math.pow(km, 0.42) - Math.pow(100, 0.42)) / REF42 * 0.6;
+  const wdi    = Math.round((VS + TS * 0.35) * DF * 10) / 10;
 
   document.getElementById('pvKm').textContent    = km.toFixed(1);
   document.getElementById('pvDplus').textContent = dplus.toLocaleString();
