@@ -1,8 +1,7 @@
 /**
  * api/hub/reset.js
- * POST /api/hub/reset?key=ADMIN_TOKEN
+ * GET /api/hub/reset?key=ADMIN_TOKEN
  * Endpoint temporaneo — elimina dopo uso
- * Pulisce Redis da dati corrotti e riscrive correttamente
  */
 import { checkAuth } from './auth.js';
 
@@ -20,33 +19,17 @@ async function cmd(args) {
   return json.result;
 }
 
-// Deserializza ricorsivamente finché non è un oggetto
 function deepParse(val) {
   if (typeof val !== 'string') return val;
   try {
     const parsed = JSON.parse(val);
     if (typeof parsed === 'string') return deepParse(parsed);
     return parsed;
-  } catch {
-    return val;
-  }
-}
-
-async function getRaw(key) {
-  return cmd(['GET', key]);
-}
-
-async function setClean(key, value) {
-  return cmd(['SET', key, JSON.stringify(value)]);
-}
-
-async function delKey(key) {
-  return cmd(['DEL', key]);
+  } catch { return val; }
 }
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  if (req.method !== 'POST') return res.status(405).end();
 
   const auth = checkAuth(req, res);
   if (!auth.ok) return;
@@ -54,31 +37,31 @@ export default async function handler(req, res) {
 
   const report = [];
 
-  // 1. Fix hub:stats
-  const statsRaw = await getRaw('hub:stats');
+  // Fix hub:stats
+  const statsRaw   = await cmd(['GET', 'hub:stats']);
   const statsClean = deepParse(statsRaw);
-  await setClean('hub:stats', {
+  const statsFixed = {
     n_total:   statsClean?.n_total   ?? 0,
     n_pending: statsClean?.n_pending ?? 0,
     last_run:  statsClean?.last_run  ?? null,
     last_rmse: statsClean?.last_rmse ?? null,
-  });
-  report.push({ key: 'hub:stats', action: 'cleaned', value: statsClean });
+  };
+  await cmd(['SET', 'hub:stats', JSON.stringify(statsFixed)]);
+  report.push({ key: 'hub:stats', fixed: statsFixed });
 
-  // 2. Fix hub:activities:*
+  // Fix hub:activities:*
   const scanResult = await cmd(['SCAN', '0', 'MATCH', 'hub:activities:*', 'COUNT', '100']);
   const actKeys = scanResult[1] || [];
 
   for (const key of actKeys) {
-    const raw   = await getRaw(key);
+    const raw   = await cmd(['GET', key]);
     const clean = deepParse(raw);
     if (clean && typeof clean === 'object') {
-      // Rimuovi gpx_base64 dal report ma mantienilo nel dato
-      await setClean(key, clean);
+      await cmd(['SET', key, JSON.stringify(clean)]);
       const { gpx_base64, ...preview } = clean;
-      report.push({ key, action: 'cleaned', value: preview });
+      report.push({ key, fixed: preview });
     } else {
-      report.push({ key, action: 'skipped', raw: String(raw).slice(0, 100) });
+      report.push({ key, skipped: true });
     }
   }
 
