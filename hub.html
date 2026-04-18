@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WizTrail Hub — Calibrazione</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <style>
+    /* ── Variabili ─────────────────────────────────────────────────────── */
+    :root {
+      --bg:       #0d1117;
+      --bg2:      #161b22;
+      --bg3:      #21262d;
+      --border:   #30363d;
+      --accent:   #4fd1c5;
+      --accent2:  #2d9e94;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --green:    #3fb950;
+      --orange:   #d29922;
+      --red:      #f85149;
+      --radius:   10px;
+      --font:     'DM Mono', 'Fira Code', 'Courier New', monospace;
+      --font-ui:  system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Reset & Base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    input, select, textarea {
+      font-family: var(--font-ui);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 8px 12px;
+      width: 100%;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    label { font-size: 0.82rem; color: var(--muted); display: block; margin-bottom: 5px; }
+
+    /* ── Layout ────────────────────────────────────────────────────────── */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+    /* ── Header ────────────────────────────────────────────────────────── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg);
+    }
+    .header-inner {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      max-width: 900px; margin: 0 auto; padding: 0 20px;
+    }
+    .logo {
+      font-family: var(--font);
+      font-size: 1rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .logo span { color: var(--muted); }
+    .badge {
+      font-family: var(--font);
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    .badge.admin { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Tabs ──────────────────────────────────────────────────────────── */
+    .tabs {
+      display: flex; gap: 2px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px; margin-top: 24px;
+    }
+    .tab {
+      background: none; border: none;
+      color: var(--muted); cursor: pointer;
+      font-family: var(--font-ui); font-size: 0.88rem;
+      padding: 10px 16px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── Panels ────────────────────────────────────────────────────────── */
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+    /* ── Cards ─────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-family: var(--font);
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    /* ── Form ──────────────────────────────────────────────────────────── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid.full { grid-template-columns: 1fr; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+
+    /* ── Bottoni ────────────────────────────────────────────────────────── */
+    .btn {
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+      padding: 9px 18px;
+      border-radius: 6px;
+      border: none; cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      font-weight: 500;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-secondary {
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-sm { font-size: 0.78rem; padding: 5px 12px; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Slider tecnicità ───────────────────────────────────────────────── */
+    .slider-wrap { position: relative; }
+    input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      height: 4px; background: var(--bg3);
+      border-radius: 2px; border: none; padding: 0;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+    .slider-labels {
+      display: flex; justify-content: space-between;
+      font-size: 0.7rem; color: var(--muted);
+      margin-top: 4px;
+    }
+    .tech-value {
+      font-family: var(--font);
+      font-size: 1.2rem; color: var(--accent);
+      font-weight: bold; margin-bottom: 6px;
+    }
+
+    /* ── Preview validation ─────────────────────────────────────────────── */
+    .preview-box {
+      background: var(--bg3);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 16px; margin: 16px 0;
+    }
+    .preview-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-bottom: 14px;
+    }
+    .kpi-mini { text-align: center; }
+    .kpi-mini .val {
+      font-family: var(--font);
+      font-size: 1.4rem; color: var(--accent);
+      font-weight: bold; display: block;
+    }
+    .kpi-mini .lbl {
+      font-size: 0.72rem; color: var(--muted);
+    }
+    canvas#elevPreview {
+      width: 100%; height: 90px;
+      border-radius: 6px;
+      background: var(--bg);
+    }
+
+    /* ── Lista attività ──────────────────────────────────────────────────── */
+    .activity-list { display: flex; flex-direction: column; gap: 10px; }
+    .activity-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px; align-items: center;
+    }
+    .activity-name { font-weight: 500; font-size: 0.92rem; }
+    .activity-meta { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+    .status-badge {
+      font-family: var(--font);
+      font-size: 0.68rem;
+      padding: 3px 8px; border-radius: 20px;
+      border: 1px solid;
+    }
+    .status-badge.pending  { color: var(--orange); border-color: var(--orange); }
+    .status-badge.calibrated { color: var(--green); border-color: var(--green); }
+
+    /* ── Stats model ─────────────────────────────────────────────────────── */
+    .model-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 500px) { .model-grid { grid-template-columns: 1fr 1fr; } }
+    .model-kpi {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+    .model-kpi .val {
+      font-family: var(--font);
+      font-size: 1.5rem; color: var(--accent);
+      font-weight: bold; display: block;
+    }
+    .model-kpi .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── Runner autorizzati ──────────────────────────────────────────────── */
+    .runner-list {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+    }
+    .runner-chip {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 10px 4px 12px;
+      font-size: 0.8rem;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .runner-chip button {
+      background: none; border: none; cursor: pointer;
+      color: var(--red); font-size: 0.9rem; line-height: 1;
+      padding: 0;
+    }
+
+    /* ── Messaggi ────────────────────────────────────────────────────────── */
+    .msg {
+      padding: 10px 14px; border-radius: 6px;
+      font-size: 0.85rem; margin: 10px 0; display: none;
+    }
+    .msg.info    { background: rgba(79,209,197,0.1); border: 1px solid var(--accent); color: var(--accent); }
+    .msg.error   { background: rgba(248,81,73,0.1);  border: 1px solid var(--red);    color: var(--red); }
+    .msg.success { background: rgba(63,185,80,0.1);  border: 1px solid var(--green);  color: var(--green); }
+    .msg.show    { display: block; }
+
+    /* ── Loading ─────────────────────────────────────────────────────────── */
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Grafico RMSE ────────────────────────────────────────────────────── */
+    #rmseImg { width: 100%; border-radius: 8px; margin-top: 12px; display: none; }
+
+    /* ── Upload zona drag ────────────────────────────────────────────────── */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      color: var(--muted); font-size: 0.88rem;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(79,209,197,0.04);
+      color: var(--text);
+    }
+    .drop-zone .icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+    .drop-zone input { display: none; }
+
+    /* ── Lock screen ─────────────────────────────────────────────────────── */
+    #lockScreen {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .lock-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      width: 340px; text-align: center;
+    }
+    .lock-logo {
+      font-family: var(--font);
+      font-size: 1.2rem; color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .lock-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Lock screen (visibile finché non si verifica il token) ────────────── -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-logo">WizTrail<span style="color:var(--muted);">.hub</span></div>
+    <div class="lock-sub">Calibrazione algoritmo</div>
+    <div id="lockMsg" style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+      Verifica accesso in corso...
+    </div>
+    <div id="lockSpinner" class="spinner"></div>
+  </div>
+</div>
+
+<!-- ── App (nascosta finché il token non è verificato) ────────────────────── -->
+<div id="app" style="display:none;">
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">WizTrail<span>.hub</span></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span id="aliasDisplay" style="font-size:0.8rem; color:var(--muted);"></span>
+        <span id="roleBadge" class="badge"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="tabs">
+      <button class="tab active" data-tab="upload">Carica attività</button>
+      <button class="tab" data-tab="dashboard">Dashboard</button>
+      <button class="tab admin-only" data-tab="admin" style="display:none;">Admin</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ UPLOAD -->
+    <div id="tab-upload" class="panel active">
+
+      <!-- Step 1: Alias -->
+      <div class="card" id="step-alias">
+        <div class="card-title">// identità</div>
+        <div class="form-group">
+          <label>Il tuo alias (nome con cui appariranno i tuoi dati)</label>
+          <input id="aliasInput" type="text" placeholder="es. marco_trail" maxlength="30"/>
+        </div>
+        <div style="margin-top:12px; text-align:right;">
+          <button class="btn btn-primary" onclick="confirmAlias()">Continua</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Form upload (nascosto finché alias non confermato) -->
+      <div id="step-form" style="display:none;">
+
+        <div class="card">
+          <div class="card-title">// traccia gpx</div>
+          <label class="drop-zone" id="dropZone">
+            <span class="icon">↑</span>
+            <span id="dropLabel">Trascina il GPX qui o clicca per selezionare</span>
+            <input type="file" id="gpxFile" accept=".gpx"/>
+          </label>
+          <div id="gpxStatus" style="font-size:0.78rem; color:var(--muted); margin-top:8px;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">// dati attività</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nome attività</label>
+              <input id="actName" type="text" placeholder="es. Zegama 2026"/>
+            </div>
+            <div class="form-group">
+              <label>Tipo</label>
+              <select id="actType">
+                <option value="personal">Attività personale</option>
+                <option value="reference">Gara di riferimento</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Distanza (km) <span style="color:var(--accent)">— da GPX</span></label>
+              <input id="actKm" type="number" step="0.01" placeholder="auto"/>
+            </div>
+            <div class="form-group">
+              <label>D+ (m) <span style="color:var(--accent)">— da GPX</span></label>
+              <input id="actDplus" type="number" step="1" placeholder="auto"/>
+            </div>
+            <div class="form-group">
+              <label>Tempo effettivo (hh:mm:ss o mm:ss) — opzionale</label>
+              <input id="actTime" type="text" placeholder="es. 5:42:00"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">// tecnicità percepita</div>
+          <div class="tech-value" id="techVal">5.0</div>
+          <div class="slider-wrap">
+            <input type="range" id="techSlider" min="0" max="10" step="0.5" value="5"/>
+            <div class="slider-labels">
+              <span>Corribile</span><span>Misto</span><span>Tecnico</span><span>Alpino</span><span>Estremo</span>
+            </div>
+          </div>
+          <div style="margin-top:14px;">
+            <label>Etichetta terreno</label>
+            <select id="techLabel">
+              <option value="runnable">Runnable — scorrevole, quasi sempre corribile</option>
+              <option value="mixed" selected>Mixed — alternanza corribile/camminata</option>
+              <option value="technical">Technical — sentiero impegnativo, roccioso</option>
+              <option value="alpine">Alpine — ambiente alpino, esposizione</option>
+              <option value="extreme">Extreme — ridge, ferrate, terreno estremo</option>
+            </select>
+          </div>
+          <div style="margin-top:14px;">
+            <label>Commento (opzionale)</label>
+            <textarea id="actComment" rows="2" placeholder="Note sul percorso, condizioni meteo, ecc."></textarea>
+          </div>
+        </div>
+
+        <!-- Preview / validazione -->
+        <div id="previewSection" style="display:none;">
+          <div class="preview-box">
+            <div style="font-size:0.78rem; color:var(--accent); margin-bottom:12px;">
+              // anteprima — conferma prima di inviare
+            </div>
+            <canvas id="elevPreview"></canvas>
+            <div class="preview-grid" style="margin-top:14px;">
+              <div class="kpi-mini">
+                <span class="val" id="pvKm">—</span>
+                <span class="lbl">km</span>
+              </div>
+              <div class="kpi-mini">
+                <span class="val" id="pvDplus">—</span>
+                <span class="lbl">m D+</span>
+              </div>
+              <div class="kpi-mini">
+                <span class="val" id="pvWdi">—</span>
+                <span class="lbl">WDI stimato</span>
+              </div>
+            </div>
+            <div id="previewDetails" style="font-size:0.78rem; color:var(--muted);"></div>
+          </div>
+          <div id="uploadMsg" class="msg"></div>
+          <div style="display:flex; gap:10px; margin-top:4px;">
+            <button class="btn btn-secondary" onclick="resetForm()">Modifica</button>
+            <button class="btn btn-primary" id="confirmBtn" onclick="submitActivity()">Confermo e invio</button>
+          </div>
+        </div>
+
+        <div id="previewBtn" style="margin-top:4px; display:none;">
+          <div id="formMsg" class="msg"></div>
+          <button class="btn btn-primary" onclick="buildPreview()">Anteprima e conferma</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ DASHBOARD -->
+    <div id="tab-dashboard" class="panel">
+
+      <div class="card">
+        <div class="card-title">// stato modello</div>
+        <div class="model-grid" id="modelStats">
+          <div class="model-kpi"><span class="val" id="statTotal">—</span><div class="lbl">attività totali</div></div>
+          <div class="model-kpi"><span class="val" id="statPending">—</span><div class="lbl">in attesa calibrazione</div></div>
+          <div class="model-kpi"><span class="val" id="statRmse">—</span><div class="lbl">RMSE attuale</div></div>
+        </div>
+        <div id="lastRun" style="font-size:0.75rem; color:var(--muted); margin-top:10px;"></div>
+        <img id="rmseImg" alt="Grafico evoluzione RMSE"/>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// le mie attività</div>
+        <div id="activityList" class="activity-list">
+          <div style="color:var(--muted); font-size:0.85rem;">Caricamento...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════ ADMIN -->
+    <div id="tab-admin" class="panel">
+
+      <div class="card">
+        <div class="card-title">// pipeline calibrazione</div>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">
+          Avvia la pipeline di calibrazione su GitHub Actions.
+          Verranno processate tutte le attività in stato "pending".
+        </p>
+        <div id="pipelineStatus" style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;"></div>
+        <div id="runMsg" class="msg"></div>
+        <button class="btn btn-primary" id="runBtn" onclick="runPipeline()">
+          Avvia calibrazione
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// runner autorizzati</div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+          Gli alias in questa lista possono avviare la pipeline (oltre a te).
+        </p>
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <input id="newRunnerInput" type="text" placeholder="alias da aggiungere" style="flex:1;"/>
+          <button class="btn btn-secondary btn-sm" onclick="addRunner()">Aggiungi</button>
+        </div>
+        <div id="runnerList" class="runner-list"></div>
+        <div id="runnerMsg" class="msg"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// tutte le attività</div>
+        <div id="allActivitiesList" class="activity-list">
+          <div style="color:var(--muted); font-size:0.85rem;">Caricamento...</div>
+        </div>
+      </div>
+
+      <div class="card" id="patchCard" style="display:none;">
+        <div class="card-title">// patch disponibile</div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+          Scarica la patch e applicala a WizTrail, oppure esegui il merge del branch
+          <code style="color:var(--accent);">model-update</code> su GitHub.
+        </p>
+        <button class="btn btn-primary btn-sm" onclick="downloadPatch()">
+          Scarica 4_wiztrail_patch.js
+        </button>
+      </div>
+
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /app -->
+
+<script>
+/* ── Stato globale ──────────────────────────────────────────────────────── */
+const STATE = {
+  key:      new URLSearchParams(location.search).get('key') || '',
+  alias:    localStorage.getItem('hub_alias') || '',
+  isAdmin:  false,
+  gpxData:  null,   // { base64, filename, km, dplus, elevArr, distArr }
+  runners:  [],
+  model:    null,
+};
+
+/* ── API helper ─────────────────────────────────────────────────────────── */
+async function api(path, opts = {}) {
+  const url = `/api/hub/${path}`;
+  const method = opts.method || 'GET';
+  const headers = { 'Content-Type': 'application/json' };
+
+  let body = undefined;
+  if (method === 'POST') {
+    body = JSON.stringify({ ...opts.body, key: STATE.key });
+  }
+
+  const params = method === 'GET' ? `?key=${STATE.key}${opts.qs || ''}` : '';
+  const res = await fetch(url + params, { method, headers, body });
+  return res.json();
+}
+
+/* ── Helpers UI ─────────────────────────────────────────────────────────── */
+function showMsg(id, text, type = 'info') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = `msg ${type} show`;
+}
+function hideMsg(id) {
+  const el = document.getElementById(id);
+  if (el) el.className = 'msg';
+}
+
+/* ── Verifica accesso ───────────────────────────────────────────────────── */
+async function checkAccess() {
+  if (!STATE.key) {
+    document.getElementById('lockMsg').textContent = 'Token mancante nell\'URL.';
+    document.getElementById('lockSpinner').style.display = 'none';
+    return;
+  }
+  try {
+    const r = await api('auth');
+    if (!r.ok) throw new Error(r.error || 'Non autorizzato');
+
+    STATE.isAdmin = r.isAdmin;
+
+    // Nascondi lock, mostra app
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+
+    // Badge ruolo
+    const badge = document.getElementById('roleBadge');
+    badge.textContent = STATE.isAdmin ? 'admin' : 'utente';
+    if (STATE.isAdmin) badge.classList.add('admin');
+
+    // Tab admin
+    if (STATE.isAdmin) {
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+    }
+
+    // Se alias già salvato, salta step 1
+    if (STATE.alias) {
+      document.getElementById('aliasInput').value = STATE.alias;
+      showAlias(STATE.alias);
+    }
+
+    // Carica dashboard
+    loadDashboard();
+
+  } catch (e) {
+    document.getElementById('lockMsg').textContent = 'Accesso negato: ' + e.message;
+    document.getElementById('lockSpinner').style.display = 'none';
+  }
+}
+
+/* ── Alias ──────────────────────────────────────────────────────────────── */
+function confirmAlias() {
+  const val = document.getElementById('aliasInput').value.trim();
+  if (!val || val.length < 2) return alert('Alias troppo corto (min 2 caratteri)');
+  if (!/^[a-z0-9_]+$/i.test(val)) return alert('Solo lettere, numeri e underscore');
+  STATE.alias = val.toLowerCase();
+  localStorage.setItem('hub_alias', STATE.alias);
+  showAlias(STATE.alias);
+}
+
+function showAlias(alias) {
+  document.getElementById('step-alias').style.display = 'none';
+  document.getElementById('step-form').style.display = 'block';
+  document.getElementById('aliasDisplay').textContent = alias;
+  document.getElementById('previewBtn').style.display = 'block';
+}
+
+/* ── Tab switching ──────────────────────────────────────────────────────── */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'admin') loadAdmin();
+  });
+});
+
+/* ── GPX parsing lato client ────────────────────────────────────────────── */
+function setupGpxDrop() {
+  const zone  = document.getElementById('dropZone');
+  const input = document.getElementById('gpxFile');
+
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) processGpx(file);
+  });
+  input.addEventListener('change', () => { if (input.files[0]) processGpx(input.files[0]); });
+}
+
+async function processGpx(file) {
+  document.getElementById('gpxStatus').textContent = 'Parsing GPX...';
+  document.getElementById('dropLabel').textContent = file.name;
+
+  try {
+    const text     = await file.text();
+    const xml      = new DOMParser().parseFromString(text, 'application/xml');
+    const pts      = [];
+
+    // Leggi track points e route points
+    const trkpts   = xml.querySelectorAll('trkpt');
+    const rtepts   = xml.querySelectorAll('rtept');
+    const src      = trkpts.length > 0 ? trkpts : rtepts;
+
+    src.forEach(pt => {
+      const lat = parseFloat(pt.getAttribute('lat'));
+      const lon = parseFloat(pt.getAttribute('lon'));
+      const ele = parseFloat(pt.querySelector('ele')?.textContent || 'NaN');
+      if (!isNaN(lat) && !isNaN(lon)) pts.push({ lat, lon, ele: isNaN(ele) ? null : ele });
+    });
+
+    if (pts.length < 10) throw new Error('GPX troppo corto (meno di 10 punti)');
+
+    // Calcola distanza cumulativa
+    const R = 6371000;
+    const dists = [0];
+    for (let i = 1; i < pts.length; i++) {
+      const p1 = pts[i - 1], p2 = pts[i];
+      const φ1 = p1.lat * Math.PI / 180, φ2 = p2.lat * Math.PI / 180;
+      const Δφ = (p2.lat - p1.lat) * Math.PI / 180;
+      const Δλ = (p2.lon - p1.lon) * Math.PI / 180;
+      const a  = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+      dists.push(dists[dists.length - 1] + R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    }
+    const km = Math.round(dists[dists.length - 1] / 10) / 100;
+
+    // Calcola D+
+    const eles  = pts.map(p => p.ele).filter(e => e !== null);
+    let dplus   = 0;
+    for (let i = 1; i < eles.length; i++) {
+      if (eles[i] > eles[i - 1]) dplus += eles[i] - eles[i - 1];
+    }
+    dplus = Math.round(dplus);
+
+    // Base64
+    const arrBuf = await file.arrayBuffer();
+    const b64    = btoa(String.fromCharCode(...new Uint8Array(arrBuf)));
+
+    STATE.gpxData = { base64: b64, filename: file.name, km, dplus, elevArr: eles, distArr: dists };
+
+    // Aggiorna form
+    document.getElementById('actKm').value    = km;
+    document.getElementById('actDplus').value = dplus;
+    document.getElementById('gpxStatus').textContent = `✓ ${pts.length} punti — ${km} km / ${dplus}m D+`;
+    document.getElementById('gpxStatus').style.color = 'var(--green)';
+
+  } catch (e) {
+    document.getElementById('gpxStatus').textContent = '❌ ' + e.message;
+    document.getElementById('gpxStatus').style.color = 'var(--red)';
+    STATE.gpxData = null;
+  }
+}
+
+/* ── Slider tecnicità ───────────────────────────────────────────────────── */
+document.getElementById('techSlider').addEventListener('input', function() {
+  document.getElementById('techVal').textContent = parseFloat(this.value).toFixed(1);
+});
+
+/* ── Preview ────────────────────────────────────────────────────────────── */
+function buildPreview() {
+  const name  = document.getElementById('actName').value.trim();
+  const km    = parseFloat(document.getElementById('actKm').value);
+  const dplus = parseFloat(document.getElementById('actDplus').value);
+  const tech  = parseFloat(document.getElementById('techSlider').value);
+
+  if (!name)     return showMsg('formMsg', 'Inserisci il nome attività', 'error');
+  if (!km || km <= 0) return showMsg('formMsg', 'Distanza non valida', 'error');
+  if (!dplus && dplus !== 0) return showMsg('formMsg', 'D+ non valido', 'error');
+  hideMsg('formMsg');
+
+  // Stima WDI
+  const REF42 = Math.pow(42, 0.55);
+  const dkm   = dplus / 1000;
+  const VS    = (dkm * 10) / (1 + Math.sqrt(Math.max(dkm, 0.001)) / 8) * 2;
+  const TS    = tech * 10;
+  const DF    = km <= 100 ? Math.pow(km, 0.55) / REF42
+                          : Math.pow(100, 0.55) / REF42 + (Math.pow(km, 0.42) - Math.pow(100, 0.42)) / REF42 * 0.6;
+  const wdi   = Math.round((VS + TS * 0.35) * DF * 10) / 10;
+
+  document.getElementById('pvKm').textContent    = km.toFixed(1);
+  document.getElementById('pvDplus').textContent = dplus.toLocaleString();
+  document.getElementById('pvWdi').textContent   = wdi;
+
+  // Profilo altimetrico
+  drawElevPreview();
+
+  const time    = document.getElementById('actTime').value.trim();
+  const comment = document.getElementById('actComment').value.trim();
+  document.getElementById('previewDetails').innerHTML =
+    `<b>${name}</b> · ${document.getElementById('actType').options[document.getElementById('actType').selectedIndex].text}<br>` +
+    `Tecnicità: ${tech}/10 · ${document.getElementById('techLabel').options[document.getElementById('techLabel').selectedIndex].text.split('—')[0].trim()}<br>` +
+    (time    ? `Tempo: ${time}<br>` : '') +
+    (comment ? `Note: ${comment}` : '');
+
+  document.getElementById('previewBtn').style.display    = 'none';
+  document.getElementById('previewSection').style.display = 'block';
+}
+
+function drawElevPreview() {
+  const canvas = document.getElementById('elevPreview');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = canvas.clientWidth  * (devicePixelRatio || 1);
+  canvas.height = canvas.clientHeight * (devicePixelRatio || 1);
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  const eles = STATE.gpxData?.elevArr;
+  if (!eles || eles.length < 2) {
+    ctx.fillStyle = '#888'; ctx.font = '12px system-ui';
+    ctx.fillText('Nessun profilo altimetrico (GPX senza quota)', 12, H/2);
+    return;
+  }
+
+  const pad = { top: 8, right: 8, bottom: 8, left: 8 };
+  const w = W - pad.left - pad.right, h = H - pad.top - pad.bottom;
+  const minE = Math.min(...eles), maxE = Math.max(...eles);
+  const norm = e => 1 - (e - minE) / (maxE - minE + 1);
+  const xs   = eles.map((_, i) => pad.left + (i / (eles.length - 1)) * w);
+  const ys   = eles.map(e => pad.top + norm(e) * h);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Area fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
+  grad.addColorStop(0, 'rgba(79,209,197,0.3)');
+  grad.addColorStop(1, 'rgba(79,209,197,0.02)');
+  ctx.beginPath();
+  ctx.moveTo(xs[0], H - pad.bottom);
+  xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
+  ctx.lineTo(xs[xs.length-1], H - pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Linea profilo
+  ctx.beginPath();
+  ctx.moveTo(xs[0], ys[0]);
+  xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
+  ctx.strokeStyle = '#4fd1c5';
+  ctx.lineWidth   = 1.5;
+  ctx.stroke();
+}
+
+function resetForm() {
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('previewBtn').style.display     = 'block';
+  hideMsg('uploadMsg');
+}
+
+/* ── Submit ─────────────────────────────────────────────────────────────── */
+async function submitActivity() {
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Invio...';
+
+  const timeStr = document.getElementById('actTime').value.trim();
+  let time_hours = null;
+  if (timeStr) {
+    const parts = timeStr.split(':').map(Number);
+    if (parts.length === 3) time_hours = parts[0] + parts[1]/60 + parts[2]/3600;
+    else if (parts.length === 2) time_hours = parts[0]/60 + parts[1]/3600; // mm:ss
+  }
+
+  const payload = {
+    alias:        STATE.alias,
+    name:         document.getElementById('actName').value.trim(),
+    type:         document.getElementById('actType').value,
+    gpx_base64:   STATE.gpxData?.base64 || null,
+    gpx_filename: STATE.gpxData?.filename || null,
+    km:           parseFloat(document.getElementById('actKm').value) || null,
+    dplus:        parseFloat(document.getElementById('actDplus').value) || 0,
+    time_hours,
+    technicality: parseFloat(document.getElementById('techSlider').value),
+    tech_label:   document.getElementById('techLabel').value,
+    comment:      document.getElementById('actComment').value.trim() || null,
+  };
+
+  try {
+    const r = await api('upload', { method: 'POST', body: payload });
+    if (!r.ok) throw new Error(r.error || JSON.stringify(r.details));
+
+    showMsg('uploadMsg', `✓ Attività caricata (WDI stimato: ${r.wdi_estimate ?? '—'})`, 'success');
+    btn.innerHTML = '✓ Inviato';
+
+    // Reset dopo 2s
+    setTimeout(() => {
+      STATE.gpxData = null;
+      document.getElementById('gpxFile').value = '';
+      document.getElementById('dropLabel').textContent = 'Trascina il GPX qui o clicca per selezionare';
+      document.getElementById('actName').value = '';
+      document.getElementById('actKm').value = '';
+      document.getElementById('actDplus').value = '';
+      document.getElementById('actTime').value = '';
+      document.getElementById('actComment').value = '';
+      document.getElementById('gpxStatus').textContent = '';
+      resetForm();
+      btn.disabled = false;
+      btn.textContent = 'Confermo e invio';
+      loadDashboard();
+    }, 2000);
+
+  } catch (e) {
+    showMsg('uploadMsg', '❌ Errore: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Confermo e invio';
+  }
+}
+
+/* ── Dashboard ──────────────────────────────────────────────────────────── */
+async function loadDashboard() {
+  try {
+    const r = await api(`activities?alias=${encodeURIComponent(STATE.alias)}`);
+    if (!r.ok) return;
+
+    // Stats
+    document.getElementById('statTotal').textContent   = r.stats?.n_total   ?? '—';
+    document.getElementById('statPending').textContent = r.stats?.n_pending  ?? '—';
+    document.getElementById('statRmse').textContent    = r.stats?.last_rmse != null
+      ? r.stats.last_rmse.toFixed(2) + 'h' : '—';
+
+    if (r.stats?.last_run) {
+      document.getElementById('lastRun').textContent =
+        'Ultimo run: ' + new Date(r.stats.last_run).toLocaleString('it-IT');
+    }
+
+    // Grafico RMSE
+    if (r.plot_rmse) {
+      const img = document.getElementById('rmseImg');
+      img.src   = 'data:image/png;base64,' + r.plot_rmse;
+      img.style.display = 'block';
+    }
+
+    // Attività dell'utente
+    renderActivities('activityList', r.activities);
+
+    // Salva per admin
+    STATE.model   = r.model;
+    STATE.runners = r.authorized_runners || [];
+
+  } catch (e) {
+    console.error('Dashboard error:', e);
+  }
+}
+
+function renderActivities(containerId, activities) {
+  const el = document.getElementById(containerId);
+  if (!activities || activities.length === 0) {
+    el.innerHTML = '<div style="color:var(--muted); font-size:0.85rem;">Nessuna attività ancora.</div>';
+    return;
+  }
+  el.innerHTML = activities.map(a => `
+    <div class="activity-item">
+      <div>
+        <div class="activity-name">${esc(a.name)}</div>
+        <div class="activity-meta">
+          ${a.km?.toFixed(1) ?? '—'} km · ${(a.dplus ?? '—').toLocaleString()} m D+ ·
+          tech ${a.technicality}/10 ·
+          ${a.alias} ·
+          ${new Date(a.timestamp).toLocaleDateString('it-IT')}
+        </div>
+      </div>
+      <span class="status-badge ${a.status}">${a.status}</span>
+    </div>
+  `).join('');
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── Admin ──────────────────────────────────────────────────────────────── */
+async function loadAdmin() {
+  if (!STATE.isAdmin) return;
+
+  // Pipeline status
+  try {
+    const r = await api(`activities?alias=${encodeURIComponent(STATE.alias)}`);
+    if (!r.ok) return;
+
+    const s = r.stats || {};
+    if (s.pipeline_running) {
+      document.getElementById('pipelineStatus').innerHTML =
+        `<span class="spinner"></span> Pipeline in corso — avviata da <b>${s.pipeline_started_by}</b> il ${new Date(s.pipeline_started_at).toLocaleString('it-IT')}`;
+      document.getElementById('runBtn').disabled = true;
+    } else {
+      document.getElementById('pipelineStatus').textContent = '';
+      document.getElementById('runBtn').disabled = false;
+    }
+
+    // Tutte le attività
+    renderActivities('allActivitiesList', r.activities);
+
+    // Runner autorizzati
+    STATE.runners = r.authorized_runners || [];
+    renderRunners();
+
+    // Patch disponibile
+    if (STATE.model?.patch_js) {
+      document.getElementById('patchCard').style.display = 'block';
+    }
+
+  } catch (e) { console.error('Admin load error:', e); }
+}
+
+async function runPipeline() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Avvio...';
+
+  try {
+    const r = await api('run', { method: 'POST', body: { alias: STATE.alias } });
+    if (!r.ok) throw new Error(r.error || r.message);
+    showMsg('runMsg', '✓ Pipeline avviata su GitHub Actions. Attendi 3-5 minuti.', 'success');
+    btn.innerHTML = '✓ In corso';
+    document.getElementById('pipelineStatus').innerHTML =
+      `<span class="spinner"></span> Pipeline avviata — controlla GitHub Actions per i log`;
+  } catch (e) {
+    showMsg('runMsg', '❌ ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Avvia calibrazione';
+  }
+}
+
+function renderRunners() {
+  const el = document.getElementById('runnerList');
+  if (!STATE.runners.length) {
+    el.innerHTML = '<span style="color:var(--muted); font-size:0.82rem;">Nessun runner autorizzato oltre all\'admin.</span>';
+    return;
+  }
+  el.innerHTML = STATE.runners.map(r => `
+    <div class="runner-chip">
+      ${esc(r)}
+      <button onclick="removeRunner('${esc(r)}')" title="Rimuovi">×</button>
+    </div>
+  `).join('');
+}
+
+async function addRunner() {
+  const val = document.getElementById('newRunnerInput').value.trim().toLowerCase();
+  if (!val) return;
+  if (STATE.runners.includes(val)) return showMsg('runnerMsg', 'Alias già presente', 'error');
+
+  const newList = [...STATE.runners, val];
+  await saveRunners(newList);
+  document.getElementById('newRunnerInput').value = '';
+}
+
+async function removeRunner(alias) {
+  const newList = STATE.runners.filter(r => r !== alias);
+  await saveRunners(newList);
+}
+
+async function saveRunners(list) {
+  try {
+    // Aggiorna tramite patch endpoint (riusa il canale admin)
+    const r = await api('patch', { method: 'POST', body: { authorized_runners: list } });
+    if (!r.ok) throw new Error(r.error);
+    STATE.runners = list;
+    renderRunners();
+    showMsg('runnerMsg', '✓ Lista aggiornata', 'success');
+    setTimeout(() => hideMsg('runnerMsg'), 2000);
+  } catch (e) {
+    showMsg('runnerMsg', '❌ ' + e.message, 'error');
+  }
+}
+
+function downloadPatch() {
+  if (!STATE.model?.patch_js) return;
+  const blob = new Blob([STATE.model.patch_js], { type: 'text/javascript' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = '4_wiztrail_patch.js';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ── Init ───────────────────────────────────────────────────────────────── */
+setupGpxDrop();
+checkAccess();
+</script>
+</body>
+</html>
