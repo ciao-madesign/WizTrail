@@ -1,0 +1,86 @@
+name: WizTrail Hub — Pipeline di calibrazione
+
+on:
+  repository_dispatch:
+    types: [hub_calibration]
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Installa dipendenze Python
+        run: |
+          pip install gpxpy pandas numpy scipy matplotlib requests openpyxl
+
+      - name: Log avvio pipeline
+        run: |
+          echo "Pipeline avviata da: ${{ github.event.client_payload.triggered_by }}"
+          echo "Timestamp: ${{ github.event.client_payload.timestamp }}"
+
+      - name: Scarica attività da Redis (05_sync_hub.py)
+        env:
+          UPSTASH_REDIS_REST_URL:   ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        working-directory: wiztrail-calibration
+        run: python scripts/05_sync_hub.py
+
+      - name: Step 01 — Prepara dataset
+        working-directory: wiztrail-calibration
+        run: python scripts/01_prepare_dataset.py
+
+      - name: Step 02 — Calcola WDI
+        working-directory: wiztrail-calibration
+        run: python scripts/02_compute_wdi.py
+
+      - name: Step 03 — Calibrazione
+        working-directory: wiztrail-calibration
+        run: python scripts/03_calibrate.py
+
+      - name: Step 04 — Insights e patch
+        working-directory: wiztrail-calibration
+        run: python scripts/04_insights.py
+
+      - name: Pubblica risultati su Redis e crea branch (06_push_results.py)
+        env:
+          UPSTASH_REDIS_REST_URL:   ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          HUB_ADMIN_TOKEN:          ${{ secrets.HUB_ADMIN_TOKEN }}
+          VERCEL_HUB_URL:           ${{ secrets.VERCEL_HUB_URL }}
+          GITHUB_TOKEN:             ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO:              ${{ github.repository }}
+        working-directory: wiztrail-calibration
+        run: python scripts/06_push_results.py
+
+      - name: Crea branch model-update con patch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name  "WizTrail Bot"
+          git config user.email "bot@wiztrail.app"
+          git checkout -B model-update
+          cp wiztrail-calibration/output/4_wiztrail_patch.js .
+          git add 4_wiztrail_patch.js
+          git diff --cached --quiet || git commit -m "chore: calibrazione modello $(date +'%Y-%m-%d %H:%M') [bot]"
+          git push origin model-update --force
+
+      - name: Notifica completamento
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "Pipeline completata con successo"
+          else
+            echo "Pipeline fallita — controlla i log"
+          fi
