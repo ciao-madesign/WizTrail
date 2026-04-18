@@ -54,9 +54,10 @@ export default async function handler(req, res) {
     const all  = await Promise.all(keys.map(k => get(k).catch(() => null)));
     const valid = all.filter(Boolean).map(stripGpx);
 
+    const safeSortKey = a => a.timestamp || '';
     const activities = auth.isAdmin
-      ? valid.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
-      : valid.filter(a => a.alias === alias).sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+      ? valid.sort((a, b) => safeSortKey(b).localeCompare(safeSortKey(a)))
+      : valid.filter(a => a.alias === alias).sort((a, b) => safeSortKey(b).localeCompare(safeSortKey(a)));
 
     const stats    = (await get('hub:stats')) || { n_total: 0, n_pending: 0, last_run: null, last_rmse: null };
     const model    = await get('hub:model:current');
