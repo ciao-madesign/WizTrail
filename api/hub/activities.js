@@ -4,15 +4,6 @@
  *
  * Utente normale → restituisce le proprie attività + stats aggregate
  * Admin          → restituisce tutte le attività + stats complete
- *
- * Restituisce:
- * {
- *   activities: [...],   // array attività (senza gpx_base64 per alleggerire)
- *   stats: { n_total, n_pending, last_run, last_rmse },
- *   model: { ... },      // parametri modello corrente
- *   plot_rmse: "base64", // grafico evoluzione RMSE (se disponibile)
- *   isAdmin: boolean
- * }
  */
 
 import { checkAuth } from './auth.js';
@@ -20,25 +11,32 @@ import { checkAuth } from './auth.js';
 const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
+async function upstash(cmd) {
+  const res = await fetch(`${UPSTASH_URL}/${cmd}`, {
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+  });
+  const json = await res.json();
+  if (json.error) throw new Error(`Upstash error: ${json.error}`);
+  return json.result;
+}
+
 async function redisGet(key) {
-  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
-    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
-  });
-  const json = await res.json();
-  if (json.error) throw new Error(`Redis GET error: ${json.error}`);
-  return json.result ? JSON.parse(json.result) : null;
+  const result = await upstash(`get/${encodeURIComponent(key)}`);
+  return result ? JSON.parse(result) : null;
 }
 
-async function redisKeys(pattern) {
-  const res = await fetch(`${UPSTASH_URL}/keys/${encodeURIComponent(pattern)}`, {
-    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
-  });
-  const json = await res.json();
-  if (json.error) throw new Error(`Redis KEYS error: ${json.error}`);
-  return json.result || [];
+// Usa SCAN invece di KEYS — supportato da Upstash REST API
+async function scanKeys(pattern) {
+  const keys = [];
+  let cursor = 0;
+  do {
+    const result = await upstash(`scan/${cursor}?match=${encodeURIComponent(pattern)}&count=100`);
+    cursor = parseInt(result[0]);
+    keys.push(...result[1]);
+  } while (cursor !== 0);
+  return keys;
 }
 
-// Rimuove gpx_base64 prima di inviare al client (troppo pesante per la lista)
 function stripGpx(activity) {
   const { gpx_base64, ...rest } = activity;
   return rest;
@@ -58,46 +56,51 @@ export default async function handler(req, res) {
 
   const alias = req.query?.alias?.trim() || null;
 
-  // Carica tutte le chiavi attività
-  const keys = await redisKeys('hub:activities:*');
+  try {
+    // Carica tutte le chiavi attività tramite SCAN
+    const keys = await scanKeys('hub:activities:*');
 
-  // Carica ogni attività in parallelo
-  const all = await Promise.all(
-    keys.map(k => redisGet(k).catch(() => null))
-  );
-  const valid = all.filter(Boolean).map(stripGpx);
+    // Carica ogni attività in parallelo
+    const all = await Promise.all(
+      keys.map(k => redisGet(k).catch(() => null))
+    );
+    const valid = all.filter(Boolean).map(stripGpx);
 
-  // Filtra per alias se utente normale
-  const activities = auth.isAdmin
-    ? valid.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
-    : valid
-        .filter(a => a.alias === alias)
-        .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+    // Filtra per alias se utente normale
+    const activities = auth.isAdmin
+      ? valid.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+      : valid
+          .filter(a => a.alias === alias)
+          .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
-  // Stats aggregate (visibili a tutti)
-  const stats = (await redisGet('hub:stats')) || {
-    n_total: 0, n_pending: 0, last_run: null, last_rmse: null,
-  };
+    // Stats aggregate
+    const stats = (await redisGet('hub:stats')) || {
+      n_total: 0, n_pending: 0, last_run: null, last_rmse: null,
+    };
 
-  // Modello corrente
-  const model = await redisGet('hub:model:current');
+    // Modello corrente
+    const model = await redisGet('hub:model:current');
 
-  // Grafico RMSE (base64)
-  const plot_rmse = await redisGet('hub:plot:rmse');
+    // Grafico RMSE
+    const plot_rmse = await redisGet('hub:plot:rmse');
 
-  // Lista runner autorizzati (solo per admin)
-  let authorized_runners = null;
-  if (auth.isAdmin) {
-    authorized_runners = (await redisGet('hub:authorized_runners')) || [];
+    // Runner autorizzati (solo admin)
+    let authorized_runners = null;
+    if (auth.isAdmin) {
+      authorized_runners = (await redisGet('hub:authorized_runners')) || [];
+    }
+
+    return res.status(200).json({
+      ok: true,
+      activities,
+      stats,
+      model,
+      plot_rmse,
+      isAdmin: auth.isAdmin,
+      authorized_runners,
+    });
+
+  } catch (e) {
+    return res.status(500).json({ error: 'Errore lettura Redis: ' + e.message });
   }
-
-  return res.status(200).json({
-    ok: true,
-    activities,
-    stats,
-    model,
-    plot_rmse,
-    isAdmin: auth.isAdmin,
-    authorized_runners,
-  });
 }
