@@ -577,8 +577,12 @@ async function api(path, opts = {}) {
     body = JSON.stringify({ ...opts.body, key: STATE.key });
   }
 
-  const params = method === 'GET' ? `?key=${STATE.key}${opts.qs || ''}` : '';
-  const res = await fetch(url + params, { method, headers, body });
+  let finalUrl = url;
+  if (method === 'GET') {
+    const sep = path.includes('?') ? '&' : '?';
+    finalUrl = url + sep + 'key=' + STATE.key + (opts.qs || '');
+  }
+  const res = await fetch(finalUrl, { method, headers, body });
   return res.json();
 }
 
