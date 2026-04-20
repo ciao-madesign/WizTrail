@@ -11,7 +11,7 @@
  *  di autotraining dopo ogni nuova calibrazione.
  ***************************************************************/
 const PACING_V2 = {
-  pace10km_ref_min_km: 4.740, // ~47 min su 10km road flat (top 100 uomini)
+  pace10km_ref_min_km: 4.740, // ~47 min su 10km road flat (top 100 uomini — riferimento modello)
   delta: 0.994,               // esponente scaling atleta (quasi-lineare)
   params: {
     A:     0.0100,
