@@ -47,12 +47,25 @@ def main():
     pacing  = load_json(OUTPUT_DIR / "2_pacing_coefficients.json")
     patch   = (OUTPUT_DIR / "4_wiztrail_patch.js").read_text() \
               if (OUTPUT_DIR / "4_wiztrail_patch.js").exists() else None
-    plot    = load_base64(PLOTS_DIR / "history_rmse.png")
-    stats   = get_stats()
+    # Carica tutti i grafici disponibili
+    plots = {}
+    for name in ["history_rmse", "wdi_scatter", "pacing_scatter",
+                 "insights_distribution", "insights_tech_vs_wdi", "insights_spread"]:
+        b64 = load_base64(PLOTS_DIR / f"{name}.png")
+        if b64:
+            plots[name] = b64
+            print(f"  Grafico caricato: {name}.png")
+
+    # Carica report markdown
+    report_md = None
+    report_path = OUTPUT_DIR / "3_insights_report.md"
+    if report_path.exists():
+        report_md = report_path.read_text()
+
+    stats = get_stats()
 
     url = f"{VERCEL_HUB_URL}/api/hub/patch?key={ADMIN_TOKEN}"
 
-    # Header bypass Vercel Deployment Protection
     headers = {"Content-Type": "application/json"}
     if BYPASS_SECRET:
         headers["x-vercel-protection-bypass"] = BYPASS_SECRET
@@ -62,7 +75,9 @@ def main():
         "wdi_calibration":  wdi_cal,
         "pacing":           pacing,
         "stats":            stats,
-        "plot_rmse_base64": plot,
+        "plots":            plots,
+        "plot_rmse_base64": plots.get("history_rmse"),
+        "report_md":        report_md,
         "patch_js":         patch,
     }
 
