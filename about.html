@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WizTrail — Il Metodo</title>
+  <meta name="description" content="Formula WDI, modello tempi power-law, pacing adattivo, hub di calibrazione e architettura tecnica di WizTrail.">
+  <meta property="og:title" content="WizTrail — Il Metodo" />
+  <meta property="og:description" content="La metodologia scientifica dietro WizTrail: WDI v5.1, TechScore, pacing power-law, autocalibrazione." />
+  <meta property="og:type" content="website" />
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#002b2b">
+  <link rel="apple-touch-icon" href="/icons/logo-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="wiztrail.css">
+</head>
+<body data-theme="dark">
+
+<header class="app-header">
+  <a href="landing.html" class="app-brand-link">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </a>
+  <nav class="app-nav">
+    <a href="index.html">Calcolatore</a>
+    <a href="training-analyzer.html">Training</a>
+    <a href="ranking.html">Ranking</a>
+    <a href="about.html" class="nav-active">Il Metodo</a>
+  </nav>
+</header>
+
+<div id="wizBanner" class="wiz-banner">
+  <a href="install.html" class="wiz-banner-link">📱 Aggiungi WizTrail alla Home!</a>
+</div>
+
+<div class="wrap">
+
+  <!-- NAV INTERNA -->
+  <nav class="about-toc">
+    <a href="#wdi">WDI</a>
+    <a href="#techscore">TechScore</a>
+    <a href="#tempi">Modello Tempi</a>
+    <a href="#pacing">Pacing</a>
+    <a href="#hub">Hub</a>
+    <a href="#architettura">Architettura</a>
+    <a href="#licenze">Licenze</a>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       1. WDI
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="wdi" class="about-section">
+    <div class="about-label">Indice di difficoltà</div>
+    <h1>WDI — WizTrail Difficulty Index <span class="about-version">v5.1</span></h1>
+
+    <div class="card">
+      <p>Il <b>WDI</b> misura la <b>difficoltà oggettiva</b> di un percorso trail analizzando parametri reali estratti dal GPX. Non considera elementi soggettivi (atleta, meteo, condizioni del giorno), ma esclusivamente la struttura fisica del tracciato.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><b>Formula generale</b></summary>
+      <div style="margin-top:12px">
+        <pre>WDI = (VolumeScore + TechScore × kT) × DistFactor × AltFactor</pre>
+        <p>Le quattro componenti:</p>
+        <ul>
+          <li><b>VolumeScore</b> — cattura dislivello positivo e negativo con smorzamento logaritmico</li>
+          <li><b>TechScore</b> — misura la tecnicità del terreno da GPX reale (0–100)</li>
+          <li><b>DistFactor</b> — scala con la distanza, esponente sublineare per evitare esplosione sulle ultra</li>
+          <li><b>AltFactor</b> — bonus altitudine attivo sopra 1300m, max +15%</li>
+        </ul>
+        <p><b>Parametri calibrati v5.1 (20/04/2026):</b></p>
+        <pre>kT = 0.50          — peso della tecnica sul WDI finale
+DistFactor exp = 0.48  — era 0.55, ridotto per le ultra</pre>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>VolumeScore — dislivello smorzato</b></summary>
+      <div style="margin-top:12px">
+        <pre>VolumeScore = (D+_km × 10) / (1 + √D+_km / 8)
+           + (D-_km ×  4) / (1 + √D-_km / 6)</pre>
+        <p>Il dislivello positivo pesa il doppio del negativo. La funzione smorza le ultra (il WDI non esplode a 300km di D+) mantenendo forte il peso nelle gare brevi e medie.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>DistFactor — scaling distanza</b></summary>
+      <div style="margin-top:12px">
+        <pre>Se km ≤ 100:  DistFactor = km^0.48 / 42^0.48
+Se km > 100:  DistFactor = base100 + (km^0.42 - 100^0.42) / REF × 0.6</pre>
+        <p>L'esponente passa da 0.48 a 0.42 oltre i 100km. Questo modella il fatto che ogni km aggiuntivo pesa meno nelle ultra rispetto alle gare medie.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Classi WDI — soglie v2</b></summary>
+      <div style="margin-top:12px">
+        <table class="about-table">
+          <thead><tr><th>Classe</th><th>WDI</th><th>Esempi reali</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#2BB7DA">Sport</td><td>&lt; 18</td><td>Trail locale 15km, 400m D+</td></tr>
+            <tr><td style="color:#34A853">Pro</td><td>18–40</td><td>Valtellina Wine Trail 42K, Broken Arrow 11K</td></tr>
+            <tr><td style="color:#F4C20D">Advanced</td><td>40–80</td><td>Sierre-Zinal 31K (55.4), Zegama 42K (77.2)</td></tr>
+            <tr><td style="color:#F79617">Extreme</td><td>80–140</td><td>Speedgoat 50K (104.3), Western States 100M (158→Extreme/Elite)</td></tr>
+            <tr><td style="color:#E91E63">Elite</td><td>140–230</td><td>CCC 99K (163.3)</td></tr>
+            <tr><td style="color:#8E24AA">Legend</td><td>≥ 230</td><td>UTMB 174K (260.5), Hardrock 100 (258.5), TdG 330K</td></tr>
+          </tbody>
+        </table>
+        <p class="mini" style="margin-top:12px; opacity:0.6;">Le soglie sono sincronizzate in wiztrail-engine.js, map.js e questa pagina. Calibrate su kT=0.50, exp=0.48.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       2. TECHSCORE
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="techscore" class="about-section">
+    <div class="about-label">Tecnicità del terreno</div>
+    <h2>TechScore <span class="about-version">calibrato v1.0</span></h2>
+
+    <div class="card">
+      <p>Il TechScore misura la <b>tecnicità reale del terreno</b> da dati GPX, indipendente dalla distanza. Scala da 0 a 100: Facile / Moderato / Tecnico / Molto tecnico / Alpinistico / Estremo.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><b>Componenti e pesi (calibrati v1.0)</b></summary>
+      <div style="margin-top:12px">
+        <pre>normFRIP  = clamp(frip      / 0.924, 0, 1)  — pendenza massima su finestra 40m
+normSVar  = clamp(slopeVar  / 0.180, 0, 1)  — variabilità pendenza (dominante)
+normRough = clamp(roughness / 0.051, 0, 1)  — roughness profilo
+
+vertInt   = clamp((D+/km) / 74.1, 0, 1)    — densità verticale
+
+raw = (normFRIP×0.244 + normSVar×0.421 + normRough×0.208) × 0.873
+    + vertInt × 0.127</pre>
+        <p>La calibrazione v1.0 è stata eseguita su <b>96 gare / 47 GPX reali</b> ottimizzando i 9 pesi con <code>differential_evolution</code>. RMSE TechScore: <b>32.99 → 13.51 punti (−59%)</b>.</p>
+        <p class="mini" style="opacity:0.6; margin-top:8px;">I pesi vengono ricalibrati automaticamente dalla pipeline hub ogni volta che vengono aggiunti nuovi GPX reali.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Modalità di calcolo: GPX vs manuale</b></summary>
+      <div style="margin-top:12px">
+        <p>Se viene caricato un GPX, il TechScore è calcolato punto per punto dai dati reali. Se si inseriscono solo km e D+ manualmente, vengono usati valori di default per categoria di terreno (E, EE, EA), con conseguente minore precisione.</p>
+        <p>Il banner <b>⚠ Valore stimato</b> appare quando il TechScore proviene da input manuale.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       3. MODELLO TEMPI
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="tempi" class="about-section">
+    <div class="about-label">Stima personalizzata</div>
+    <h2>Modello Tempi — Power-law v2.1</h2>
+
+    <div class="card">
+      <p>La stima del tempo di gara è personalizzata in base al <b>passo su 10km in piano</b> dell'atleta. Il modello scala correttamente da skyrace (15km) a ultra (170km+).</p>
+    </div>
+
+    <details class="card" open>
+      <summary><b>Formula power-law</b></summary>
+      <div style="margin-top:12px">
+        <pre>T = A × km^α × (D+/km)^β × (1 + c × tech/10)
+  × (pace10km / pace10km_ref)^δ</pre>
+        <p><b>Parametri calibrati (20/04/2026):</b></p>
+        <pre>A     = 0.00949   — coefficiente base
+α     = 1.2231    — esponente distanza
+β     = 0.3288    — esponente densità D+ (D+/km)
+c     = 0.6464    — coefficiente tecnicità
+δ     = 0.994     — scaling quasi-lineare per livello atleta
+pace_ref = 4.740 min/km  — top 100 uomini (da ricalibrate su runner medio)</pre>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Livelli atleta e fattori di scaling</b></summary>
+      <div style="margin-top:12px">
+        <table class="about-table">
+          <thead><tr><th>t10km</th><th>Pace</th><th>Fattore</th><th>Livello</th></tr></thead>
+          <tbody>
+            <tr><td>40:00</td><td>4.00 min/km</td><td>×0.84</td><td>Élite</td></tr>
+            <tr><td>45:00</td><td>4.50 min/km</td><td>×0.95</td><td>Agonista</td></tr>
+            <tr><td>50:00</td><td>5.00 min/km</td><td>×1.05</td><td>Amatore forte</td></tr>
+            <tr><td>55:00</td><td>5.50 min/km</td><td>×1.16</td><td>Amatore avanzato</td></tr>
+            <tr><td>60:00</td><td>6.00 min/km</td><td>×1.26</td><td>Amatore medio</td></tr>
+            <tr><td>70:00</td><td>7.00 min/km</td><td>×1.47</td><td>Amatore</td></tr>
+          </tbody>
+        </table>
+        <p class="mini" style="margin-top:10px; opacity:0.6;">Il riferimento base è calibrato sui top 100 uomini. La prossima calibrazione della pipeline userà avg_finish_hours per spostare il riferimento verso il runner medio (~6.2 min/km).</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Fatica progressiva (modello Riegel adattivo)</b></summary>
+      <div style="margin-top:12px">
+        <pre>fatigue = 1 + (t_ore / 12)^1.3</pre>
+        <ul>
+          <li>Gare brevi (1–2h) → fatica quasi nulla</li>
+          <li>Gare medie (4–6h) → impatto moderato (+8–12%)</li>
+          <li>Ultra 10–15h → +15–25% sul tempo totale</li>
+        </ul>
+        <p>La fatica è applicata nel modello GPX segmento per segmento. La stima power-law usa invece δ come esponente di scaling diretto.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       4. PACING
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="pacing" class="about-section">
+    <div class="about-label">Pianificazione gara</div>
+    <h2>Pacing Planner — modello chunk-based</h2>
+
+    <div class="card">
+      <p>Il Pacing Planner genera un ritmo consigliato per ogni tratto del percorso. A differenza della stima del tempo finale, mira a un <b>ritmo regolare e sostenibile</b> adattato alla difficoltà locale, senza fatica progressiva.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><b>Pipeline di calcolo</b></summary>
+      <div style="margin-top:12px">
+        <ol>
+          <li>Il GPX viene suddiviso in <b>micro-segmenti</b> da ~80m</li>
+          <li>Ogni segmento ha: distanza, ΔH, pendenza, slope_factor</li>
+          <li>I micro-segmenti vengono aggregati in <b>chunk da 1, 5 o 10 km</b></li>
+          <li>Per ogni chunk si calcola il <b>costo relativo</b> di difficoltà</li>
+          <li>Il tempo obiettivo viene distribuito in proporzione ai costi</li>
+        </ol>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Slope factor</b></summary>
+      <div style="margin-top:12px">
+        <pre>Salita:
+  slope &lt; 5%   → +20–40% rispetto al piano
+  slope &lt; 12%  → +60–120%
+  slope ≥ 12%  → +180–250%
+
+Discesa:
+  0% → -10%    → leggero beneficio
+  ≤ -10%       → penalità (controllo tecnico)</pre>
+        <p>Il terrain factor (E/EE/EA) aggiunge una penalità globale applicata solo sui tratti ripidi.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Limiti del modello</b></summary>
+      <div style="margin-top:12px">
+        <ul>
+          <li>Richiede un GPX con dati altimetrici puliti</li>
+          <li>Non simula la fatica fisiologica reale (usa il Calcolatore per quello)</li>
+          <li>La tecnicità è globale (dichiarata dall'utente), non locale</li>
+          <li>Non considera soste o strategia personale</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       5. HUB DI AUTOCALIBRAZIONE
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="hub" class="about-section">
+    <div class="about-label">Apprendimento continuo</div>
+    <h2>Hub di autocalibrazione</h2>
+
+    <div class="card">
+      <p>L'Hub permette di migliorare i modelli WizTrail attraverso dati reali forniti dagli utenti. Ogni GPX caricato con feedback di tecnicità e tempo contribuisce a ricalibrate i parametri del motore.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><b>Come funziona</b></summary>
+      <div style="margin-top:12px">
+        <ol>
+          <li>L'utente carica un GPX con tempo di completamento e valutazione tecnicità</li>
+          <li>I dati vengono salvati su Upstash Redis</li>
+          <li>L'admin avvia la pipeline di calibrazione su GitHub Actions</li>
+          <li>La pipeline ricalibra i 9 pesi del TechScore e i parametri power-law</li>
+          <li>I nuovi parametri vengono pubblicati come patch da applicare al motore</li>
+        </ol>
+        <pre>Pipeline: 01_prepare → 02_compute_wdi → 03_calibrate
+        → 04_insights → 05_sync_hub → 06_push_results</pre>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Cosa viene calibrato</b></summary>
+      <div style="margin-top:12px">
+        <ul>
+          <li><b>buildTechScore()</b> — i 9 coefficienti di normalizzazione e pesi (FRIP, SlopeVar, Roughness, vertInt)</li>
+          <li><b>Modello power-law</b> — A, α, β, c, δ, pace10km_ref</li>
+        </ul>
+        <p><b>Non viene calibrato automaticamente:</b> kT, esponente DistFactor, soglie WDI per classe. Questi parametri richiedono analisi manuale dopo ogni calibrazione.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       6. ARCHITETTURA TECNICA
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="architettura" class="about-section">
+    <div class="about-label">Struttura del progetto</div>
+    <h2>Architettura tecnica</h2>
+
+    <details class="card" open>
+      <summary><b>Stack e infrastruttura</b></summary>
+      <div style="margin-top:12px">
+        <table class="about-table">
+          <thead><tr><th>Layer</th><th>Tecnologia</th><th>Ruolo</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend app</td><td>HTML + CSS + Vanilla JS</td><td>Calcolo WDI e pacing interamente nel browser</td></tr>
+            <tr><td>Hosting</td><td>Vercel (static + serverless)</td><td>Deployment, serverless functions Node.js ES Module</td></tr>
+            <tr><td>Auth Strava</td><td>OAuth2 via api/strava/callback.js</td><td>Token in sessionStorage, client_secret solo su Vercel env</td></tr>
+            <tr><td>Rate limiting</td><td>Upstash Redis (REST)</td><td>Sliding window 30 req/min per IP su tutti gli endpoint Strava</td></tr>
+            <tr><td>Hub calibrazione</td><td>Upstash Redis + GitHub Actions + Python 3.11</td><td>Storage attività, pipeline ML, distribuzione patch</td></tr>
+            <tr><td>PWA</td><td>Service Worker + Web App Manifest</td><td>Installabile, funziona offline dopo il primo caricamento</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Struttura file — repo GitHub (branch: backend)</b></summary>
+      <div style="margin-top:12px">
+        <pre>WizTrail/
+├── landing.html              ← entry point (questa pagina)
+├── index.html                ← app calcolatore
+├── about.html                ← questa pagina
+├── ranking.html
+├── training-analyzer.html
+├── dettaglio.html
+├── wiztrail-engine.js        ← WDI engine v5.1
+├── wiztrail-pacing.js        ← modello power-law v2.1
+├── gpx-parser.js             ← parser GPX/TCX
+├── discipline-classifier.js  ← trail/sky/mountain/XC
+├── map.js, ui.js, main.js    ← moduli frontend
+├── wiztrail.css              ← stile globale
+├── api/
+│   ├── strava/               ← OAuth2 callback, activities, activity
+│   ├── hub/                  ← auth, upload, activities, run, patch
+│   └── lib/ratelimit.js      ← Upstash sliding window
+├── wiztrail-calibration/
+│   ├── data/dataset.xlsx     ← 96 gare con metadati
+│   ├── gpx/                  ← GPX reali (47 file)
+│   └── scripts/              ← pipeline Python (01→06)
+├── .github/workflows/
+│   └── hub-calibration.yml  ← GitHub Actions pipeline
+└── docs/
+    ├── hub-guide.md
+    └── hub-guide.docx</pre>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Principi di design</b></summary>
+      <div style="margin-top:12px">
+        <ul>
+          <li><b>Calcolo client-side</b> — WDI, TechScore, pacing e stima tempi girano interamente nel browser. Nessun dato GPX viene inviato a server.</li>
+          <li><b>Serverless solo per OAuth</b> — le funzioni Vercel gestiscono solo l'autenticazione Strava e l'hub di calibrazione.</li>
+          <li><b>Privacy by design</b> — nessun tracking, nessun cookie non necessario, nessun dato personale senza consenso esplicito.</li>
+          <li><b>Calibrazione continua</b> — l'architettura è progettata per migliorare automaticamente con ogni nuovo GPX reale caricato.</li>
+          <li><b>Trasferibilità</b> — il codice è documentato per consentire trasferimento o licensing commerciale.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>API pubblica (M5 — pianificata)</b></summary>
+      <div style="margin-top:12px">
+        <p>In sviluppo. Permetterà l'integrazione di WizTrail in app di terze parti (smartwatch, piattaforme gare, servizi di analisi trail).</p>
+        <pre>GET /api/v1/wdi    — calcola WDI da km, D+, tecnicità
+GET /api/v1/pacing — stima tempo personalizzata</pre>
+        <p>Autenticazione: <code>X-Api-Key</code> header. Rate limiting via Upstash.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       7. LICENZE
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="licenze" class="about-section">
+    <div class="about-label">Open source & credits</div>
+    <h2>Licenze &amp; Credits</h2>
+
+    <div class="card">
+      <p>WizTrail utilizza esclusivamente tecnologie open-source. <b>Nessun dato dell'utente viene inviato a server esterni</b>: tutto il calcolo avviene in locale nel browser.</p>
+      <ul style="margin-top:16px; line-height:2;">
+        <li><b>Leaflet</b> — libreria open-source per mappe interattive (BSD License). <span class="mini">© Leaflet contributors</span></li>
+        <li><b>Carto Basemaps</b> — mappa 2D dark/light. <span class="mini">© CartoDB — CC-BY 4.0</span></li>
+        <li><b>OpenTopoMap</b> — overlay topografico. <span class="mini">© OpenTopoMap (CC-BY-SA)</span></li>
+        <li><b>OpenStreetMap</b> — dati cartografici. <span class="mini">© OpenStreetMap contributors (ODbL 1.0)</span></li>
+        <li><b>DM Mono</b> — typeface (Google Fonts, Open Font License). <span class="mini">© Colophon Foundry</span></li>
+        <li><b>Foto hero landing</b> — <a href="https://unsplash.com/@brian_erickson" target="_blank" rel="noopener">Brian Erickson</a> su <a href="https://unsplash.com/photos/8TJbrQGKFyU" target="_blank" rel="noopener">Unsplash</a> (Unsplash License)</li>
+        <li><b>WizTrail WDI</b> — indice proprietario. <span class="mini">© WizTrail — all rights reserved</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="footer">WizTrail © 2026
+    <p>
+      <a href="https://www.youtube.com/@WizTrail" target="_blank" rel="noopener"
+         style="color:var(--accent); font-weight:600;">📺 Visita il mio canale YouTube</a>
+    </p>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+  // Theme selector
+  const themeSel = document.getElementById('themeSel');
+  if (themeSel) {
+    themeSel.addEventListener('change', e =>
+      document.body.setAttribute('data-theme', e.target.value)
+    );
+  }
+
+  // Nav interna — evidenzia sezione attiva in base allo scroll
+  const sections = document.querySelectorAll('.about-section');
+  const navLinks = document.querySelectorAll('.about-toc a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`.about-toc a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  sections.forEach(s => obs.observe(s));
+
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
+  }
+</script>
+
+<!-- Stili aggiuntivi specifici di about.html -->
+<style>
+  .about-section {
+    margin-bottom: 64px;
+    scroll-margin-top: 80px;
+  }
+  .about-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+  .about-version {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--muted);
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .about-toc {
+    position: sticky;
+    top: 64px;
+    z-index: 10;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    padding: 10px 0;
+    margin-bottom: 40px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .about-toc a {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .about-toc a:hover,
+  .about-toc a.active {
+    color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 12%, transparent);
+  }
+  .about-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    margin-top: 8px;
+  }
+  .about-table th {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .about-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .about-table tr:last-child td { border-bottom: none; }
+  h1 .about-version, h2 .about-version { font-size: 0.65rem; }
+</style>
+
+</body>
+</html>
