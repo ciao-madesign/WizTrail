@@ -77,6 +77,16 @@ export default async function handler(req, res) {
 
   if (body.plot_rmse_base64) await set('hub:plot:rmse', body.plot_rmse_base64);
 
+  // Salva tutti i grafici
+  if (body.plots && typeof body.plots === 'object') {
+    for (const [name, b64] of Object.entries(body.plots)) {
+      await set(`hub:plot:${name}`, b64);
+    }
+  }
+
+  // Salva report markdown
+  if (body.report_md) await set('hub:report:md', body.report_md);
+
   const prevStats = (await get('hub:stats')) || {};
   const newRmse   = body.wdi_calibration?.rmse_after ?? prevStats.last_rmse;
   await set('hub:stats', {
@@ -90,6 +100,9 @@ export default async function handler(req, res) {
   if (Array.isArray(body.authorized_runners)) {
     await set('hub:authorized_runners', body.authorized_runners);
   }
+
+  return res.status(200).json({ ok: true, timestamp: ts, rmse: newRmse });
+}
 
   return res.status(200).json({ ok: true, timestamp: ts, rmse: newRmse });
 }
