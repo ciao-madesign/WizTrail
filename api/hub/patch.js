@@ -7,45 +7,48 @@ import { checkAuth } from './auth.js';
 const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-async function cmd(args) {
-  const res = await fetch(UPSTASH_URL, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(args),
+async function redisGet(key) {
+  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
   });
   const json = await res.json();
-  if (json.error) throw new Error(`Upstash: ${json.error}`);
-  return json.result;
+  if (json.error) throw new Error(`Redis GET: ${json.error}`);
+  if (json.result === null) return null;
+  try { return JSON.parse(json.result); } catch { return json.result; }
 }
 
-async function get(key) {
-  const r = await cmd(['GET', key]);
-  if (r === null) return null;
-  try { return JSON.parse(r); } catch { return r; }
+async function redisSet(key, value) {
+  const res = await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([['SET', key, JSON.stringify(value)]])
+  });
+  const json = await res.json();
+  if (json[0]?.error) throw new Error(`Redis SET: ${json[0].error}`);
+  return json[0]?.result;
 }
 
-async function set(key, value) {
-  return cmd(['SET', key, JSON.stringify(value)]);
-}
-
-async function scan(pattern) {
+async function redisScan(pattern) {
   const keys = [];
   let cursor = '0';
   do {
-    const r = await cmd(['SCAN', cursor, 'MATCH', pattern, 'COUNT', '100']);
-    cursor = r[0];
-    keys.push(...r[1]);
+    const res = await fetch(
+      `${UPSTASH_URL}/scan/${cursor}?match=${encodeURIComponent(pattern)}&count=100`,
+      { headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` } }
+    );
+    const json = await res.json();
+    if (json.error) throw new Error(`Redis SCAN: ${json.error}`);
+    cursor = json.result[0];
+    keys.push(...json.result[1]);
   } while (cursor !== '0');
   return keys;
 }
 
 async function markActivitiesCalibrated() {
-  const keys = await scan('hub:activities:*');
-  await Promise.all(keys.map(async (k) => {
-    const activity = await get(k);
-    if (activity?.status === 'pending') {
-      await set(k, { ...activity, status: 'calibrated' });
-    }
+  const keys = await redisScan('hub:activities:*');
+  await Promise.all(keys.map(async k => {
+    const a = await redisGet(k);
+    if (a?.status === 'pending') await redisSet(k, { ...a, status: 'calibrated' });
   }));
 }
 
@@ -63,8 +66,16 @@ export default async function handler(req, res) {
   const body = req.body;
   if (!body) return res.status(400).json({ error: 'Body mancante' });
 
+  // Reset manuale del flag pipeline (dal pulsante admin nell'hub)
+  if (body._reset_pipeline) {
+    const s = (await redisGet('hub:stats')) || {};
+    await redisSet('hub:stats', { ...s, pipeline_running: false, pipeline_started_at: null, pipeline_started_by: null });
+    return res.status(200).json({ ok: true, action: 'pipeline_reset' });
+  }
+
   const ts = new Date().toISOString();
 
+  // Salva modello corrente
   const model = {
     wdi_calibration: body.wdi_calibration || null,
     pacing:          body.pacing          || null,
@@ -72,37 +83,42 @@ export default async function handler(req, res) {
     timestamp:       ts,
     patch_js:        body.patch_js        || null,
   };
-  await set('hub:model:current', model);
-  await set(`hub:model:history:${ts}`, model);
+  await redisSet('hub:model:current', model);
+  await redisSet(`hub:model:history:${ts}`, model);
 
-  if (body.plot_rmse_base64) await set('hub:plot:rmse', body.plot_rmse_base64);
+  // Salva grafico RMSE principale (retrocompatibilità)
+  if (body.plot_rmse_base64) await redisSet('hub:plot:rmse', body.plot_rmse_base64);
 
   // Salva tutti i grafici
   if (body.plots && typeof body.plots === 'object') {
     for (const [name, b64] of Object.entries(body.plots)) {
-      await set(`hub:plot:${name}`, b64);
+      await redisSet(`hub:plot:${name}`, b64);
     }
   }
 
   // Salva report markdown
-  if (body.report_md) await set('hub:report:md', body.report_md);
+  if (body.report_md) await redisSet('hub:report:md', body.report_md);
 
-  const prevStats = (await get('hub:stats')) || {};
+  // Aggiorna stats — pipeline_running: false
+  const prevStats = (await redisGet('hub:stats')) || {};
   const newRmse   = body.wdi_calibration?.rmse_after ?? prevStats.last_rmse;
-  await set('hub:stats', {
-    ...prevStats,
-    last_run: ts, last_rmse: newRmse, n_pending: 0,
-    pipeline_running: false, pipeline_started_at: null, pipeline_started_by: null,
+  await redisSet('hub:stats', {
+    n_total:             prevStats.n_total   || 0,
+    n_pending:           0,
+    last_run:            ts,
+    last_rmse:           newRmse,
+    pipeline_running:    false,
+    pipeline_started_at: null,
+    pipeline_started_by: null,
   });
 
+  // Marca attività calibrated
   await markActivitiesCalibrated();
 
+  // Aggiorna runner autorizzati se presenti
   if (Array.isArray(body.authorized_runners)) {
-    await set('hub:authorized_runners', body.authorized_runners);
+    await redisSet('hub:authorized_runners', body.authorized_runners);
   }
-
-  return res.status(200).json({ ok: true, timestamp: ts, rmse: newRmse });
-}
 
   return res.status(200).json({ ok: true, timestamp: ts, rmse: newRmse });
 }
