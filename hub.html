@@ -492,7 +492,7 @@
         <div class="model-grid" id="modelStats">
           <div class="model-kpi"><span class="val" id="statTotal">—</span><div class="lbl">attività totali</div></div>
           <div class="model-kpi"><span class="val" id="statPending">—</span><div class="lbl">in attesa calibrazione</div></div>
-          <div class="model-kpi"><span class="val" id="statRmse">—</span><div class="lbl">RMSE attuale</div></div>
+          <div class="model-kpi"><span class="val" id="statRmse">—</span><div class="lbl">RMSE TechScore (punti)</div></div>
         </div>
         <div id="lastRun" style="font-size:0.75rem; color:var(--muted); margin-top:10px;"></div>
         <img id="rmseImg" alt="Grafico evoluzione RMSE"/>
@@ -962,7 +962,7 @@ async function loadDashboard() {
     document.getElementById('statTotal').textContent   = r.stats?.n_total   ?? '—';
     document.getElementById('statPending').textContent = r.stats?.n_pending  ?? '—';
     document.getElementById('statRmse').textContent    = r.stats?.last_rmse != null
-      ? r.stats.last_rmse.toFixed(2) + 'h' : '—';
+      ? r.stats.last_rmse.toFixed(2) + ' pts' : '—';
 
     if (r.stats?.last_run) {
       document.getElementById('lastRun').textContent =
