@@ -62,9 +62,21 @@ export default async function handler(req, res) {
     const stats    = (await get('hub:stats')) || { n_total: 0, n_pending: 0, last_run: null, last_rmse: null };
     const model    = await get('hub:model:current');
     const plot_rmse = await get('hub:plot:rmse');
+
+    // Carica tutti i grafici disponibili
+    const plot_names = ['wdi_scatter','pacing_scatter','insights_distribution',
+                        'insights_tech_vs_wdi','insights_spread'];
+    const plots = {};
+    await Promise.all(plot_names.map(async name => {
+      const b = await get(`hub:plot:${name}`).catch(() => null);
+      if (b) plots[name] = b;
+    }));
+
+    // Report markdown
+    const report_md = await get('hub:report:md').catch(() => null);
     const authorized_runners = auth.isAdmin ? ((await get('hub:authorized_runners')) || []) : null;
 
-    return res.status(200).json({ ok: true, activities, stats, model, plot_rmse, isAdmin: auth.isAdmin, authorized_runners });
+    return res.status(200).json({ ok: true, activities, stats, model, plot_rmse, plots, report_md, isAdmin: auth.isAdmin, authorized_runners });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
