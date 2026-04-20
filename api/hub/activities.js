@@ -7,35 +7,36 @@ import { checkAuth } from './auth.js';
 const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-async function cmd(args) {
-  const res = await fetch(UPSTASH_URL, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(args),
+async function redisGet(key) {
+  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
   });
   const json = await res.json();
-  if (json.error) throw new Error(`Upstash: ${json.error}`);
-  return json.result;
+  if (json.error) throw new Error(`Redis GET: ${json.error}`);
+  if (json.result === null) return null;
+  try { return JSON.parse(json.result); } catch { return json.result; }
 }
 
-async function get(key) {
-  const r = await cmd(['GET', key]);
-  if (r === null) return null;
-  try { return JSON.parse(r); } catch { return r; }
-}
-
-async function scan(pattern) {
+async function redisScan(pattern) {
   const keys = [];
   let cursor = '0';
   do {
-    const r = await cmd(['SCAN', cursor, 'MATCH', pattern, 'COUNT', '100']);
-    cursor = r[0];
-    keys.push(...r[1]);
+    const res = await fetch(
+      `${UPSTASH_URL}/scan/${cursor}?match=${encodeURIComponent(pattern)}&count=100`,
+      { headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` } }
+    );
+    const json = await res.json();
+    if (json.error) throw new Error(`Redis SCAN: ${json.error}`);
+    cursor = json.result[0];
+    keys.push(...json.result[1]);
   } while (cursor !== '0');
   return keys;
 }
 
-function stripGpx(a) { const { gpx_base64, ...rest } = a; return rest; }
+function stripGpx(a) {
+  const { gpx_base64, ...rest } = a;
+  return rest;
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -50,33 +51,36 @@ export default async function handler(req, res) {
   const alias = req.query?.alias?.trim() || null;
 
   try {
-    const keys = await scan('hub:activities:*');
-    const all  = await Promise.all(keys.map(k => get(k).catch(() => null)));
-    const valid = all.filter(Boolean).map(stripGpx);
+    const keys  = await redisScan('hub:activities:*');
+    const all   = await Promise.all(keys.map(k => redisGet(k).catch(() => null)));
+    const valid = all.filter(a => a && typeof a === 'object' && a.name).map(stripGpx);
 
-    const safeSortKey = a => a.timestamp || '';
     const activities = auth.isAdmin
-      ? valid.sort((a, b) => safeSortKey(b).localeCompare(safeSortKey(a)))
-      : valid.filter(a => a.alias === alias).sort((a, b) => safeSortKey(b).localeCompare(safeSortKey(a)));
+      ? valid.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''))
+      : valid
+          .filter(a => a.alias === alias)
+          .sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
 
-    const stats    = (await get('hub:stats')) || { n_total: 0, n_pending: 0, last_run: null, last_rmse: null };
-    const model    = await get('hub:model:current');
-    const plot_rmse = await get('hub:plot:rmse');
+    const stats     = (await redisGet('hub:stats')) || { n_total: 0, n_pending: 0, last_run: null, last_rmse: null };
+    const model     = await redisGet('hub:model:current');
+    const plot_rmse = await redisGet('hub:plot:rmse');
 
-    // Carica tutti i grafici disponibili
-    const plot_names = ['wdi_scatter','pacing_scatter','insights_distribution',
-                        'insights_tech_vs_wdi','insights_spread'];
+    const plotNames = ['wdi_scatter','pacing_scatter','insights_distribution',
+                       'insights_tech_vs_wdi','insights_spread','history_rmse'];
     const plots = {};
-    await Promise.all(plot_names.map(async name => {
-      const b = await get(`hub:plot:${name}`).catch(() => null);
+    await Promise.all(plotNames.map(async name => {
+      const b = await redisGet(`hub:plot:${name}`).catch(() => null);
       if (b) plots[name] = b;
     }));
 
-    // Report markdown
-    const report_md = await get('hub:report:md').catch(() => null);
-    const authorized_runners = auth.isAdmin ? ((await get('hub:authorized_runners')) || []) : null;
+    const report_md          = await redisGet('hub:report:md').catch(() => null);
+    const authorized_runners = auth.isAdmin ? ((await redisGet('hub:authorized_runners')) || []) : null;
 
-    return res.status(200).json({ ok: true, activities, stats, model, plot_rmse, plots, report_md, isAdmin: auth.isAdmin, authorized_runners });
+    return res.status(200).json({
+      ok: true, activities, stats, model, plot_rmse,
+      plots, report_md, isAdmin: auth.isAdmin, authorized_runners
+    });
+
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
