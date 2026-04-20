@@ -124,6 +124,10 @@ def compute_row(row):
     tech=float(row["technicality"])
     mode=row.get("calc_mode","manual")
 
+    # Inizializza variabili con valori di default per evitare UnboundLocalError
+    km=gain=loss=frip=sv=rough=0.
+    alt=800.; source="manual"
+
     if mode=="gpx":
         g=parse_gpx(str(row["gpx_path"]))
         if g:
