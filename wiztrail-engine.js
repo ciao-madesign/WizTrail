@@ -8,23 +8,25 @@
    Le soglie devono restare sincronizzate con:
      - map.js → getColorWDI()
      - ui.js → showWDI() e showTechScore()
-   kT = 0.55 → peso tecnica ~28-32% sul totale medio (aggiornato 20/04/2026, era 0.35)
+   kT = 0.50 → calibrato 20/04/2026 (era 0.35)
    =============================================================== */
 
 window.WizTrail = (function () {
 
-  const kT    = 0.55;  // aggiornato 20/04/2026 — aumenta peso tecnica (r=0.33 troppo debole)
+  const kT    = 0.50;  // calibrato 20/04/2026 (era 0.35)
   const REF42 = Math.pow(42, 0.55);
 
   /* ---------------------------------------------------------------
      SOGLIE — ⚠ PROVVISORIE, iterare su GPX reali
      --------------------------------------------------------------- */
   const WDI_THRESHOLDS = [
-    { max: 14,       level: 'Sport',    color: '#2BB7DA' },
-    { max: 30,       level: 'Pro',      color: '#34A853' },
-    { max: 55,       level: 'Advanced', color: '#F4C20D' },
-    { max: 105,      level: 'Extreme',  color: '#F79617' },
-    { max: 165,      level: 'Elite',    color: '#E91E63' },
+    // Soglie v2 — calibrate su kT=0.50 + DistFactor exp=0.48 (20/04/2026)
+    // Sincronizzare con map.js → getColorWDI() e ui.js → showWDI()
+    { max: 18,       level: 'Sport',    color: '#2BB7DA' },
+    { max: 40,       level: 'Pro',      color: '#34A853' },
+    { max: 80,       level: 'Advanced', color: '#F4C20D' },
+    { max: 140,      level: 'Extreme',  color: '#F79617' },
+    { max: 230,      level: 'Elite',    color: '#E91E63' },
     { max: Infinity, level: 'Legend',   color: '#8E24AA' }
   ];
 
@@ -104,17 +106,14 @@ window.WizTrail = (function () {
   }
 
   function buildTechScore(frip, slopeVar, roughness, gain, km, surfaceLevel) {
-    /* ---------------------------------------------------------------
-       Pesi calibrati v1.0 — dataset 96 gare / 47 GPX reali
-       RMSE prima: 32.99 → dopo: 13.51  (−59%)
-       Aggiornare eseguendo scripts/03_calibrate.py nella pipeline.
-       --------------------------------------------------------------- */
+    /* Pesi calibrati v1.0 — 96 gare / 47 GPX reali — RMSE −59%
+       Aggiornare con scripts/03_calibrate.py della pipeline hub. */
     const normFRIP  = clamp(frip      / 0.924, 0, 1);  // era / 0.60
     const normSVar  = clamp(slopeVar  / 0.180, 0, 1);  // era / 0.55
     const normRough = clamp(roughness / 0.051, 0, 1);  // era / 0.35
     const vertInt   = clamp((gain / km) / 74.1, 0, 1); // era / 150
     const raw = (normFRIP * 0.244 + normSVar * 0.421 + normRough * 0.208) * 0.873
-              + vertInt * 0.127;                        // era * 0.30
+              + vertInt * 0.127;
     const mult = SURFACE_MULT[surfaceLevel] || 1.00;
     return Math.round(raw * 100 * mult * 10) / 10;
   }
@@ -127,10 +126,13 @@ window.WizTrail = (function () {
   }
 
   function buildDistFactor(km) {
-    if (km <= 100) return Math.pow(km, 0.55) / REF42;
-    const base100 = Math.pow(100, 0.55) / REF42;
+    // esponente 0.48 (era 0.55) — riduce dominanza distanza sulle ultra
+    const EXP = 0.48;
+    const REF = Math.pow(42, EXP);
+    if (km <= 100) return Math.pow(km, EXP) / REF;
+    const base100 = Math.pow(100, EXP) / REF;
     const ref100  = Math.pow(100, 0.42);
-    return base100 + (Math.pow(km, 0.42) - ref100) / REF42 * 0.6;
+    return base100 + (Math.pow(km, 0.42) - ref100) / REF * 0.6;
   }
 
   function buildAltFactor(altMedia) {
