@@ -5,10 +5,11 @@ import os, json, base64, sys
 from pathlib import Path
 import requests
 
-VERCEL_HUB_URL  = os.environ.get("VERCEL_HUB_URL", "").rstrip("/")
-ADMIN_TOKEN     = os.environ.get("HUB_ADMIN_TOKEN", "")
-OUTPUT_DIR      = Path("output")
-PLOTS_DIR       = OUTPUT_DIR / "plots"
+VERCEL_HUB_URL    = os.environ.get("VERCEL_HUB_URL", "").rstrip("/")
+ADMIN_TOKEN       = os.environ.get("HUB_ADMIN_TOKEN", "")
+BYPASS_SECRET     = os.environ.get("VERCEL_BYPASS_SECRET", "")
+OUTPUT_DIR        = Path("output")
+PLOTS_DIR         = OUTPUT_DIR / "plots"
 
 
 def load_json(path):
@@ -41,8 +42,6 @@ def main():
         return
 
     print(f"  Raccolta risultati calibrazione...")
-    print(f"  VERCEL_HUB_URL: {VERCEL_HUB_URL}")
-    print(f"  HUB_ADMIN_TOKEN (primi 8 chars): {ADMIN_TOKEN[:8]}...")
 
     wdi_cal = load_json(OUTPUT_DIR / "1_wdi_calibration.json")
     pacing  = load_json(OUTPUT_DIR / "2_pacing_coefficients.json")
@@ -51,9 +50,12 @@ def main():
     plot    = load_base64(PLOTS_DIR / "history_rmse.png")
     stats   = get_stats()
 
-    # Il token va sia nell'URL (query param) sia nel body
-    # per compatibilità con checkAuth() che cerca in entrambi i posti
     url = f"{VERCEL_HUB_URL}/api/hub/patch?key={ADMIN_TOKEN}"
+
+    # Header bypass Vercel Deployment Protection
+    headers = {"Content-Type": "application/json"}
+    if BYPASS_SECRET:
+        headers["x-vercel-protection-bypass"] = BYPASS_SECRET
 
     payload = {
         "key":              ADMIN_TOKEN,
@@ -66,15 +68,13 @@ def main():
 
     print(f"  Invio a {VERCEL_HUB_URL}/api/hub/patch ...")
     try:
-        r = requests.post(url, json=payload, timeout=30)
+        r = requests.post(url, json=payload, headers=headers, timeout=30)
         print(f"  HTTP status: {r.status_code}")
-        print(f"  Response: {r.text[:200]}")
         r.raise_for_status()
         result = r.json()
         print(f"  ✓ Risultati pubblicati — RMSE: {result.get('rmse', '?')}")
     except requests.exceptions.RequestException as e:
         print(f"  ❌ Errore push risultati: {e}")
-        # Non blocca la pipeline
         sys.exit(0)
 
 
