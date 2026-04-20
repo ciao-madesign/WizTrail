@@ -403,8 +403,11 @@
     }
 
     // Distanza e D+ (ibrido form + GPX)
-    var km = readNum('dist') || (window.metrics?.km   || 0);
-    var dp = readNum('dplus') || (window.metrics?.gain || 0);
+    // Priorità: GPX se caricato, altrimenti form manuale
+    var km = (window.metrics?.km   > 0 ? window.metrics.km   : readNum('dist'))  || 0;
+    var dp = (window.metrics?.gain > 0 ? window.metrics.gain : readNum('dplus')) || 0;
+    // Fallback: se GPX non ha gain ma form ha D+ manuale, usa quello
+    if (!dp) dp = readNum('dplus') || 0;
     if (!km || !dp) { box.style.display = 'none'; return; }
 
     // TechScore da WDI engine: scala da 0-100 a 0-10
