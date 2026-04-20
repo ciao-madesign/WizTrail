@@ -58,6 +58,7 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
           HUB_ADMIN_TOKEN:          ${{ secrets.HUB_ADMIN_TOKEN }}
           VERCEL_HUB_URL:           ${{ secrets.VERCEL_HUB_URL }}
+          VERCEL_BYPASS_SECRET:     ${{ secrets.VERCEL_BYPASS_SECRET }}
           GITHUB_REPO:              ${{ github.repository }}
         working-directory: wiztrail-calibration
         run: python scripts/06_push_results.py
