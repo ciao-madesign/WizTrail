@@ -83,6 +83,19 @@
     if (pts.length < 2) return { km: 0, gain: 0, e: [], d: [], max_altitude: 0 };
 
     const elev = pts.map(p => p[2]);
+
+    // Smoothing adattivo prima del calcolo D+: riduce rumore GPS
+    // senza perdere dislivello reale. Finestra più larga su tracce dense.
+    const wSize = pts.length > 10000 ? 9 : pts.length > 3000 ? 5 : 3;
+    const elevS = [];
+    for (let i = 0; i < elev.length; i++) {
+      let sum = 0, count = 0;
+      for (let j = i - Math.floor(wSize / 2); j <= i + Math.floor(wSize / 2); j++) {
+        if (j >= 0 && j < elev.length && Number.isFinite(elev[j])) { sum += elev[j]; count++; }
+      }
+      elevS.push(count > 0 ? sum / count : elev[i]);
+    }
+
     const d    = [0];
     let dist = 0, gain = 0;
 
@@ -90,8 +103,8 @@
       const dd = hav(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
       if (dd < 300) dist += dd;   // scarta salti GPS anomali
       d[i] = dist;
-      const de = elev[i] - elev[i - 1];
-      if (de > 1) gain += de;
+      const de = elevS[i] - elevS[i - 1];
+      if (de > 0) gain += de;  // soglia 0 su dato già smoothato
     }
 
     // reduce invece di Math.max(...elev) per sicurezza su tracce con molti punti
