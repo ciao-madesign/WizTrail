@@ -485,6 +485,9 @@
 
       <div class="card">
         <div class="card-title">// stato modello</div>
+        <div id="pipelineBanner" style="display:none; background:rgba(79,209,197,0.08); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:0.82rem; color:var(--accent);">
+          <span class="spinner"></span> Pipeline in corso — aggiornamento automatico...
+        </div>
         <div class="model-grid" id="modelStats">
           <div class="model-kpi"><span class="val" id="statTotal">—</span><div class="lbl">attività totali</div></div>
           <div class="model-kpi"><span class="val" id="statPending">—</span><div class="lbl">in attesa calibrazione</div></div>
@@ -492,6 +495,26 @@
         </div>
         <div id="lastRun" style="font-size:0.75rem; color:var(--muted); margin-top:10px;"></div>
         <img id="rmseImg" alt="Grafico evoluzione RMSE"/>
+        <div id="reportSection" style="display:none; margin-top:16px;">
+          <div class="card-title" style="cursor:pointer;" onclick="toggleReport()">
+            // insights report <span id="reportToggleIcon">▼</span>
+          </div>
+          <div id="reportBody" style="display:none; margin-top:10px; font-size:0.8rem; color:var(--muted); white-space:pre-wrap; line-height:1.6; max-height:400px; overflow-y:auto; background:var(--bg3); border-radius:6px; padding:14px;"></div>
+        </div>
+        <div id="plotsSection" style="display:none; margin-top:16px;">
+          <div class="card-title">// grafici calibrazione</div>
+          <div id="plotsGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="card" id="patchCard" style="display:none;">
+        <div class="card-title">// patch modello disponibile</div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+          Nuova calibrazione completata. Scarica la patch e applicala a WizTrail.
+        </p>
+        <button class="btn btn-primary btn-sm" onclick="downloadPatch()">
+          Scarica 4_wiztrail_patch.js
+        </button>
       </div>
 
       <div class="card">
@@ -911,6 +934,8 @@ async function submitActivity() {
 }
 
 /* ── Dashboard ──────────────────────────────────────────────────────────── */
+let _pollTimer = null;
+
 async function loadDashboard() {
   try {
     const r = await api(`activities?alias=${encodeURIComponent(STATE.alias)}`);
@@ -927,11 +952,84 @@ async function loadDashboard() {
         'Ultimo run: ' + new Date(r.stats.last_run).toLocaleString('it-IT');
     }
 
+    // Pipeline banner + polling automatico
+    const banner = document.getElementById('pipelineBanner');
+    if (r.stats?.pipeline_running) {
+      if (banner) banner.style.display = 'block';
+      if (!_pollTimer) {
+        _pollTimer = setInterval(() => loadDashboard(), 10000);
+      }
+    } else {
+      if (banner) banner.style.display = 'none';
+      if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+    }
+
     // Grafico RMSE
     if (r.plot_rmse) {
       const img = document.getElementById('rmseImg');
       img.src   = 'data:image/png;base64,' + r.plot_rmse;
       img.style.display = 'block';
+    }
+
+    // Report markdown completo
+    if (r.report_md) {
+      const sec = document.getElementById('reportSection');
+      const body = document.getElementById('reportBody');
+      if (sec && body) {
+        sec.style.display = 'block';
+        body.textContent = r.report_md;
+      }
+    } else if (r.model?.stats || r.model?.wdi_calibration) {
+      // Fallback: costruisci riepilogo dal model
+      const sec = document.getElementById('reportSection');
+      const body = document.getElementById('reportBody');
+      if (sec && body) {
+        sec.style.display = 'block';
+        const wdi = r.model?.wdi_calibration || {};
+        const pac = r.model?.pacing || {};
+        const st  = r.model?.stats  || {};
+        let txt = '';
+        txt += `Calibrazione del: ${r.model?.timestamp ? new Date(r.model.timestamp).toLocaleString('it-IT') : '—'}\n\n`;
+        txt += `Dataset: ${st.n_races_total ?? '—'} gare totali, ${st.n_races_gpx ?? '—'} GPX reali\n\n`;
+        if (wdi.rmse_after) {
+          txt += `TechScore WDI: RMSE ${wdi.rmse_before} → ${wdi.rmse_after} (${wdi.improvement_pct > 0 ? '+' : ''}${wdi.improvement_pct?.toFixed(1)}%)\n`;
+        } else {
+          txt += `TechScore: ${wdi.note || 'dati insufficienti'}\n`;
+        }
+        if (pac.params) {
+          txt += `Modello tempi: RMSE globale ${pac.params.rmse_global}h, RMSE 10-60km ${pac.params.rmse_10_60km}h\n`;
+        }
+        body.textContent = txt;
+      }
+    }
+
+    // Grafici
+    if (r.plots && Object.keys(r.plots).length > 0) {
+      const sec  = document.getElementById('plotsSection');
+      const grid = document.getElementById('plotsGrid');
+      if (sec && grid) {
+        sec.style.display = 'block';
+        const labels = {
+          wdi_scatter:             'TechScore calibrazione',
+          pacing_scatter:          'Modello tempi',
+          insights_distribution:   'Distribuzione WDI',
+          insights_tech_vs_wdi:    'Technicality vs WDI',
+          insights_spread:         'Dispersione del campo',
+          history_rmse:            'Evoluzione RMSE',
+        };
+        grid.innerHTML = Object.entries(r.plots).map(([name, b64]) => `
+          <div>
+            <div style="font-size:0.72rem; color:var(--muted); margin-bottom:6px;">${labels[name] || name}</div>
+            <img src="data:image/png;base64,${b64}" style="width:100%; border-radius:6px;" alt="${name}"/>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Patch disponibile
+    if (r.model?.patch_js) {
+      const pc = document.getElementById('patchCard');
+      if (pc) pc.style.display = 'block';
     }
 
     // Attività dell'utente
@@ -944,6 +1042,15 @@ async function loadDashboard() {
   } catch (e) {
     console.error('Dashboard error:', e);
   }
+}
+
+function toggleReport() {
+  const body = document.getElementById('reportBody');
+  const icon = document.getElementById('reportToggleIcon');
+  if (!body) return;
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  if (icon) icon.textContent = open ? '▲' : '▼';
 }
 
 function renderActivities(containerId, activities) {
