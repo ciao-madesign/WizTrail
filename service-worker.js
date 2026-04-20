@@ -2,10 +2,12 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-04-15d";
+const CACHE_VERSION = "wiztrail-v2026-04-20a";
 const CORE_CACHE = [
   "/",
+  "/landing.html",
   "/index.html",
+  "/about.html",
   "/wiztrail.css",
   "/wiztrail-engine.js",
   "/wiztrail-pacing.js",
@@ -23,13 +25,12 @@ const CORE_CACHE = [
 
 // Pagine statiche extra da mettere in cache
 const PAGE_CACHE = [
-  "/wdi.html",
-  "/pacing.html",
   "/ranking.html",
   "/dettaglio.html",
   "/install.html",
   "/training-analyzer.html",
   "/share_card.html",
+  // wdi.html e pacing.html rimossi: contenuto migrato in about.html
 ];
 
 // Unione liste
