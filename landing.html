@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WizTrail — Analizza la difficoltà del tuo trail</title>
+  <meta name="description" content="WizTrail calcola il WDI del tuo percorso trail, stima il tempo di gara personalizzato e genera il pacing adattivo. Carica il GPX, tutto in locale.">
+  <meta name="keywords" content="WizTrail, trail running, difficoltà trail, WDI, analisi GPX, pacing trail, TechScore">
+  <meta name="author" content="madesign">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="WizTrail — Analizza la difficoltà del tuo trail" />
+  <meta property="og:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale." />
+  <meta property="og:url" content="https://ciao-madesign.github.io/WizTrail/" />
+  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-index.jpg" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="WizTrail — Analizza la difficoltà del tuo trail">
+  <meta name="twitter:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara.">
+  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-index.jpg">
+  <meta name="photo-credit" content="Hero photo by Brian Erickson on Unsplash (unsplash.com/photos/8TJbrQGKFyU) — Unsplash License">
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#002b2b">
+  <link rel="apple-touch-icon" href="/icons/logo-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="WizTrail">
+
+  <link rel="stylesheet" href="wiztrail.css">
+
+  <style>
+    /* ── Landing-specific styles ─────────────────────────────────── */
+    :root {
+      --landing-accent: #4fd1c5;
+      --landing-accent2: #81e6d9;
+      --landing-dark: #021a1a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--landing-dark);
+      color: #e8f5f4;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    .lnd-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      background: linear-gradient(to bottom, rgba(2,26,26,0.95) 0%, transparent 100%);
+      backdrop-filter: blur(4px);
+    }
+    .lnd-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .lnd-brand img { width: 28px; height: 28px; }
+    .lnd-brand-name {
+      font-family: 'Georgia', serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--landing-accent);
+      letter-spacing: 0.5px;
+    }
+    .lnd-nav {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .lnd-nav a {
+      color: rgba(232,245,244,0.75);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+      font-family: 'Courier New', monospace;
+    }
+    .lnd-nav a:hover { color: var(--landing-accent); }
+    .lnd-nav .nav-cta {
+      color: var(--landing-dark);
+      background: var(--landing-accent);
+      padding: 8px 18px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+    .lnd-nav .nav-cta:hover {
+      color: var(--landing-dark);
+      background: var(--landing-accent2);
+    }
+
+    /* ── Hero ───────────────────────────────────────────────────── */
+    .lnd-hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+    .lnd-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('img/hero-index.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      transform: scale(1.05);
+      transition: transform 8s ease-out;
+    }
+    .lnd-hero-bg.loaded { transform: scale(1); }
+    .lnd-hero-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(2,26,26,0.15) 0%,
+        rgba(2,26,26,0.4) 50%,
+        rgba(2,26,26,0.92) 100%
+      );
+    }
+    .lnd-hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 32px 72px;
+      max-width: 720px;
+      animation: heroIn 1s ease-out both;
+      animation-delay: 0.2s;
+    }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .lnd-eyebrow {
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--landing-accent);
+      margin-bottom: 16px;
+      opacity: 0.9;
+    }
+    .lnd-hero-title {
+      font-family: 'Georgia', serif;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 400;
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 20px;
+      letter-spacing: -0.5px;
+    }
+    .lnd-hero-title em {
+      font-style: italic;
+      color: var(--landing-accent);
+    }
+    .lnd-hero-desc {
+      font-size: 1.05rem;
+      color: rgba(232,245,244,0.8);
+      line-height: 1.65;
+      margin-bottom: 36px;
+      max-width: 520px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+    }
+    .lnd-hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn-primary-lnd {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--landing-accent);
+      color: var(--landing-dark);
+      padding: 14px 28px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: background 0.2s, transform 0.15s;
+      font-family: 'Courier New', monospace;
+    }
+    .btn-primary-lnd:hover {
+      background: var(--landing-accent2);
+      transform: translateY(-1px);
+    }
+    .btn-ghost-lnd {
+      display: inline-flex;
+      align-items: center;
+      color: rgba(232,245,244,0.75);
+      padding: 14px 24px;
+      border: 1px solid rgba(79,209,197,0.35);
+      border-radius: 4px;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+      font-family: 'Courier New', monospace;
+    }
+    .btn-ghost-lnd:hover {
+      border-color: var(--landing-accent);
+      color: var(--landing-accent);
+    }
+
+    /* ── Scroll indicator ───────────────────────────────────────── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 24px;
+      right: 32px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(232,245,244,0.4);
+      font-family: 'Courier New', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    .scroll-hint svg { opacity: 0.5; }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: translateY(0); }
+      50% { opacity: 0.8; transform: translateY(4px); }
+    }
+
+    /* ── Stats bar ──────────────────────────────────────────────── */
+    .lnd-stats {
+      background: rgba(10,36,36,0.95);
+      border-top: 1px solid rgba(79,209,197,0.12);
+      border-bottom: 1px solid rgba(79,209,197,0.12);
+      display: flex;
+      justify-content: center;
+      gap: 0;
+    }
+    .lnd-stat {
+      flex: 1;
+      max-width: 200px;
+      padding: 28px 24px;
+      text-align: center;
+      border-right: 1px solid rgba(79,209,197,0.1);
+    }
+    .lnd-stat:last-child { border-right: none; }
+    .lnd-stat-val {
+      font-family: 'Courier New', monospace;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--landing-accent);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .lnd-stat-label {
+      font-size: 0.72rem;
+      color: rgba(232,245,244,0.5);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── Features ───────────────────────────────────────────────── */
+    .lnd-section {
+      padding: 100px 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .lnd-section-label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--landing-accent);
+      margin-bottom: 16px;
+      opacity: 0.8;
+    }
+    .lnd-section-title {
+      font-family: 'Georgia', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: #e8f5f4;
+      font-weight: 400;
+      line-height: 1.25;
+      margin-bottom: 48px;
+      max-width: 640px;
+    }
+    .lnd-section-title em {
+      font-style: italic;
+      color: var(--landing-accent);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px;
+      background: rgba(79,209,197,0.08);
+      border: 1px solid rgba(79,209,197,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .feature-card {
+      background: rgba(2,26,26,0.95);
+      padding: 40px 32px;
+      transition: background 0.2s;
+    }
+    .feature-card:hover { background: rgba(10,40,40,0.98); }
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .feature-title {
+      font-family: 'Georgia', serif;
+      font-size: 1.15rem;
+      color: #e8f5f4;
+      margin-bottom: 12px;
+      font-weight: 400;
+    }
+    .feature-desc {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: rgba(232,245,244,0.55);
+      line-height: 1.7;
+    }
+    .feature-tag {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 4px 10px;
+      background: rgba(79,209,197,0.1);
+      border: 1px solid rgba(79,209,197,0.2);
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.68rem;
+      color: var(--landing-accent);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── WDI showcase ───────────────────────────────────────────── */
+    .wdi-showcase {
+      padding: 80px 32px;
+      background: rgba(5,20,20,0.6);
+      border-top: 1px solid rgba(79,209,197,0.08);
+      border-bottom: 1px solid rgba(79,209,197,0.08);
+    }
+    .wdi-showcase-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .wdi-classes {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .wdi-class-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      background: rgba(10,36,36,0.6);
+      border-left: 3px solid transparent;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .wdi-class-row:hover {
+      background: rgba(10,36,36,0.9);
+    }
+    .wdi-class-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .wdi-class-name {
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: rgba(232,245,244,0.9);
+      font-weight: 600;
+      min-width: 80px;
+    }
+    .wdi-class-range {
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      color: rgba(232,245,244,0.4);
+    }
+    .wdi-class-example {
+      font-family: 'Courier New', monospace;
+      font-size: 0.68rem;
+      color: rgba(232,245,244,0.35);
+      margin-left: auto;
+      text-align: right;
+    }
+
+    /* ── Privacy block ──────────────────────────────────────────── */
+    .privacy-block {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .privacy-points {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .privacy-point {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .privacy-point-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .privacy-point-text {
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: rgba(232,245,244,0.65);
+      line-height: 1.6;
+    }
+    .privacy-point-text strong {
+      color: rgba(232,245,244,0.9);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* ── CTA finale ─────────────────────────────────────────────── */
+    .lnd-cta {
+      padding: 100px 32px;
+      text-align: center;
+      background: linear-gradient(to bottom, transparent, rgba(5,30,30,0.8));
+    }
+    .lnd-cta-title {
+      font-family: 'Georgia', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      color: #e8f5f4;
+      font-weight: 400;
+      margin-bottom: 16px;
+    }
+    .lnd-cta-title em { font-style: italic; color: var(--landing-accent); }
+    .lnd-cta-sub {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: rgba(232,245,244,0.5);
+      margin-bottom: 40px;
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    .lnd-footer {
+      background: rgba(2,15,15,0.98);
+      border-top: 1px solid rgba(79,209,197,0.1);
+      padding: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .lnd-footer-left {
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      color: rgba(232,245,244,0.35);
+      line-height: 1.6;
+    }
+    .lnd-footer-left a {
+      color: rgba(232,245,244,0.5);
+      text-decoration: none;
+    }
+    .lnd-footer-right {
+      display: flex;
+      gap: 20px;
+    }
+    .lnd-footer-right a {
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      color: rgba(232,245,244,0.4);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .lnd-footer-right a:hover { color: var(--landing-accent); }
+
+    /* ── Mobile ─────────────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .lnd-header { padding: 14px 20px; }
+      .lnd-nav { gap: 14px; }
+      .lnd-nav a:not(.nav-cta) { display: none; }
+      .lnd-hero-content { padding: 0 20px 60px; }
+      .lnd-stats { flex-wrap: wrap; }
+      .lnd-stat { min-width: 140px; }
+      .lnd-section { padding: 64px 20px; }
+      .wdi-showcase-inner,
+      .privacy-block { grid-template-columns: 1fr; gap: 40px; }
+      .lnd-cta { padding: 64px 20px; }
+      .lnd-footer { flex-direction: column; align-items: flex-start; padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="lnd-header">
+  <a href="landing.html" class="lnd-brand">
+    <img src="img/logo.svg" alt="WizTrail">
+    <span class="lnd-brand-name">WizTrail</span>
+  </a>
+  <nav class="lnd-nav">
+    <a href="about.html">Il Metodo</a>
+    <a href="ranking.html">Ranking</a>
+    <a href="training-analyzer.html">Training</a>
+    <a href="index.html" class="nav-cta">Apri l'app →</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="lnd-hero">
+  <div class="lnd-hero-bg" id="heroBg"></div>
+  <div class="lnd-hero-gradient"></div>
+  <div class="lnd-hero-content">
+    <p class="lnd-eyebrow">WizTrail — Difficulty Index v5.1</p>
+    <h1 class="lnd-hero-title">
+      Ogni salita ha<br>un <em>peso preciso</em>.
+    </h1>
+    <p class="lnd-hero-desc">
+      Carica il GPX, calcola il WDI del tuo percorso e ottieni la stima di tempo
+      calibrata sul tuo livello. Tutto in locale, nessun account richiesto.
+    </p>
+    <div class="lnd-hero-actions">
+      <a href="index.html" class="btn-primary-lnd">
+        Analizza il tuo trail →
+      </a>
+      <a href="about.html" class="btn-ghost-lnd">
+        Come funziona
+      </a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <svg width="16" height="24" viewBox="0 0 16 24" fill="none">
+      <rect x="1" y="1" width="14" height="22" rx="7" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="7" y="5" width="2" height="5" rx="1" fill="currentColor"/>
+    </svg>
+    scroll
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="lnd-stats">
+  <div class="lnd-stat">
+    <div class="lnd-stat-val">100+</div>
+    <div class="lnd-stat-label">Gare calibrate</div>
+  </div>
+  <div class="lnd-stat">
+    <div class="lnd-stat-val">47</div>
+    <div class="lnd-stat-label">GPX reali</div>
+  </div>
+  <div class="lnd-stat">
+    <div class="lnd-stat-val">−59%</div>
+    <div class="lnd-stat-label">RMSE TechScore</div>
+  </div>
+  <div class="lnd-stat">
+    <div class="lnd-stat-val">0</div>
+    <div class="lnd-stat-label">Dati inviati a server</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="lnd-section">
+  <p class="lnd-section-label">Le funzionalità</p>
+  <h2 class="lnd-section-title">
+    Tre strumenti, <em>un solo file GPX</em>.
+  </h2>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">⛰️</span>
+      <h3 class="feature-title">WDI — Difficulty Index</h3>
+      <p class="feature-desc">
+        Calcola la difficoltà oggettiva del percorso analizzando distanza, dislivello,
+        pendenza massima, variabilità del terreno e quota media. Calibrato su 100+ gare reali.
+      </p>
+      <span class="feature-tag">WizTrail Engine v5.1</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⏱️</span>
+      <h3 class="feature-title">Stima tempo personalizzata</h3>
+      <p class="feature-desc">
+        Inserisci il tuo passo su 10km e ottieni una stima calibrata sul tuo livello.
+        Il modello power-law v2.1 scala correttamente da skyrace a ultra.
+      </p>
+      <span class="feature-tag">Power-law v2.1</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📊</span>
+      <h3 class="feature-title">Pacing Planner</h3>
+      <p class="feature-desc">
+        Genera una tabella di pacing adattivo segmento per segmento. Ogni tratto
+        tiene conto di pendenza, tecnicità e fatica progressiva.
+      </p>
+      <span class="feature-tag">GPX required</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🗺️</span>
+      <h3 class="feature-title">Mappa 2D + altimetria</h3>
+      <p class="feature-desc">
+        Visualizza la traccia su mappa con profilo altimetrico interattivo.
+        Esporta in KML per Google Earth.
+      </p>
+      <span class="feature-tag">Leaflet · CartoDB</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏃</span>
+      <h3 class="feature-title">Training Analyzer</h3>
+      <p class="feature-desc">
+        Analizza le tue sessioni di allenamento importate da Strava.
+        Il TrainingScore adatta i giudizi al contesto di allenamento.
+      </p>
+      <span class="feature-tag">Strava OAuth</span>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📋</span>
+      <h3 class="feature-title">Report Post-gara</h3>
+      <p class="feature-desc">
+        Confronta la stima pre-gara con il risultato reale.
+        Genera un report completo con analisi di pacing e scarto.
+      </p>
+      <span class="feature-tag">JSON export</span>
+    </div>
+  </div>
+</section>
+
+<!-- WDI SHOWCASE -->
+<div class="wdi-showcase">
+  <div class="wdi-showcase-inner">
+    <div>
+      <p class="lnd-section-label">Il WDI</p>
+      <h2 class="lnd-section-title" style="margin-bottom:24px;">
+        Sei classi di difficoltà,<br><em>calibrate su dati reali</em>.
+      </h2>
+      <p style="font-family:'Courier New',monospace; font-size:0.8rem; color:rgba(232,245,244,0.5); line-height:1.7; max-width:420px;">
+        Il WizTrail Difficulty Index combina volume (D+, distanza) e tecnicità
+        del terreno (FRIP, SlopeVar, Roughness) in un indice unico.
+        Più GPX reali vengono caricati, più il modello si affina automaticamente.
+      </p>
+      <a href="about.html" style="display:inline-block; margin-top:24px; font-family:'Courier New',monospace; font-size:0.78rem; color:var(--landing-accent); text-decoration:none; border-bottom:1px solid rgba(79,209,197,0.3); padding-bottom:2px;">
+        Formula completa e metodologia →
+      </a>
+    </div>
+    <div class="wdi-classes">
+      <div class="wdi-class-row" style="border-left-color:#2BB7DA;">
+        <span class="wdi-class-dot" style="background:#2BB7DA;"></span>
+        <span class="wdi-class-name" style="color:#2BB7DA;">Sport</span>
+        <span class="wdi-class-range">WDI &lt; 18</span>
+        <span class="wdi-class-example">Trail locale 15km</span>
+      </div>
+      <div class="wdi-class-row" style="border-left-color:#34A853;">
+        <span class="wdi-class-dot" style="background:#34A853;"></span>
+        <span class="wdi-class-name" style="color:#34A853;">Pro</span>
+        <span class="wdi-class-range">WDI 18–40</span>
+        <span class="wdi-class-example">Valtellina Wine Trail 42K</span>
+      </div>
+      <div class="wdi-class-row" style="border-left-color:#F4C20D;">
+        <span class="wdi-class-dot" style="background:#F4C20D;"></span>
+        <span class="wdi-class-name" style="color:#F4C20D;">Advanced</span>
+        <span class="wdi-class-range">WDI 40–80</span>
+        <span class="wdi-class-example">Sierre-Zinal · Zegama</span>
+      </div>
+      <div class="wdi-class-row" style="border-left-color:#F79617;">
+        <span class="wdi-class-dot" style="background:#F79617;"></span>
+        <span class="wdi-class-name" style="color:#F79617;">Extreme</span>
+        <span class="wdi-class-range">WDI 80–140</span>
+        <span class="wdi-class-example">Speedgoat 50K · Western States</span>
+      </div>
+      <div class="wdi-class-row" style="border-left-color:#E91E63;">
+        <span class="wdi-class-dot" style="background:#E91E63;"></span>
+        <span class="wdi-class-name" style="color:#E91E63;">Elite</span>
+        <span class="wdi-class-range">WDI 140–230</span>
+        <span class="wdi-class-example">CCC 99K</span>
+      </div>
+      <div class="wdi-class-row" style="border-left-color:#8E24AA;">
+        <span class="wdi-class-dot" style="background:#8E24AA;"></span>
+        <span class="wdi-class-name" style="color:#8E24AA;">Legend</span>
+        <span class="wdi-class-range">WDI ≥ 230</span>
+        <span class="wdi-class-example">UTMB · Hardrock · TdG</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY -->
+<div class="privacy-block">
+  <div>
+    <p class="lnd-section-label">Privacy by design</p>
+    <h2 class="lnd-section-title" style="margin-bottom:0;">
+      Il tuo GPX rimane<br><em>sul tuo dispositivo</em>.
+    </h2>
+  </div>
+  <div class="privacy-points">
+    <div class="privacy-point">
+      <span class="privacy-point-icon">🔒</span>
+      <div class="privacy-point-text">
+        <strong>Tutto in locale</strong>
+        Il parsing GPX, il calcolo WDI e la stima tempi avvengono interamente nel browser.
+        Nessun file viene inviato a server.
+      </div>
+    </div>
+    <div class="privacy-point">
+      <span class="privacy-point-icon">📵</span>
+      <div class="privacy-point-text">
+        <strong>Nessun account</strong>
+        Non serve registrarsi. Non vengono raccolti dati personali.
+        Strava è opzionale e richiede consenso esplicito.
+      </div>
+    </div>
+    <div class="privacy-point">
+      <span class="privacy-point-icon">📱</span>
+      <div class="privacy-point-text">
+        <strong>Funziona offline (PWA)</strong>
+        Installabile come app sul telefono. Una volta caricato,
+        funziona senza connessione.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA FINALE -->
+<div class="lnd-cta">
+  <h2 class="lnd-cta-title">Pronto a calcolare il tuo <em>prossimo trail</em>?</h2>
+  <p class="lnd-cta-sub">Carica il GPX. Tutto il resto è automatico.</p>
+  <a href="index.html" class="btn-primary-lnd" style="font-size:1rem; padding:16px 36px;">
+    Apri WizTrail →
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer class="lnd-footer">
+  <div class="lnd-footer-left">
+    WizTrail © 2026 &nbsp;·&nbsp;
+    <a href="about.html">Il Metodo</a> &nbsp;·&nbsp;
+    <a href="about.html#licenze">Licenze</a><br>
+    Foto hero: <a href="https://unsplash.com/@brian_erickson" target="_blank" rel="noopener">Brian Erickson</a>
+    su <a href="https://unsplash.com/photos/8TJbrQGKFyU" target="_blank" rel="noopener">Unsplash</a>
+    (Unsplash License)
+  </div>
+  <div class="lnd-footer-right">
+    <a href="https://www.youtube.com/@WizTrail" target="_blank" rel="noopener">📺 YouTube</a>
+    <a href="ranking.html">Ranking</a>
+    <a href="training-analyzer.html">Training</a>
+    <a href="install.html">Installa PWA</a>
+  </div>
+</footer>
+
+<script>
+  // Caricamento immagine hero con transizione
+  const bg = document.getElementById('heroBg');
+  const img = new Image();
+  img.onload = () => bg.classList.add('loaded');
+  img.src = 'img/hero-index.jpg';
+
+  // Service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
+  }
+</script>
+
+</body>
+</html>
