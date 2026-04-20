@@ -19,7 +19,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Installa dipendenze Python
         run: |
@@ -53,13 +52,12 @@ jobs:
         working-directory: wiztrail-calibration
         run: python scripts/04_insights.py
 
-      - name: Pubblica risultati su Redis e crea branch (06_push_results.py)
+      - name: Pubblica risultati su Redis (06_push_results.py)
         env:
           UPSTASH_REDIS_REST_URL:   ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
           HUB_ADMIN_TOKEN:          ${{ secrets.HUB_ADMIN_TOKEN }}
           VERCEL_HUB_URL:           ${{ secrets.VERCEL_HUB_URL }}
-          GITHUB_TOKEN:             ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPO:              ${{ github.repository }}
         working-directory: wiztrail-calibration
         run: python scripts/06_push_results.py
