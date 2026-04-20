@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+
 :root{
   --bg:#0a0f14;
   --card:#121a22;
@@ -9,7 +11,7 @@
   --border:#2a394d;
   --panel:#0f151c;
   --font-serif: 'Georgia', 'Times New Roman', serif;
-  --font-mono: 'Courier New', 'Courier', monospace;
+  --font-mono: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
 }
 body[data-theme="light"]{
   --bg:#ffffff;
@@ -33,15 +35,15 @@ html,body{
   margin:0;
 }
 
-/* Titoli in serif — coerente con landing page */
-h1,h2,h3,h4 {
+/* Titoli principali in serif — solo h1/h2 */
+h1, h2 {
   font-family: var(--font-serif);
   font-weight: 400;
   letter-spacing: -0.2px;
 }
 h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.2; }
 h2 { font-size: clamp(1.2rem, 3vw, 1.6rem); line-height: 1.3; }
-h3 { font-size: 1.05rem; }
+h3 { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600; }
 
 /* Label, nav, bottoni, input — monospace */
 label, .mini, .tab-btn, .btn, input, select, textarea,
@@ -82,6 +84,7 @@ body::after {
 
 /* ===== Header (glass) ===== */
 .app-header{
+  justify-content: space-between;
   position:sticky; top:0; z-index:50;
   display:flex; align-items:center; justify-content:space-between;
   height:56px; padding:8px 16px; margin-bottom:10px;
@@ -876,3 +879,41 @@ table {
 [data-tech-class="Molto tecnico"] { --tech-color: #F79617; }
 [data-tech-class="Alpinistico"]   { --tech-color: #E91E63; }
 [data-tech-class="Estremo"]       { --tech-color: #8E24AA; }
+
+
+/* ── App header nav (opzione C — coerente con landing) ── */
+.app-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.app-nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.app-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.app-nav a:hover { color: var(--accent); }
+.app-nav a.nav-active { color: var(--accent); }
+.app-nav .nav-cta {
+  color: var(--bg);
+  background: var(--accent);
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+.app-nav .nav-cta:hover { opacity: 0.88; color: var(--bg); }
+@media (max-width: 600px) {
+  .app-nav a:not(.nav-cta) { display: none; }
+}

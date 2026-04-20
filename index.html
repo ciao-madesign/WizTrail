@@ -11,14 +11,14 @@
   <meta property="og:title" content="WizTrail — Analizza la difficoltà del tuo trail" />
   <meta property="og:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale." />
   <meta property="og:url" content="https://ciao-madesign.github.io/WizTrail/" />
-  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-index.jpg" />
+  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/assets/cover.jpg" />
   <meta property="og:type" content="website" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="WizTrail — Analizza la difficoltà del tuo trail">
   <meta name="twitter:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale.">
-  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-index.jpg">
+  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/assets/cover.jpg">
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -52,11 +52,16 @@
 <body data-theme="dark">
 
 <header class="app-header">
-  <div class="app-brand">
+  <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
-  </div>
-  <div class="app-header-actions"></div>
+  </a>
+  <nav class="app-nav">
+    <a href="index.html" class="nav-active">Calcolatore</a>
+      <a href="training-analyzer.html" class="">Training</a>
+      <a href="ranking.html" class="">Ranking</a>
+      <a href="about.html" class="">Il Metodo</a>
+  </nav>
 </header>
 
 <!-- Banner Installazione PWA -->
@@ -74,7 +79,7 @@
     <p class="hero-desc">Carica il GPX, calcola il WDI e stima il tuo tempo di gara.</p>
     <div class="hero-actions">
       <a href="#calc" class="hero-btn-primary" id="heroCtaBtn">Inizia l'analisi →</a>
-      <a href="about.html" class="hero-btn-ghost">Scopri il metodo →</a>
+      <a href="wdi.html" class="hero-btn-ghost">Cos'è il WDI?</a>
     </div>
   </div>
 </div>
@@ -82,14 +87,7 @@
 <div class="wrap">
 
   <!-- Toolbar Link WDI -->
-  <div class="wdi-toolbar">
-    <a href="training-analyzer.html" class="wdi-btn">Training Analyzer</a>
-    <a href="ranking.html" class="wdi-btn">Ranking WDI</a>
-    <a href="about.html" class="wdi-btn">Il Metodo</a>
-    <a href="import_strava.html" class="wdi-btn">Importa da Strava</a>
-  </div>
-
-  <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+<div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
     <span class="theme-ctrl">
       <label class="mini">Tema</label>
       <select id="themeSel">
@@ -104,6 +102,9 @@
     <button class="tab-btn active" data-tab="calc">Calcolatore</button>
     <button class="tab-btn" data-tab="pacing">Pacing</button>
     <button class="tab-btn" data-tab="map2d">Mappa 2D</button>
+    <button class="tab-btn" data-tab="howto">How‑to</button>
+    <button class="tab-btn" data-tab="fond">Fondamenti</button>
+    <button class="tab-btn" data-tab="lic">Licenze</button>
     <button class="tab-btn" data-tab="postgara">Post‑gara</button>
   </div>
 
@@ -317,9 +318,125 @@
     </div>
   </section>
 
-  <!-- howto rimosso — contenuto migrato in about.html -->
+  <!-- PANEL: HOWTO -->
+  <section id="howto" class="panel">
+    <div class="card">
+      <h2>How‑to</h2>
+      <details open>
+        <summary><b>1) Calcolatore — come usare i parametri</b></summary>
+        <div style="margin-top:10px">
+          <h3>1. Carica una traccia GPS (opzionale ma consigliato)</h3>
+          <ul>
+            <li>Carica un file GPX/TCX dalla gara: WizTrail calcola automaticamente distanza, D+ e pendenze punto‑per‑punto.</li>
+            <li>I dati del GPX migliorano la stima e permettono il <b>pacing realistico</b>.</li>
+          </ul>
+          <h3>2. Imposta i dati atleta</h3>
+          <p><b>Tempo 10 km (mm:ss)</b> = il tuo passo "di riferimento". WizTrail userà questo ritmo per calcolare la velocità base.</p>
+          <h3>3. Parametri gara</h3>
+          <ul>
+            <li><b>Distanza (km)</b> — lunghezza effettiva del percorso.</li>
+            <li><b>D+ (m)</b> — dislivello positivo totale.</li>
+          </ul>
+          <h3>4. Tecnica del percorso</h3>
+          <ul>
+            <li><b>Strada</b> — scorrevole, quasi sempre corribile</li>
+            <li><b>E</b> — sentiero semplice</li>
+            <li><b>EE</b> — tecnico: radici, pietre, tratti stretti</li>
+            <li><b>EA</b> — molto tecnico, esposto o instabile</li>
+          </ul>
+          <h3>5. Condizioni gara</h3>
+          <ul>
+            <li><b>Meteo</b> — il caldo aumenta la penalità</li>
+            <li><b>Altitudine</b> — oltre ~1000m si perde efficienza</li>
+            <li><b>Fatica</b> — aumenta per gare lunghe a cui non sei abituato</li>
+            <li><b>Specificità (S)</b> — quanto sei abituato a salite, quota, fondo e pendenze</li>
+            <li><b>Margine ±%</b> — genera il tempo ottimistico e prudente</li>
+          </ul>
+          <h3>6. Come leggere il risultato</h3>
+          <ul>
+            <li><b>Tempo finale</b> — la stima più probabile</li>
+            <li><b>Basso/Alto</b> — i limiti del tuo range realistico</li>
+            <li><b>WDI</b> — difficoltà della gara (tecnicità, verticalità, profilo)</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary><b>2) Pacing Planner</b></summary>
+        <div style="margin-top:10px">
+          <h3>1. Non serve ricaricare la traccia</h3>
+          <p>Il Pacing Planner utilizza automaticamente lo stesso GPX caricato nel Calcolatore.</p>
+          <h3>2. Ritmo regolare, adattato alla difficoltà</h3>
+          <ul>
+            <li>chunk facili → <b>ritmo più veloce</b></li>
+            <li>chunk difficili → <b>ritmo più lento</b></li>
+          </ul>
+          <h3>3. Come leggere la tabella</h3>
+          <ul>
+            <li><b>KM</b> → fine del tratto</li>
+            <li><b>Tempo</b> → tempo cumulato previsto</li>
+            <li><b>Pace tratto</b> → ritmo medio solo di quel segmento</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary><b>3) Mappa 2D — traccia e altimetria</b></summary>
+        <div style="margin-top:10px">
+          <p>La traccia si disegna automaticamente dopo aver caricato il GPX. Il profilo altimetrico è interattivo: spostando il mouse vedrai la posizione sulla mappa.</p>
+          <p>Con <b>Scarica KML</b> puoi esportare la traccia per Google Earth.</p>
+        </div>
+      </details>
+      <details>
+        <summary><b>4) Post‑gara — analizza la tua gara</b></summary>
+        <div style="margin-top:10px">
+          <p>Importa lo snapshot JSON pre-gara e compila i dati reali per generare un report completo con confronto previsto vs reale.</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
-  <!-- fond rimosso — contenuto migrato in about.html -->
+  <!-- PANEL: FONDAMENTI -->
+  <section id="fond" class="panel">
+    <div class="card">
+      <h2>Fondamenti scientifici e criteri di calcolo</h2>
+      <p>Il modello WizTrail utilizza un approccio integrato: <b>modelli fisiologici moderni</b>, <b>analisi energetica della pendenza</b>, <b>effetti ambientali</b> e una <b>lettura segmentata del GPX</b> con filtri anti-rumore.</p>
+      <details>
+        <summary><b>1) Predizione su distanza: Riegel adattivo</b></summary>
+        <div style="margin-top:10px">
+          <p>WizTrail usa un <b>Riegel adattivo</b> con esponente variabile in base alla distanza, che simula la crescente fatica aerobica.</p>
+          <pre>T₂ = T₁ × (D₂ / D₁)^b</pre>
+        </div>
+      </details>
+      <details>
+        <summary><b>2) Pendenza → velocità: salite, discese, fisiologia reale</b></summary>
+        <div style="margin-top:10px">
+          <ul>
+            <li><b>Salita</b>: il passo rallenta in modo non lineare (fino a 2–3×)</li>
+            <li><b>Discesa</b>: moderatamente più veloce fino a ~10%, poi rallenta</li>
+            <li><b>Discesa ripida</b>: oltre il 15% la velocità cala sensibilmente</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary><b>3) Fatica progressiva</b></summary>
+        <div style="margin-top:10px">
+          <pre>fatigue = 1 + (t_ore / 12)^1.3</pre>
+          <ul>
+            <li>gare brevi → fatica quasi nulla</li>
+            <li>gare medie (4–6h) → impatto moderato</li>
+            <li>ultra 10–15h → +15–25%</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary><b>4) WDI — WizTrail Difficulty Index v5.0</b></summary>
+        <div style="margin-top:10px">
+          <pre>WDI = (VolumeScore + TechScore × 0.35) × DistFactor × AltFactor</pre>
+          <pre>Sport&lt;14 | Pro&lt;30 | Advanced&lt;55 | Extreme&lt;105 | Elite&lt;165 | Legend</pre>
+          <p>TechScore (0–100): Facile / Moderato / Tecnico / Molto tecnico / Alpinistico / Estremo</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <!-- PANEL: POST-GARA -->
   <section id="postgara" class="panel">
@@ -380,7 +497,20 @@
     </div>
   </section>
 
-  <!-- lic rimosso — contenuto migrato in about.html -->
+  <!-- PANEL: LICENZE -->
+  <section id="lic" class="panel">
+    <div class="card">
+      <h2>Licenze &amp; Policy</h2>
+      <p>WizTrail utilizza esclusivamente tecnologie open‑source. Nessun dato dell'utente viene inviato a server esterni: tutto avviene in locale.</p>
+      <ul>
+        <li><b>Leaflet</b> — libreria open‑source per mappe interattive (BSD License). <span class="mini">© Leaflet contributors</span></li>
+        <li><b>Carto Basemaps</b> — mappa 2D dark/light. <span class="mini">© CartoDB — CC-BY 4.0</span></li>
+        <li><b>OpenTopoMap</b> — overlay topografico. <span class="mini">© OpenTopoMap (CC-BY-SA)</span></li>
+        <li><b>OpenStreetMap</b> — dati cartografici. <span class="mini">© OpenStreetMap contributors (ODbL 1.0)</span></li>
+        <li><b>WizTrail WDI</b> — indice proprietario. <span class="mini">© WizTrail — all rights reserved</span></li>
+      </ul>
+    </div>
+  </section>
 
   <div class="footer">WizTrail © 2026
     <p class="mini" style="opacity:0.5; margin-bottom:6px;">Foto di <a href="https://unsplash.com/@brian_erickson" target="_blank" rel="noopener" style="color:inherit;">Brian Erickson</a> su <a href="https://unsplash.com/photos/8TJbrQGKFyU" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a></p>
@@ -422,20 +552,20 @@
 =========================== -->
 
 <!-- Engine esistenti (invariati) -->
-<script src="wiztrail-engine.js?v=20260420"></script>
-<!-- wiztrail-osm.js rimosso: Enhanced Mode OSM eliminato (0% copertura Overpass API) -->
-<script src="wiztrail-pacing.js?v=20260420"></script>
+<script src="wiztrail-engine.js?v=20260417"></script>
+<!-- wiztrail-osm.js disabilitato: Enhanced Mode rimosso temporaneamente -->
+<script src="wiztrail-pacing.js?v=20260417"></script>
 <script src="wiztrail-report.js"></script>
 <script src="wiztrail-postgara.js?v=20260318"></script>
 
 <!-- Nuovi moduli Fase 1 -->
-<script src="gpx-parser.js?v=20260420"></script>
-<script src="discipline-classifier.js?v=20260420"></script>
-<script src="map.js?v=20260420"></script>
-<script src="ui.js?v=20260420"></script>
+<script src="gpx-parser.js?v=20260415"></script>
+<script src="discipline-classifier.js?v=20260415"></script>
+<script src="map.js?v=20260415"></script>
+<script src="ui.js?v=20260415"></script>
 
 <!-- Entry point -->
-<script src="main.js?v=20260420"></script>
+<script src="main.js?v=20260415c"></script>
 
 
 </body>
