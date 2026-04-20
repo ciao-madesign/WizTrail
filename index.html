@@ -245,20 +245,12 @@
           <div class="kpi kpi-primary">
             <h3>Tempo stimato</h3>
             <div class="val" id="outFinal" style="font-size:2.2rem; font-weight:900;">—:—</div>
+            <div id="outFinalSub" style="font-size:0.75rem; line-height:1.5; opacity:0.8; margin-top:4px;"></div>
           </div>
         </div>
-        <!-- KPI stima personale power-law v2.1 -->
-        <div class="kpi" id="personalEstimateBox" style="display:none; margin-top:12px; border-left:3px solid var(--accent,#4fd1c5);">
-          <h3 style="margin-bottom:6px;">Stima personalizzata
-            <span class="mini" style="opacity:0.6; font-weight:400;"> · modello power-law v2.1</span>
-          </h3>
-          <div class="val" id="outPersonalTime" style="font-size:2.2rem; font-weight:900;">—</div>
-          <div id="outPersonalSub" style="font-size:0.78rem; line-height:1.5; opacity:0.85; margin-top:4px;"></div>
-        </div>
-
         <!-- KPI secondari: range -->
-        <div class="kpi-secondary-row">
-          <span class="kpi-sec-label">Intervallo</span>
+        <div class="kpi-secondary-row" id="intervalRow" style="display:none;">
+          <span class="kpi-sec-label">Intervallo ±<span id="marginPct">10</span>%</span>
           <span class="kpi-sec-val"><span class="kpi-sec-dim">min</span> <span id="outLow">—:—</span></span>
           <span class="kpi-sec-sep">–</span>
           <span class="kpi-sec-val"><span id="outHigh">—:—</span> <span class="kpi-sec-dim">max</span></span>
