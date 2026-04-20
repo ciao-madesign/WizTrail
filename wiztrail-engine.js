@@ -1,20 +1,19 @@
 /* ===============================================================
-   WIZTRAIL ENGINE v5.0 — Unified Difficulty Model
+   WIZTRAIL ENGINE v5.1 — Unified Difficulty Model
    Sostituisce: wiztrail-racescore.js (WDI 9.1) e wiztrail-wdit.js (WDIT 7.0)
    Espone: window.WizTrail
    Caricato da: index.html (prima di main.js)
 
-   ⚠ SOGLIE WDI — provvisorie, ricalibrate dopo test su GPX reali.
+   ⚠ SOGLIE PROVVISORIE — ricalibrate dopo test su GPX reali.
    Le soglie devono restare sincronizzate con:
      - map.js → getColorWDI()
      - ui.js → showWDI() e showTechScore()
-   kT = 0.35 → peso tecnica ~32% sul totale medio
-   buildTechScore: pesi calibrati v1.0 (dataset 96 gare, 47 GPX reali)
+   kT = 0.55 → peso tecnica ~28-32% sul totale medio (aggiornato 20/04/2026, era 0.35)
    =============================================================== */
 
 window.WizTrail = (function () {
 
-  const kT    = 0.35;
+  const kT    = 0.55;  // aggiornato 20/04/2026 — aumenta peso tecnica (r=0.33 troppo debole)
   const REF42 = Math.pow(42, 0.55);
 
   /* ---------------------------------------------------------------
@@ -107,10 +106,8 @@ window.WizTrail = (function () {
   function buildTechScore(frip, slopeVar, roughness, gain, km, surfaceLevel) {
     /* ---------------------------------------------------------------
        Pesi calibrati v1.0 — dataset 96 gare / 47 GPX reali
-       Algoritmo: Differential Evolution, seed=42, maxiter=500
-       RMSE prima: 32.99 → dopo: 13.51  (–59%)
-       Aggiornare eseguendo scripts/03_calibrate.py nella pipeline
-       di autotraining.
+       RMSE prima: 32.99 → dopo: 13.51  (−59%)
+       Aggiornare eseguendo scripts/03_calibrate.py nella pipeline.
        --------------------------------------------------------------- */
     const normFRIP  = clamp(frip      / 0.924, 0, 1);  // era / 0.60
     const normSVar  = clamp(slopeVar  / 0.180, 0, 1);  // era / 0.55
