@@ -390,40 +390,58 @@
      Richiede: getPacingEstimate() da wiztrail-pacing.js
      ------------------------------------------------------------------ */
   function updatePersonalEstimate() {
-    var box    = document.getElementById('personalEstimateBox');
-    var outVal = document.getElementById('outPersonalTime');
-    var outSub = document.getElementById('outPersonalSub');
-    if (!box || !outVal || !outSub) return;
+    var outVal = document.getElementById('outFinal');
+    var outSub = document.getElementById('outFinalSub');
+    if (!outVal) return;
 
-    // Leggi il passo 10km dall'input
     var t10raw = (document.getElementById('t10k')?.value || '').trim();
-    if (!t10raw || !/^[0-9]+:[0-5][0-9]$/.test(t10raw)) {
-      box.style.display = 'none';
-      return;
-    }
+    if (!t10raw || !/^[0-9]+:[0-5][0-9]$/.test(t10raw)) return;
 
-    // Distanza e D+ (ibrido form + GPX)
     // Priorità: GPX se caricato, altrimenti form manuale
     var km = (window.metrics?.km   > 0 ? window.metrics.km   : readNum('dist'))  || 0;
     var dp = (window.metrics?.gain > 0 ? window.metrics.gain : readNum('dplus')) || 0;
-    // Fallback: se GPX non ha gain ma form ha D+ manuale, usa quello
     if (!dp) dp = readNum('dplus') || 0;
-    if (!km || !dp) { box.style.display = 'none'; return; }
+    if (!km || !dp) return;
 
-    // TechScore da WDI engine: scala da 0-100 a 0-10
+    // TechScore 0-100 → 0-10
     var tech = window.lastRS?.TechScore ? window.lastRS.TechScore / 10 : 0;
 
-    // Funzione dal modello power-law (wiztrail-pacing.js)
     if (typeof getPacingEstimate !== 'function') return;
     var stima = getPacingEstimate(km, dp, tech, t10raw);
 
-    outVal.textContent = stima.display;
-    outSub.innerHTML   =
-      stima.pace_media_min_km.toFixed(1) + ' min/km medi' +
-      ' &nbsp;|&nbsp; fattore atleta ×' + stima.f_atleta.toFixed(2) +
-      (stima.is_skyrace ? ' &nbsp;|&nbsp; skyrace' : '');
+    // Etichetta livello atleta basata sul t10k
+    var pace10 = stima.pace10km_input || 0;
+    var livello = pace10 < 4.5  ? 'Élite'
+                : pace10 < 5.0  ? 'Agonista'
+                : pace10 < 5.5  ? 'Amatore forte'
+                : pace10 < 6.0  ? 'Amatore avanzato'
+                : pace10 < 6.5  ? 'Amatore medio'
+                : pace10 < 7.5  ? 'Amatore'
+                :                 'Principiante';
 
-    box.style.display = 'block';
+    // Sovrascrive outFinal con stima power-law
+    outVal.textContent = stima.display;
+
+    // Intervallo ±margine% attorno alla stima power-law
+    var margin = readNum('margin') / 100 || 0.10;
+    var T_sec  = stima.ore * 3600;
+    var lowEl  = document.getElementById('outLow');
+    var highEl = document.getElementById('outHigh');
+    var rowEl  = document.getElementById('intervalRow');
+    var pctEl  = document.getElementById('marginPct');
+    if (lowEl)  lowEl.textContent  = WizUI.formatTime(T_sec * (1 - margin));
+    if (highEl) highEl.textContent = WizUI.formatTime(T_sec * (1 + margin));
+    if (rowEl)  rowEl.style.display = '';
+    if (pctEl)  pctEl.textContent = Math.round(margin * 100);
+
+    // Sottotitolo con livello e pace media
+    if (outSub) {
+      outSub.innerHTML =
+        stima.pace_media_min_km.toFixed(1) + ' min/km medi sul percorso' +
+        ' &nbsp;·&nbsp; ' + livello +
+        (stima.is_skyrace ? ' &nbsp;·&nbsp; skyrace' : '') +
+        '<br><span style="opacity:0.5; font-size:0.72rem;">modello power-law v2.1</span>';
+    }
   }
 
   /* ------------------------------------------------------------------
