@@ -544,9 +544,14 @@
         </p>
         <div id="pipelineStatus" style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;"></div>
         <div id="runMsg" class="msg"></div>
-        <button class="btn btn-primary" id="runBtn" onclick="runPipeline()">
-          Avvia calibrazione
-        </button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="runBtn" onclick="runPipeline()">
+            Avvia calibrazione
+          </button>
+          <button class="btn btn-secondary btn-sm" id="resetPipelineBtn" onclick="resetPipelineFlag()" style="display:none;">
+            Reset flag "in corso"
+          </button>
+        </div>
       </div>
 
       <div class="card">
@@ -1103,13 +1108,18 @@ async function loadAdmin() {
     if (!r.ok) return;
 
     const s = r.stats || {};
+    const resetBtn = document.getElementById('resetPipelineBtn');
     if (s.pipeline_running) {
+      const elapsed = s.pipeline_started_at ? Date.now() - new Date(s.pipeline_started_at).getTime() : 0;
+      const elapsedMin = Math.round(elapsed / 60000);
       document.getElementById('pipelineStatus').innerHTML =
-        `<span class="spinner"></span> Pipeline in corso — avviata da <b>${s.pipeline_started_by}</b> il ${new Date(s.pipeline_started_at).toLocaleString('it-IT')}`;
+        `<span class="spinner"></span> Pipeline in corso — avviata da <b>${s.pipeline_started_by}</b> il ${new Date(s.pipeline_started_at).toLocaleString('it-IT')} (${elapsedMin} min fa)`;
       document.getElementById('runBtn').disabled = true;
+      if (resetBtn) resetBtn.style.display = elapsed > 5 * 60 * 1000 ? 'block' : 'none';
     } else {
       document.getElementById('pipelineStatus').textContent = '';
       document.getElementById('runBtn').disabled = false;
+      if (resetBtn) resetBtn.style.display = 'none';
     }
 
     // Tutte le attività
@@ -1125,6 +1135,23 @@ async function loadAdmin() {
     }
 
   } catch (e) { console.error('Admin load error:', e); }
+}
+
+async function resetPipelineFlag() {
+  try {
+    const r = await api('run', { method: 'POST', body: { alias: STATE.alias, force_reset: true } });
+    showMsg('runMsg', '✓ Flag resettato', 'success');
+    setTimeout(() => loadAdmin(), 1000);
+  } catch(e) {
+    // Usa patch endpoint per resettare direttamente
+    try {
+      await api('patch', { method: 'POST', body: { _reset_pipeline: true } });
+      showMsg('runMsg', '✓ Flag resettato via patch', 'success');
+      setTimeout(() => loadAdmin(), 1000);
+    } catch(e2) {
+      showMsg('runMsg', '❌ ' + e2.message, 'error');
+    }
+  }
 }
 
 async function runPipeline() {
