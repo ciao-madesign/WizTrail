@@ -2,7 +2,7 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-04-20a";
+const CACHE_VERSION = "wiztrail-v2026-04-20b";
 const CORE_CACHE = [
   "/",
   "/landing.html",
@@ -67,34 +67,48 @@ self.addEventListener("activate", (event) => {
 
 
 // ===============================
-// FETCH — network first per HTML, cache first per asset
+// FETCH — network first per HTML, CSS, JS · cache first per immagini
 // ===============================
 self.addEventListener("fetch", (event) => {
   const req = event.request;
+  const url = req.url;
 
-  // HTML → rete prima, fallback cache
-  if (req.headers.get("accept")?.includes("text/html")) {
+  // Immagini → cache first (cambiano raramente)
+  if (req.destination === "image") {
     event.respondWith(
-      fetch(req).catch(() => caches.match(req))
+      caches.match(req).then(cached => cached ||
+        fetch(req).then(res => {
+          caches.open(CACHE_VERSION).then(c => c.put(req, res.clone()));
+          return res;
+        })
+      )
     );
     return;
   }
 
-  // Per JS/CSS/img → cache first
-  event.respondWith(
-    caches.match(req).then((cacheRes) => {
-      return (
-        cacheRes ||
-        fetch(req).then((netRes) => {
-          // Evitiamo di cachet html2canvas (lib online)
-          if (!req.url.includes("html2canvas")) {
-            caches.open(CACHE_VERSION).then((cache) => {
-              cache.put(req, netRes.clone());
-            });
+  // HTML, CSS, JS → network first, fallback cache
+  // Garantisce che dopo un deploy gli utenti vedano subito la versione aggiornata
+  if (
+    req.headers.get("accept")?.includes("text/html") ||
+    url.includes(".css") ||
+    url.includes(".js")
+  ) {
+    event.respondWith(
+      fetch(req)
+        .then(res => {
+          // Aggiorna la cache con la versione fresca
+          if (res.ok && !url.includes("html2canvas")) {
+            caches.open(CACHE_VERSION).then(c => c.put(req, res.clone()));
           }
-          return netRes;
+          return res;
         })
-      );
-    })
+        .catch(() => caches.match(req)) // offline fallback
+    );
+    return;
+  }
+
+  // Tutto il resto → cache first
+  event.respondWith(
+    caches.match(req).then(cached => cached || fetch(req))
   );
 });
