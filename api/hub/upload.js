@@ -7,25 +7,25 @@ import { checkAuth } from './auth.js';
 const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-async function cmd(args) {
-  const res = await fetch(UPSTASH_URL, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(args),
+async function redisGet(key) {
+  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
   });
   const json = await res.json();
-  if (json.error) throw new Error(`Upstash: ${json.error}`);
-  return json.result;
+  if (json.error) throw new Error(`Redis GET: ${json.error}`);
+  if (json.result === null) return null;
+  try { return JSON.parse(json.result); } catch { return json.result; }
 }
 
-async function get(key) {
-  const r = await cmd(['GET', key]);
-  if (r === null) return null;
-  try { return JSON.parse(r); } catch { return r; }
-}
-
-async function set(key, value) {
-  return cmd(['SET', key, JSON.stringify(value)]);
+async function redisSet(key, value) {
+  const res = await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([['SET', key, JSON.stringify(value)]])
+  });
+  const json = await res.json();
+  if (json[0]?.error) throw new Error(`Redis SET: ${json[0].error}`);
+  return json[0]?.result;
 }
 
 function generateId() {
@@ -59,10 +59,8 @@ function validate(body) {
     errors.push('technicality deve essere tra 0 e 10');
   if (!['runnable','mixed','technical','alpine','extreme'].includes(body.tech_label))
     errors.push('tech_label non valido');
-  if (body.time_hours !== undefined && body.time_hours !== null) {
-    if (typeof body.time_hours !== 'number' || body.time_hours <= 0)
-      errors.push('time_hours non valido');
-  }
+  if (body.time_hours != null && (typeof body.time_hours !== 'number' || body.time_hours <= 0))
+    errors.push('time_hours non valido');
   return errors;
 }
 
@@ -101,10 +99,14 @@ export default async function handler(req, res) {
     wdi_estimate: estimateWDI(body.km, body.dplus, body.technicality),
   };
 
-  await set(`hub:activities:${id}`, activity);
+  await redisSet(`hub:activities:${id}`, activity);
 
-  const stats = (await get('hub:stats')) || { n_total: 0, n_pending: 0, last_run: null, last_rmse: null };
-  await set('hub:stats', { ...stats, n_total: (stats.n_total || 0) + 1, n_pending: (stats.n_pending || 0) + 1 });
+  const stats = (await redisGet('hub:stats')) || { n_total: 0, n_pending: 0, last_run: null, last_rmse: null };
+  await redisSet('hub:stats', {
+    ...stats,
+    n_total:   (stats.n_total   || 0) + 1,
+    n_pending: (stats.n_pending || 0) + 1,
+  });
 
   return res.status(200).json({ ok: true, id, wdi_estimate: activity.wdi_estimate });
 }
