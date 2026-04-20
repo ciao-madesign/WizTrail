@@ -324,6 +324,7 @@
     }
     .lock-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 24px; }
   </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -508,13 +509,19 @@
       </div>
 
       <div class="card" id="patchCard" style="display:none;">
-        <div class="card-title">// patch modello disponibile</div>
+        <div class="card-title">// output calibrazione</div>
         <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
-          Nuova calibrazione completata. Scarica la patch e applicala a WizTrail.
+          Nuova calibrazione completata. Scarica il pacchetto completo o solo la patch.
         </p>
-        <button class="btn btn-primary btn-sm" onclick="downloadPatch()">
-          Scarica 4_wiztrail_patch.js
-        </button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="downloadPackage()">
+            Scarica pacchetto completo (.zip)
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadPatch()">
+            Solo patch JS
+          </button>
+        </div>
+        <div id="zipProgress" style="display:none; font-size:0.78rem; color:var(--muted); margin-top:8px;"></div>
       </div>
 
       <div class="card">
@@ -568,9 +575,14 @@
           Scarica la patch e applicala a WizTrail, oppure esegui il merge del branch
           <code style="color:var(--accent);">model-update</code> su GitHub.
         </p>
-        <button class="btn btn-primary btn-sm" onclick="downloadPatch()">
-          Scarica 4_wiztrail_patch.js
-        </button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="downloadPackage()">
+            Scarica pacchetto completo (.zip)
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadPatch()">
+            Solo patch JS
+          </button>
+        </div>
       </div>
 
     </div>
@@ -1035,9 +1047,11 @@ async function loadDashboard() {
     // Attività dell'utente
     renderActivities('activityList', r.activities);
 
-    // Salva per admin
-    STATE.model   = r.model;
-    STATE.runners = r.authorized_runners || [];
+    // Salva per admin e per downloadPackage
+    STATE.model    = r.model;
+    STATE.runners  = r.authorized_runners || [];
+    STATE._plots   = r.plots   || {};
+    STATE._report_md = r.report_md || null;
 
   } catch (e) {
     console.error('Dashboard error:', e);
@@ -1183,6 +1197,72 @@ function downloadPatch() {
   a.download = '4_wiztrail_patch.js';
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+async function downloadPackage() {
+  if (!STATE.model) return;
+
+  const prog = document.getElementById('zipProgress');
+  if (prog) { prog.style.display = 'block'; prog.textContent = 'Creazione pacchetto in corso...'; }
+
+  try {
+    const zip  = new JSZip();
+    const date = STATE.model.timestamp
+      ? new Date(STATE.model.timestamp).toISOString().slice(0,10).replace(/-/g,'')
+      : new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const folder = zip.folder(`wiztrail-model-${date}`);
+
+    // Patch JS
+    if (STATE.model.patch_js) {
+      folder.file('4_wiztrail_patch.js', STATE.model.patch_js);
+    }
+
+    // Report markdown
+    if (STATE._report_md) {
+      folder.file('3_insights_report.md', STATE._report_md);
+    }
+
+    // Grafici PNG
+    const plotLabels = {
+      history_rmse:           'history_rmse.png',
+      wdi_scatter:             'wdi_scatter.png',
+      pacing_scatter:          'pacing_scatter.png',
+      insights_distribution:   'insights_distribution.png',
+      insights_tech_vs_wdi:    'insights_tech_vs_wdi.png',
+      insights_spread:         'insights_spread.png',
+    };
+    const plotsFolder = folder.folder('plots');
+    for (const [key, filename] of Object.entries(plotLabels)) {
+      const b64 = STATE._plots?.[key];
+      if (b64) {
+        plotsFolder.file(filename, b64, { base64: true });
+      }
+    }
+
+    // JSON calibrazione
+    if (STATE.model.wdi_calibration) {
+      folder.file('1_wdi_calibration.json',
+        JSON.stringify(STATE.model.wdi_calibration, null, 2));
+    }
+    if (STATE.model.pacing) {
+      folder.file('2_pacing_coefficients.json',
+        JSON.stringify(STATE.model.pacing, null, 2));
+    }
+
+    if (prog) prog.textContent = 'Compressione...';
+
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `wiztrail-model-${date}.zip`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    if (prog) { prog.textContent = '✓ Pacchetto scaricato'; setTimeout(() => { prog.style.display='none'; }, 3000); }
+
+  } catch (e) {
+    if (prog) prog.textContent = '❌ Errore: ' + e.message;
+  }
 }
 
 /* ── Init ───────────────────────────────────────────────────────────────── */
