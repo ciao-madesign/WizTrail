@@ -1,0 +1,146 @@
+# WizTrail — Developer Guide
+
+This document is intended for developers joining the project or taking over its maintenance. It covers the codebase conventions, how the scoring model works, and how to make changes safely.
+
+---
+
+## Getting started
+
+The project requires no build step. Open `index.html` in a browser or deploy to Vercel.
+
+For the serverless API (Strava OAuth + hub):
+
+```bash
+npm install -g vercel
+vercel dev        # local dev server with serverless functions
+```
+
+Set the required environment variables in `.env.local` (see README for the full list).
+
+---
+
+## How the scoring model works
+
+All calculation happens **client-side** in four files:
+
+### `wiztrail-engine.js` — WDI v5.1
+The main engine. Call flow:
+```
+computeFromGpx(gpxPts, metrics, surfaceLevel)
+  → buildTechScore()     — 9 calibrated weights from real GPX data
+  → buildVolumeScore()   — D+ and D- with logarithmic damping
+  → buildDistFactor()    — sublinear distance scaling (exp 0.48)
+  → buildAltFactor()     — altitude bonus above 1300m
+  → assemble()           — combines all factors into WDI
+```
+
+`computeManual(opts)` is used when no GPX is loaded — uses terrain category defaults (E/EE/EA).
+
+**Critical:** WDI class thresholds appear in **three places** that must stay in sync:
+- `wiztrail-engine.js` → `WDI_THRESHOLDS`
+- `map.js` → `getColorWDI()`
+- `about.html` → class table
+
+### `wiztrail-pacing.js` — power-law v2.1
+Two separate models:
+- **`getPacingEstimate()`** — personalized time estimate (power-law, uses t10km input)
+- **`computePacing()`** — chunk-based pacing table (distributes target time by segment difficulty)
+
+### `gpx-parser.js`
+Parses GPX and TCX files. Returns `{ km, gain, e[], d[], max_altitude }`.
+Adaptive smoothing window (3/5/9 points) reduces GPS noise before D+ calculation.
+`max_altitude` is required by the Discipline Classifier.
+
+### `discipline-classifier.js`
+Auto-classifies routes as trail / sky / mountain / XC from GPX metrics.
+Depends on `max_altitude` from `gpx-parser.js`.
+
+---
+
+## How to recalibrate the model
+
+When new GPX data is available:
+
+1. Add GPX files to `wiztrail-calibration/gpx/`
+2. Add race metadata to `wiztrail-calibration/data/dataset.xlsx` (name, km, D+, avg_finish_hours, itra_score)
+3. Push to GitHub — the Actions workflow runs automatically, or trigger manually:
+   ```bash
+   gh workflow run hub-calibration.yml
+   ```
+4. Review the output patch from `06_push_results.py`
+5. Apply the new weights to `wiztrail-engine.js` → `buildTechScore()` and `wiztrail-pacing.js` → `getPacingEstimate()`
+6. Run the verification script and test against benchmark races (UTMB, CCC, Zegama, Tor des Géants)
+
+**Do not change automatically (require manual review after each calibration):**
+- `kT` (TechScore weight in WDI formula)
+- `DistFactor` exponent
+- WDI class thresholds
+
+---
+
+## Strava OAuth flow
+
+```
+User clicks "Connect Strava"
+  → auth_strava.html redirects to Strava OAuth
+  → Strava redirects to /auth_strava.html?code=...
+  → auth_strava.html calls /api/strava/callback
+  → callback.js exchanges code for token (server-side, secret safe)
+  → token stored in sessionStorage (not localStorage — cleared on tab close)
+  → import_strava.html / training-analyzer.html use token for API calls
+```
+
+All Strava endpoints are rate-limited via `api/lib/ratelimit.js` (Upstash Redis, 30 req/min/IP sliding window).
+
+---
+
+## Adding a new OAuth provider (e.g. Suunto)
+
+The architecture mirrors Strava exactly:
+
+1. Create `api/suunto/callback.js` — token exchange
+2. Create `api/suunto/activities.js` — list activities
+3. Create `api/suunto/activity.js` — fetch single activity streams
+4. Create `import_suunto.html` — OAuth redirect + activity picker
+5. Add `SUUNTO_CLIENT_ID` and `SUUNTO_CLIENT_SECRET` to Vercel env vars
+6. Apply rate limiting via `ratelimit.js` on all endpoints
+
+---
+
+## Deploying
+
+```bash
+# Deploy to Vercel (production)
+vercel --prod
+
+# Version bump (required after any HTML/CSS/JS change)
+# Edit service-worker.js → CACHE_VERSION string
+# e.g. "wiztrail-v2026-04-20b" → "wiztrail-v2026-04-21a"
+```
+
+The service worker uses **network-first** for HTML/CSS/JS and **cache-first** for images. Bumping `CACHE_VERSION` forces all clients to invalidate their cache on next visit.
+
+---
+
+## Code conventions
+
+- **No framework, no build step** — plain HTML/CSS/JS. Keep it that way.
+- **No `console.log` in production** — use `// DEBUG:` comments for temporary logging
+- **Client-side only for scoring** — never move WDI/pacing calculation to serverless functions
+- **Serverless functions** — ES Module format (`export default async function handler(req, res)`)
+- **Rate limiting** — apply `ratelimit.js` to every new serverless endpoint
+- **Version tags** — all `<script src="...">` tags include `?v=YYYYMMDD` for cache busting
+
+---
+
+## Key files reference
+
+| File | Purpose | Change frequency |
+|---|---|---|
+| `wiztrail-engine.js` | WDI model | After calibration |
+| `wiztrail-pacing.js` | Time + pacing model | After calibration |
+| `gpx-parser.js` | GPX parsing | Rarely |
+| `wiztrail.css` | All styles | UX iterations |
+| `service-worker.js` | PWA cache | Every deploy |
+| `api/lib/ratelimit.js` | Rate limiting | Rarely |
+| `ranking-data.json` | Race ranking data | Manual updates |
