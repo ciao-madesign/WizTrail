@@ -1,20 +1,6 @@
 """
 Script 06 — Pubblica risultati calibrazione sull'hub
-─────────────────────────────────────────────────────
-Eseguito da GitHub Actions al termine della pipeline.
-
-1. Legge output/1_wdi_calibration.json e 2_pacing_coefficients.json
-2. Legge il grafico output/plots/history_rmse.png e lo converte in base64
-3. Legge output/4_wiztrail_patch.js
-4. Chiama POST /api/hub/patch con tutti i dati
-5. Il branch model-update viene creato da GitHub Actions (non da questo script)
-
-Variabili d'ambiente richieste:
-  UPSTASH_REDIS_REST_URL    (non usato direttamente — la API gestisce Redis)
-  HUB_ADMIN_TOKEN           token admin per autenticarsi alla API
-  VERCEL_HUB_URL            es. "https://wiztrail.app"
 """
-
 import os, json, base64, sys
 from pathlib import Path
 import requests
@@ -25,24 +11,20 @@ OUTPUT_DIR      = Path("output")
 PLOTS_DIR       = OUTPUT_DIR / "plots"
 
 
-def load_json(path: Path) -> dict:
-    if not path.exists():
-        print(f"  ⚠️  {path} non trovato — ignorato")
-        return {}
-    return json.loads(path.read_text())
+def load_json(path):
+    p = Path(path)
+    return json.loads(p.read_text()) if p.exists() else {}
 
 
-def load_base64(path: Path) -> str | None:
-    if not path.exists():
-        return None
-    return base64.b64encode(path.read_bytes()).decode()
+def load_base64(path):
+    p = Path(path)
+    return base64.b64encode(p.read_bytes()).decode() if p.exists() else None
 
 
-def get_stats() -> dict:
-    """Legge le statistiche del run corrente dal dataset."""
+def get_stats():
     try:
         import pandas as pd
-        df = pd.read_csv("data/computed.csv")
+        df      = pd.read_csv("data/computed.csv")
         n_total = len(df)
         n_gpx   = int((df.get("calc_source", "") == "gpx").sum()) if "calc_source" in df.columns else 0
     except Exception:
@@ -52,19 +34,26 @@ def get_stats() -> dict:
 
 def main():
     if not VERCEL_HUB_URL:
-        print("  ⚠️  VERCEL_HUB_URL non configurato — skip push risultati")
+        print("  ⚠️  VERCEL_HUB_URL non configurato — skip")
         return
     if not ADMIN_TOKEN:
-        print("  ⚠️  HUB_ADMIN_TOKEN non configurato — skip push risultati")
+        print("  ⚠️  HUB_ADMIN_TOKEN non configurato — skip")
         return
 
-    print("  Raccolta risultati calibrazione...")
+    print(f"  Raccolta risultati calibrazione...")
+    print(f"  VERCEL_HUB_URL: {VERCEL_HUB_URL}")
+    print(f"  HUB_ADMIN_TOKEN (primi 8 chars): {ADMIN_TOKEN[:8]}...")
 
     wdi_cal = load_json(OUTPUT_DIR / "1_wdi_calibration.json")
     pacing  = load_json(OUTPUT_DIR / "2_pacing_coefficients.json")
-    patch   = (OUTPUT_DIR / "4_wiztrail_patch.js").read_text() if (OUTPUT_DIR / "4_wiztrail_patch.js").exists() else None
+    patch   = (OUTPUT_DIR / "4_wiztrail_patch.js").read_text() \
+              if (OUTPUT_DIR / "4_wiztrail_patch.js").exists() else None
     plot    = load_base64(PLOTS_DIR / "history_rmse.png")
     stats   = get_stats()
+
+    # Il token va sia nell'URL (query param) sia nel body
+    # per compatibilità con checkAuth() che cerca in entrambi i posti
+    url = f"{VERCEL_HUB_URL}/api/hub/patch?key={ADMIN_TOKEN}"
 
     payload = {
         "key":              ADMIN_TOKEN,
@@ -77,18 +66,15 @@ def main():
 
     print(f"  Invio a {VERCEL_HUB_URL}/api/hub/patch ...")
     try:
-        r = requests.post(
-            f"{VERCEL_HUB_URL}/api/hub/patch",
-            json=payload,
-            timeout=30,
-        )
+        r = requests.post(url, json=payload, timeout=30)
+        print(f"  HTTP status: {r.status_code}")
+        print(f"  Response: {r.text[:200]}")
         r.raise_for_status()
         result = r.json()
-        rmse   = result.get("rmse", "?")
-        print(f"  ✓ Risultati pubblicati — RMSE aggiornato: {rmse}")
+        print(f"  ✓ Risultati pubblicati — RMSE: {result.get('rmse', '?')}")
     except requests.exceptions.RequestException as e:
         print(f"  ❌ Errore push risultati: {e}")
-        # Non blocca la pipeline — il branch viene creato comunque
+        # Non blocca la pipeline
         sys.exit(0)
 
 
