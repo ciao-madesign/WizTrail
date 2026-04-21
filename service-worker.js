@@ -2,7 +2,7 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-04-20b";
+const CACHE_VERSION = "wiztrail-v2026-04-21a";
 const CORE_CACHE = [
   "/",
   "/landing.html",
@@ -76,12 +76,15 @@ self.addEventListener("fetch", (event) => {
   // Immagini → cache first (cambiano raramente)
   if (req.destination === "image") {
     event.respondWith(
-      caches.match(req).then(cached => cached ||
-        fetch(req).then(res => {
-          caches.open(CACHE_VERSION).then(c => c.put(req, res.clone()));
+      caches.match(req).then(cached => {
+        if (cached) return cached;
+        return fetch(req).then(res => {
+          if (!res || !res.ok) return res;
+          const resClone = res.clone(); // clona prima di consumare
+          caches.open(CACHE_VERSION).then(c => c.put(req, resClone));
           return res;
-        })
-      )
+        });
+      })
     );
     return;
   }
@@ -96,9 +99,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(req)
         .then(res => {
-          // Aggiorna la cache con la versione fresca
-          if (res.ok && !url.includes("html2canvas")) {
-            caches.open(CACHE_VERSION).then(c => c.put(req, res.clone()));
+          if (!res || !res.ok) return res;
+          // Clona PRIMA di consumare — evita "body already used"
+          if (!url.includes("html2canvas")) {
+            const resClone = res.clone();
+            caches.open(CACHE_VERSION).then(c => c.put(req, resClone));
           }
           return res;
         })
