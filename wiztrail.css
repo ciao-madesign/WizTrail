@@ -1065,3 +1065,238 @@ table {
 @media (max-width: 600px) {
   .app-nav a:not(.nav-cta) { display: none; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVENESS — aggiornamento 21/04/2026
+   Breakpoint principale: 600px
+   Breakpoint intermedio: 820px (tablet)
+   Non tocca nulla di esistente — aggiunge regole specifiche
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Header mobile ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .app-header {
+    padding: 8px 12px;
+    height: 50px;
+  }
+  .brand-name {
+    font-size: 0.95rem;
+  }
+  /* nav-cta unico link visibile su mobile (già gestito da regola esistente) */
+}
+
+/* ── Tab bar — scroll orizzontale su mobile ─────────────────── */
+@media (max-width: 600px) {
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 4px;
+    /* nasconde scrollbar visiva */
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+}
+
+/* ── Card e fieldset ────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .card { padding: 14px 12px; }
+  fieldset { padding: 10px 12px; }
+  legend { font-size: 0.82rem; }
+}
+
+/* ── KPI grid — sempre 1 colonna su mobile ──────────────────── */
+@media (max-width: 600px) {
+  .grid.grid-2,
+  div.grid-2 {
+    grid-template-columns: 1fr;
+  }
+  /* KPI primari: affiancati anche su mobile (sono solo 2, ci stanno) */
+  #kpiResults .grid.grid-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .kpi .val { font-size: 2rem; }
+  .kpi-primary .val { font-size: 1.8rem; }
+}
+
+/* ── Accordion parametri avanzati ──────────────────────────── */
+@media (max-width: 600px) {
+  .accordion-toggle {
+    font-size: 0.82rem;
+    padding: 10px 12px;
+  }
+  .accordion-body .grid.grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Mappa Leaflet + profilo altimetrico ────────────────────── */
+@media (max-width: 600px) {
+  #leafletMap {
+    height: 220px !important;
+  }
+  #elevCanvas {
+    height: 160px !important;
+  }
+  /* Pacing: mappa e canvas in colonna */
+  .pc-visuals-row {
+    flex-direction: column;
+  }
+  .pc-map, .pc-elev {
+    min-width: 100%;
+    height: 200px;
+  }
+  /* Pacing map nella sezione pacing tab */
+  #pacingMap {
+    min-width: 100% !important;
+    height: 220px !important;
+  }
+  #pacingElevCanvas {
+    min-width: 100% !important;
+    height: 180px !important;
+  }
+}
+
+/* ── Post-gara input ────────────────────────────────────────── */
+@media (max-width: 600px) {
+  #pg_output { font-size: 0.85rem; }
+}
+
+/* ── Input touch targets (44px minimo Apple HIG) ───────────── */
+@media (max-width: 600px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="file"],
+  select {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+  .btn {
+    min-height: 44px;
+    font-size: 0.95rem;
+    padding: 10px 18px;
+  }
+  .accordion-toggle {
+    min-height: 44px;
+  }
+}
+
+/* ── Slider superficie/livello ──────────────────────────────── */
+@media (max-width: 600px) {
+  input[type="range"] {
+    height: 28px; /* touch target più ampio */
+  }
+}
+
+/* ── Hero sezione index ─────────────────────────────────────── */
+@media (max-width: 600px) {
+  .hero-fullwidth { height: 280px; }
+  .hero-title { font-size: clamp(1.6rem, 7vw, 2.4rem); }
+  .hero-desc { font-size: 0.85rem; }
+  .hero-inner { padding: 0 16px 48px; }
+  .hero-actions { gap: 10px; }
+  .hero-btn-primary,
+  .hero-btn-ghost {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ── PC summary KPI box — 2 colonne su mobile ───────────────── */
+@media (max-width: 600px) {
+  .pc-summary {
+    gap: 8px;
+  }
+  .pc-summary-kpi {
+    padding: 10px 12px;
+  }
+  .pc-summary-kpi .val {
+    font-size: 1.1rem;
+  }
+}
+
+/* ── about.html TOC sticky ──────────────────────────────────── */
+@media (max-width: 600px) {
+  .about-toc {
+    gap: 2px;
+    top: 50px;
+  }
+  .about-toc a {
+    font-size: 0.68rem;
+    padding: 4px 8px;
+  }
+}
+
+/* ── Tabella pacing ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .pacing-table { font-size: 0.75rem; }
+  .pacing-table th, .pacing-table td { padding: 7px 6px; }
+  .pc-dplus-bar { max-width: 32px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MICRO-ANIMAZIONI — fade page + tab transitions
+   Regole additive: non sovrascrivono animazioni esistenti
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Fade pagina al caricamento ─────────────────────────────── */
+/* wizFadeIn già esiste su .wrap — aggiungiamo fade sul body */
+body {
+  animation: bodyFadeIn 0.3s ease both;
+}
+@keyframes bodyFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Tab switch fade ────────────────────────────────────────── */
+/* panelIn già esiste — miglioramento: aggiungiamo leggero translateY */
+@keyframes panelFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* panelIn già gestisce il tab fade — nessuna duplicazione necessaria */
+
+/* ── Link hover con fade ────────────────────────────────────── */
+.app-nav a {
+  transition: color 0.18s ease, opacity 0.18s ease;
+}
+
+/* ── Card reveal on scroll (Progressive enhancement) ────────── */
+/* Applicato via JS su intersezione — classe aggiunta da main.js */
+.card-reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.card-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Bottone press feedback ─────────────────────────────────── */
+.btn:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
+}
+
+/* ── Tab btn hover ──────────────────────────────────────────── */
+.tab-btn {
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* ── Input focus glow ───────────────────────────────────────── */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 35%, transparent);
+  transition: box-shadow 0.18s ease;
+}
