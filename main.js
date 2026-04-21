@@ -398,7 +398,7 @@
       heroBg.style.backgroundImage = `url('${heroImg.src}')`;
       heroBg.classList.add('hero-bg-loaded');
     };
-    heroImg.src = 'img/hero-index.jpg';
+    heroImg.src = 'img/hero-calc.jpg';
   }
 
   document.getElementById('heroCtaBtn')?.addEventListener('click', (e) => {
