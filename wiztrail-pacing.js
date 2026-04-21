@@ -465,8 +465,13 @@ function pacingDrawProfile() {
   if (!ctx) return;
 
   if (!pacingComputeProfile()) {
-    ctx.fillStyle="rgba(255,255,255,0.7)";
-    ctx.fillText("Carica un GPX",20,20);
+    ctx.fillStyle = "rgba(255,255,255,0.45)";
+    ctx.font = "13px 'DM Mono', ui-monospace, monospace";
+    ctx.fillText("Profilo altimetrico non disponibile", 16, 36);
+    ctx.font = "11px 'DM Mono', ui-monospace, monospace";
+    ctx.fillStyle = "rgba(255,255,255,0.25)";
+    ctx.fillText("Il GPX non contiene dati di elevazione.", 16, 58);
+    ctx.fillText("Inserisci D+ manualmente nel Calcolatore.", 16, 76);
     return;
   }
 
