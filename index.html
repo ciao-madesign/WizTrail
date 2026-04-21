@@ -261,36 +261,63 @@
   <section id="pacing" class="panel">
     <div class="card">
       <h2>Pacing Planner</h2>
-      <div id="pc_warning" class="error" style="display:none; margin-bottom:12px;">
-        ⚠️ Carica una traccia GPX/TCX nel tab Calcolatore prima di generare il pacing.
+      <p class="mini" style="opacity:0.6; margin-bottom:16px;">
+        Distribuisce il tuo tempo obiettivo segmento per segmento in base alla difficoltà reale del percorso.
+      </p>
+
+      <!-- Warning GPX mancante -->
+      <div id="pc_warning" class="pc-warning" style="display:none;">
+        📂 Carica prima una traccia GPX nel tab Calcolatore per generare il pacing.
       </div>
-      <div class="card" style="margin-top:16px;">
-        <h2>Mappa + Profilo altimetrico</h2>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <div id="pacingMap" style="flex:1; min-width:300px; height:300px; border-radius:8px;"></div>
-          <canvas id="pacingElevCanvas" style="flex:1; min-width:300px; height:300px; border-radius:8px;"></canvas>
+
+      <!-- Input -->
+      <div class="pc-inputs">
+        <div class="pc-input-group">
+          <label>Tempo obiettivo</label>
+          <input id="pc_target" type="text" placeholder="02:30:00" class="pc-time-input">
+          <span class="mini" style="opacity:0.5;">hh:mm:ss</span>
         </div>
-      </div>
-      <div class="grid" style="margin-bottom:12px;">
-        <div>
-          <label>Tempo obiettivo gara (hh:mm:ss)</label>
-          <input id="pc_target" type="text" placeholder="02:30:00">
-        </div>
-        <div>
-          <label>Distanza tra i checkpoint (km)</label>
+        <div class="pc-input-group">
+          <label>Checkpoint ogni</label>
           <select id="pc_gran">
             <option value="5">5 km</option>
             <option value="10">10 km</option>
             <option value="1">1 km</option>
           </select>
         </div>
+        <button class="btn" id="pc_generate">Genera pacing →</button>
       </div>
-      <div class="toolbar">
-        <button class="btn" id="pc_generate">Genera pacing</button>
-      </div>
-      <div id="pc_results" style="display:none; margin-top:14px;">
-        <div id="pc_summary" style="margin-bottom:12px;"></div>
+
+      <!-- Risultati -->
+      <div id="pc_results" style="display:none; margin-top:20px;">
+
+        <!-- Summary KPI -->
+        <div id="pc_summary" class="pc-summary"></div>
+
+        <!-- Legenda colori -->
+        <div class="pc-legend">
+          <span class="pc-legend-item">
+            <span class="pc-legend-dot" style="background:#4fd1c5;"></span>
+            Sotto il passo medio
+          </span>
+          <span class="pc-legend-item">
+            <span class="pc-legend-dot" style="background:#ff00a8;"></span>
+            Sopra il passo medio
+          </span>
+        </div>
+
+        <!-- Tabella -->
         <div id="pc_table" class="responsive-table"></div>
+
+        <!-- Mappa + altimetria -->
+        <div class="pc-visuals">
+          <div class="pc-visuals-label">Mappa percorso colorata per intensità</div>
+          <div class="pc-visuals-row">
+            <div id="pacingMap" class="pc-map"></div>
+            <canvas id="pacingElevCanvas" class="pc-elev"></canvas>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -547,7 +574,7 @@
 <!-- Engine esistenti (invariati) -->
 <script src="wiztrail-engine.js?v=20260417"></script>
 <!-- wiztrail-osm.js disabilitato: Enhanced Mode rimosso temporaneamente -->
-<script src="wiztrail-pacing.js?v=20260417"></script>
+<script src="wiztrail-pacing.js?v=20260421"></script>
 <script src="wiztrail-report.js"></script>
 <script src="wiztrail-postgara.js?v=20260318"></script>
 
