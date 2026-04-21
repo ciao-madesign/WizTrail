@@ -106,14 +106,37 @@
     <div class="card">
 
       <fieldset>
-        <legend>Traccia GPS (opzionale)</legend>
-        <label>Carica GPX / TCX / XML</label>
-        <input id="gpxfile" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
-        <div class="mini" style="margin-top:4px; opacity:0.6;">Compatibile con Garmin, Suunto, Wikiloc, Komoot e qualsiasi app che esporti GPX</div>
+        <legend>Traccia GPS (opzionale ma consigliata)</legend>
+
+        <!-- Drop zone visiva -->
+        <label for="gpxfile" class="gpx-dropzone" id="gpxDropzone">
+          <div class="gpx-dropzone-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="gpx-dropzone-text">
+            <span class="gpx-dropzone-main">Trascina il GPX qui o clicca per selezionare</span>
+            <span class="gpx-dropzone-sub">GPX · TCX · XML — Garmin, Suunto, Wikiloc, Komoot</span>
+          </div>
+          <input id="gpxfile" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml" style="display:none;"/>
+        </label>
+
+        <!-- Alternativa Strava -->
+        <div class="gpx-alt-row">
+          <span class="gpx-alt-sep">oppure</span>
+          <a href="import_strava.html" class="gpx-alt-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+            Importa da Strava
+          </a>
+        </div>
+
+        <!-- Info dopo caricamento -->
         <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
         <div id="gpxEmpty" class="gpx-empty" style="display:none;">
-          <span class="gpx-empty-icon">📂</span>
-          <span>Nessun GPX caricato — distanza e D+ possono essere inseriti manualmente</span>
+          <span>Distanza e D+ possono essere inseriti manualmente sotto</span>
         </div>
         <div style="margin-top:12px;">
           <label>Tipo di terreno prevalente</label>
@@ -231,12 +254,16 @@
           <div class="kpi kpi-primary">
             <h3>WDI</h3>
             <div class="val" id="outRaceScore" style="font-size:3rem; font-weight:900; margin-bottom:4px; transition:color 0.3s;">—</div>
-            <div id="outRaceScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
+            <div id="outRaceScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;">
+              <span class="kpi-placeholder">Difficulty Index del percorso</span>
+            </div>
           </div>
           <div class="kpi kpi-primary">
             <h3>Tempo stimato</h3>
             <div class="val" id="outFinal" style="font-size:2.2rem; font-weight:900;">—:—</div>
-            <div id="outFinalSub" style="font-size:0.75rem; line-height:1.5; opacity:0.8; margin-top:4px;"></div>
+            <div id="outFinalSub" style="font-size:0.75rem; line-height:1.5; opacity:0.8; margin-top:4px;">
+              <span class="kpi-placeholder">Inserisci t10km e premi Calcola</span>
+            </div>
           </div>
         </div>
         <!-- KPI secondari: range -->
