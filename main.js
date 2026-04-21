@@ -231,13 +231,27 @@
     T *= 1 + (meteo - 1) * (T_hours / 5);
     T *= alt;
 
-    // WDI — usa metrics ibrido con D+ manuale
-    const rs = WizTrail.computeFromGpx(
-      window.gpxPts,
-      m,
-      window.currentSurfaceLevel,
-      window.lastOsmResult
-    );
+    // WDI — se il GPX non ha elevazione, usa computeManual con i dati del form
+    // (computeFromGpx con e[] vuoto produce TechScore=0, risultato errato)
+    let rs;
+    if (mGpx.gain === 0 && manualGain > 0) {
+      const terrainCatMap = { 'Strada': null, 'E': 'E', 'EE': 'EE', 'EA': 'EA' };
+      rs = WizTrail.computeManual({
+        km:          m.km,
+        gain:        manualGain,
+        loss:        manualGain,
+        terrainCat:  terrainCatMap[terrainClass] || 'EE',
+        surfaceLevel: window.currentSurfaceLevel || 3,
+        altMedia:    800,
+      });
+    } else {
+      rs = WizTrail.computeFromGpx(
+        window.gpxPts,
+        m,
+        window.currentSurfaceLevel,
+        window.lastOsmResult
+      );
+    }
     window.currentWDI = rs.WDI;
     window.lastRS     = rs;
 
