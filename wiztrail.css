@@ -1300,3 +1300,105 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 35%, transparent);
   transition: box-shadow 0.18s ease;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ONBOARDING / EMPTY STATES — 21/04/2026
+═══════════════════════════════════════════════════════════════ */
+
+/* ── GPX Drop zone ──────────────────────────────────────────── */
+.gpx-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1.5px dashed color-mix(in oklab, var(--accent) 40%, transparent);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 10px;
+  background: color-mix(in oklab, var(--accent) 4%, transparent);
+}
+.gpx-dropzone:hover,
+.gpx-dropzone.dragover {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 9%, transparent);
+}
+.gpx-dropzone.loaded {
+  border-color: var(--accent);
+  border-style: solid;
+  background: color-mix(in oklab, var(--accent) 7%, transparent);
+}
+.gpx-dropzone-icon {
+  color: var(--accent);
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.gpx-dropzone:hover .gpx-dropzone-icon { opacity: 1; }
+.gpx-dropzone-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.gpx-dropzone-main {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--ink);
+  font-weight: 500;
+}
+.gpx-dropzone-sub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* ── Alternativa Strava ─────────────────────────────────────── */
+.gpx-alt-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.gpx-alt-sep {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.5;
+}
+.gpx-alt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #fc4c02; /* Strava orange */
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid rgba(252,76,2,0.25);
+  border-radius: 4px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.gpx-alt-link:hover {
+  background: rgba(252,76,2,0.08);
+  border-color: rgba(252,76,2,0.5);
+}
+
+/* ── KPI placeholder testo ──────────────────────────────────── */
+.kpi-placeholder {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.45;
+  font-style: italic;
+}
+
+/* ── Mobile dropzone ────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .gpx-dropzone {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+  .gpx-dropzone-main { font-size: 0.78rem; }
+  .gpx-dropzone-icon svg { width: 22px; height: 22px; }
+}
