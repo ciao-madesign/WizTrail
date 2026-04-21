@@ -295,25 +295,43 @@ function pc_renderTable(pacingChunks, avgPaceSec) {
   const el = document.getElementById("pc_table");
   if (!el) return;
 
+  // Calcola D+ per chunk dai segmenti
+  const maxDplus = Math.max(...pacingChunks.map(c =>
+    c.segs.reduce((s, seg) => s + Math.max(0, seg.elev_diff || 0), 0)
+  ));
+
   let html = `
     <table class="pacing-table">
       <tr>
         <th>KM</th>
         <th>Tempo</th>
         <th>Pace tratto</th>
+        <th>D+</th>
       </tr>
   `;
 
   pacingChunks.forEach(chunk => {
     const paceSec = chunk.time_sec / chunk.dist_km;
     const paceStr = pc_secToPace(paceSec);
-    const color = (paceSec > avgPaceSec) ? "#ff00a8" : "#4fd1c5";
+    const isSlow  = paceSec > avgPaceSec;
+    const color   = isSlow ? "#ff00a8" : "#4fd1c5";
+    const bgColor = isSlow ? "rgba(255,0,168,0.08)" : "rgba(79,209,197,0.08)";
+
+    // D+ del chunk
+    const dplus = Math.round(chunk.segs.reduce((s, seg) => s + Math.max(0, seg.elev_diff || 0), 0));
+    const barW  = maxDplus > 0 ? Math.round((dplus / maxDplus) * 48) : 0;
 
     html += `
       <tr>
-        <td>${chunk.km}</td>
-        <td>${pc_secToHMS(chunk.cumulative_sec)}</td>
-        <td style="color:${color}; font-weight:600;">${paceStr}</td>
+        <td style="font-weight:600; color:var(--ink);">${chunk.km}</td>
+        <td style="font-family:var(--font-mono);">${pc_secToHMS(chunk.cumulative_sec)}</td>
+        <td>
+          <span class="pc-pace-pill" style="background:${bgColor}; color:${color};">${paceStr}</span>
+        </td>
+        <td>
+          <span style="font-family:var(--font-mono); font-size:0.78rem; color:var(--muted);">${dplus}m</span>
+          <span class="pc-dplus-bar" style="width:${barW}px;"></span>
+        </td>
       </tr>`;
   });
 
@@ -530,15 +548,27 @@ function pacingAttachEvents() {
 /***************************************************************
  *  RENDER SUMMARY
  ***************************************************************/
-function pc_renderSummary(avgPaceSec) {
+function pc_renderSummary(avgPaceSec, T_target_sec, distKm) {
   const box = document.getElementById("pc_summary");
   if (!box) return;
 
+  const hh = Math.floor(T_target_sec / 3600);
+  const mm = String(Math.floor((T_target_sec % 3600) / 60)).padStart(2,'0');
+  const ss = String(T_target_sec % 60).padStart(2,'0');
+
   box.innerHTML = `
-      <div class="pc-summary-box">
-        Passo medio complessivo previsto:
-        <strong>${pc_secToPace(avgPaceSec)}</strong>
-      </div>
+    <div class="pc-summary-kpi">
+      <div class="val">${hh}:${mm}:${ss}</div>
+      <div class="lbl">Tempo obiettivo</div>
+    </div>
+    <div class="pc-summary-kpi">
+      <div class="val">${pc_secToPace(avgPaceSec)}</div>
+      <div class="lbl">Passo medio</div>
+    </div>
+    <div class="pc-summary-kpi">
+      <div class="val">${distKm.toFixed(1)} km</div>
+      <div class="lbl">Distanza totale</div>
+    </div>
   `;
 }
 
@@ -593,7 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const avgPaceSec = T_target_sec / Math.max(1e-6, distTotal_km);
 
     pc_renderTable(PC_PLAN.pacingChunks, avgPaceSec);
-    pc_renderSummary(avgPaceSec);
+    pc_renderSummary(avgPaceSec, T_target_sec, distTotal_km);
 drawPacingMap(PC_PLAN.pacingChunks, avgPaceSec);
 pacingDrawProfile();
 pacingAttachEvents();
