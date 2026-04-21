@@ -85,8 +85,32 @@
   /* ------------------------------------------------------------------
      CARICAMENTO GPX / TCX
      ------------------------------------------------------------------ */
+  // ── Drop zone: drag & drop + feedback visivo ───────────────────────
+  const dropzone = document.getElementById('gpxDropzone');
+  if (dropzone) {
+    ['dragenter','dragover'].forEach(ev => {
+      dropzone.addEventListener(ev, e => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+    ['dragleave','dragend'].forEach(ev => {
+      dropzone.addEventListener(ev, () => dropzone.classList.remove('dragover'));
+    });
+    dropzone.addEventListener('drop', async e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) await handleGpxFile(file);
+    });
+  }
+
   document.getElementById('gpxfile')?.addEventListener('change', async e => {
     const f = e.target.files[0];
+    if (f) await handleGpxFile(f);
+  });
+
+  async function handleGpxFile(f) {
     if (!f) return;
 
     const txt = await f.text();
@@ -98,6 +122,14 @@
     WizUI.updateGpxInfo(window.gpxPts, window.metrics);
     WizMap.drawTrack();
     WizMap.drawProfile();
+
+    // Feedback visivo dropzone
+    const dz = document.getElementById('gpxDropzone');
+    if (dz) {
+      dz.classList.add('loaded');
+      const mainTxt = dz.querySelector('.gpx-dropzone-main');
+      if (mainTxt) mainTxt.textContent = '✓ ' + f.name;
+    }
   });
 
   /* ------------------------------------------------------------------
@@ -257,6 +289,8 @@
 
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
+    // Rimuovi placeholder KPI dopo il primo calcolo
+    document.querySelectorAll('.kpi-placeholder').forEach(el => el.remove());
     updatePersonalEstimate();
     WizUI.showError('OK');
 
