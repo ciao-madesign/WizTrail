@@ -58,21 +58,35 @@
       <a href="ranking.html" class="">Ranking</a>
       <a href="about.html" class="">Il Metodo</a>
   </nav>
-</header><div class="wrap">
-<h1>
-<span>Training Analyzer</span>
-<span class="theme-ctrl">
-<label class="mini">Tema</label>
-<select id="themeSel">
-<option value="dark" selected>Scuro</option>
-<option value="light">Chiaro</option>
-</select>
-</span>
-</h1>
-<button class="btn secondary" onclick="location.href='index.html'">← Torna alla home</button>
+</header>
+
+<!-- HERO -->
+<div class="hero-fullwidth">
+  <div class="hero-bg-img" id="heroBgImg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">WizTrail — Training Analyzer</div>
+    <h1 class="hero-title">Analizza i tuoi<br>allenamenti</h1>
+    <p class="hero-desc">Importa da Strava o carica il GPX. WDI, TechScore e stima tempo calibrati sul tuo livello.</p>
+    <div class="hero-actions">
+      <a href="#training-card" class="hero-btn-primary">Inizia l'analisi →</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+<div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+  <span class="theme-ctrl">
+    <label class="mini">Tema</label>
+    <select id="themeSel">
+      <option value="dark" selected>Scuro</option>
+      <option value="light">Chiaro</option>
+    </select>
+  </span>
+</div>
 
 <!-- IMPORT -->
-<div class="card" style="margin-top:20px;">
+<div class="card" id="training-card" style="margin-top:20px;">
 <h2>Carica la tua attività</h2>
 <div style="margin-top:12px;">
  <button class="btn" onclick="openStravaModal()">
@@ -139,7 +153,9 @@
 <div class="card" style="text-align:center;"><button class="btn" id="btnShare">Condividi</button></div>
 </div>
 
-<div class="footer">WizTrail © 2026</div>
+<div class="footer">WizTrail © 2026
+    <p class="mini" style="opacity:0.5; margin-top:4px;">Foto di <a href="https://unsplash.com/@jakubkriz" target="_blank" rel="noopener" style="color:inherit;">Jakub Kriz</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a> (Unsplash License)</p>
+  </div>
 </div>
 
 <script src="gpx-parser.js"></script>
@@ -545,6 +561,19 @@ const res = await fetch(`/api/strava/activities?token=${token}`);
 if (sessionStorage.getItem("strava_token") && source !== "strava") {
   // opzionale: non auto-aprire sempre
 }
+</script>
+<script>
+// Hero image loader
+(function() {
+  const heroBg = document.getElementById('heroBgImg');
+  if (!heroBg) return;
+  const img = new Image();
+  img.onload = function() {
+    heroBg.style.backgroundImage = "url('img/hero-training.jpg')";
+    heroBg.classList.add('hero-bg-loaded');
+  };
+  img.src = 'img/hero-training.jpg';
+})();
 </script>
 </body>
 </html>
