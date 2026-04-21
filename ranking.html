@@ -30,22 +30,35 @@
       <a href="ranking.html" class="nav-active">Ranking</a>
       <a href="about.html" class="">Il Metodo</a>
   </nav>
-</header><div class="wrap">
-<h1>
-<span>Classifica WDI – WizTrail Difficulty Index</span>
-<span class="theme-ctrl">
-<label class="mini">Tema</label>
-<select id="themeSel">
-<option value="dark" selected>Scuro</option>
-<option value="light">Chiaro</option>
-</select>
-</span>
-</h1>
-<div class="back-btn-container">
-<a href="index.html" class="back-btn">← Torna alla pagina principale</a>
+</header>
+
+<!-- HERO -->
+<div class="hero-fullwidth">
+  <div class="hero-bg-img" id="heroBgImg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">WizTrail — Ranking WDI</div>
+    <h1 class="hero-title">Le gare più dure<br>del mondo</h1>
+    <p class="hero-desc">Classifica oggettiva basata sul WDI. Dalle gare sport alle leggende del trail mondiale.</p>
+    <div class="hero-actions">
+      <a href="#ranking-table" class="hero-btn-primary">Esplora il ranking →</a>
+      <a href="index.html" class="hero-btn-ghost">Calcola il tuo trail</a>
+    </div>
+  </div>
 </div>
 
-<div class="card">
+<div class="wrap">
+<div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+  <span class="theme-ctrl">
+    <label class="mini">Tema</label>
+    <select id="themeSel">
+      <option value="dark" selected>Scuro</option>
+      <option value="light">Chiaro</option>
+    </select>
+  </span>
+</div>
+
+<div class="card" id="ranking-table">
 <h2>Filtri</h2>
 <div class="grid grid-2">
 <div>
@@ -103,7 +116,9 @@
 <div id="userResult" style="margin-top:10px;"></div>
 </div>
 
-<div class="footer">WizTrail © 2026</div>
+<div class="footer">WizTrail © 2026
+    <p class="mini" style="opacity:0.5; margin-top:4px;">Foto di <a href="https://unsplash.com/@ryutaf" target="_blank" rel="noopener" style="color:inherit;">Ryuta F.</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a> (Unsplash License)</p>
+  </div>
 </div>
 
 <script src="discipline-classifier.js"></script>
@@ -288,6 +303,19 @@ userResult.innerHTML = `
   </span> (${wdiLabel(rs.class)})<br>
 </p>`;
 });
+</script>
+<script>
+// Hero image loader
+(function() {
+  const heroBg = document.getElementById('heroBgImg');
+  if (!heroBg) return;
+  const img = new Image();
+  img.onload = function() {
+    heroBg.style.backgroundImage = "url('img/hero-ranking.jpg')";
+    heroBg.classList.add('hero-bg-loaded');
+  };
+  img.src = 'img/hero-ranking.jpg';
+})();
 </script>
 </body>
 </html>
