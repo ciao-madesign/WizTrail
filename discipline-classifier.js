@@ -1,7 +1,7 @@
 /**
  * discipline-classifier.js — WizTrail Discipline Classifier
  * Classifica automaticamente una gara/attività in:
- *   trail | sky | mountain | xc
+ *   trail | sky | mountain | ultra | xc
  *
  * Modulo puro: nessuna dipendenza da DOM o altri moduli WizTrail.
  * Esposto come window.DisciplineClassifier = { classify, BADGES }
@@ -13,6 +13,7 @@
  * ⚠ Soglie PROVVISORIE — ricalibrate dopo dataset ITRA completo (B1-B3).
  *
  * Logica di classificazione (in ordine di priorità):
+ *   ULTRA    → distanza ≥ 95km (indipendente da tecnicità)
  *   SKY      → quota >2000m E (D+/km >100 O WDI alto)
  *   MOUNTAIN → D+/km >80 E quota >1200m (senza i requisiti sky)
  *   XC       → distanza <=12km E D+ <200m (gara pianeggiante)
@@ -26,9 +27,10 @@ window.DisciplineClassifier = (function () {
      BADGE — label, colore e emoji per disciplina
      ------------------------------------------------------------------ */
   const BADGES = {
-    trail:    { label: 'Trail',    color: '#2d6a4f', bg: '#2d6a4f22', emoji: '🌲' },
-    sky:      { label: 'Sky',      color: '#c1121f', bg: '#c1121f22', emoji: '⛰️'  },
-    mountain: { label: 'Mountain', color: '#1d3557', bg: '#1d355722', emoji: '🏔️'  },
+    trail:    { label: 'Trail',    color: '#2d9e6a', bg: '#2d9e6a22', emoji: '🌲' },
+    sky:      { label: 'Sky',      color: '#e05c5c', bg: '#e05c5c22', emoji: '⛰️'  },
+    mountain: { label: 'Mountain', color: '#6b9ec8', bg: '#6b9ec822', emoji: '🏔️'  },
+    ultra:    { label: 'Ultra',    color: '#8E24AA', bg: '#8E24AA22', emoji: '🔥'  },
     xc:       { label: 'XC',       color: '#e9a800', bg: '#e9a80022', emoji: '🏅'  },
   };
 
@@ -51,8 +53,17 @@ window.DisciplineClassifier = (function () {
 
     const avg_gain_per_km = dplus / km;
 
+    // — ULTRA —
+    // Distanza ≥ 95km, indipendente da tecnicità o quota.
+    // Distingue le grandi traversate (UTMB, TOR, Hardrock) dal trail classico.
+    // Soglia 95km scelta per includere Black Canyon 100M (95km) ed escludere VUT90 (89km).
+    if (km >= 95) {
+      return 'ultra';
+    }
+
     // — SKYRUNNING —
-    // Alta quota + pendenza estrema o WDI elevato
+    // Alta quota + pendenza estrema o WDI elevato.
+    // Nota: senza max_altitude nel JSON, questo check usa solo D+/km.
     if (
       max_altitude > 2000 &&
       (avg_gain_per_km > 100 || wdi > 80)
@@ -61,7 +72,7 @@ window.DisciplineClassifier = (function () {
     }
 
     // — MOUNTAIN RUNNING —
-    // Dislivello importante + quota media-alta, senza raggiungere sky
+    // Dislivello importante + quota media-alta, senza raggiungere sky.
     if (
       avg_gain_per_km > 80 &&
       max_altitude > 1200
@@ -70,7 +81,7 @@ window.DisciplineClassifier = (function () {
     }
 
     // — CROSS COUNTRY —
-    // Gara breve e pianeggiante
+    // Gara breve e pianeggiante.
     if (
       km <= 12 &&
       dplus < 200
