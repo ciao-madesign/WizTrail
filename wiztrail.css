@@ -84,14 +84,21 @@ body::after {
 
 /* ===== Header (glass) ===== */
 .app-header{
+  /* Fixed + trasparente — coerente con landing.html.
+     Il gradient garantisce leggibilità del testo su qualsiasi sfondo hero.
+     backdrop-filter leggero per testo leggibile anche senza hero. */
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  position:sticky; top:0; z-index:50;
-  display:flex; align-items:center; justify-content:space-between;
-  height:56px; padding:8px 16px; margin-bottom:10px;
-  background: color-mix(in oklab, var(--card) 60%, transparent);
-  backdrop-filter: blur(10px) saturate(130%);
-  -webkit-backdrop-filter: blur(10px) saturate(130%);
-  border-bottom:1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  height: 56px;
+  padding: 8px 16px;
+  background: linear-gradient(to bottom, rgba(10,15,20,0.82) 0%, rgba(10,15,20,0.0) 100%);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  /* Nessun border-bottom: l'header deve sembrare parte dello sfondo */
 }
 .app-brand{ display:inline-flex; align-items:center; gap:10px; }
 .brand-mark,.brand-img{ width:26px; height:26px; display:block; }
@@ -100,7 +107,9 @@ body::after {
 /* ===== Page wrapper (GLASS) ===== */
 .wrap {
     max-width: 1100px;
-    margin: 18px auto;
+    /* margin-top: 56px compensa l'header fixed.
+       Pagine con .hero-fullwidth usano margin-top:0 (vedi regola .hero-fullwidth + .wrap) */
+    margin: 74px auto 18px;
     padding: 0 14px;
 
     position: relative;
@@ -122,7 +131,7 @@ body[data-theme="light"] .wrap{
         backdrop-filter: blur(12px) saturate(125%);
         -webkit-backdrop-filter: blur(12px) saturate(125%);
         border-radius: 12px;
-        margin: 12px auto;
+        margin: 68px auto 12px;
     }
 }
 
@@ -243,13 +252,22 @@ body[data-theme="light"] fieldset{
 
 /* Intro breve sotto header */
 
-/* ===== HERO FULL-WIDTH ===== */
+/* ===== HERO FULL-WIDTH =====
+   La hero parte da top:0 (sotto l'header fixed trasparente).
+   Il .wrap che segue NON ha margin-top extra perché la hero già
+   occupa lo spazio visivo sopra. */
 .hero-fullwidth {
   position: relative;
   width: 100%;
   height: 480px;
   overflow: hidden;
   background: #060f10;
+  /* Nessun margin-top: la hero parte da top:0, l'header ci si sovrappone */
+}
+
+/* Quando c'è una hero, il wrap successivo non ha margin-top extra */
+.hero-fullwidth + .wrap {
+  margin-top: 18px;
 }
 @media (max-width: 600px) {
   .hero-fullwidth { height: 340px; }
@@ -1064,4 +1082,59 @@ table {
 .app-nav .nav-cta:hover { opacity: 0.88; color: var(--bg); }
 @media (max-width: 600px) {
   .app-nav a:not(.nav-cta) { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FEEDBACK POST-GARA — raccolta anonima scarto tempo (hub calibrazione)
+   Nessun dato personale raccolto: solo delta% tempo stimato vs reale.
+═══════════════════════════════════════════════════════════════ */
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feedback-times {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.feedback-result {
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent) 25%, transparent);
+  border-radius: 10px;
+  padding: 16px;
+  display: none; /* mostrato via JS dopo invio */
+}
+
+.feedback-result.visible { display: block; }
+
+.feedback-delta {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.feedback-delta.over  { color: var(--error); }   /* più lento del previsto */
+.feedback-delta.under { color: #34A853; }         /* più veloce del previsto */
+
+.feedback-status {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.feedback-privacy-note {
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.6;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .feedback-times { grid-template-columns: 1fr; }
 }
