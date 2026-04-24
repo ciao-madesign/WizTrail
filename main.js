@@ -271,6 +271,21 @@
     document.querySelectorAll('.kpi-placeholder').forEach(el => el.remove());
     WizUI.showError('OK');
 
+    /* Badge disciplina — solo se GPX caricato (max_altitude disponibile).
+       In modalità manuale gpxPts è vuoto → badge nascosto. */
+    if (window.gpxPts && window.gpxPts.length > 0 &&
+        typeof DisciplineClassifier !== 'undefined') {
+      const disc = DisciplineClassifier.classify({
+        distance_km:  m.km,
+        dplus:        m.gain,
+        max_altitude: m.max_altitude || 0,
+        wdi:          rs.WDI,
+      });
+      WizUI.showDiscipline(disc);
+    } else {
+      WizUI.showDiscipline(null); // nasconde il badge in modalità manuale
+    }
+
     // Microinterazione: KPI reveal animation
     document.querySelectorAll('.kpi-primary').forEach(el => {
       el.classList.remove('kpi-animate');
