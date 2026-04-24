@@ -16,8 +16,14 @@
  *   hub:feedback:stats → { n: number, sum_delta: number, last: ISO string }
  */
 
+import { checkRateLimit, getIP } from '../lib/ratelimit.js';
+
 const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+/* Rate limit più basso (10/min) perché endpoint pubblico senza auth.
+   Previene flood di dati fittizi che corromperebbero le statistiche. */
+const FEEDBACK_RATE_LIMIT = 10;
 
 async function redisGet(key) {
   const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
@@ -58,6 +64,16 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
 
+  /* Rate limiting: 10 richieste/minuto per IP.
+     Usa lo stesso Upstash Redis degli altri endpoint. */
+  const ip = getIP(req);
+  const { allowed, remaining } = await checkRateLimit(ip);
+  if (!allowed) {
+    res.setHeader('X-RateLimit-Remaining', '0');
+    return res.status(429).json({ error: 'Troppe richieste. Riprova tra un minuto.' });
+  }
+  res.setHeader('X-RateLimit-Remaining', String(remaining));
+
   const body = req.body;
   if (!body) return res.status(400).json({ error: 'Body mancante' });
 
@@ -66,14 +82,28 @@ export default async function handler(req, res) {
 
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-  /* Salva il singolo feedback */
-  await redisSet(`hub:feedback:${id}`, {
+  /* Salva il singolo feedback con TTL 90 giorni.
+     Previene accumulo illimitato su Upstash (GPX fino a 5MB ciascuno). */
+  const TTL_SECONDS = 90 * 24 * 60 * 60; // 90 giorni
+  const feedbackData = JSON.stringify({
     id,
     delta_pct: body.delta_pct,
     km:        body.km   ?? null,
     dplus:     body.dplus ?? null,
     ts:        new Date().toISOString(),
   });
+
+  /* SET + EXPIRE in pipeline atomica */
+  const ttlRes = await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([
+      ['SET', `hub:feedback:${id}`, feedbackData],
+      ['EXPIRE', `hub:feedback:${id}`, TTL_SECONDS],
+    ])
+  });
+  const ttlJson = await ttlRes.json();
+  if (ttlJson[0]?.error) throw new Error(`Redis SET feedback: ${ttlJson[0].error}`);
 
   /* Aggiorna statistiche aggregate (per monitoring dashboard) */
   const stats = (await redisGet('hub:feedback:stats')) || { n: 0, sum_delta: 0, last: null };
