@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<title>WizTrail — Web UI Kit</title>
+<link rel="stylesheet" href="../../colors_and_type.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: var(--wt-bg); color: var(--wt-ink); font-family: var(--wt-font-sans); }
+  * { box-sizing: border-box; }
+  @keyframes kpiIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .app-shell {
+    position: relative; min-height: 100vh;
+    background: radial-gradient(1200px 600px at 75% -10%, rgba(79,209,197,0.12), transparent 55%),
+                radial-gradient(900px 600px at 10% 110%, rgba(14,140,120,0.10), transparent 55%),
+                var(--wt-bg);
+  }
+  .app-shell::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    background-image: url('../../assets/topo_texture.png');
+    background-size: 720px; opacity: 0.04; filter: invert(1);
+  }
+  .slab {
+    margin: 96px auto 40px; max-width: 1100px;
+    background: color-mix(in oklab, var(--wt-card) 78%, transparent);
+    border: 1px solid var(--wt-border); border-radius: 16px;
+    backdrop-filter: blur(10px) saturate(125%);
+    padding: 22px 26px;
+  }
+  h1.app-title { margin: 0 0 16px; font-weight: 300; font-size: 1.6rem; letter-spacing: -0.3px; }
+  h1.app-title em { font-style: italic; color: var(--wt-teal); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+
+function Landing({ onNav }) {
+  return (
+    <div style={{ background: 'var(--wt-bg)', color: 'var(--wt-ink)' }}>
+      <LandingHero onCta={() => onNav('app')} />
+      <StatBar />
+      <FeaturesSection />
+      <WDIShowcase />
+      <PrivacyBlock />
+      <LandingCTA onCta={() => onNav('app')} />
+      <Footer />
+    </div>
+  );
+}
+
+function CalculatorApp() {
+  const [tab, setTab] = useState('calc');
+  const [loaded, setLoaded] = useState(false);
+  const [pace, setPace] = useState('04:30');
+  return (
+    <div className="slab">
+      <h1 className="app-title">
+        {loaded ? <>Sierre-Zinal 2023 — <em>WDI 72</em></> : <>Carica il tuo GPX per <em>iniziare</em></>}
+      </h1>
+
+      <Tabs
+        tabs={[['calc','Calcolatore'],['pacing','Pacing Planner'],['map','Mappa'],['fb','Feedback']]}
+        active={tab} onChange={setTab}
+      />
+
+      {tab === 'calc' && (
+        <>
+          <Fieldset legend="Traccia">
+            <GPXDropzone loaded={loaded} onClick={() => setLoaded(!loaded)} />
+          </Fieldset>
+          <Fieldset legend="Atleta">
+            <div className="grid-2">
+              <Field label="Pace 10km" hint="mm:ss su pianura">
+                <Input value={pace} onChange={(e) => setPace(e.target.value)} />
+              </Field>
+              <Field label="Livello">
+                <Select defaultValue="advanced">
+                  <option value="sport">Sport</option>
+                  <option value="pro">Pro</option>
+                  <option value="advanced">Advanced</option>
+                  <option value="extreme">Extreme</option>
+                </Select>
+              </Field>
+            </div>
+          </Fieldset>
+          {loaded && (
+            <>
+              <div className="kpi-grid">
+                <KPICard title="WDI Difficulty" value="72" sub="ADVANCED" subColor="#F4C20D" />
+                <KPICard title="Tempo stimato" value="3:42:18" sub="passo medio 7:08/km" />
+                <KPICard title="TechScore" value="58" sub="tecnicità media" />
+              </div>
+              <IntervalRow />
+            </>
+          )}
+        </>
+      )}
+
+      {tab === 'pacing' && (
+        <Fieldset legend="Pacing adattivo · 6 segmenti">
+          <PacingTable />
+        </Fieldset>
+      )}
+
+      {tab === 'map' && (
+        <Fieldset legend="Mappa 2D + altimetria">
+          <div style={{
+            height: 340, borderRadius: 10, background: 'linear-gradient(135deg, #0e2a2a, #04181b)',
+            border: '1px solid var(--wt-border)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--wt-muted)', fontSize: '0.82rem', position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              backgroundImage: 'url(../../assets/topo_texture.png)',
+              backgroundSize: '360px', opacity: 0.22, filter: 'invert(1)',
+            }} />
+            <svg viewBox="0 0 600 300" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+              <path d="M30 220 C 80 120, 120 200, 180 160 S 280 80, 340 140 S 460 240, 540 120" fill="none" stroke="#4fd1c5" strokeWidth="2.5" strokeLinecap="round"/>
+              <circle cx="30" cy="220" r="5" fill="#4fd1c5"/>
+              <circle cx="540" cy="120" r="5" fill="#ff00a8"/>
+            </svg>
+          </div>
+        </Fieldset>
+      )}
+
+      {tab === 'fb' && (
+        <Fieldset legend="Il tuo risultato reale (opzionale)">
+          <Field label="Tempo reale" hint="hh:mm:ss"><Input defaultValue="03:51:04" /></Field>
+          <div style={{ marginTop: 12, color: 'var(--wt-muted)', fontSize: '0.82rem' }}>
+            Confronto: stima 3:42:18 → reale 3:51:04 · scarto +3.9% (within expected)
+          </div>
+        </Fieldset>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  const [view, setView] = useState('landing');
+  return (
+    <div>
+      <Header active={view} onNav={setView} />
+      {view === 'landing' ? (
+        <Landing onNav={setView} />
+      ) : (
+        <div className="app-shell"><CalculatorApp /></div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
