@@ -324,7 +324,7 @@
     }
     .lock-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 24px; }
   </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-rRoXxn2yHlrZYB587Ki9RO1tONhLdM6XfORg7Rw4uwH4/Fh/5nP7IUX91bkaKUgs" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -574,7 +574,7 @@
         </div>
       </div>
 
-      <div class="card" id="patchCard" style="display:none;">
+      <div class="card" id="patchCardAdmin" style="display:none;">
         <div class="card-title">// patch disponibile</div>
         <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
           Scarica la patch e applicala a WizTrail, oppure esegui il merge del branch
@@ -608,20 +608,28 @@ const STATE = {
 
 /* ── API helper ─────────────────────────────────────────────────────────── */
 async function api(path, opts = {}) {
-  const url = `/api/hub/${path}`;
+  const url    = `/api/hub/${path}`;
   const method = opts.method || 'GET';
-  const headers = { 'Content-Type': 'application/json' };
 
-  let body = undefined;
-  if (method === 'POST') {
-    body = JSON.stringify({ ...opts.body, key: STATE.key });
-  }
+  /* Il token viaggia SEMPRE nell'header X-Hub-Key — mai nel query param URL.
+     Motivo: i query param finiscono in log server, log CDN e cronologia browser. */
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Hub-Key':    STATE.key,
+  };
 
+  let body    = undefined;
   let finalUrl = url;
-  if (method === 'GET') {
-    const sep = path.includes('?') ? '&' : '?';
-    finalUrl = url + sep + 'key=' + STATE.key + (opts.qs || '');
+
+  if (method === 'POST') {
+    /* Per POST il token è nell'header — non includerlo nel body */
+    body = JSON.stringify(opts.body || {});
   }
+
+  if (method === 'GET' && opts.qs) {
+    finalUrl = url + (path.includes('?') ? '&' : '?') + opts.qs;
+  }
+
   const res = await fetch(finalUrl, { method, headers, body });
   return res.json();
 }
@@ -809,17 +817,21 @@ function buildPreview() {
   if (!dplus && dplus !== 0) return showMsg('formMsg', 'D+ non valido', 'error');
   hideMsg('formMsg');
 
-  // Stima WDI — formula allineata con upload.js lato server
-  const REF42  = Math.pow(42, 0.55);
+  /* Stima WDI — parametri v5.1 (calibrati 20/04/2026).
+     Sincronizzata con upload.js e wiztrail-engine.js.
+     Aggiornare qui se cambiano kT o EXP nel motore. */
+  const EXP    = 0.48;                    // era 0.55
+  const kT     = 0.50;                    // era 0.35
+  const REF42  = Math.pow(42, EXP);
   const dkm    = dplus / 1000;
-  const dlkm   = dkm; // stima loss = gain
+  const dlkm   = dkm;                    // stima loss = gain
   const VS     = (dkm  * 10) / (1 + Math.sqrt(Math.max(dkm,  0.001)) / 8)
                + (dlkm *  4) / (1 + Math.sqrt(Math.max(dlkm, 0.001)) / 6);
   const TS     = tech * 10;
   const DF     = km <= 100
-    ? Math.pow(km, 0.55) / REF42
-    : Math.pow(100, 0.55) / REF42 + (Math.pow(km, 0.42) - Math.pow(100, 0.42)) / REF42 * 0.6;
-  const wdi    = Math.round((VS + TS * 0.35) * DF * 10) / 10;
+    ? Math.pow(km, EXP) / REF42
+    : Math.pow(100, EXP) / REF42 + (Math.pow(km, 0.42) - Math.pow(100, 0.42)) / REF42 * 0.6;
+  const wdi    = Math.round((VS + TS * kT) * DF * 10) / 10;
 
   document.getElementById('pvKm').textContent    = km.toFixed(1);
   document.getElementById('pvDplus').textContent = dplus.toLocaleString();
@@ -830,11 +842,13 @@ function buildPreview() {
 
   const time    = document.getElementById('actTime').value.trim();
   const comment = document.getElementById('actComment').value.trim();
+  /* esc() applicato su time e comment (input utente libero) per evitare XSS.
+     name è dal selettore tipo attività (opzioni predefinite, non input libero). */
   document.getElementById('previewDetails').innerHTML =
     `<b>${name}</b> · ${document.getElementById('actType').options[document.getElementById('actType').selectedIndex].text}<br>` +
     `Tecnicità: ${tech}/10 · ${document.getElementById('techLabel').options[document.getElementById('techLabel').selectedIndex].text.split('—')[0].trim()}<br>` +
-    (time    ? `Tempo: ${time}<br>` : '') +
-    (comment ? `Note: ${comment}` : '');
+    (time    ? `Tempo: ${esc(time)}<br>` : '') +
+    (comment ? `Note: ${esc(comment)}` : '');
 
   document.getElementById('previewBtn').style.display    = 'none';
   document.getElementById('previewSection').style.display = 'block';
@@ -1112,8 +1126,10 @@ async function loadAdmin() {
     if (s.pipeline_running) {
       const elapsed = s.pipeline_started_at ? Date.now() - new Date(s.pipeline_started_at).getTime() : 0;
       const elapsedMin = Math.round(elapsed / 60000);
+      /* esc() sanitizza il campo pipeline_started_by che viene da Redis
+         (inserito dall'admin al momento dell'avvio — self-XSS mitigato) */
       document.getElementById('pipelineStatus').innerHTML =
-        `<span class="spinner"></span> Pipeline in corso — avviata da <b>${s.pipeline_started_by}</b> il ${new Date(s.pipeline_started_at).toLocaleString('it-IT')} (${elapsedMin} min fa)`;
+        `<span class="spinner"></span> Pipeline in corso — avviata da <b>${esc(s.pipeline_started_by || '')}</b> il ${new Date(s.pipeline_started_at).toLocaleString('it-IT')} (${elapsedMin} min fa)`;
       document.getElementById('runBtn').disabled = true;
       if (resetBtn) resetBtn.style.display = elapsed > 5 * 60 * 1000 ? 'block' : 'none';
     } else {
@@ -1129,9 +1145,9 @@ async function loadAdmin() {
     STATE.runners = r.authorized_runners || [];
     renderRunners();
 
-    // Patch disponibile
+    // Patch disponibile (pannello admin)
     if (STATE.model?.patch_js) {
-      document.getElementById('patchCard').style.display = 'block';
+      document.getElementById('patchCardAdmin').style.display = 'block';
     }
 
   } catch (e) { console.error('Admin load error:', e); }
