@@ -33,17 +33,21 @@ function generateId() {
 }
 
 function estimateWDI(km, dplus, technicality) {
+  /* Stima WDI lato server — parametri v5.1 (calibrati 20/04/2026).
+     Sincronizzare con wiztrail-engine.js se i parametri cambiano. */
   if (!km || !dplus) return null;
-  const REF42 = Math.pow(42, 0.55);
+  const EXP   = 0.48;                   // era 0.55 — riduce dominanza distanza sulle ultra
+  const kT    = 0.50;                   // era 0.35 — peso tecnica sul WDI finale
+  const REF42 = Math.pow(42, EXP);
   const dkm   = dplus / 1000;
   const dlkm  = dkm;
   const VS    = (dkm  * 10) / (1 + Math.sqrt(Math.max(dkm,  0.001)) / 8)
               + (dlkm *  4) / (1 + Math.sqrt(Math.max(dlkm, 0.001)) / 6);
   const TS    = technicality * 10;
   const DF    = km <= 100
-    ? Math.pow(km, 0.55) / REF42
-    : Math.pow(100, 0.55) / REF42 + (Math.pow(km, 0.42) - Math.pow(100, 0.42)) / REF42 * 0.6;
-  return Math.round((VS + TS * 0.35) * DF * 10) / 10;
+    ? Math.pow(km, EXP) / REF42
+    : Math.pow(100, EXP) / REF42 + (Math.pow(km, 0.42) - Math.pow(100, 0.42)) / REF42 * 0.6;
+  return Math.round((VS + TS * kT) * DF * 10) / 10;
 }
 
 function validate(body) {
