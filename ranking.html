@@ -68,11 +68,24 @@
 <div>
 <label>Disciplina</label>
 <select id="filterDiscipline">
-  <option value="">Tutte</option>
+  <option value="">Tutte le discipline</option>
   <option value="trail">🌲 Trail</option>
   <option value="sky">⛰️ Sky</option>
   <option value="mountain">🏔️ Mountain</option>
+  <option value="ultra">🔥 Ultra</option>
   <option value="xc">🏅 XC</option>
+</select>
+</div>
+<div>
+<label>Classe WDI</label>
+<select id="filterClass">
+  <option value="">Tutte le classi</option>
+  <option value="Sport">Sport (&lt;18)</option>
+  <option value="Pro">Pro (18–40)</option>
+  <option value="Advanced">Advanced (40–80)</option>
+  <option value="Extreme">Extreme (80–140)</option>
+  <option value="Elite">Elite (140–230)</option>
+  <option value="Legend">Legend (≥230)</option>
 </select>
 </div>
 </div>
@@ -85,9 +98,11 @@
 <thead>
 <tr>
 <th data-sort="name">Gara ↑↓</th>
-<th data-sort="distance">Distanza (km) ↑↓</th>
-<th data-sort="dplus">D+ (m) ↑↓</th>
+<th>Paese</th>
+<th data-sort="distance">km ↑↓</th>
+<th data-sort="dplus">D+ ↑↓</th>
 <th data-sort="wdi">WDI ↑↓</th>
+<th data-sort="techScore">Tech ↑↓</th>
 <th>Classe</th>
 <th>Disciplina</th>
 </tr>
@@ -154,73 +169,79 @@ function wdiLabel(cls){
 }
 
 function renderTable() {
- const nameFilter       = filterName.value.toLowerCase();
- const disciplineFilter = document.getElementById('filterDiscipline')?.value || '';
+  const nameFilter       = filterName.value.toLowerCase();
+  const disciplineFilter = document.getElementById('filterDiscipline')?.value || '';
+  const classFilter      = document.getElementById('filterClass')?.value      || '';
 
- raceBody.innerHTML = "";
+  raceBody.innerHTML = '';
 
-races
-  .filter(r => r.name.toLowerCase().includes(nameFilter))
-  .filter(r => !disciplineFilter || r.discipline === disciplineFilter)
-  .forEach(r => {
+  races
+    .filter(r => r.name.toLowerCase().includes(nameFilter))
+    .filter(r => !disciplineFilter || r.discipline === disciplineFilter)
+    .filter(r => !classFilter      || r.class      === classFilter)
+    .forEach(r => {
 
-   const tr = document.createElement("tr");
-   tr.style.cursor = "pointer";
-tr.style.borderLeft = "4px solid " + r.color;
-tr.style.backgroundColor = r.color + "20";  
-tr.style.transition = "background 0.2s ease, border 0.2s ease";
-  tr.addEventListener("click", () => {
-  if (!r.gpx) {
-    alert("GPX non disponibile per questa gara.");
-    return;
-  }
+      const tr = document.createElement('tr');
+      tr.style.cssText = `cursor:pointer; border-left:4px solid ${r.color}; background:${r.color}18; transition:background 0.2s;`;
 
-  fetch(r.gpx)
-    .then(res => res.text())
-    .then(gpxText => {
-      sessionStorage.setItem("currentRaceGPX", gpxText);
-      sessionStorage.setItem("currentRaceMeta", JSON.stringify({
-        name:       r.name,
-        distance:   r.distance,
-        dplus:      r.dplus,
-        wdi:        r.wdi,
-        class:      r.class,
-        color:      r.color,
-        discipline: r.discipline || 'trail'
-      }));
-      window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
-    })
-    .catch(err => {
-      alert("Errore nel caricamento GPX.");
-      console.error(err);
+      tr.addEventListener('click', () => {
+        if (!r.gpx) { alert('GPX non disponibile per questa gara.'); return; }
+        fetch(r.gpx)
+          .then(res => res.text())
+          .then(gpxText => {
+            sessionStorage.setItem('currentRaceGPX', gpxText);
+            sessionStorage.setItem('currentRaceMeta', JSON.stringify({
+              name:       r.name,
+              distance:   r.distance,
+              dplus:      r.dplus,
+              wdi:        r.wdi,
+              class:      r.class,
+              color:      r.color,
+              discipline: r.discipline || 'trail'
+            }));
+            window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
+          })
+          .catch(() => alert('Errore nel caricamento GPX.'));
+      });
+
+      tr.addEventListener('mouseenter', () => tr.style.background = r.color + '2e');
+      tr.addEventListener('mouseleave', () => tr.style.background = r.color + '18');
+
+      const disciplineBadge = r.discipline ? DisciplineClassifier.renderBadge(r.discipline) : '';
+
+      /* TechScore: mostra valore se presente, altrimenti — con tooltip */
+      const techDisplay = (r.techScore != null)
+        ? `<span style="color:var(--muted); font-weight:600;">${Number(r.techScore).toFixed(1)}</span>`
+        : `<span style="color:var(--muted); opacity:0.4;" title="Da calcolare con GPX">—</span>`;
+
+      /* Classe WDI: pill colorata con testo scuro per leggibilità */
+      const classPill = `<span style="
+        display:inline-block;
+        padding:2px 9px;
+        border-radius:12px;
+        font-size:0.75rem;
+        font-weight:700;
+        background:${r.color};
+        color:#021a1a;
+        letter-spacing:0.03em;
+      ">${wdiLabel(r.class)}</span>`;
+
+      /* Paese: emoji bandiera */
+      const country = r.country || '';
+
+      tr.innerHTML = `
+        <td style="font-weight:600;">${r.name}</td>
+        <td style="font-size:1.1rem; letter-spacing:0.05em;">${country}</td>
+        <td>${r.distance.toFixed(1)}</td>
+        <td>${Math.round(r.dplus).toLocaleString('it-IT')}</td>
+        <td style="color:${r.color}; font-weight:800; font-size:1.05rem;">${r.wdi.toFixed(1)}</td>
+        <td>${techDisplay}</td>
+        <td>${classPill}</td>
+        <td>${disciplineBadge}</td>
+      `;
+
+      raceBody.appendChild(tr);
     });
-});
-tr.addEventListener("mouseenter", () => {
-  tr.style.backgroundColor = r.color + "33";
-});
-tr.addEventListener("mouseleave", () => {
-  tr.style.backgroundColor = r.color + "20";
-});
-
-const disciplineBadge = r.discipline
-  ? DisciplineClassifier.renderBadge(r.discipline)
-  : '';
-
-tr.innerHTML = `
-<td>${r.name}</td>
-<td>${Math.round(r.distance)}</td>
-<td>${Math.round(r.dplus)}</td>
-<td style="color:${r.color}; font-weight:700;">
-  ${r.wdi.toFixed(1)}
-</td>
-<td style="color:${r.color}; font-weight:700;">
-  ${wdiLabel(r.class)}
-</td>
-<td>${disciplineBadge}</td>
-`;
-
-   raceBody.appendChild(tr);
- });
 }
 
 //---------------------------------------- ordinamento
@@ -231,25 +252,27 @@ document.querySelectorAll("#raceTable th[data-sort]").forEach(th => {
    if (sortState.column === col) sortState.asc = !sortState.asc;
    else { sortState.column = col; sortState.asc = true; }
 
-   races.sort((a,b) => {
-   if(col === "wdi"){
-  return sortState.asc 
-    ? (a.wdi - b.wdi) 
-    : (b.wdi - a.wdi);
-}
-
-if (a[col] < b[col]) return sortState.asc ? -1 : 1;
-if (a[col] > b[col]) return sortState.asc ? 1 : -1;
-     return 0;
-   });
+    races.sort((a, b) => {
+      /* Ordinamento numerico per colonne numeriche */
+      if (['wdi','distance','dplus','techScore'].includes(col)) {
+        const av = a[col] ?? -1;
+        const bv = b[col] ?? -1;
+        return sortState.asc ? av - bv : bv - av;
+      }
+      /* Ordinamento alfabetico per nome */
+      if (a[col] < b[col]) return sortState.asc ? -1 : 1;
+      if (a[col] > b[col]) return sortState.asc ? 1 : -1;
+      return 0;
+    });
 
    renderTable();
  });
 });
 
 //---------------------------------------- filtri
-document.getElementById("filterName").addEventListener("input", renderTable);
-document.getElementById("filterDiscipline")?.addEventListener("change", renderTable);
+document.getElementById('filterName').addEventListener('input', renderTable);
+document.getElementById('filterDiscipline')?.addEventListener('change', renderTable);
+document.getElementById('filterClass')?.addEventListener('change', renderTable);
 
 //---------------------------------------- admin compute
 btnAdminCompute?.addEventListener("click", async () => {
