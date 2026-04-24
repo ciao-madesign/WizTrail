@@ -2,7 +2,7 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-04-21a";
+const CACHE_VERSION = "wiztrail-v2026-04-25a";
 const CORE_CACHE = [
   "/",
   "/landing.html",
@@ -20,7 +20,9 @@ const CORE_CACHE = [
   "/main.js",
   "/manifest.webmanifest",
   "/img/logo.svg",
-  "/img/hero-index.jpg"
+  "/img/hero-index.jpg",
+  "/img/hero-calc.jpg",
+  "/img/hero-ranking.jpg"
 ];
 
 // Pagine statiche extra da mettere in cache
