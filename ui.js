@@ -67,7 +67,7 @@
         margin-bottom:8px;
       ">${wdiLabel(rs.class)}</div>
       <br><br>
-      <span class="mini">Difficoltà stimata con WizTrail WDI v5.0</span>
+      <span class="mini">Difficoltà stimata con WizTrail WDI v5.1</span>
     `;
 
     // Aggiorna colore traccia sulla mappa
@@ -98,6 +98,26 @@
     subEl.innerHTML = '<div style="display:inline-block; padding:4px 10px; border-radius:12px;' +
       'font-weight:700; color:#021; background:' + rs.techColor + '; margin-bottom:4px;">' +
       rs.techClass + '</div>' + note;
+  }
+
+  /* ------------------------------------------------------------------
+     SHOW DISCIPLINE — mostra badge disciplina dopo il calcolo
+     Richiede DisciplineClassifier (discipline-classifier.js).
+     Viene chiamata da main.js dopo computeFromGpx con i dati GPX.
+     Non mostrata in modalità manuale (max_altitude non disponibile).
+     @param {string} discipline — 'trail'|'sky'|'mountain'|'ultra'|'xc'
+     ------------------------------------------------------------------ */
+  function showDiscipline(discipline) {
+    const box = document.getElementById('disciplineBadgeBox');
+    if (!box) return;
+
+    if (!discipline || typeof window.DisciplineClassifier === 'undefined') {
+      box.style.display = 'none';
+      return;
+    }
+
+    box.innerHTML  = DisciplineClassifier.renderBadge(discipline);
+    box.style.display = 'block';
   }
 
   /* ------------------------------------------------------------------
@@ -160,6 +180,6 @@
   /* ------------------------------------------------------------------
      Esposizione globale
      ------------------------------------------------------------------ */
-  window.WizUI = { showResults, showWDI, showTechScore, showError, formatTime, updateGpxInfo, initTipsToggle };
+  window.WizUI = { showResults, showWDI, showTechScore, showDiscipline, showError, formatTime, updateGpxInfo, initTipsToggle };
 
 })();
