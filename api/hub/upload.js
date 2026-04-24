@@ -29,7 +29,9 @@ async function redisSet(key, value) {
 }
 
 function generateId() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  /* crypto.randomUUID() — collisioni impossibili, Node.js 14+.
+     Sostituisce Date.now()+Math.random(), debole sotto carico concorrente. */
+  return crypto.randomUUID();
 }
 
 function estimateWDI(km, dplus, technicality) {
