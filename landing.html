@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="wiztrail.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <style>
     /* ── Landing-specific styles ─────────────────────────────────── */
     :root {
@@ -42,7 +42,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Georgia', 'Times New Roman', serif;
+      font-family: 'Outfit', system-ui, sans-serif;
       background: var(--landing-dark);
       color: #e8f5f4;
       overflow-x: hidden;
@@ -68,7 +68,7 @@
     }
     .lnd-brand img { width: 28px; height: 28px; }
     .lnd-brand-name {
-      font-family: 'Georgia', serif;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-weight: 700;
       font-size: 1.1rem;
       color: var(--landing-accent);
@@ -85,7 +85,7 @@
       font-size: 0.85rem;
       letter-spacing: 0.3px;
       transition: color 0.2s;
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
     }
     .lnd-nav a:hover { color: var(--landing-accent); }
     .lnd-nav .nav-cta {
@@ -143,7 +143,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .lnd-eyebrow {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.72rem;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -152,7 +152,7 @@
       opacity: 0.9;
     }
     .lnd-hero-title {
-      font-family: 'Georgia', serif;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: clamp(2.4rem, 6vw, 4.2rem);
       font-weight: 400;
       line-height: 1.15;
@@ -170,7 +170,7 @@
       line-height: 1.65;
       margin-bottom: 36px;
       max-width: 520px;
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.88rem;
     }
     .lnd-hero-actions {
@@ -192,7 +192,7 @@
       text-decoration: none;
       letter-spacing: 0.3px;
       transition: background 0.2s, transform 0.15s;
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
     }
     .btn-primary-lnd:hover {
       background: var(--landing-accent2);
@@ -208,7 +208,7 @@
       font-size: 0.88rem;
       text-decoration: none;
       transition: border-color 0.2s, color 0.2s;
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
     }
     .btn-ghost-lnd:hover {
       border-color: var(--landing-accent);
@@ -226,7 +226,7 @@
       align-items: center;
       gap: 6px;
       color: rgba(232,245,244,0.4);
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.65rem;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -256,7 +256,7 @@
     }
     .lnd-stat:last-child { border-right: none; }
     .lnd-stat-val {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 1.8rem;
       font-weight: 700;
       color: var(--landing-accent);
@@ -268,7 +268,7 @@
       color: rgba(232,245,244,0.5);
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
     }
 
     /* ── Features ───────────────────────────────────────────────── */
@@ -278,7 +278,7 @@
       margin: 0 auto;
     }
     .lnd-section-label {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.7rem;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -287,7 +287,7 @@
       opacity: 0.8;
     }
     .lnd-section-title {
-      font-family: 'Georgia', serif;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: clamp(1.8rem, 4vw, 2.8rem);
       color: #e8f5f4;
       font-weight: 400;
@@ -321,14 +321,14 @@
       display: block;
     }
     .feature-title {
-      font-family: 'Georgia', serif;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 1.15rem;
       color: #e8f5f4;
       margin-bottom: 12px;
       font-weight: 400;
     }
     .feature-desc {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.8rem;
       color: rgba(232,245,244,0.55);
       line-height: 1.7;
@@ -340,7 +340,7 @@
       background: rgba(79,209,197,0.1);
       border: 1px solid rgba(79,209,197,0.2);
       border-radius: 3px;
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.68rem;
       color: var(--landing-accent);
       letter-spacing: 1px;
@@ -386,19 +386,19 @@
       flex-shrink: 0;
     }
     .wdi-class-name {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.78rem;
       color: rgba(232,245,244,0.9);
       font-weight: 600;
       min-width: 80px;
     }
     .wdi-class-range {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.7rem;
       color: rgba(232,245,244,0.4);
     }
     .wdi-class-example {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.68rem;
       color: rgba(232,245,244,0.35);
       margin-left: auto;
@@ -431,7 +431,7 @@
       margin-top: 2px;
     }
     .privacy-point-text {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.82rem;
       color: rgba(232,245,244,0.65);
       line-height: 1.6;
@@ -449,7 +449,7 @@
       background: linear-gradient(to bottom, transparent, rgba(5,30,30,0.8));
     }
     .lnd-cta-title {
-      font-family: 'Georgia', serif;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: clamp(1.8rem, 4vw, 3rem);
       color: #e8f5f4;
       font-weight: 400;
@@ -457,7 +457,7 @@
     }
     .lnd-cta-title em { font-style: italic; color: var(--landing-accent); }
     .lnd-cta-sub {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.85rem;
       color: rgba(232,245,244,0.5);
       margin-bottom: 40px;
@@ -475,7 +475,7 @@
       gap: 16px;
     }
     .lnd-footer-left {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.72rem;
       color: rgba(232,245,244,0.35);
       line-height: 1.6;
@@ -489,7 +489,7 @@
       gap: 20px;
     }
     .lnd-footer-right a {
-      font-family: 'DM Mono', 'Cascadia Code', ui-monospace, monospace;
+      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
       font-size: 0.72rem;
       color: rgba(232,245,244,0.4);
       text-decoration: none;
