@@ -49,57 +49,7 @@
     }
 
     /* ── Header ─────────────────────────────────────────────────── */
-    .lnd-header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 32px;
-      background: linear-gradient(to bottom, rgba(2,26,26,0.95) 0%, transparent 100%);
-      backdrop-filter: blur(4px);
-    }
-    .lnd-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-    .lnd-brand img { width: 28px; height: 28px; }
-    .lnd-brand-name {
-      font-family: 'Outfit', system-ui, sans-serif;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: var(--landing-accent);
-      letter-spacing: 0.5px;
-    }
-    .lnd-nav {
-      display: flex;
-      gap: 24px;
-      align-items: center;
-    }
-    .lnd-nav a {
-      color: rgba(232,245,244,0.75);
-      text-decoration: none;
-      font-size: 0.85rem;
-      letter-spacing: 0.3px;
-      transition: color 0.2s;
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
-    }
-    .lnd-nav a:hover { color: var(--landing-accent); }
-    .lnd-nav .nav-cta {
-      color: var(--landing-dark);
-      background: var(--landing-accent);
-      padding: 8px 18px;
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: 0.82rem;
-    }
-    .lnd-nav .nav-cta:hover {
-      color: var(--landing-dark);
-      background: var(--landing-accent2);
-    }
+    /* Header rimosso: usa .app-header da wiztrail.css */
 
     /* ── Hero ───────────────────────────────────────────────────── */
     .lnd-hero {
@@ -143,7 +93,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .lnd-eyebrow {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.72rem;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -170,7 +120,7 @@
       line-height: 1.65;
       margin-bottom: 36px;
       max-width: 520px;
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.88rem;
     }
     .lnd-hero-actions {
@@ -192,7 +142,7 @@
       text-decoration: none;
       letter-spacing: 0.3px;
       transition: background 0.2s, transform 0.15s;
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
     }
     .btn-primary-lnd:hover {
       background: var(--landing-accent2);
@@ -208,7 +158,7 @@
       font-size: 0.88rem;
       text-decoration: none;
       transition: border-color 0.2s, color 0.2s;
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
     }
     .btn-ghost-lnd:hover {
       border-color: var(--landing-accent);
@@ -226,7 +176,7 @@
       align-items: center;
       gap: 6px;
       color: rgba(232,245,244,0.4);
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.65rem;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -256,7 +206,7 @@
     }
     .lnd-stat:last-child { border-right: none; }
     .lnd-stat-val {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 1.8rem;
       font-weight: 700;
       color: var(--landing-accent);
@@ -268,7 +218,7 @@
       color: rgba(232,245,244,0.5);
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
     }
 
     /* ── Features ───────────────────────────────────────────────── */
@@ -278,7 +228,7 @@
       margin: 0 auto;
     }
     .lnd-section-label {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.7rem;
       letter-spacing: 3px;
       text-transform: uppercase;
@@ -328,7 +278,7 @@
       font-weight: 400;
     }
     .feature-desc {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.8rem;
       color: rgba(232,245,244,0.55);
       line-height: 1.7;
@@ -340,7 +290,7 @@
       background: rgba(79,209,197,0.1);
       border: 1px solid rgba(79,209,197,0.2);
       border-radius: 3px;
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.68rem;
       color: var(--landing-accent);
       letter-spacing: 1px;
@@ -386,19 +336,19 @@
       flex-shrink: 0;
     }
     .wdi-class-name {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.78rem;
       color: rgba(232,245,244,0.9);
       font-weight: 600;
       min-width: 80px;
     }
     .wdi-class-range {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.7rem;
       color: rgba(232,245,244,0.4);
     }
     .wdi-class-example {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.68rem;
       color: rgba(232,245,244,0.35);
       margin-left: auto;
@@ -431,7 +381,7 @@
       margin-top: 2px;
     }
     .privacy-point-text {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.82rem;
       color: rgba(232,245,244,0.65);
       line-height: 1.6;
@@ -457,7 +407,7 @@
     }
     .lnd-cta-title em { font-style: italic; color: var(--landing-accent); }
     .lnd-cta-sub {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.85rem;
       color: rgba(232,245,244,0.5);
       margin-bottom: 40px;
@@ -475,7 +425,7 @@
       gap: 16px;
     }
     .lnd-footer-left {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.72rem;
       color: rgba(232,245,244,0.35);
       line-height: 1.6;
@@ -489,7 +439,7 @@
       gap: 20px;
     }
     .lnd-footer-right a {
-      font-family: 'DM Mono', 'Cascadia Code', 'SF Mono', ui-monospace, monospace;
+      font-family: 'Outfit', system-ui, sans-serif;
       font-size: 0.72rem;
       color: rgba(232,245,244,0.4);
       text-decoration: none;
@@ -499,9 +449,8 @@
 
     /* ── Mobile ─────────────────────────────────────────────────── */
     @media (max-width: 680px) {
-      .lnd-header { padding: 14px 20px; }
-      .lnd-nav { gap: 14px; }
-      .lnd-nav a:not(.nav-cta) { display: none; }
+      /* Mobile header: gestito da .app-header in wiztrail.css */
+      .app-header { padding: 8px 16px; }
       .lnd-hero-content { padding: 0 20px 60px; }
       .lnd-stats { flex-wrap: wrap; }
       .lnd-stat { min-width: 140px; }
@@ -516,12 +465,12 @@
 <body>
 
 <!-- HEADER -->
-<header class="lnd-header">
-  <a href="landing.html" class="lnd-brand">
-    <img src="img/logo.svg" alt="WizTrail">
-    <span class="lnd-brand-name">WizTrail</span>
+<header class="app-header">
+  <a href="landing.html" class="app-brand-link">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
   </a>
-  <nav class="lnd-nav">
+  <nav class="app-nav">
     <a href="about.html">Il Metodo</a>
     <a href="ranking.html">Ranking</a>
     <a href="training-analyzer.html">Training</a>
@@ -653,12 +602,12 @@
       <h2 class="lnd-section-title" style="margin-bottom:24px;">
         Sei classi di difficoltà,<br><em>calibrate su dati reali</em>.
       </h2>
-      <p style="font-family:'DM Mono',ui-monospace,monospace; font-size:0.8rem; color:rgba(232,245,244,0.5); line-height:1.7; max-width:420px;">
+      <p style="font-family:'Outfit', system-ui, sans-serif; font-size:0.8rem; color:rgba(232,245,244,0.5); line-height:1.7; max-width:420px;">
         Il WizTrail Difficulty Index combina volume (D+, distanza) e tecnicità
         del terreno (FRIP, SlopeVar, Roughness) in un indice unico.
         Più GPX reali vengono caricati, più il modello si affina automaticamente.
       </p>
-      <a href="about.html" style="display:inline-block; margin-top:24px; font-family:'DM Mono',ui-monospace,monospace; font-size:0.78rem; color:var(--landing-accent); text-decoration:none; border-bottom:1px solid rgba(79,209,197,0.3); padding-bottom:2px;">
+      <a href="about.html" style="display:inline-block; margin-top:24px; font-family:'Outfit', system-ui, sans-serif; font-size:0.78rem; color:var(--landing-accent); text-decoration:none; border-bottom:1px solid rgba(79,209,197,0.3); padding-bottom:2px;">
         Formula completa e metodologia →
       </a>
     </div>
