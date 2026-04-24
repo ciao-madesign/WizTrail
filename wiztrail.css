@@ -1138,3 +1138,217 @@ table {
 @media (max-width: 600px) {
   .feedback-times { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   TRAINING ANALYZER — classi specifiche
+   Aggiuntive, non sovrascrivono nulla di esistente.
+═══════════════════════════════════════════════════════════════ */
+
+/* .input-text — input compatti usati in training-analyzer
+   (paceInput, timeRealInput). Allineato a input[type=text]. */
+.input-text {
+  background: color-mix(in oklab, var(--panel) 75%, transparent);
+  color: var(--ink);
+  border: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: var(--font-mono); /* monospace per valori numerici mm:ss */
+  width: 100%;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.input-text:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
+}
+
+/* Modal Strava — overlay e contenuto */
+.ta-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  overflow-y: auto;
+}
+.ta-modal-inner {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+/* Card attività Strava nella lista */
+.ta-strava-card {
+  background: color-mix(in oklab, var(--panel) 80%, transparent);
+  padding: 14px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+  transition: background 0.15s, border-color 0.15s;
+}
+.ta-strava-card:hover {
+  background: color-mix(in oklab, var(--accent) 8%, var(--panel));
+  border-color: color-mix(in oklab, var(--accent) 30%, transparent);
+}
+.ta-strava-card-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+/* TrainingScore card — gerarchia visiva */
+.ta-score-card {
+  text-align: center;
+  padding: 28px 20px;
+}
+.ta-score-wdi-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.ta-score-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.7;
+}
+.ta-score-wdi {
+  font-size: 3.4rem;
+  font-weight: 900;
+  line-height: 1;
+  /* colore impostato via JS (result.color) */
+}
+.ta-score-comment {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-top: 6px;
+  /* colore impostato via JS */
+}
+.ta-score-motivation {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  opacity: 0.7;
+  font-style: italic;
+  line-height: 1.4;
+}
+.ta-score-perf {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 12px;
+  min-height: 1.4em; /* evita layout jump quando vuoto */
+}
+
+@media (max-width: 600px) {
+  .ta-score-wdi { font-size: 2.8rem; }
+  .ta-score-comment { font-size: 1.1rem; }
+  .ta-modal-inner { margin: 20px 12px; padding: 16px; }
+}
+
+/* ── GPX Drop zone ──────────────────────────────────────────────────────────
+   Usata in index.html e training-analyzer.html.
+   Stile uniforme per l'upload GPX in tutte le pagine app. */
+.gpx-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1.5px dashed color-mix(in oklab, var(--accent) 40%, transparent);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 10px;
+  background: color-mix(in oklab, var(--accent) 4%, transparent);
+}
+.gpx-dropzone:hover,
+.gpx-dropzone.dragover {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 9%, transparent);
+}
+.gpx-dropzone.loaded {
+  border-color: var(--accent);
+  border-style: solid;
+  background: color-mix(in oklab, var(--accent) 7%, transparent);
+}
+.gpx-dropzone-icon {
+  color: var(--accent);
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.gpx-dropzone:hover .gpx-dropzone-icon { opacity: 1; }
+.gpx-dropzone-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.gpx-dropzone-main {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--ink);
+  font-weight: 500;
+}
+.gpx-dropzone-sub {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* ── Alternativa Strava / import terze parti ───────────────────────────────
+   Usata in index.html e training-analyzer.html. */
+.gpx-alt-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.gpx-alt-sep {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.5;
+}
+.gpx-alt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: #fc4c02; /* Strava orange */
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid rgba(252,76,2,0.25);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.gpx-alt-link:hover {
+  background: rgba(252,76,2,0.08);
+  border-color: rgba(252,76,2,0.5);
+}
+
+/* ── KPI placeholder (empty state calcolatore) ─────────────────────────── */
+.kpi-placeholder {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.45;
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .gpx-dropzone { padding: 14px 12px; gap: 10px; }
+  .gpx-dropzone-main { font-size: 0.78rem; }
+  .gpx-dropzone-icon svg { width: 22px; height: 22px; }
+}
