@@ -88,16 +88,33 @@
 <!-- IMPORT -->
 <div class="card" id="training-card" style="margin-top:20px;">
 <h2>Carica la tua attività</h2>
-<div style="margin-top:12px;">
- <button class="btn" onclick="openStravaModal()">
-    🔗 Importa da Strava
+
+<!-- Drop zone GPX — stessa struttura di index.html -->
+<label for="gpxFile" class="gpx-dropzone" id="gpxDropzone">
+  <div class="gpx-dropzone-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+  </div>
+  <div class="gpx-dropzone-text">
+    <span class="gpx-dropzone-main">Trascina il GPX qui o clicca per selezionare</span>
+    <span class="gpx-dropzone-sub">GPX · TCX · XML — Garmin, Suunto, Wikiloc, Komoot</span>
+  </div>
+  <input type="file" id="gpxFile"
+         accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"
+         style="display:none;"/>
+</label>
+
+<!-- Alternativa Strava — stile uniforme con index.html -->
+<div class="gpx-alt-row">
+  <span class="gpx-alt-sep">oppure</span>
+  <button type="button" class="gpx-alt-link" onclick="openStravaModal()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+    Importa da Strava
   </button>
 </div>
-<p class="mini">Carica la traccia per analizzare la difficoltà del tuo allenamento.</p>
-<input type="file"
-       id="gpxFile"
-       accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml">
-<div class="mini" style="margin-top:4px; opacity:0.6;">Compatibile con Garmin, Suunto, Wikiloc, Komoot e qualsiasi app che esporti GPX</div>
 <div style="margin-top:12px;">
 <label>Tempo reale (modificabile)</label>
 <input id="timeRealInput" type="text" placeholder="hh:mm:ss" class="input-text">
@@ -142,12 +159,18 @@
 </div>
 </div>
 
-<div class="card" id="trainingScoreCard" style="text-align:center;">
-<h2>WDI — Training Score</h2>
-<div id="trainingScore" style="font-size:3.2rem;font-weight:900;margin-top:10px;">—</div>
-<div id="trainingComment" style="font-size:1.4rem;margin-top:10px;font-weight:600;">—</div>
-<div id="trainingMotivation" style="font-size:0.95rem;margin-top:8px;opacity:0.75;font-style:italic;"></div>
-<div id="perfComment" style="font-size:1.2rem;margin-top:10px;font-weight:600;"></div>
+<div class="card ta-score-card" id="trainingScoreCard">
+  <!-- WDI numerico — dato oggettivo -->
+  <div class="ta-score-wdi-row">
+    <span class="ta-score-label">WDI</span>
+    <span id="trainingScore" class="ta-score-wdi">—</span>
+  </div>
+  <!-- Label TrainingScore — interpretazione per allenamento -->
+  <div id="trainingComment" class="ta-score-comment">—</div>
+  <!-- Frase motivazionale -->
+  <div id="trainingMotivation" class="ta-score-motivation"></div>
+  <!-- Commento performance (vs stima) -->
+  <div id="perfComment" class="ta-score-perf"></div>
 </div>
 
 <div class="card" style="text-align:center;"><button class="btn" id="btnShare">Condividi</button></div>
@@ -160,6 +183,8 @@
 
 <script src="gpx-parser.js"></script>
 <script src="wiztrail-engine.js"></script>
+<script src="wiztrail-pacing.js"></script>
+<script src="gpx-parser.js"></script>
 <script>
 
 const params = new URLSearchParams(window.location.search);
@@ -189,14 +214,15 @@ document.getElementById('paceInput')?.addEventListener('change', () => {
   updateEstimateUI(window.currentMetrics, window.currentRealTime);
 });
 
+/* parseGPX e computeMetrics delegati a GPXParser (gpx-parser.js)
+   — parser centralizzato con smoothing adattivo e fix D+.
+   Stessa logica di index.html per coerenza dei risultati. */
 function parseGPX(text){
   const xml = new DOMParser().parseFromString(text, 'application/xml');
-  return GPXParser.parseTrackFull(xml);
-  // Restituisce { pts, times } — compatibile con il codice chiamante
+  return GPXParser.parseTrackFull(xml); // { pts, times }
 }
-
 function computeMetrics(pts){
-  return GPXParser.compute(pts);
+  return GPXParser.compute(pts); // { km, gain, e[], d[], max_altitude }
 }
 
 function drawElevation(c, e){
@@ -293,7 +319,11 @@ function updateEstimateUI(mt, realTimeStr) {
       ? paceParts[0] * 60 + paceParts[1]
       : 360; // fallback 6:00
 
-    estSec = Math.round(mt.km * paceSecPerKm + mt.gain * 0.6);
+    /* Usa modello power-law v2.1 (wiztrail-pacing.js) — calibrato su 96 gare.
+       Sostituisce la formula semplificata km*pace + gain*0.6. */
+    const techFor10 = (window.currentTrainingResult?.TechScore || 30) / 10; // TechScore 0-100 → 0-10
+    const pacingResult = getPacingEstimate(mt.km, mt.gain, techFor10, paceRaw);
+    estSec = Math.round(pacingResult.ore * 3600);
     window.currentEstSec = estSec;
 
     timeEst.textContent = fmtSec(estSec);
@@ -381,8 +411,9 @@ window.currentPts = pts;
 window.currentMetrics = mt;
 window.currentRealTime = realTimeStr;
 
-  window.currentTrainingWDI = result.WDI;
-updateEstimateUI(mt, realTimeStr);
+  window.currentTrainingWDI    = result.WDI;
+  window.currentTrainingResult  = result; // serve a updateEstimateUI per TechScore
+  updateEstimateUI(mt, realTimeStr);
 
  
   // MAPPA + ELEV
@@ -396,19 +427,23 @@ updateEstimateUI(mt, realTimeStr);
 
   // SHARE
   btnShare.onclick = () => {
+    /* WDI_color e perfComment richiesti da share_card.html.
+       Senza WDI_color il colore fallback era sempre verde (#34A853). */
     sessionStorage.setItem("shareData", JSON.stringify({
-      distance: mt.km,
-      dplus: mt.gain,
-      time_real: realTimeStr,
-      time_est: window.currentEstSec ? fmtSec(window.currentEstSec) : null,
+      distance:       mt.km,
+      dplus:          mt.gain,
+      time_real:      realTimeStr,
+      time_est:       window.currentEstSec ? fmtSec(window.currentEstSec) : null,
       includeCompare: shareCompare.checked,
-      WDI:       result.WDI.toFixed(1),
-      WDI_class: result.class,
-      TechScore: result.TechScore.toFixed(1),
-      techClass: result.techClass,
-      comment:   result.class,
-      pts: pts,
-      elev: mt.e
+      WDI:            result.WDI.toFixed(1),
+      WDI_color:      result.color,         // fix: share_card legge WDI_color
+      WDI_class:      result.class,
+      TechScore:      result.TechScore.toFixed(1),
+      techClass:      result.techClass,
+      comment:        result.class,
+      perfComment:    perfComment.textContent || '', // fix: share_card legge perfComment
+      pts:            pts,
+      elev:           mt.e
     }));
     window.location.href = "share_card.html";
   };
@@ -562,6 +597,37 @@ if (sessionStorage.getItem("strava_token") && source !== "strava") {
   // opzionale: non auto-aprire sempre
 }
 </script>
+<script>
+/* Drag & drop sulla dropzone GPX — coerente con index.html */
+(function() {
+  const dz = document.getElementById('gpxDropzone');
+  if (!dz) return;
+
+  ['dragenter','dragover'].forEach(ev =>
+    dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dragover'); })
+  );
+  ['dragleave','dragend'].forEach(ev =>
+    dz.addEventListener(ev, () => dz.classList.remove('dragover'))
+  );
+  dz.addEventListener('drop', async e => {
+    e.preventDefault();
+    dz.classList.remove('dragover');
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    /* Simula selezione file nel input (per compatibilità con il listener esistente) */
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById('gpxFile').files = dt.files;
+    /* Aggiorna feedback visivo */
+    const mainTxt = dz.querySelector('.gpx-dropzone-main');
+    if (mainTxt) mainTxt.textContent = '✓ ' + file.name;
+    dz.classList.add('loaded');
+    /* Avvia analisi automaticamente */
+    document.getElementById('btnAnalyze')?.click();
+  });
+})();
+</script>
+
 <script>
 // Hero image loader
 (function() {
