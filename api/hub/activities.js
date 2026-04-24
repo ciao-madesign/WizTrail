@@ -82,6 +82,9 @@ export default async function handler(req, res) {
     });
 
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    /* Logga server-side, espone messaggio generico al client.
+       e.message può contenere URL Redis, chiavi interne, stack trace. */
+    console.error('[activities] error:', e);
+    return res.status(500).json({ error: 'Errore interno del server' });
   }
 }
