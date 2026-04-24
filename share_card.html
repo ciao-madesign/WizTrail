@@ -15,8 +15,9 @@
 <link rel="stylesheet" href="wiztrail.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500&display=swap" rel="stylesheet">
 <style>
-body { background:#000; color:#fff; font-family:Inter,system-ui; }
+body { background:#000; color:#fff; font-family:'Outfit',system-ui,sans-serif; }
 
 .share-wrapper {
   display: flex;
@@ -63,7 +64,7 @@ overflow: hidden;
 }
 
 /* TIPOGRAFIA */
-.wdit-big { font-size:3rem; font-weight:900; line-height:1.1; }
+.wdi-big { font-size:3rem; font-weight:900; line-height:1.1; }
 .wdit-comment { font-size:1.25rem; opacity:0.9; }
 .perf-comment { font-size:1rem; font-weight:600; }
 
@@ -153,7 +154,7 @@ overflow: hidden;
 
         <!-- WDIT -->
         <div class="left-col">
-          <div id="shareWDIT" class="wdit-big"></div>
+          <div id="shareWDI" class="wdi-big"></div>
           <div id="shareComment" class="wdit-comment"></div>
           <div id="sharePerf" class="perf-comment"></div>
         </div>
@@ -220,7 +221,8 @@ overflow: hidden;
 // =====================================================
 const data = JSON.parse(sessionStorage.getItem("shareData") || "{}");
 
-// wditColor() rimossa — il colore arriva serializzato nel JSON come WDI_color / wdiColor
+// Il colore WDI arriva già serializzato nel JSON (WDI_color o wdiColor).
+// Non ricalcolare qui: il motore è in wiztrail-engine.js.
 
 sDistance.textContent = `Distanza: ${Number(data.distance).toFixed(2)} km`;
 sDplus.textContent = `Dislivello: ${Math.round(data.dplus)} m`;
@@ -239,8 +241,8 @@ if(data.time_real && data.distance){
   sPaceAvg.textContent = `Pace medio: ${Math.floor(pace/60)}:${String(Math.round(pace%60)).padStart(2,"0")}/km`;
 }
 
-shareWDIT.textContent = 'WDI ' + (data.WDI || data.WDIT || '—');
-shareWDIT.style.color = data.WDI_color || data.wdiColor || '#34A853';
+shareWDI.textContent = 'WDI ' + (data.WDI || data.WDIT || '—');
+shareWDI.style.color = data.WDI_color || data.wdiColor || '#34A853';
 shareComment.textContent = data.comment || "";
 if(data.includeCompare && data.perfComment){
   sharePerf.textContent = data.perfComment;
