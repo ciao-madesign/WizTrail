@@ -49,28 +49,40 @@
                            { WDI, class, color }
      ------------------------------------------------------------------ */
   function showWDI(rs) {
-    const scoreEl  = document.getElementById('outRaceScore');
+    const scoreEl    = document.getElementById('outRaceScore');
     const scoreSubEl = document.getElementById('outRaceScoreSub');
     if (!scoreEl || !scoreSubEl) return;
 
-    scoreEl.textContent = rs.WDI.toFixed(1);
+    /* Mostra WDI normalizzato (0–10 per categoria) come valore principale.
+       Il WDI grezzo è mostrato accanto per confronto assoluto tra categorie.
+       Se WDI_norm non disponibile (calcolo manuale senza km categoria) → grezzo. */
+    const hasNorm = rs.WDI_norm !== undefined;
+    const dispVal = hasNorm ? rs.WDI_norm.toFixed(1) : rs.WDI.toFixed(1);
+    const catLabel = rs.WDI_category || '';
+
+    scoreEl.textContent = dispVal;
     scoreEl.style.color = rs.color;
 
+    /* Badge classe WDI */
+    const badge = `<div style="
+      display:inline-block; padding:4px 10px; border-radius:12px;
+      font-weight:700; color:#021; background:${rs.color}; margin-bottom:6px;
+    ">${rs.WDI_legendPlus ? '🏆 Legend ∞' : wdiLabel(rs.class)}</div>`;
+
+    /* Riga normalizzazione — visibile solo se il valore è normalizzato */
+    const normRow = hasNorm ? `
+      <div style="font-size:0.72rem; color:var(--muted); margin-top:2px; opacity:0.7;">
+        Nella categoria ${catLabel} · WDI grezzo: ${rs.WDI.toFixed(1)}
+      </div>` : '';
+
     scoreSubEl.innerHTML = `
-      <div style="
-        display:inline-block;
-        padding:4px 10px;
-        border-radius:12px;
-        font-weight:700;
-        color:#021;
-        background:${rs.color};
-        margin-bottom:8px;
-      ">${wdiLabel(rs.class)}</div>
-      <br><br>
-      <span class="mini">Difficoltà stimata con WizTrail WDI v5.1</span>
+      ${badge}
+      ${normRow}
+      <br>
+      <span class="mini">WizTrail WDI v5.1 — scala per categoria distanza</span>
     `;
 
-    // Aggiorna colore traccia sulla mappa
+    // Aggiorna colore traccia sulla mappa (usa WDI grezzo — corretto)
     if (window.WizMap) window.WizMap.drawTrack();
 
     // Aggiorna TechScore se disponibile

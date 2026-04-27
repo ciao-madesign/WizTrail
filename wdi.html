@@ -41,6 +41,40 @@
 </select>
 </span>
 </h1>
+<div class="card">
+  <details open>
+    <summary><b>Dualità WDI: grezzo e normalizzato</b></summary>
+    <div style="margin-top:12px; line-height:1.7;">
+      <p>WizTrail usa <b>due rappresentazioni del WDI</b> con scopi diversi:</p>
+      <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.88rem;">
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left; padding:8px; color:var(--muted);">Tipo</th>
+          <th style="text-align:left; padding:8px; color:var(--muted);">Scala</th>
+          <th style="text-align:left; padding:8px; color:var(--muted);">Usato per</th>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)33;">
+          <td style="padding:8px;"><b>WDI grezzo</b></td>
+          <td style="padding:8px;">0 → ∞ (illimitato)</td>
+          <td style="padding:8px;">Calcoli interni, confronto assoluto tra categorie, hub calibrazione</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;"><b>WDI normalizzato</b></td>
+          <td style="padding:8px;">0 → 10 per categoria</td>
+          <td style="padding:8px;">Display all'utente — stessa dignità a tutte le distanze</td>
+        </tr>
+      </table>
+      <p>La normalizzazione è <b>per categoria di distanza</b>:</p>
+      <ul>
+        <li><b>Short</b> (≤25km): grezzo 5–60 → 0–10</li>
+        <li><b>Medium</b> (26–50km): grezzo 15–110 → 0–10</li>
+        <li><b>Long</b> (51–95km): grezzo 30–200 → 0–10</li>
+        <li><b>Ultra</b> (&gt;95km): grezzo 50–150 → 0–10 · oltre 150 → <b>10+ Legend ∞</b></li>
+      </ul>
+      <p>Il WDI grezzo rimane sempre visibile accanto al valore normalizzato per permettere il confronto assoluto tra gare di distanza diversa.</p>
+    </div>
+  </details>
+</div>
+
 <div class="back-btn-container">
 <a href="index.html" class="back-btn">← Torna alla pagina principale</a>
 </div>
@@ -152,12 +186,16 @@ SlopePct = | D+ / distanza | × 100
     </p>
 
 <pre>
-0 – 30      → Sport
-30 – 75     → Pro
-75 – 120    → Advanced
-120 – 180   → Extreme
-180 – 350   → Elite
-> 350       → Legend
+Soglie WDI grezzo v2 (calibrate 20/04/2026 su kT=0.50, exp=0.48):
+
+  WDI grezzo &lt; 18     → Sport
+  18 ≤ WDI &lt; 40       → Pro
+  40 ≤ WDI &lt; 80       → Advanced
+  80 ≤ WDI &lt; 140      → Extreme
+  140 ≤ WDI &lt; 230     → Elite
+  WDI ≥ 230            → Legend
+
+Nota: il WDI grezzo è illimitato — il TOR330 vale 546.
 </pre>
 
     <p>
@@ -176,27 +214,27 @@ SlopePct = | D+ / distanza | × 100
    
     <h3>MEHT (21 km, D+ ~900)</h3>
     <p>
-      WDI ≈ 50–52 → <b>Pro</b>
+      WDI grezzo ≈ 50–52 → <b>Pro</b> (WDI normalizzato Short: ~7.5/10)
     </p>
 
     <h3>VUT35 (34 km, 2080 m D+)</h3>
     <p>
-      WDI ≈ 72–74 → <b>Pro / Advanced border</b>
+      WDI grezzo ≈ 71 → <b>Pro</b> (WDI normalizzato Medium: ~5.9/10)
     </p>
 
     <h3>Lavaredo 80K (80 km, 4900 m D+)</h3>
     <p>
-      WDI ≈ 128–132 → <b>Extreme</b>
+      WDI grezzo ≈ 128 → <b>Extreme</b> (WDI normalizzato Long: ~5.7/10)
     </p>
 
     <h3>Valmalenco UltraDistance Trail 90 (89 km, 6800 m D+)</h3>
     <p>
-      WDI ≈ 155–160 → <b>Elite basso</b>
+      WDI grezzo ≈ 153 → <b>Extreme</b> (WDI normalizzato Long: ~7.3/10)
     </p>
 
     <h3>Tor des Géants (330 km, 24 000 m D+)</h3>
     <p>
-      WDI ≈ 1000–1050 → <b>Legend</b>
+      WDI grezzo ≈ 546 → <b>Legend ∞</b> (WDI normalizzato Ultra: 10+/10)
     </p>
 
   </div>

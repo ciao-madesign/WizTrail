@@ -17,6 +17,32 @@ window.WizTrail = (function () {
   const REF42 = Math.pow(42, 0.55);
 
   /* ---------------------------------------------------------------
+     NORMALIZZAZIONE WDI PER CATEGORIA DI DISTANZA
+     
+     Il WDI grezzo è usato internamente per tutti i calcoli
+     (map.js, discipline-classifier, pacing, hub).
+     Il WDI normalizzato (0–10 per categoria) è solo per display.
+     
+     Principio: stessa dignità a tutte le fasce di distanza.
+     Le soglie grezze sono fisse e documentate — non cambiano
+     con l'aggiunta di nuove gare al ranking.
+     
+     Categorie e scale grezze:
+       Short  ≤25km  : grezzo  5→60   → norm 0–10
+       Medium 26–50km: grezzo 15→110  → norm 0–10
+       Long   51–95km: grezzo 30→200  → norm 0–10
+       Ultra  >95km  : grezzo 50→150  → norm 0–10 (Legend ∞ oltre 150)
+     
+     TechScore: scala assoluta 0–100, non categorizzata per distanza.
+     --------------------------------------------------------------- */
+  const WDI_NORM_CATEGORIES = [
+    { distMax:  25, wdiMin:  5, wdiMax:  60, label: 'Short'  },
+    { distMax:  50, wdiMin: 15, wdiMax: 110, label: 'Medium' },
+    { distMax:  95, wdiMin: 30, wdiMax: 200, label: 'Long'   },
+    { distMax: Infinity, wdiMin: 50, wdiMax: 150, label: 'Ultra' },
+  ];
+
+  /* ---------------------------------------------------------------
      SOGLIE — ⚠ PROVVISORIE, iterare su GPX reali
      --------------------------------------------------------------- */
   const WDI_THRESHOLDS = [
@@ -51,6 +77,36 @@ window.WizTrail = (function () {
      FUNZIONI PRIVATE
      --------------------------------------------------------------- */
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+
+  /**
+   * Restituisce la categoria WDI in base alla distanza.
+   * @param {number} km
+   * @returns {object} categoria da WDI_NORM_CATEGORIES
+   */
+  function getWdiCategory(km) {
+    for (const cat of WDI_NORM_CATEGORIES) {
+      if (km <= cat.distMax) return cat;
+    }
+    return WDI_NORM_CATEGORIES[WDI_NORM_CATEGORIES.length - 1];
+  }
+
+  /**
+   * Normalizza il WDI grezzo su scala 0–10 per la sua categoria di distanza.
+   * Oltre il massimo della categoria Ultra (150 grezzo) → 10 con flag isLegendPlus.
+   * @param {number} wdi — WDI grezzo
+   * @param {number} km  — distanza in km (determina la categoria)
+   * @returns {{ norm: number, category: string, isLegendPlus: boolean }}
+   */
+  function normalizeWDI(wdi, km) {
+    const cat  = getWdiCategory(km);
+    const norm = (wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin) * 10;
+    const isLegendPlus = (cat.label === 'Ultra' && wdi > cat.wdiMax);
+    return {
+      norm:          Math.round(clamp(norm, 0, 10) * 10) / 10,
+      category:      cat.label,
+      isLegendPlus,
+    };
+  }
 
   function classifyBy(value, thresholds) {
     for (const t of thresholds) {
@@ -154,11 +210,17 @@ window.WizTrail = (function () {
     const ti   = classifyBy(finalTech, TECH_THRESHOLDS);
     const isVK = km < 15 && (gain / km) > 80;
 
+    /* Normalizzazione per categoria — richiede km per determinare la fascia */
+    const normResult = normalizeWDI(wdi, km);
+
     return {
-      WDI:       wdi,
+      WDI:          wdi,           // grezzo — usato per calcoli interni
+      WDI_norm:     normResult.norm,        // 0–10 per categoria distanza
+      WDI_category: normResult.category,    // 'Short'|'Medium'|'Long'|'Ultra'
+      WDI_legendPlus: normResult.isLegendPlus, // true se Ultra >150 grezzo
       class:     wi.level,
       color:     wi.color,
-      TechScore: finalTech,
+      TechScore: finalTech,        // assoluto 0–100, non categorizzato
       techClass: ti.level,
       techColor: ti.color,
       factors: {
@@ -223,9 +285,12 @@ window.WizTrail = (function () {
                       surfaceLevel, true, null);
     },
 
-    getColor:     function (wdi) { return classifyBy(wdi, WDI_THRESHOLDS).color; },
-    getTechColor: function (ts)  { return classifyBy(ts,  TECH_THRESHOLDS).color; },
-    getClass:     function (wdi) { return classifyBy(wdi, WDI_THRESHOLDS).level; }
+    getColor:      function (wdi) { return classifyBy(wdi, WDI_THRESHOLDS).color; },
+    getTechColor:  function (ts)  { return classifyBy(ts,  TECH_THRESHOLDS).color; },
+    getClass:      function (wdi) { return classifyBy(wdi, WDI_THRESHOLDS).level; },
+    /* Normalizzazione pubblica — usata da ranking.html e dettaglio.html */
+    normalizeWDI:  normalizeWDI,
+    getWdiCategory: getWdiCategory
   };
 
 })();

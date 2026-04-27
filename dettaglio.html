@@ -71,7 +71,8 @@
       <div class="wdi-number" id="wdiScore">—</div>
       <div class="wdi-info">
         <div class="wdi-badge" id="wdiClass">—</div>
-        <div class="wdi-label">WizTrail Difficulty Index v5.0</div>
+        <div class="wdi-label" id="wdiRaw" style="font-size:0.75rem; opacity:0.6; margin-top:4px;"></div>
+        <div class="wdi-label">WizTrail Difficulty Index v5.1</div>
         <div id="techWrap" style="display:none;">
           <div style="font-size:0.8rem;color:var(--muted);margin-top:10px;">
             TechScore: <strong id="techScoreVal">—</strong> / 100
@@ -259,10 +260,22 @@
 
     var wdiEl=document.getElementById('wdiScore');
     var clsEl=document.getElementById('wdiClass');
-    wdiEl.textContent=rs.WDI.toFixed(1);
-    wdiEl.style.color=rs.color;
-    clsEl.textContent=rs.class;
-    clsEl.style.background=rs.color;
+    var wdiRawEl=document.getElementById('wdiRaw');
+
+    /* WDI normalizzato per categoria come valore principale */
+    var normResult = WizTrail.normalizeWDI(rs.WDI, metrics.km);
+    var dispVal = normResult.isLegendPlus ? '10+' : normResult.norm.toFixed(1);
+    wdiEl.textContent = dispVal;
+    wdiEl.style.color = rs.color;
+
+    /* Classe e badge */
+    clsEl.textContent  = normResult.isLegendPlus ? '🏆 Legend ∞' : rs.class;
+    clsEl.style.background = rs.color;
+
+    /* WDI grezzo sotto il numero principale */
+    if (wdiRawEl) {
+      wdiRawEl.textContent = 'WDI ' + normResult.category + ' · grezzo ' + rs.WDI.toFixed(1);
+    }
 
     drawTrack(pts,rs.color);
     requestAnimationFrame(function(){drawProfile(metrics.e);});

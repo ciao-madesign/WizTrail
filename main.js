@@ -23,7 +23,8 @@
      ------------------------------------------------------------------ */
   window.gpxPts            = [];
   window.metrics           = { e: [], d: [] };
-  window.currentWDI        = null;
+  window.currentWDI        = null;   // WDI grezzo — usato da map.js e discipline-classifier
+  window.currentWDI_norm   = null;   // WDI normalizzato 0–10 per categoria — solo display
   window.lastRS            = null;
   window.currentSurfaceLevel = 3;
   window.lastOsmResult       = null;
@@ -262,8 +263,9 @@
       window.currentSurfaceLevel,
       window.lastOsmResult
     );
-    window.currentWDI = rs.WDI;
-    window.lastRS     = rs;
+    window.currentWDI      = rs.WDI;        // grezzo — per map.js e calcoli
+    window.currentWDI_norm = rs.WDI_norm;   // normalizzato — per display futuro
+    window.lastRS          = rs;
 
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
@@ -325,6 +327,9 @@
         high:             g('outHigh'),
         stima_personale:  g('outPersonalTime') || null,
         WDI:              window.lastRS ? window.lastRS.WDI.toFixed(1)      : null,
+        WDI_norm:         window.lastRS ? window.lastRS.WDI_norm             : null,
+        WDI_category:     window.lastRS ? window.lastRS.WDI_category         : null,
+        WDI_legendPlus:   window.lastRS ? window.lastRS.WDI_legendPlus       : false,
         WDI_class:        window.lastRS ? window.lastRS.class                : null,
         WDI_color:        window.lastRS ? window.lastRS.color                : null,
         TechScore:        window.lastRS ? window.lastRS.TechScore.toFixed(1) : null,
@@ -393,7 +398,8 @@
         window.gpxPts, window.metrics,
         window.currentSurfaceLevel, window.lastOsmResult
       );
-      window.currentWDI = rs.WDI;
+      window.currentWDI      = rs.WDI;
+      window.currentWDI_norm = rs.WDI_norm;
       window.lastRS     = rs;
       WizUI.showWDI(rs);
       WizUI.showTechScore(rs);
