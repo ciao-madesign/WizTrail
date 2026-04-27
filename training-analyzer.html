@@ -160,12 +160,19 @@
 </div>
 
 <div class="card ta-score-card" id="trainingScoreCard">
-  <!-- WDI numerico — dato oggettivo -->
+  <!-- Toggle livello atleta — persiste in localStorage -->
+  <div class="ta-level-toggle" id="levelToggle">
+    <button class="ta-level-btn active" id="btnAmatore" onclick="setLevel('amatore')">Amatore</button>
+    <button class="ta-level-btn" id="btnPro" onclick="setLevel('pro')">Pro</button>
+  </div>
+  <!-- WDI numerico normalizzato per categoria -->
   <div class="ta-score-wdi-row">
-    <span class="ta-score-label">WDI</span>
+    <span class="ta-score-label" id="trainingWdiLabel">WDI</span>
     <span id="trainingScore" class="ta-score-wdi">—</span>
   </div>
-  <!-- Label TrainingScore — interpretazione per allenamento -->
+  <!-- WDI grezzo sotto il numero principale -->
+  <div id="trainingWdiRaw" class="ta-score-raw"></div>
+  <!-- Label TrainingScore — interpretazione per livello atleta -->
   <div id="trainingComment" class="ta-score-comment">—</div>
   <!-- Frase motivazionale -->
   <div id="trainingMotivation" class="ta-score-motivation"></div>
@@ -253,35 +260,117 @@ ctx.strokeStyle = WizTrail.getColor(window.currentTrainingWDI || 0);
 // colore traccia: usare WizTrail.getColor(wdi)
 
 /* ------------------------------------------------------------------
-   TRAINING SCORE LAYER — layer post-WDI specifico per allenamenti
-   Prende il WDI standard (stesso engine delle gare) e restituisce
-   un giudizio testuale calibrato per il contesto allenamento.
+   TRAINING SCORE LAYER — layer post-WDI specifico per allenamenti.
 
-   Soglie calibrate sul range reale degli allenamenti trail (WDI 4–35):
-     < 5   Riscaldamento / giro defatigante
-     < 10  Uscita leggera
-     < 16  Allenamento solido
-     < 25  Sessione intensa
-     < 35  Giornata epica
-     ≥ 35  Territorio da gara
+   Usa il WDI NORMALIZZATO per categoria (0–10) invece del grezzo.
+   Soglie separate per Amatore e Pro — selezionabili dall'utente.
+   Il livello persiste in localStorage ('ta_level').
+
+   Soglie calibrate su WDI norm 0–10 per categoria:
+     AMATORE: < 1.3 Riscaldamento · < 2.5 Uscita media ·
+              < 4.5 Allenamento solido · < 6.5 Sessione intensa ·
+              < 8.5 Giornata epica · ≥ 8.5 Leggenda
+     PRO:     < 2.1 Recupero attivo · < 4.0 Uscita leggera ·
+              < 6.0 Allenamento medio · < 8.0 Allenamento solido ·
+              < 9.2 Sessione intensa · ≥ 9.2 Giornata da pro
+
+   Esempio calibrazione: 12km/256D+ → WDI norm ~2.0
+     Amatore → Uscita media (58% verso Allenamento solido) ✓
+     Pro     → Recupero attivo (95% verso Uscita leggera)  ✓
    ------------------------------------------------------------------ */
-function getTrainingLabel(wdi) {
-  if (wdi < 5)  return { label: 'Riscaldamento',     emoji: '🌿', color: '#2BB7DA' };
-  if (wdi < 10) return { label: 'Uscita leggera',    emoji: '🏃', color: '#34A853' };
-  if (wdi < 16) return { label: 'Allenamento solido',emoji: '💪', color: '#F4C20D' };
-  if (wdi < 25) return { label: 'Sessione intensa',  emoji: '🔥', color: '#F79617' };
-  if (wdi < 35) return { label: 'Giornata epica',    emoji: '⚡', color: '#E91E63' };
-  return         { label: 'Territorio da gara',      emoji: '🏆', color: '#8E24AA' };
+
+const TRAINING_LEVELS = {
+  amatore: [
+    { max: 1.3, label: 'Riscaldamento',      emoji: '🌿', color: '#2BB7DA',
+      motivation: 'Perfetto per recuperare. Il corpo ringrazia.' },
+    { max: 2.5, label: 'Uscita media',        emoji: '🏃', color: '#34A853',
+      motivation: 'Buona routine. La costanza costruisce i campioni.' },
+    { max: 4.5, label: 'Allenamento solido',  emoji: '💪', color: '#F4C20D',
+      motivation: 'Stai lavorando bene. Questo fa la differenza.' },
+    { max: 6.5, label: 'Sessione intensa',    emoji: '🔥', color: '#F79617',
+      motivation: 'Roba seria. Pochi si spingono fino a qui.' },
+    { max: 8.5, label: 'Giornata epica',      emoji: '⚡', color: '#E91E63',
+      motivation: 'Oltre i tuoi limiti abituali. Ricordatelo.' },
+    { max: 99,  label: 'Leggenda',            emoji: '🔱', color: '#8E24AA',
+      motivation: 'Sei fuori scala. Rispetto.' },
+  ],
+  pro: [
+    { max: 2.1, label: 'Recupero attivo',     emoji: '🌿', color: '#2BB7DA',
+      motivation: 'Sessione leggera. Il motore gira al minimo.' },
+    { max: 4.0, label: 'Uscita leggera',      emoji: '🏃', color: '#34A853',
+      motivation: 'Routine. Utile, non sufficiente.' },
+    { max: 6.0, label: 'Allenamento medio',   emoji: '💪', color: '#F4C20D',
+      motivation: 'Volume di qualità. Stai costruendo.' },
+    { max: 8.0, label: 'Allenamento solido',  emoji: '🔥', color: '#F79617',
+      motivation: 'Sessione seria. Il lavoro si vede.' },
+    { max: 9.2, label: 'Sessione intensa',    emoji: '⚡', color: '#E91E63',
+      motivation: 'Pochi in forma riescono a reggere questo.' },
+    { max: 99,  label: 'Giornata da pro',     emoji: '🏆', color: '#8E24AA',
+      motivation: 'Al limite. Recupera bene.' },
+  ],
+};
+
+/* Livello corrente — caricato da localStorage, default 'amatore' */
+let currentLevel = localStorage.getItem('ta_level') || 'amatore';
+
+/* Aggiorna i bottoni toggle al caricamento della pagina */
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('btnAmatore')?.classList.toggle('active', currentLevel === 'amatore');
+  document.getElementById('btnPro')?.classList.toggle('active', currentLevel === 'pro');
+});
+
+function setLevel(level) {
+  currentLevel = level;
+  localStorage.setItem('ta_level', level);
+  /* Aggiorna UI toggle */
+  document.getElementById('btnAmatore').classList.toggle('active', level === 'amatore');
+  document.getElementById('btnPro').classList.toggle('active', level === 'pro');
+  /* Ricalcola display se c'è un risultato attivo */
+  if (window.currentTrainingResult) updateTrainingDisplay(window.currentTrainingResult, window.currentMetrics);
 }
 
-/* Commento motivazionale basato su WDI training */
-function getTrainingMotivation(wdi) {
-  if (wdi < 5)  return 'Perfetto per recuperare. Il corpo ringrazia.';
-  if (wdi < 10) return 'Buona base. La costanza fa la differenza.';
-  if (wdi < 16) return 'Allenamento di qualità. Stai costruendo qualcosa.';
-  if (wdi < 25) return 'Sessione tosta. Ecco come si migliora davvero.';
-  if (wdi < 35) return 'Roba seria. Poche persone arrivano qui.';
-  return 'Siamo in territorio da gara. Rispetto.';
+function getTrainingLabel(wdiNorm) {
+  /* Usa soglie per il livello corrente. Input: WDI normalizzato 0–10. */
+  const soglie = TRAINING_LEVELS[currentLevel] || TRAINING_LEVELS.amatore;
+  return soglie.find(s => wdiNorm < s.max) || soglie[soglie.length - 1];
+}
+
+function getTrainingMotivation(wdiNorm) {
+  return getTrainingLabel(wdiNorm).motivation;
+}
+
+/* Aggiorna la card TrainingScore con WDI norm e label */
+function updateTrainingDisplay(result, metrics) {
+  if (!result || !metrics) return;
+
+  /* WDI normalizzato per categoria */
+  const normResult = WizTrail.normalizeWDI(result.WDI, metrics.km);
+  const wdiNorm    = normResult.norm;
+  const tsLabel    = getTrainingLabel(wdiNorm);
+
+  const trainingScore   = document.getElementById('trainingScore');
+  const trainingComment = document.getElementById('trainingComment');
+  const motivationEl    = document.getElementById('trainingMotivation');
+  const rawEl           = document.getElementById('trainingWdiRaw');
+  const labelEl         = document.getElementById('trainingWdiLabel');
+
+  if (trainingScore) {
+    trainingScore.textContent = normResult.isLegendPlus ? '10+' : wdiNorm.toFixed(1);
+    trainingScore.style.color = tsLabel.color;
+  }
+  if (trainingComment) {
+    trainingComment.textContent = tsLabel.emoji + ' ' + tsLabel.label;
+    trainingComment.style.color = tsLabel.color;
+  }
+  if (motivationEl) {
+    motivationEl.textContent = tsLabel.motivation;
+  }
+  if (rawEl) {
+    rawEl.textContent = 'WDI ' + normResult.category + ' · grezzo ' + result.WDI.toFixed(1);
+  }
+  if (labelEl) {
+    labelEl.textContent = 'WDI ' + normResult.category;
+  }
 }
 
 function performanceComment(realSec, estSec){
@@ -389,23 +478,9 @@ function renderAnalysis(pts, mt, realTimeStr = null) {
     timeReal.textContent = "—";
   }
 
-  // WDI v5 + TrainingScore layer
+  // WDI v5 + TrainingScore layer (usa WDI normalizzato per categoria)
   const result = WizTrail.computeFromGpx(pts, mt);
-  const tsLabel = getTrainingLabel(result.WDI);
-
-  const trainingScore   = document.getElementById('trainingScore');
-  const trainingComment = document.getElementById('trainingComment');
-  const motivationEl    = document.getElementById('trainingMotivation');
-
-  trainingScore.textContent = result.WDI.toFixed(1);
-  trainingScore.style.color = tsLabel.color;
-
-  trainingComment.textContent = tsLabel.emoji + ' ' + tsLabel.label;
-  trainingComment.style.color = tsLabel.color;
-
-  if (motivationEl) {
-    motivationEl.textContent = getTrainingMotivation(result.WDI);
-  }
+  updateTrainingDisplay(result, mt);
 
 window.currentPts = pts;
 window.currentMetrics = mt;
