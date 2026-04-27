@@ -1352,3 +1352,44 @@ table {
   .gpx-dropzone-main { font-size: 0.78rem; }
   .gpx-dropzone-icon svg { width: 22px; height: 22px; }
 }
+
+/* ── Training Analyzer — toggle livello Amatore/Pro ─────────────────────── */
+.ta-level-toggle {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.ta-level-btn {
+  appearance: none;
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 20px;
+  padding: 5px 18px;
+  font-size: 0.78rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.ta-level-btn.active {
+  background: color-mix(in oklab, var(--accent) 15%, transparent);
+  color: var(--accent);
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+.ta-level-btn:hover:not(.active) {
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+/* WDI grezzo sotto il numero principale nella card training */
+.ta-score-raw {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.5;
+  margin-top: 2px;
+  margin-bottom: 4px;
+  min-height: 1em;
+}
