@@ -346,18 +346,25 @@ let pacingMap = null;
 let pacingLayers = [];
 
 function initPacingMap() {
-  if (!pacingMap) {
-    pacingMap = L.map("pacingMap");
-    const darkBase = L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-      { subdomains: "abcd", maxZoom: 17 }
-    );
-    const topo = L.tileLayer(
-      "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-      { opacity: 0.35, maxZoom: 16 }
-    );
-    L.layerGroup([darkBase, topo]).addTo(pacingMap);
-  }
+  /* Guard: non inizializzare se #pacingMap non esiste nel DOM (es. about.html). */
+  if (!document.getElementById("pacingMap")) return;
+  if (pacingMap) return;
+
+  pacingMap = L.map("pacingMap");
+
+  /* CartoDB dark only — OpenTopoMap rimosso (causa lentezza su aree remote) */
+  L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    { subdomains: "abcd", maxZoom: 18, attribution: "© OpenStreetMap, © CartoDB" }
+  ).addTo(pacingMap);
+
+  /* Espone _wizMap e _wizHoverMarker per sincronizzazione con
+     map.js.drawTrack() e il profilo altimetrico interattivo (#elevCanvas). */
+  const hoverMarker = L.circleMarker([0, 0], {
+    radius: 6, color: "#ff0", fillColor: "#ff0", fillOpacity: 1,
+  });
+  window._wizMap         = pacingMap;
+  window._wizHoverMarker = hoverMarker;
 }
 
 function drawPacingMap(pacingChunks, avgPaceSec) {
@@ -584,6 +591,9 @@ let PC_PLAN = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* Auto-init mappa — _wizMap pronto prima che main.js chiami drawTrack() */
+  initPacingMap();
+
   document.getElementById("pc_generate")?.addEventListener("click", () => {
 
     if (!gpxPts || gpxPts.length < 2) {
@@ -630,8 +640,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pc_renderTable(PC_PLAN.pacingChunks, avgPaceSec);
     pc_renderSummary(avgPaceSec, T_target_sec, distTotal_km);
 drawPacingMap(PC_PLAN.pacingChunks, avgPaceSec);
-pacingDrawProfile();
-pacingAttachEvents();
+/* pacingDrawProfile rimossa — profilo altimetrico gestito da #elevCanvas in map.js */
 
     document.getElementById("pc_results").style.display = "block";
   });
