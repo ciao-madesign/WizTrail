@@ -183,7 +183,8 @@
   }
 
   function fatigueFactor(t_hours) {
-    return 1 + Math.pow(t_hours / 12, 1.3);
+    /* v2 trail: +8% dopo 1h, +30% dopo 3h. Era (t/12)^1.3 → +4% dopo 1h */
+    return 1 + Math.pow(t_hours / 8, 1.2);
   }
 
   /* ------------------------------------------------------------------
@@ -206,7 +207,10 @@
 
     const [min10, sec10] = t10.split(':').map(Number);
     const m10     = min10 + sec10 / 60;
-    const velBase = 60 / (m10 / 10); // km/h
+    /* Trail factor 0.82: chi fa 5min/km pista fa ~6min/km su trail piano.
+       Range concordato: 0.80-0.85. */
+    const TRAIL_FACTOR = 0.82;
+    const velBase = (60 / (m10 / 10)) * TRAIL_FACTOR; // km/h trail-adjusted
 
     const terrainClass = document.getElementById('terrain')?.value || 'E';
     const S      = readNum('spec');
