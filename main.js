@@ -182,9 +182,22 @@
     return 0;
   }
 
-  function fatigueFactor(t_hours) {
-    /* v2 trail: +8% dopo 1h, +30% dopo 3h. Era (t/12)^1.3 → +4% dopo 1h */
-    return 1 + Math.pow(t_hours / 8, 1.2);
+  function fatigueFactor(t_hours, m10) {
+    /* v2 trail + scaling per livello atleta.
+       Atleta più forte (m10 basso) → fatica meno incisiva.
+       Formula: 1 + (t/8)^1.2 * (m10/55)^0.6
+       Riferimento: m10=55 (amatore medio, 5:30/km pista)
+       
+       Esempi dopo 3h:
+         m10=35 (élite):  +23%  (era +31% uniforme)
+         m10=45 (forte):  +27%
+         m10=55 (medio):  +31%  (invariato — è il riferimento)
+         m10=70 (lento):  +36%
+    */
+    const M10_REF   = 55;   // minuti — amatore medio come riferimento
+    const K_ATHLETE = 0.6;  // esponente scaling atleta (sensibilità)
+    const athleteScale = Math.pow((m10 || M10_REF) / M10_REF, K_ATHLETE);
+    return 1 + Math.pow(t_hours / 8, 1.2) * athleteScale;
   }
 
   /* ------------------------------------------------------------------
@@ -243,7 +256,7 @@
       const tech      = technicalPenalty(seg.slope, terrainClass);
       const velTech   = velLocal / (1 + tech);
       const t_raw     = seg.dist / (velTech * 1000 / 3600);
-      const fat       = fatigueFactor(T / 3600);
+      const fat       = fatigueFactor(T / 3600, m10);
       T += t_raw * fat;
     });
 
