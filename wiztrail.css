@@ -1393,3 +1393,14 @@ table {
   margin-bottom: 4px;
   min-height: 1em;
 }
+
+/* ── KPI microcopy — testo esplicativo sotto WDI e TechScore (index.html) ─ */
+.kpi-microcopy {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.6;
+  line-height: 1.5;
+  margin: 8px 0 0;
+  font-style: italic;
+}
