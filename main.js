@@ -66,7 +66,9 @@
 
       // Mappa 2D: inizializza e ridisegna
       if (btn.dataset.tab === 'map2d') {
-        WizMap.init();
+        /* WizMap.init() rimosso — la mappa Leaflet è ora inizializzata
+     da wiztrail-pacing.js che espone window._wizMap e window._wizHoverMarker.
+     drawTrack() e drawProfile() usano _wizMap già pronto. */
         setTimeout(() => {
           WizMap.drawTrack();
           WizMap.drawProfile();
@@ -75,11 +77,7 @@
       }
 
       // Pacing: avviso se manca GPX
-      if (btn.dataset.tab === 'pacing') {
-        const warn = document.getElementById('pc_warning');
-        if (warn) warn.style.display =
-          (!window.gpxPts || !window.gpxPts.length) ? 'block' : 'none';
-      }
+      /* Tab pacing rimosso — il pacing è ora sezione fissa post-calcolo */
     });
   });
 
@@ -96,6 +94,9 @@
     WizUI.updateGpxInfo(window.gpxPts, window.metrics);
     WizMap.drawTrack();
     WizMap.drawProfile();
+    /* Mostra profilo altimetrico subito dopo GPX caricato */
+    const es = document.getElementById('elevSection');
+    if (es) es.style.display = 'block';
     // Feedback dropzone
     const dz = document.getElementById('gpxDropzone');
     if (dz) {
@@ -272,6 +273,14 @@
     updatePersonalEstimate();
     document.querySelectorAll('.kpi-placeholder').forEach(el => el.remove());
     WizUI.showError('OK');
+
+    /* Mostra sezioni fisse post-calcolo */
+    const elevSec   = document.getElementById('elevSection');
+    const pacingSec = document.getElementById('pacingSection');
+    const fbBtn     = document.getElementById('feedbackBtn');
+    if (elevSec)   elevSec.style.display   = 'block';
+    if (pacingSec) pacingSec.style.display = 'block';
+    if (fbBtn)     fbBtn.style.display     = 'block';
 
     /* Badge disciplina — solo se GPX caricato (max_altitude disponibile).
        In modalità manuale gpxPts è vuoto → badge nascosto. */
