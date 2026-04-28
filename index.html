@@ -93,8 +93,6 @@
   <!-- NAV TABS -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="calc">Calcolatore</button>
-    <button class="tab-btn" data-tab="pacing">Pacing</button>
-    <button class="tab-btn" data-tab="map2d">Mappa 2D</button>
     <button class="tab-btn" data-tab="postgara">Feedback</button>
   </div>
 
@@ -284,98 +282,87 @@
         </div>
       </div>
 
+      <!-- Button modale feedback — appare dopo il primo calcolo WDI -->
+      <div id="feedbackBtn" style="display:none; margin-top:16px; text-align:center;">
+        <button class="btn secondary"
+          onclick="var m=document.getElementById('feedbackModal');m.style.display='flex';document.getElementById('feedbackOverlay').onclick=function(){m.style.display='none';};">
+          🏁 Hai corso questa gara? Dai il tuo feedback
+        </button>
+      </div>
+
     </div><!-- /card -->
-  </section>
 
-  <!-- PANEL: PACING -->
-  <section id="pacing" class="panel">
-    <div class="card">
-      <h2>Pacing Planner</h2>
-      <p class="mini" style="opacity:0.6; margin-bottom:16px;">
-        Distribuisce il tuo tempo obiettivo segmento per segmento in base alla difficoltà reale del percorso.
-      </p>
+    <!-- Profilo altimetrico — sezione fissa post-GPX
+         elevCanvas gestito da map.js (hover interattivo + sync mappa pacing) -->
+    <div class="card" id="elevSection" style="display:none;">
+      <h2>Profilo altimetrico</h2>
+      <div class="profile-wrap">
+        <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
+      </div>
+    </div>
 
-      <!-- Warning GPX mancante -->
-      <div id="pc_warning" class="pc-warning" style="display:none;">
-        📂 Carica prima una traccia GPX nel tab Calcolatore per generare il pacing.
+    <!-- Pacing + Mappa — sezioni fisse post-calcolo
+         pacingMap inizializzato da pacing.js → espone window._wizMap
+         per sincronizzazione con profilo altimetrico -->
+    <div id="pacingSection" style="display:none;">
+      <div class="card">
+        <h2>Pacing Planner</h2>
+        <p class="mini" style="opacity:0.6; margin-bottom:4px;">
+          Il pacing adattivo rispecchia le caratteristiche dei diversi tratti del percorso.
+        </p>
+        <div class="pc-inputs">
+          <div class="pc-input-group">
+            <label>Tempo obiettivo</label>
+            <input id="pc_target" type="text" placeholder="02:30:00" class="pc-time-input">
+            <span class="mini" style="opacity:0.5;">hh:mm:ss</span>
+          </div>
+          <div class="pc-input-group">
+            <label>Checkpoint ogni</label>
+            <select id="pc_gran">
+              <option value="5">5 km</option>
+              <option value="10">10 km</option>
+              <option value="1">1 km</option>
+            </select>
+          </div>
+          <button class="btn" id="pc_generate">Genera pacing →</button>
+        </div>
+        <div id="pc_warning" class="pc-warning" style="display:none;">
+          📂 Carica prima una traccia GPX per generare il pacing.
+        </div>
+        <div id="pc_results" style="display:none; margin-top:20px;">
+          <div id="pc_summary" class="pc-summary"></div>
+          <div class="pc-legend">
+            <span class="pc-legend-item"><span class="pc-legend-dot" style="background:#34A853;"></span>Tratto veloce</span>
+            <span class="pc-legend-item"><span class="pc-legend-dot" style="background:#F4C20D;"></span>Tratto medio</span>
+            <span class="pc-legend-item"><span class="pc-legend-dot" style="background:#F79617;"></span>Tratto impegnativo</span>
+          </div>
+          <div id="pc_table" class="responsive-table"></div>
+        </div>
       </div>
 
-      <!-- Input -->
-      <div class="pc-inputs">
-        <div class="pc-input-group">
-          <label>Tempo obiettivo</label>
-          <input id="pc_target" type="text" placeholder="02:30:00" class="pc-time-input">
-          <span class="mini" style="opacity:0.5;">hh:mm:ss</span>
-        </div>
-        <div class="pc-input-group">
-          <label>Checkpoint ogni</label>
-          <select id="pc_gran">
-            <option value="5">5 km</option>
-            <option value="10">10 km</option>
-            <option value="1">1 km</option>
-          </select>
-        </div>
-        <button class="btn" id="pc_generate">Genera pacing →</button>
-      </div>
-
-      <!-- Risultati -->
-      <div id="pc_results" style="display:none; margin-top:20px;">
-
-        <!-- Summary KPI -->
-        <div id="pc_summary" class="pc-summary"></div>
-
-        <!-- Legenda colori -->
-        <div class="pc-legend">
-          <span class="pc-legend-item">
-            <span class="pc-legend-dot" style="background:#4fd1c5;"></span>
-            Sotto il passo medio
-          </span>
-          <span class="pc-legend-item">
-            <span class="pc-legend-dot" style="background:#ff00a8;"></span>
-            Sopra il passo medio
-          </span>
-        </div>
-
-        <!-- Tabella -->
-        <div id="pc_table" class="responsive-table"></div>
-
-        <!-- Mappa + altimetria -->
-        <div class="pc-visuals">
-          <div class="pc-visuals-label">Mappa percorso colorata per intensità</div>
-          <div class="pc-visuals-row">
-            <div id="pacingMap" class="pc-map"></div>
-            <canvas id="pacingElevCanvas" class="pc-elev"></canvas>
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h2 style="margin:0;">Mappa percorso</h2>
+          <!-- Menu opzioni inline -->
+          <div style="position:relative;">
+            <button class="btn secondary" id="optionsToggle" style="padding:6px 14px;"
+              onclick="var d=document.getElementById('optionsDrop');d.style.display=d.style.display==='none'?'block':'none';">⋯</button>
+            <div id="optionsDrop" style="display:none; position:absolute; right:0; top:38px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:8px; min-width:160px; z-index:10; box-shadow:0 8px 24px rgba(0,0,0,.3);">
+              <button class="btn secondary" id="btnFit" style="width:100%; margin-bottom:6px;">Centra traccia</button>
+              <button class="btn secondary" id="btnKml" style="width:100%;">Scarica KML</button>
+            </div>
           </div>
         </div>
-
+        <div id="pacingMap" style="height:320px; border-radius:8px;"></div>
       </div>
     </div>
+
   </section>
 
-  <!-- PANEL: MAPPA 2D -->
-  <section id="map2d" class="panel">
-    <div class="card">
-      <h2>Mappa 2D</h2>
-      <div id="leafletMap"></div>
-      <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
-      <button class="btn" id="btnFit">Centra sulla traccia</button>
-      <button class="btn secondary" id="btnKml">Scarica KML</button>
-      <div class="banner-3d">
-        Stampa la tua traccia in <b>3D!</b><br>
-        Trasformala in un ricordo (medaglia, modellino, trofeo...)<br>
-        <a>#Servizio in arrivo</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- PANEL: HOWTO -->
-  <!-- how-to rimosso: contenuto migrato in about.html -->
-
-  <!-- PANEL: FONDAMENTI -->
-  <!-- fondamenti rimosso: contenuto migrato in about.html -->
-
-  <!-- PANEL: POST-GARA -->
-  <section id="postgara" class="panel">
+  <!-- MODALE FEEDBACK -->
+  <div id="feedbackModal" style="display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center;">
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.75);" id="feedbackOverlay"></div>
+    <div style="position:relative;z-index:1;max-width:480px;width:90%;max-height:90vh;overflow-y:auto;">
     <div class="card">
       <h2>Feedback tempo gara</h2>
       <p style="margin-bottom:16px; color:var(--muted); font-size:0.88rem;">
@@ -409,8 +396,9 @@
           <div class="feedback-status" id="feedbackStatus"></div>
         </div>
       </div>
+    <button class="btn secondary" onclick="document.getElementById('feedbackModal').style.display='none';" style="width:100%;margin-top:8px;">Chiudi</button>
     </div>
-  </section>
+  </div><!-- /.feedbackModal -->
 
   <!-- PANEL: LICENZE -->
   <!-- licenze rimosso: contenuto migrato in about.html -->
