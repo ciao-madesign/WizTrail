@@ -46,34 +46,14 @@
   }
 
   /* ------------------------------------------------------------------
-     LEAFLET — inizializzazione mappa
+     LEAFLET — init() è no-op.
+     La mappa Leaflet è ora gestita da wiztrail-pacing.js (initPacingMap).
+     window._wizMap e window._wizHoverMarker vengono impostati da pacing.js
+     al DOMContentLoaded, prima che qualsiasi interazione utente possa
+     chiamare drawTrack() o drawProfile().
      ------------------------------------------------------------------ */
   function init() {
-    if (map) return;
-
-    map = L.map('leafletMap');
-
-    const darkBase = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      { subdomains: 'abcd', maxZoom: 19, attribution: '© OpenStreetMap, © CartoDB' }
-    );
-
-    const topoOverlay = L.tileLayer(
-      'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-      { maxZoom: 17, opacity: 0.35, attribution: '© OpenTopoMap (CC-BY-SA)' }
-    );
-
-    L.layerGroup([darkBase, topoOverlay]).addTo(map);
-
-    hoverMarker = L.circleMarker([0, 0], {
-      radius: 6, color: '#ff0', fillColor: '#ff0',
-    });
-
-    map.setView([46.5, 8.3], 5);
-
-    // Espone hoverMarker per il profilo altimetrico
-    window._wizHoverMarker = hoverMarker;
-    window._wizMap = map;
+    /* no-op — mappa inizializzata da wiztrail-pacing.js */
   }
 
   /* ------------------------------------------------------------------
@@ -333,10 +313,6 @@
      ------------------------------------------------------------------ */
   window.WizMap = { init, drawTrack, fitTrack, drawProfile, getColorWDI };
 
-  // Alias diretti per retrocompatibilità con chiamate già presenti nel codice
-  window.initLeaflet  = init;
-  window.drawTrack    = drawTrack;
-  window.fitTrack     = fitTrack;
-  window.drawProfile  = drawProfile;
+  /* Alias globali rimossi — usare window.WizMap.* per tutte le chiamate */
 
 })();
