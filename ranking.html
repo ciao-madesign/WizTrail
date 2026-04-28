@@ -38,11 +38,11 @@
   <div class="hero-overlay"></div>
   <div class="hero-inner">
     <div class="hero-eyebrow">WizTrail — Ranking WDI</div>
-    <h1 class="hero-title">Le gare più dure<br>del mondo</h1>
-    <p class="hero-desc">Classifica oggettiva basata sul WDI. Dalle gare sport alle leggende del trail mondiale.</p>
+    <h1 class="hero-title">Quanto è difficile<br>il tuo percorso?</h1>
+    <p class="hero-desc">Carica il GPX e scopri WDI e TechScore. Poi confronta con le gare del ranking ufficiale.</p>
     <div class="hero-actions">
-      <a href="#ranking-table" class="hero-btn-primary">Esplora il ranking →</a>
-      <a href="index.html" class="hero-btn-ghost">Calcola il tuo trail</a>
+      <a href="#analizza-gara" class="hero-btn-primary">Analizza il tuo GPX →</a>
+      <a href="#ranking-table" class="hero-btn-ghost">Esplora il ranking</a>
     </div>
   </div>
 </div>
@@ -58,8 +58,22 @@
   </span>
 </div>
 
+<!-- SEZIONE 1 — Analisi GPX (prominente, prima del ranking) -->
+<div class="card" id="analizza-gara" style="margin-bottom:20px;">
+  <h2>Analizza il tuo percorso</h2>
+  <p class="mini" style="opacity:0.7; margin-bottom:16px;">
+    Carica il GPX della tua gara per ottenere WDI, TechScore e disciplina.
+    Confronta subito con le gare del ranking ufficiale.
+  </p>
+  <label>Carica GPX</label>
+  <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
+  <button class="btn" id="btnUserCompute" style="margin-top:8px;">Analizza →</button>
+  <div id="userResult" style="margin-top:16px;"></div>
+</div>
+
+<!-- SEZIONE 2 — Ranking ufficiale -->
 <div class="card" id="ranking-table">
-<h2>Filtri</h2>
+<h2>Ranking ufficiale WDI</h2>
 <div class="grid grid-2">
 <div>
 <label>Filtra per nome gara</label>
@@ -123,13 +137,7 @@
 <pre id="adminOutput" style="margin-top:10px;padding:8px;background:#111;border-radius:6px;"></pre>
 </div>
 
-<div class="card">
-<h2>Confronta la tua gara</h2>
-<label>Carica GPX</label>
-<input type="file" id="gpxUser" accept=".gpx,.tcx"/>
-<button class="btn" id="btnUserCompute">Analizza</button>
-<div id="userResult" style="margin-top:10px;"></div>
-</div>
+
 
 <div class="footer">WizTrail © 2026
     <p class="mini" style="opacity:0.5; margin-top:4px;">Foto di <a href="https://unsplash.com/@ryutaf" target="_blank" rel="noopener" style="color:inherit;">Ryuta F.</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a> (Unsplash License)</p>
@@ -319,18 +327,34 @@ const pts = GPXParser.parseTrack(xml);
 const metrics = GPXParser.compute(pts);
 const rs = WizTrail.computeFromGpx(pts, metrics);
 
-const userNorm = WizTrail.normalizeWDI(rs.WDI, metrics.km);
+const userNorm   = WizTrail.normalizeWDI(rs.WDI, metrics.km);
+const discResult = (typeof DisciplineClassifier !== 'undefined')
+  ? DisciplineClassifier.classify({ distance_km: metrics.km, dplus: metrics.gain, max_altitude: 0, wdi: rs.WDI })
+  : null;
+const discBadge = discResult ? DisciplineClassifier.renderBadge(discResult) : '—';
+
 userResult.innerHTML = `
-<h3>La tua gara</h3>
-<p>
-  <b>Distanza:</b> ${metrics.km.toFixed(2)} km<br>
-  <b>D+:</b> ${metrics.gain} m<br>
-  <b>WDI ${userNorm.category}:</b>
-  <span style="color:${rs.color};font-weight:700;">
-    ${userNorm.isLegendPlus ? '10+ 🏆' : userNorm.norm.toFixed(1)}
-  </span>
-  <span style="color:var(--muted);font-size:0.85rem;">(grezzo ${rs.WDI.toFixed(1)} — ${wdiLabel(rs.class, userNorm.isLegendPlus)})</span>
-</p>`;
+<div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:8px;">
+  <div class="kpi" style="flex:1; min-width:130px;">
+    <h3>WDI ${userNorm.category}</h3>
+    <div class="val" style="font-size:2.2rem; color:${rs.color}; font-weight:900;">
+      ${userNorm.isLegendPlus ? '10+' : userNorm.norm.toFixed(1)}
+    </div>
+    <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">
+      grezzo ${rs.WDI.toFixed(1)} · ${wdiLabel(rs.class, userNorm.isLegendPlus)}
+    </div>
+  </div>
+  <div class="kpi" style="flex:1; min-width:130px;">
+    <h3>TechScore</h3>
+    <div class="val" style="font-size:2.2rem; color:${rs.techColor}; font-weight:900;">${rs.TechScore.toFixed(1)}</div>
+    <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">${rs.techClass}</div>
+  </div>
+  <div class="kpi" style="flex:1; min-width:130px;">
+    <h3>Disciplina</h3>
+    <div style="margin-top:10px;">${discBadge}</div>
+    <div style="font-size:0.74rem; color:var(--muted); margin-top:8px;">${metrics.km.toFixed(1)} km · ${Math.round(metrics.gain)} m D+</div>
+  </div>
+</div>`;
 });
 </script>
 <script>
