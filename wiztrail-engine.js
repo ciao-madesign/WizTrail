@@ -9,6 +9,8 @@
      - map.js → getColorWDI()
      - ui.js → showWDI() e showTechScore()
    kT = 0.50 → calibrato 20/04/2026 (era 0.35)
+   normRough 0.500 → recalibrato 28/04/2026 (era 0.051, saturava su GPX reali)
+   TERRAIN_DEFAULTS v2 → recalibrato 28/04/2026 per contesto gara
    =============================================================== */
 
 window.WizTrail = (function () {
@@ -67,10 +69,17 @@ window.WizTrail = (function () {
 
   const SURFACE_MULT = { 1: 0.92, 2: 0.97, 3: 1.00, 4: 1.04, 5: 1.08 };
 
+  /* TERRAIN_DEFAULTS — usati in computeManual (senza GPX reale).
+     Valori v2 — calibrati per riflettere la realtà dei trail in contesto gara,
+     non una passeggiata. La modalità manuale avrà sempre una leggera sottostima
+     rispetto al GPX reale su gare brevi (strutturale, accettabile).
+     E  = sentiero segnato con tratti tecnici, pendenze moderate
+     EE = sentiero tecnico, pietraie, radici, pendenze sostenute
+     EA = terreno alpinistico, roccia, creste, esposizione */
   const TERRAIN_DEFAULTS = {
-    'E':  { frip: 0.10, slopeVar: 0.12, roughness: 0.06 },
-    'EE': { frip: 0.18, slopeVar: 0.20, roughness: 0.12 },
-    'EA': { frip: 0.28, slopeVar: 0.30, roughness: 0.20 }
+    'E':  { frip: 0.22, slopeVar: 0.38, roughness: 0.18 },
+    'EE': { frip: 0.38, slopeVar: 0.55, roughness: 0.28 },
+    'EA': { frip: 0.55, slopeVar: 0.70, roughness: 0.40 }
   };
 
   /* ---------------------------------------------------------------
@@ -166,7 +175,7 @@ window.WizTrail = (function () {
        Aggiornare con scripts/03_calibrate.py della pipeline hub. */
     const normFRIP  = clamp(frip      / 0.924, 0, 1);  // era / 0.60
     const normSVar  = clamp(slopeVar  / 0.180, 0, 1);  // era / 0.55
-    const normRough = clamp(roughness / 0.051, 0, 1);  // era / 0.35
+    const normRough = clamp(roughness / 0.500, 0, 1);  // era / 0.051 — alzato per evitare saturazione su GPX reali
     const vertInt   = clamp((gain / km) / 74.1, 0, 1); // era / 150
     const raw = (normFRIP * 0.244 + normSVar * 0.421 + normRough * 0.208) * 0.873
               + vertInt * 0.127;
