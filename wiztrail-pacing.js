@@ -143,15 +143,18 @@ function pc_segmentCost(seg, params) {
   let slopeF = 1;
 
   if (slope > 0) {
-    // salite
+    // salite — invariate (calibrate)
     if (slope < 0.05)       slopeF = 1 + slope * 6;   // +0-30%
     else if (slope < 0.12)  slopeF = 1 + slope * 10;  // +60-120%
     else                    slopeF = 1 + slope * 18;  // salite dure
   }
   else if (slope < 0) {
-    // discese
-    if (slope > -0.10)      slopeF = 1 - Math.abs(slope) * 2; // lieve accelerazione
-    else                    slopeF = 1 + Math.abs(slope) * 3; // discesa ripida → rallenta
+    /* discese v2: beneficio ridotto (max +8% in discesa lieve).
+       Era: slopeF = 1 - |slope|*2 → con -8%: slopeF=0.84 (+19%) — irrealistico su trail.
+       Ora: max +8% in discesa lieve, poi penalità controllo tecnico */
+    if (slope > -0.06)      slopeF = 1 - Math.abs(slope) * 1.2; // max +7% su discesa gentile
+    else if (slope > -0.15) slopeF = 1 + Math.abs(slope) * 0.5; // discesa media → leggera penalità
+    else                    slopeF = 1 + Math.abs(slope) * 3;   // discesa ripida → rallenta
   }
 
   // ---------------------------------------------------------
@@ -251,13 +254,45 @@ function computeChunkTimes(pacingChunks, params, T_target_sec) {
   pacingChunks.forEach(c => totalCost += c.totalCost);
 
   // 2. distribuzione tempo → proporzionale alla difficoltà locale
-  let cumulative = 0;
+  const avgCostPerKm = totalCost / pacingChunks.reduce((s,c) => s + c.dist_km, 0);
 
   pacingChunks.forEach(chunk => {
-
     const ratio = chunk.totalCost / totalCost;
     chunk.time_sec = T_target_sec * ratio;
+  });
 
+  // 3. Floor pace: nessun chunk può essere >30% più veloce del pace medio.
+  //    Evita che ultimi km (spesso pianeggianti) risultino irrealisticamente veloci.
+  //    Il tempo "risparmiato" viene redistribuito proporzionalmente ai chunk più lenti.
+  const avgPaceSec = T_target_sec / pacingChunks.reduce((s,c) => s + c.dist_km, 0);
+  const floorPaceSec = avgPaceSec * 0.70; // max 30% più veloce della media
+
+  let surplus = 0;
+  let slowTotalDist = 0;
+
+  pacingChunks.forEach(chunk => {
+    const chunkPace = chunk.time_sec / chunk.dist_km;
+    if (chunkPace < floorPaceSec) {
+      surplus += (floorPaceSec - chunkPace) * chunk.dist_km;
+      chunk.time_sec = floorPaceSec * chunk.dist_km;
+    } else {
+      slowTotalDist += chunk.dist_km;
+    }
+  });
+
+  // Ridistribuisce il surplus ai chunk più lenti proporzionalmente alla distanza
+  if (surplus > 0 && slowTotalDist > 0) {
+    pacingChunks.forEach(chunk => {
+      const chunkPace = chunk.time_sec / chunk.dist_km;
+      if (chunkPace >= floorPaceSec) {
+        chunk.time_sec += surplus * (chunk.dist_km / slowTotalDist);
+      }
+    });
+  }
+
+  // 4. Calcolo cumulativo finale
+  let cumulative = 0;
+  pacingChunks.forEach(chunk => {
     cumulative += chunk.time_sec;
     chunk.cumulative_sec = cumulative;
   });
@@ -350,12 +385,29 @@ function initPacingMap() {
   if (!document.getElementById("pacingMap")) return;
   if (pacingMap) return;
 
-  pacingMap = L.map("pacingMap");
+  pacingMap = L.map("pacingMap", {
+    /* Ottimizzazioni performance:
+       preferCanvas: riduce DOM nodes per tracce lunghe
+       zoomSnap/Delta: zoom più fluido */
+    preferCanvas: true,
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
+  });
 
-  /* CartoDB dark only — OpenTopoMap rimosso (causa lentezza su aree remote) */
+  /* CartoDB dark — parametri ottimizzati per ridurre tile requests:
+     maxZoom=15: sufficiente per trail (zoom 14 = ~2.4km/tile)
+     updateWhenIdle: carica tile solo a pan fermo → -60% richieste
+     updateWhenZooming: false → non carica durante zoom */
   L.tileLayer(
     "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    { subdomains: "abcd", maxZoom: 18, attribution: "© OpenStreetMap, © CartoDB" }
+    {
+      subdomains: "abcd",
+      maxZoom: 15,
+      attribution: "© OpenStreetMap, © CartoDB",
+      updateWhenIdle: true,
+      updateWhenZooming: false,
+      keepBuffer: 2,
+    }
   ).addTo(pacingMap);
 
   /* Espone _wizMap e _wizHoverMarker per sincronizzazione con
