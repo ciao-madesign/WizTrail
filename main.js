@@ -257,13 +257,27 @@
     T *= 1 + (meteo - 1) * (T_hours / 5);
     T *= alt;
 
-    // WDI — usa metrics ibrido con D+ manuale
-    const rs = WizTrail.computeFromGpx(
-      window.gpxPts,
-      m,
-      window.currentSurfaceLevel,
-      window.lastOsmResult
-    );
+    // WDI — se GPX senza elevazione usa computeManual per TechScore realistico
+    // (computeFromGpx con e=[0,0,...] darebbe frip=slopeVar=roughness=0 → WDI bassissimo)
+    const hasRealElevation = mGpx.gain > 0;
+    let rs;
+    if (!hasRealElevation && manualGain > 0) {
+      rs = WizTrail.computeManual({
+        km:          m.km,
+        gain:        manualGain,
+        loss:        manualGain,
+        terrainCat:  window.currentTerrainCat  || 'EE',
+        surfaceLevel: window.currentSurfaceLevel || 3,
+        altMedia:    m.altMedia || 800,
+      });
+    } else {
+      rs = WizTrail.computeFromGpx(
+        window.gpxPts,
+        m,
+        window.currentSurfaceLevel,
+        window.lastOsmResult
+      );
+    }
     window.currentWDI      = rs.WDI;        // grezzo — per map.js e calcoli
     window.currentWDI_norm = rs.WDI_norm;   // normalizzato — per display futuro
     window.lastRS          = rs;
@@ -283,8 +297,8 @@
     if (fbBtn)     fbBtn.style.display     = 'block';
 
     /* Leaflet non renderizza su container hidden — invalidateSize forza il re-render
-       dopo che #pacingSection diventa visibile. setTimeout garantisce che il browser
-       abbia aggiornato il layout prima della chiamata. */
+       dopo che #pacingSection diventa visibile (display:none → block).
+       setTimeout garantisce che il browser aggiorni il layout prima della chiamata. */
     setTimeout(() => {
       if (window._wizMap) {
         window._wizMap.invalidateSize();
