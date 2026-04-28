@@ -282,6 +282,16 @@
     if (pacingSec) pacingSec.style.display = 'block';
     if (fbBtn)     fbBtn.style.display     = 'block';
 
+    /* Leaflet non renderizza su container hidden — invalidateSize forza il re-render
+       dopo che #pacingSection diventa visibile. setTimeout garantisce che il browser
+       abbia aggiornato il layout prima della chiamata. */
+    setTimeout(() => {
+      if (window._wizMap) {
+        window._wizMap.invalidateSize();
+        WizMap.drawTrack();
+      }
+    }, 120);
+
     /* Badge disciplina — solo se GPX caricato (max_altitude disponibile).
        In modalità manuale gpxPts è vuoto → badge nascosto. */
     if (window.gpxPts && window.gpxPts.length > 0 &&
