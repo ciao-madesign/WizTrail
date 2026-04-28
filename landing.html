@@ -484,20 +484,21 @@
   <div class="lnd-hero-bg" id="heroBg"></div>
   <div class="lnd-hero-gradient"></div>
   <div class="lnd-hero-content">
-    <p class="lnd-eyebrow">WizTrail — Difficulty Index v5.1</p>
+    <p class="lnd-eyebrow">WizTrail — Trail Intelligence</p>
     <h1 class="lnd-hero-title">
-      Ogni salita ha<br>un <em>peso preciso</em>.
+      Analizza il percorso.<br>
+      Stabilisci il tuo obiettivo.<br>
+      <em>Imposta il passo giusto.</em>
     </h1>
     <p class="lnd-hero-desc">
-      Carica il GPX, calcola il WDI del tuo percorso e ottieni la stima di tempo
-      calibrata sul tuo livello. Tutto in locale, nessun account richiesto.
+      Dal GPX al piano di gara in pochi secondi. Tutto sul tuo dispositivo, nessun account richiesto.
     </p>
     <div class="lnd-hero-actions">
       <a href="index.html" class="btn-primary-lnd">
         Analizza il tuo trail →
       </a>
-      <a href="about.html" class="btn-ghost-lnd">
-        Come funziona
+      <a href="#flussi" class="btn-ghost-lnd">
+        Scopri cosa puoi fare
       </a>
     </div>
   </div>
@@ -529,6 +530,44 @@
     <div class="lnd-stat-label">Dati inviati a server</div>
   </div>
 </div>
+
+<!-- 3 FLUSSI -->
+<section class="lnd-section" id="flussi">
+  <p class="lnd-section-label">Per chi è WizTrail</p>
+  <h2 class="lnd-section-title">
+    Tre modi di usarlo, <em>un solo strumento</em>.
+  </h2>
+
+  <div class="features-grid" style="margin-bottom:0;">
+    <div class="feature-card">
+      <span class="feature-icon">🏔️</span>
+      <h3 class="feature-title">Prepara la tua gara</h3>
+      <p class="feature-desc">
+        Carica il GPX, calcola il WDI (Indice di Difficoltà) e ottieni la stima di tempo
+        calibrata sul tuo livello. Poi pianifica il pacing segmento per segmento.
+      </p>
+      <a href="index.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Apri il Calcolatore →</a>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏃</span>
+      <h3 class="feature-title">Analizza l'allenamento</h3>
+      <p class="feature-desc">
+        Hai appena finito un'uscita? Carica il GPX o importa da Strava e scopri
+        quanto è stata impegnativa, calibrato sul tuo livello.
+      </p>
+      <a href="training-analyzer.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Apri Training Analyzer →</a>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏅</span>
+      <h3 class="feature-title">Certifica la tua gara</h3>
+      <p class="feature-desc">
+        Sei un organizzatore? Carica il GPX del tuo percorso e confrontalo
+        con le gare del ranking ufficiale WizTrail.
+      </p>
+      <a href="ranking.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Vai al Ranking →</a>
+    </div>
+  </div>
+</section>
 
 <!-- FEATURES -->
 <section class="lnd-section">
@@ -565,15 +604,7 @@
       </p>
       <span class="feature-tag">GPX required</span>
     </div>
-    <div class="feature-card">
-      <span class="feature-icon">🗺️</span>
-      <h3 class="feature-title">Mappa 2D + altimetria</h3>
-      <p class="feature-desc">
-        Visualizza la traccia su mappa con profilo altimetrico interattivo.
-        Esporta in KML per Google Earth.
-      </p>
-      <span class="feature-tag">Leaflet · CartoDB</span>
-    </div>
+
     <div class="feature-card">
       <span class="feature-icon">🏃</span>
       <h3 class="feature-title">Training Analyzer</h3>
@@ -583,15 +614,7 @@
       </p>
       <span class="feature-tag">Strava OAuth</span>
     </div>
-    <div class="feature-card">
-      <span class="feature-icon">📋</span>
-      <h3 class="feature-title">Report Post-gara</h3>
-      <p class="feature-desc">
-        Confronta la stima pre-gara con il risultato reale.
-        Genera un report completo con analisi di pacing e scarto.
-      </p>
-      <span class="feature-tag">JSON export</span>
-    </div>
+
   </div>
 </section>
 
@@ -599,16 +622,16 @@
 <div class="wdi-showcase">
   <div class="wdi-showcase-inner">
     <div>
-      <p class="lnd-section-label">Il WDI</p>
+      <p class="lnd-section-label">Il WDI — Indice di Difficoltà</p>
       <h2 class="lnd-section-title" style="margin-bottom:24px;">
         Sei classi di difficoltà,<br><em>calibrate su dati reali</em>.
       </h2>
-      <p style="font-family:'Outfit', system-ui, sans-serif; font-size:0.8rem; color:rgba(232,245,244,0.5); line-height:1.7; max-width:420px;">
+      <p style="font-family:var(--font-sans); font-size:0.8rem; color:rgba(232,245,244,0.5); line-height:1.7; max-width:420px;">
         Il WizTrail Difficulty Index combina volume (D+, distanza) e tecnicità
         del terreno (FRIP, SlopeVar, Roughness) in un indice unico.
         Più GPX reali vengono caricati, più il modello si affina automaticamente.
       </p>
-      <a href="about.html" style="display:inline-block; margin-top:24px; font-family:'Outfit', system-ui, sans-serif; font-size:0.78rem; color:var(--landing-accent); text-decoration:none; border-bottom:1px solid rgba(79,209,197,0.3); padding-bottom:2px;">
+      <a href="about.html" style="display:inline-block; margin-top:24px; font-family:var(--font-sans); font-size:0.78rem; color:var(--landing-accent); text-decoration:none; border-bottom:1px solid rgba(79,209,197,0.3); padding-bottom:2px;">
         Formula completa e metodologia →
       </a>
     </div>
