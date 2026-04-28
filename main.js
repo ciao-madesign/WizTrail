@@ -317,11 +317,17 @@
        dopo che #pacingSection diventa visibile (display:none → block).
        setTimeout garantisce che il browser aggiorni il layout prima della chiamata. */
     setTimeout(() => {
+      /* initPacingMap() viene chiamata qui (non al DOMContentLoaded)
+         perché Leaflet richiede un container con dimensioni > 0.
+         #pacingSection era display:none fino a questo momento. */
+      if (!window._wizMap && typeof initPacingMap === 'function') {
+        initPacingMap();
+      }
       if (window._wizMap) {
         window._wizMap.invalidateSize();
         WizMap.drawTrack();
       }
-    }, 120);
+    }, 150);
 
     /* Badge disciplina — solo se GPX caricato (max_altitude disponibile).
        In modalità manuale gpxPts è vuoto → badge nascosto. */

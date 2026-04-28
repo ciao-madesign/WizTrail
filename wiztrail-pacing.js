@@ -149,12 +149,15 @@ function pc_segmentCost(seg, params) {
     else                    slopeF = 1 + slope * 18;  // salite dure
   }
   else if (slope < 0) {
-    /* discese v2: beneficio ridotto (max +8% in discesa lieve).
-       Era: slopeF = 1 - |slope|*2 → con -8%: slopeF=0.84 (+19%) — irrealistico su trail.
-       Ora: max +8% in discesa lieve, poi penalità controllo tecnico */
-    if (slope > -0.06)      slopeF = 1 - Math.abs(slope) * 1.2; // max +7% su discesa gentile
-    else if (slope > -0.15) slopeF = 1 + Math.abs(slope) * 0.5; // discesa media → leggera penalità
-    else                    slopeF = 1 + Math.abs(slope) * 3;   // discesa ripida → rallenta
+    /* discese v3: discesa premiata fino a 45% più veloce del piano.
+       Discesa lieve/media → netto vantaggio (trail runnable).
+       Discesa ripida (>20%) → penalità controllo tecnico.
+       slopeF < 1 → più veloce del piano. */
+    if (slope > -0.08)      slopeF = 1 - Math.abs(slope) * 3.0; // max -24% su lieve (es. -8%→0.76)
+    else if (slope > -0.15) slopeF = 1 - Math.abs(slope) * 2.5; // -20 a -37% su media
+    else if (slope > -0.25) slopeF = 1 - Math.abs(slope) * 1.0; // -15 a -25% su ripida
+    else                    slopeF = 1 + Math.abs(slope) * 1.0; // penalità su >25%
+    slopeF = Math.max(slopeF, 0.55); // floor: mai più di 45% più veloce del piano
   }
 
   // ---------------------------------------------------------
@@ -265,7 +268,7 @@ function computeChunkTimes(pacingChunks, params, T_target_sec) {
   //    Evita che ultimi km (spesso pianeggianti) risultino irrealisticamente veloci.
   //    Il tempo "risparmiato" viene redistribuito proporzionalmente ai chunk più lenti.
   const avgPaceSec = T_target_sec / pacingChunks.reduce((s,c) => s + c.dist_km, 0);
-  const floorPaceSec = avgPaceSec * 0.70; // max 30% più veloce della media
+  const floorPaceSec = avgPaceSec * 0.55; // max 45% più veloce della media (coerente con discesa v3)
 
   let surplus = 0;
   let slowTotalDist = 0;
@@ -643,8 +646,9 @@ let PC_PLAN = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* Auto-init mappa — _wizMap pronto prima che main.js chiami drawTrack() */
-  initPacingMap();
+  /* initPacingMap() viene ora chiamata da main.js DOPO che #pacingSection
+     diventa visibile (display:none → block), per evitare che Leaflet
+     inizializzi su un container con dimensioni zero. */
 
   document.getElementById("pc_generate")?.addEventListener("click", () => {
 

@@ -11,12 +11,12 @@
   <meta property="og:title" content="WizTrail — Analizza la difficoltà del tuo trail" />
   <meta property="og:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale." />
   <meta property="og:url" content="https://ciao-madesign.github.io/WizTrail/" />
-  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-index.jpg" />
+  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-landing.jpg" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="WizTrail — Analizza la difficoltà del tuo trail">
   <meta name="twitter:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara.">
-  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-index.jpg">
+  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-landing.jpg">
   <meta name="photo-credit" content="Hero photo by Brian Erickson on Unsplash (unsplash.com/photos/8TJbrQGKFyU) — Unsplash License">
 
   <!-- PWA -->
@@ -63,7 +63,7 @@
     .lnd-hero-bg {
       position: absolute;
       inset: 0;
-      background-image: url('img/hero-index.jpg');
+      background-image: url('img/hero-landing.jpg');
       background-size: cover;
       background-position: center 30%;
       transform: scale(1.05);
@@ -735,7 +735,7 @@
   const bg = document.getElementById('heroBg');
   const img = new Image();
   img.onload = () => bg.classList.add('loaded');
-  img.src = 'img/hero-index.jpg';
+  img.src = 'img/hero-landing.jpg';
 
   // Service worker
   if ('serviceWorker' in navigator) {
