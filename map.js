@@ -60,13 +60,15 @@
      LEAFLET — disegna traccia
      ------------------------------------------------------------------ */
   function drawTrack() {
-    if (!map || !window.gpxPts || !window.gpxPts.length) return;
-    if (poly) map.removeLayer(poly);
+    /* Usa window._wizMap impostato da wiztrail-pacing.js.initPacingMap() */
+    const m = window._wizMap;
+    if (!m || !window.gpxPts || !window.gpxPts.length) return;
+    if (poly) { try { m.removeLayer(poly); } catch(e) {} }
 
     poly = L.polyline(
       window.gpxPts.map(p => [p[0], p[1]]),
       { color: getColorWDI(window.currentWDI), weight: 4 }
-    ).addTo(map);
+    ).addTo(m);
 
     fitTrack();
   }
@@ -75,7 +77,8 @@
      LEAFLET — centra sulla traccia
      ------------------------------------------------------------------ */
   function fitTrack() {
-    if (poly) map.fitBounds(poly.getBounds(), { padding: [20, 20] });
+    const m = window._wizMap;
+    if (poly && m) { try { m.fitBounds(poly.getBounds(), { padding: [20, 20] }); } catch(e) {} }
   }
 
   /* ==================================================================
