@@ -60,7 +60,8 @@
      LEAFLET — disegna traccia
      ------------------------------------------------------------------ */
   function drawTrack() {
-    /* Usa window._wizMap impostato da wiztrail-pacing.js.initPacingMap() */
+    /* Usa window._wizMap impostato da wiztrail-pacing.js.initPacingMap()
+       (la variabile locale 'map' è sempre null — init() è no-op) */
     const m = window._wizMap;
     if (!m || !window.gpxPts || !window.gpxPts.length) return;
     if (poly) { try { m.removeLayer(poly); } catch(e) {} }
