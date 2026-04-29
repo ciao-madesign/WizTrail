@@ -298,33 +298,38 @@ function drawElevation(c, e){
    ------------------------------------------------------------------ */
 
 const TRAINING_LEVELS = {
+  /* Soglie su WDI norm 0-10 per categoria distanza.
+     Ricalibrate 29/04/2026: allineate alla realtà percepita degli atleti.
+     20km/1500D+ (norm ~6.8) → Amatore: Sessione intensa | Pro: Sessione intensa */
   amatore: [
     { max: 1.3, label: 'Riscaldamento',      emoji: '🌿', color: '#2BB7DA',
       motivation: 'Perfetto per recuperare. Il corpo ringrazia.' },
-    { max: 2.5, label: 'Uscita media',        emoji: '🏃', color: '#34A853',
+    { max: 3.0, label: 'Uscita media',        emoji: '🏃', color: '#34A853',
       motivation: 'Buona routine. La costanza costruisce i campioni.' },
-    { max: 4.5, label: 'Allenamento solido',  emoji: '💪', color: '#F4C20D',
+    { max: 5.5, label: 'Allenamento solido',  emoji: '💪', color: '#F4C20D',
       motivation: 'Stai lavorando bene. Questo fa la differenza.' },
-    { max: 6.5, label: 'Sessione intensa',    emoji: '🔥', color: '#F79617',
+    { max: 7.5, label: 'Sessione intensa',    emoji: '🔥', color: '#F79617',
       motivation: 'Roba seria. Pochi si spingono fino a qui.' },
-    { max: 8.5, label: 'Giornata epica',      emoji: '⚡', color: '#E91E63',
+    { max: 9.2, label: 'Giornata epica',      emoji: '⚡', color: '#E91E63',
       motivation: 'Oltre i tuoi limiti abituali. Ricordatelo.' },
     { max: 99,  label: 'Leggenda',            emoji: '🔱', color: '#8E24AA',
-      motivation: 'Sei fuori scala. Rispetto.' },
+      motivation: 'Una di quelle giornate che si raccontano.' },
   ],
   pro: [
     { max: 2.1, label: 'Recupero attivo',     emoji: '🌿', color: '#2BB7DA',
-      motivation: 'Sessione leggera. Il motore gira al minimo.' },
+      motivation: 'Gambe fresche per domani.' },
     { max: 4.0, label: 'Uscita leggera',      emoji: '🏃', color: '#34A853',
-      motivation: 'Routine. Utile, non sufficiente.' },
+      motivation: 'Volume di base. La base si costruisce così.' },
     { max: 6.0, label: 'Allenamento medio',   emoji: '💪', color: '#F4C20D',
-      motivation: 'Volume di qualità. Stai costruendo.' },
-    { max: 8.0, label: 'Allenamento solido',  emoji: '🔥', color: '#F79617',
-      motivation: 'Sessione seria. Il lavoro si vede.' },
-    { max: 9.2, label: 'Sessione intensa',    emoji: '⚡', color: '#E91E63',
-      motivation: 'Pochi in forma riescono a reggere questo.' },
+      motivation: 'Buon lavoro. Il motore gira.' },
+    { max: 7.5, label: 'Sessione intensa',    emoji: '🔥', color: '#F79617',
+      motivation: 'Questa è roba seria.' },
+    { max: 9.0, label: 'Allenamento solido',  emoji: '⚡', color: '#E91E63',
+      motivation: 'Ai limiti. Raro.' },
+    { max: 9.7, label: 'Giornata dura',       emoji: '🏔', color: '#E91E63',
+      motivation: 'Raro anche per i migliori.' },
     { max: 99,  label: 'Giornata da pro',     emoji: '🏆', color: '#8E24AA',
-      motivation: 'Al limite. Recupera bene.' },
+      motivation: 'Solo i migliori arrivano qui.' },
   ],
 };
 
