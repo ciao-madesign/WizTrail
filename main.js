@@ -92,17 +92,15 @@
     window.gpxPts  = GPXParser.parseTrack(xml);
     window.metrics = GPXParser.compute(window.gpxPts);
     WizUI.updateGpxInfo(window.gpxPts, window.metrics);
-    /* Inizializza mappa se non già fatto (prima del calcolo WDI) */
-    WizMap.init();
-    WizMap.drawTrack();
-    /* Mostra elevSection PRIMA di drawProfile: il canvas deve avere
-       dimensioni CSS reali (clientWidth > 0) per calcolare xs[] correttamente.
-       Se drawProfile viene chiamato con section hidden, clientWidth=0 → 
-       xs[] basato su 600px fallback → hover decentrato. */
+    /* Mostra elevSection PRIMA di init mappa: #pacingMap deve avere dimensioni
+       reali (clientWidth/Height > 0) quando Leaflet si inizializza.
+       Leaflet su container display:none → mappa 0×0 → tiles non caricate.
+       Stesso principio del pattern training-analyzer.html che funziona. */
     const es = document.getElementById('elevSection');
     if (es) es.style.display = 'block';
-    /* requestAnimationFrame garantisce che il browser abbia applicato
-       display:block e calcolato le dimensioni prima del disegno */
+    WizMap.init();
+    WizMap.drawTrack();
+    /* requestAnimationFrame garantisce layout applicato prima del disegno canvas */
     requestAnimationFrame(() => WizMap.drawProfile());
     // Feedback dropzone
     const dz = document.getElementById('gpxDropzone');
@@ -494,7 +492,11 @@
     var tech = window.lastRS?.TechScore ? window.lastRS.TechScore / 10 : 0;
 
     if (typeof getPacingEstimate !== 'function') return;
-    var stima = getPacingEstimate(km, dp, tech, t10raw);
+    // t10raw è "mm:ss" per 10km totali (es. "50:00" = 50 min su 10km = 5.0 min/km).
+    // parse10kmPace si aspetta min/km, quindi dividiamo per 10.
+    var t10parts = t10raw.split(':').map(Number);
+    var pace_min_km = (t10parts[0] + (t10parts[1] || 0) / 60) / 10;
+    var stima = getPacingEstimate(km, dp, tech, pace_min_km);
 
     // Etichetta livello atleta basata sul t10k
     var pace10 = stima.pace10km_input || 0;
