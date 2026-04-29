@@ -45,10 +45,13 @@ function estimatePersonalTime(km, dplus, tech, pace10km) {
  * Parsing input utente: "52:30" o 52 → 5.25 min/km
  */
 function parse10kmPace(input) {
-  if (typeof input === 'number') return input / 10;
+  /* Converte input utente in min/km.
+     Input "05:00" → 5.0 min/km. Input numerico → usato direttamente.
+     Bugfix: rimossa divisione /10 che trasformava min/km in valore errato. */
+  if (typeof input === 'number') return input;
   const parts   = String(input).trim().split(':');
   const minutes = parseFloat(parts[0]) + (parts[1] ? parseFloat(parts[1]) / 60 : 0);
-  return minutes / 10;
+  return minutes;
 }
 
 /** Ore decimali → "Xh YYm" */
