@@ -75,7 +75,7 @@
         <div class="wdi-label">WizTrail Difficulty Index v5.1</div>
         <div id="techWrap" style="display:none;">
           <div style="font-size:0.8rem;color:var(--muted);margin-top:10px;">
-            TechScore: <strong id="techScoreVal">—</strong> / 100
+            TechScore: <strong id="techScoreVal">—</strong> / 10
             &nbsp;<span id="techScoreClass" style="opacity:0.75;"></span>
           </div>
           <div class="techscore-bar-bg">
@@ -218,7 +218,7 @@
       var tb=document.getElementById('techScoreBar');
       var tc=document.getElementById('techScoreClass');
       if(tw){tw.style.display='block';}
-      if(tv){tv.textContent=rs.TechScore.toFixed(1);tv.style.color=rs.techColor;}
+      if(tv){tv.textContent=(rs.TechScore/10).toFixed(1);tv.style.color=rs.techColor;}
       if(tb){tb.style.width=Math.min(rs.TechScore,100)+'%';tb.style.background=rs.techColor;}
       if(tc){tc.textContent=rs.techClass||'';tc.style.color=rs.techColor;}
     }

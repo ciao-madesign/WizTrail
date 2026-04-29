@@ -225,9 +225,9 @@ function renderTable() {
         : `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiNorm.toFixed(1)}</span>
            <span style="color:var(--muted); font-size:0.7rem; margin-left:4px;">${r.wdi.toFixed(0)} grezzo</span>`;
 
-      /* TechScore: assoluto 0–100, mostra se presente */
+      /* TechScore: calcolo interno 0–100, display 0–10 */
       const techDisplay = (r.techScore != null)
-        ? `<span style="color:var(--muted); font-weight:600;">${Number(r.techScore).toFixed(1)}</span>`
+        ? `<span style="color:var(--muted); font-weight:600;">${(Number(r.techScore) / 10).toFixed(1)}</span>`
         : `<span style="color:var(--muted); opacity:0.4;" title="Da calcolare con GPX">—</span>`;
 
       /* Classe WDI: pill colorata */
@@ -346,7 +346,7 @@ userResult.innerHTML = `
   </div>
   <div class="kpi" style="flex:1; min-width:130px;">
     <h3>TechScore</h3>
-    <div class="val" style="font-size:2.2rem; color:${rs.techColor}; font-weight:900;">${rs.TechScore.toFixed(1)}</div>
+    <div class="val" style="font-size:2.2rem; color:${rs.techColor}; font-weight:900;">${(rs.TechScore / 10).toFixed(1)}</div>
     <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">${rs.techClass}</div>
   </div>
   <div class="kpi" style="flex:1; min-width:130px;">
