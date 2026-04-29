@@ -174,8 +174,7 @@
   <div id="trainingWdiRaw" class="ta-score-raw"></div>
   <!-- Label TrainingScore — interpretazione per livello atleta -->
   <div id="trainingComment" class="ta-score-comment">—</div>
-  <!-- Frase motivazionale -->
-  <div id="trainingMotivation" class="ta-score-motivation"></div>
+
   <!-- Commento performance (vs stima) -->
   <div id="perfComment" class="ta-score-perf"></div>
 </div>
@@ -234,24 +233,43 @@ function computeMetrics(pts){
 
 function drawElevation(c, e){
   if (!e || !e.length) return;
-  const ctx = c.getContext("2d");
-  ctx.clearRect(0,0,c.width,c.height);
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, c.width, c.height);
 
-  const max = Math.max(...e);
-  const min = Math.min(...e);
-  const H = c.height;
-  const W = c.width;
+  const valid = e.filter(Number.isFinite);
+  if (!valid.length) return;
+  let minE = Math.min(...valid), maxE = Math.max(...valid);
+  if (minE === maxE) { minE -= 1; maxE += 1; }
+  const margin = (maxE - minE) * 0.05;
+  minE -= margin; maxE += margin;
 
-  // linea altimetrica
-  ctx.beginPath();
-  for (let i=0; i<e.length; i++) {
-    const x = (i / (e.length - 1)) * W;
-    const y = H - ((e[i] - min) / (max - min)) * H;
-    if (i === 0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
+  const W = c.width, H = c.height;
+  const n = e.length;
+
+  const xs = [], ys = [];
+  for (let i = 0; i < n; i++) {
+    xs.push((i / (n - 1)) * W);
+    ys.push(H - ((e[i] - minE) / (maxE - minE)) * H);
   }
 
-ctx.strokeStyle = WizTrail.getColor(window.currentTrainingWDI || 0);
+  /* Gradiente riempimento — allineato a map.js */
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(79, 209, 197, 0.25)');
+  grad.addColorStop(1, 'rgba(14, 165, 233, 0.08)');
+
+  ctx.beginPath();
+  ctx.moveTo(xs[0], H);
+  for (let i = 0; i < n; i++) ctx.lineTo(xs[i], ys[i]);
+  ctx.lineTo(xs[n - 1], H);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  /* Linea profilo */
+  ctx.beginPath();
+  ctx.moveTo(xs[0], ys[0]);
+  for (let i = 1; i < n; i++) ctx.lineTo(xs[i], ys[i]);
+  ctx.strokeStyle = '#4fd1c5';
   ctx.lineWidth = 2;
   ctx.stroke();
 }
@@ -350,7 +368,7 @@ function updateTrainingDisplay(result, metrics) {
 
   const trainingScore   = document.getElementById('trainingScore');
   const trainingComment = document.getElementById('trainingComment');
-  const motivationEl    = document.getElementById('trainingMotivation');
+
   const rawEl           = document.getElementById('trainingWdiRaw');
   const labelEl         = document.getElementById('trainingWdiLabel');
 
@@ -362,9 +380,7 @@ function updateTrainingDisplay(result, metrics) {
     trainingComment.textContent = tsLabel.emoji + ' ' + tsLabel.label;
     trainingComment.style.color = tsLabel.color;
   }
-  if (motivationEl) {
-    motivationEl.textContent = tsLabel.motivation;
-  }
+
   if (rawEl) {
     rawEl.textContent = 'WDI ' + normResult.category + ' · grezzo ' + result.WDI.toFixed(1);
   }
