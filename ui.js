@@ -99,7 +99,7 @@
     if (!box || !valEl || !subEl) return;
 
     box.style.display = 'block';
-    valEl.textContent = rs.TechScore.toFixed(1);
+    valEl.textContent = (rs.TechScore / 10).toFixed(1);
     valEl.style.color = rs.techColor;
 
     let note = '';
