@@ -93,10 +93,15 @@
     window.metrics = GPXParser.compute(window.gpxPts);
     WizUI.updateGpxInfo(window.gpxPts, window.metrics);
     WizMap.drawTrack();
-    WizMap.drawProfile();
-    /* Mostra profilo altimetrico subito dopo GPX caricato */
+    /* Mostra elevSection PRIMA di drawProfile: il canvas deve avere
+       dimensioni CSS reali (clientWidth > 0) per calcolare xs[] correttamente.
+       Se drawProfile viene chiamato con section hidden, clientWidth=0 → 
+       xs[] basato su 600px fallback → hover decentrato. */
     const es = document.getElementById('elevSection');
     if (es) es.style.display = 'block';
+    /* requestAnimationFrame garantisce che il browser abbia applicato
+       display:block e calcolato le dimensioni prima del disegno */
+    requestAnimationFrame(() => WizMap.drawProfile());
     // Feedback dropzone
     const dz = document.getElementById('gpxDropzone');
     if (dz) {
@@ -317,16 +322,19 @@
        dopo che #pacingSection diventa visibile (display:none → block).
        setTimeout garantisce che il browser aggiorni il layout prima della chiamata. */
     setTimeout(() => {
-      /* initPacingMap() viene chiamata qui (non al DOMContentLoaded)
-         perché Leaflet richiede un container con dimensioni > 0.
-         #pacingSection era display:none fino a questo momento. */
+      /* initPacingMap() viene chiamata qui perché Leaflet richiede
+         un container con dimensioni > 0 (#pacingSection era display:none). */
       if (!window._wizMap && typeof initPacingMap === 'function') {
         initPacingMap();
       }
       if (window._wizMap) {
         window._wizMap.invalidateSize();
-        WizMap.drawTrack();
       }
+      /* Secondo delay: Leaflet ha bisogno di completare il render iniziale
+         prima che la polyline possa essere aggiunta correttamente. */
+      setTimeout(() => {
+        if (window._wizMap) WizMap.drawTrack();
+      }, 200);
     }, 150);
 
     /* Badge disciplina — solo se GPX caricato (max_altitude disponibile).
