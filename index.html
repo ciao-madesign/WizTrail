@@ -90,12 +90,6 @@
     </span>
   </div>
 
-  <!-- NAV TABS -->
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="calc">Calcolatore</button>
-    <button class="tab-btn" data-tab="postgara">Feedback</button>
-  </div>
-
   <!-- PANEL: CALCOLATORE -->
   <section id="calc" class="panel active">
     <div class="card">
@@ -301,17 +295,7 @@
       </div>
       <!-- Mappa percorso — inizializzata da map.js.init() al primo drawTrack().
            Il div è SEMPRE nel DOM (non dentro display:none) → Leaflet si inizializza con dimensioni reali. -->
-      <div style="display:flex; justify-content:space-between; align-items:center; margin:16px 0 8px;">
-        <h3 style="margin:0; font-size:0.95rem; opacity:0.85;">Mappa percorso</h3>
-        <div style="position:relative;">
-          <button class="btn secondary" id="optionsToggle" style="padding:4px 12px; font-size:0.8rem;"
-            onclick="var d=document.getElementById('optionsDrop');d.style.display=d.style.display==='none'?'block':'none';">⋯</button>
-          <div id="optionsDrop" style="display:none; position:absolute; right:0; top:32px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:8px; min-width:150px; z-index:10; box-shadow:0 8px 24px rgba(0,0,0,.3);">
-            <button class="btn secondary" id="btnFit" style="width:100%; margin-bottom:6px;">Centra traccia</button>
-            <button class="btn secondary" id="btnKml" style="width:100%;">Scarica KML</button>
-          </div>
-        </div>
-      </div>
+      <h3 style="margin:16px 0 8px; font-size:0.95rem; opacity:0.85;">Mappa percorso</h3>
       <div id="pacingMap" style="height:280px; border-radius:8px;"></div>
     </div>
 
