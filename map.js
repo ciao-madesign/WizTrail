@@ -46,64 +46,67 @@
   }
 
   /* ------------------------------------------------------------------
-     LEAFLET — inizializzazione mappa su #pacingMap.
-     Chiamata al primo drawTrack() — il div è sempre visibile nel DOM
-     (dentro #elevSection, non dentro display:none).
-     Pattern identico a training-analyzer.html per garantire stabilità.
+     LEAFLET — init (lazy, chiamato da drawTrack)
+     Pattern identico a training-analyzer.html — stesso tile stack,
+     stessa struttura: L.layerGroup([dark, topo]), nessun preferCanvas.
      ------------------------------------------------------------------ */
   function init() {
     if (map) return;
-    const container = document.getElementById('pacingMap');
-    if (!container) return;
 
-    map = L.map('pacingMap', { preferCanvas: true });
+    map = L.map('pacingMap');
 
-    /* CartoDB dark — allineato a training-analyzer, performance ottimizzata */
-    L.tileLayer(
+    const dark = L.tileLayer(
       'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      {
-        subdomains: 'abcd', maxZoom: 15,
-        attribution: '© OpenStreetMap, © CartoDB',
-        updateWhenIdle: true, updateWhenZooming: false,
-      }
-    ).addTo(map);
+      { subdomains: 'abcd', maxZoom: 18, opacity: 1 }
+    );
 
+    const topo = L.tileLayer(
+      'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      { opacity: 0.35, maxZoom: 17 }
+    );
+
+    L.layerGroup([dark, topo]).addTo(map);
     map.setView([46.5, 8.3], 5);
 
     hoverMarker = L.circleMarker([0, 0], {
       radius: 6, color: '#ff0', fillColor: '#ff0', fillOpacity: 1,
     });
 
-    /* Espone globals per il profilo altimetrico (hover sync) */
-    window._wizMap          = map;
-    window._wizHoverMarker  = hoverMarker;
+    window._wizMap         = map;
+    window._wizHoverMarker = hoverMarker;
   }
 
   /* ------------------------------------------------------------------
-     LEAFLET — disegna traccia
-     Pattern lazy identico a training-analyzer.html:
-     init() viene chiamato qui, non da fuori, così la mappa è sempre
-     inizializzata con il container visibile al momento del disegno.
+     LEAFLET — disegna traccia base (colore WDI)
+     Pattern identico a drawLeaflet() in training-analyzer.html.
      ------------------------------------------------------------------ */
   function drawTrack() {
     if (!window.gpxPts || !window.gpxPts.length) return;
-    init();           // lazy — crea la mappa solo se non ancora fatto
+    init();
     if (!map) return;
-    if (poly) { try { map.removeLayer(poly); } catch(e) {} }
+    if (poly) poly.remove();
 
     poly = L.polyline(
       window.gpxPts.map(p => [p[0], p[1]]),
       { color: getColorWDI(window.currentWDI), weight: 4 }
     ).addTo(map);
 
-    fitTrack();
+    map.fitBounds(poly.getBounds());
   }
 
   /* ------------------------------------------------------------------
      LEAFLET — centra sulla traccia
      ------------------------------------------------------------------ */
   function fitTrack() {
-    if (poly && map) { try { map.fitBounds(poly.getBounds(), { padding: [20, 20] }); } catch(e) {} }
+    if (poly && map) { try { map.fitBounds(poly.getBounds()); } catch(e) {} }
+  }
+
+  /* ------------------------------------------------------------------
+     LEAFLET — rimuovi traccia base (chiamato da drawPacingMap prima
+     di disegnare i layer pacing colorati per chunk)
+     ------------------------------------------------------------------ */
+  function clearTrack() {
+    if (poly) { poly.remove(); poly = null; }
   }
 
   /* ==================================================================
@@ -339,7 +342,7 @@
   /* ------------------------------------------------------------------
      Esposizione globale
      ------------------------------------------------------------------ */
-  window.WizMap = { init, drawTrack, fitTrack, drawProfile, getColorWDI };
+  window.WizMap = { init, drawTrack, fitTrack, clearTrack, drawProfile, getColorWDI };
 
   /* Alias globali rimossi — usare window.WizMap.* per tutte le chiamate */
 
