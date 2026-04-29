@@ -58,13 +58,18 @@ window.WizTrail = (function () {
     { max: Infinity, level: 'Legend',   color: '#8E24AA' }
   ];
 
+  /* TECH_THRESHOLDS — soglie su scala interna 0-100.
+     Display: TechScore/10 (scala 0-10) — applicato in ui.js e training-analyzer.html.
+     Ricalibrate 29/04/2026: MEHT21 (20km 1470D+) → ~76/100 → 7.6/10 → 'Molto tecnico' ✓
+     Soglie alzate per riflettere la realtà dei terreni alpini. */
   const TECH_THRESHOLDS = [
-    { max: 15,       level: 'Facile',        color: '#2BB7DA' },
-    { max: 28,       level: 'Moderato',      color: '#34A853' },
-    { max: 42,       level: 'Tecnico',       color: '#F4C20D' },
-    { max: 58,       level: 'Molto tecnico', color: '#F79617' },
-    { max: 72,       level: 'Alpinistico',   color: '#E91E63' },
-    { max: Infinity, level: 'Estremo',       color: '#8E24AA' }
+    { max: 25,       level: 'Facile',        color: '#2BB7DA' },
+    { max: 40,       level: 'Scorrevole',    color: '#34A853' },
+    { max: 55,       level: 'Moderato',      color: '#F4C20D' },
+    { max: 70,       level: 'Tecnico',       color: '#F79617' },
+    { max: 85,       level: 'Molto tecnico', color: '#E91E63' },
+    { max: 95,       level: 'Alpinistico',   color: '#8E24AA' },
+    { max: Infinity, level: 'Estremo',       color: '#FF0080' }
   ];
 
   const SURFACE_MULT = { 1: 0.92, 2: 0.97, 3: 1.00, 4: 1.04, 5: 1.08 };
