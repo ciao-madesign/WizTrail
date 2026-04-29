@@ -92,6 +92,8 @@
     window.gpxPts  = GPXParser.parseTrack(xml);
     window.metrics = GPXParser.compute(window.gpxPts);
     WizUI.updateGpxInfo(window.gpxPts, window.metrics);
+    /* Inizializza mappa se non già fatto (prima del calcolo WDI) */
+    WizMap.init();
     WizMap.drawTrack();
     /* Mostra elevSection PRIMA di drawProfile: il canvas deve avere
        dimensioni CSS reali (clientWidth > 0) per calcolare xs[] correttamente.
@@ -187,22 +189,10 @@
     return 0;
   }
 
-  function fatigueFactor(t_hours, m10) {
-    /* v2 trail + scaling per livello atleta.
-       Atleta più forte (m10 basso) → fatica meno incisiva.
-       Formula: 1 + (t/8)^1.2 * (m10/55)^0.6
-       Riferimento: m10=55 (amatore medio, 5:30/km pista)
-       
-       Esempi dopo 3h:
-         m10=35 (élite):  +23%  (era +31% uniforme)
-         m10=45 (forte):  +27%
-         m10=55 (medio):  +31%  (invariato — è il riferimento)
-         m10=70 (lento):  +36%
-    */
-    const M10_REF   = 55;   // minuti — amatore medio come riferimento
-    const K_ATHLETE = 0.6;  // esponente scaling atleta (sensibilità)
-    const athleteScale = Math.pow((m10 || M10_REF) / M10_REF, K_ATHLETE);
-    return 1 + Math.pow(t_hours / 8, 1.2) * athleteScale;
+  function fatigueFactor(t_hours) {
+    /* Fatica progressiva sul trail — modello semplice e stabile.
+       +8% dopo 1h, +30% dopo 3h, +70% dopo 6h. */
+    return 1 + Math.pow(t_hours / 8, 1.2);
   }
 
   /* ------------------------------------------------------------------
@@ -225,10 +215,7 @@
 
     const [min10, sec10] = t10.split(':').map(Number);
     const m10     = min10 + sec10 / 60;
-    /* Trail factor 0.82: chi fa 5min/km pista fa ~6min/km su trail piano.
-       Range concordato: 0.80-0.85. */
-    const TRAIL_FACTOR = 0.82;
-    const velBase = (60 / (m10 / 10)) * TRAIL_FACTOR; // km/h trail-adjusted
+    const velBase = 60 / (m10 / 10); // km/h — m10 è minuti su 10km (es. 50:00 = 5min/km)
 
     const terrainClass = document.getElementById('terrain')?.value || 'E';
     const S      = readNum('spec');
@@ -261,7 +248,7 @@
       const tech      = technicalPenalty(seg.slope, terrainClass);
       const velTech   = velLocal / (1 + tech);
       const t_raw     = seg.dist / (velTech * 1000 / 3600);
-      const fat       = fatigueFactor(T / 3600, m10);
+      const fat       = fatigueFactor(T / 3600);
       T += t_raw * fat;
     });
 
@@ -321,21 +308,11 @@
     /* Leaflet non renderizza su container hidden — invalidateSize forza il re-render
        dopo che #pacingSection diventa visibile (display:none → block).
        setTimeout garantisce che il browser aggiorni il layout prima della chiamata. */
-    setTimeout(() => {
-      /* initPacingMap() viene chiamata qui perché Leaflet richiede
-         un container con dimensioni > 0 (#pacingSection era display:none). */
-      if (!window._wizMap && typeof initPacingMap === 'function') {
-        initPacingMap();
-      }
-      if (window._wizMap) {
-        window._wizMap.invalidateSize();
-      }
-      /* Secondo delay: Leaflet ha bisogno di completare il render iniziale
-         prima che la polyline possa essere aggiunta correttamente. */
-      setTimeout(() => {
-        if (window._wizMap) WizMap.drawTrack();
-      }, 200);
-    }, 150);
+    /* map.js.init() ora è una vera init — crea la mappa su #pacingMap che è
+       SEMPRE visibile (dentro #elevSection, non dentro display:none).
+       Nessuna race condition: WizMap.init() chiamato qui garantisce la mappa pronta. */
+    WizMap.init();
+    setTimeout(() => { WizMap.drawTrack(); }, 80);
 
     /* Badge disciplina — solo se GPX caricato (max_altitude disponibile).
        In modalità manuale gpxPts è vuoto → badge nascosto. */
