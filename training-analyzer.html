@@ -673,6 +673,19 @@ if (sessionStorage.getItem("strava_token") && source !== "strava") {
 }
 </script>
 <script>
+/* Listener 'change' per selezione file manuale (click):
+   aggiorna il testo della dropzone e avvia analisi automaticamente,
+   coerente con il comportamento drag&drop. */
+gpxFile?.addEventListener('change', () => {
+  const file = gpxFile.files[0];
+  if (!file) return;
+  const dz = document.getElementById('gpxDropzone');
+  const mainTxt = dz?.querySelector('.gpx-dropzone-main');
+  if (mainTxt) mainTxt.textContent = '✓ ' + file.name;
+  if (dz) dz.classList.add('loaded');
+  document.getElementById('btnAnalyze')?.click();
+});
+
 /* Drag & drop sulla dropzone GPX — coerente con index.html */
 (function() {
   const dz = document.getElementById('gpxDropzone');
