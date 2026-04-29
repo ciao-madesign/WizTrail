@@ -387,42 +387,9 @@ let pacingMap = null;
 let pacingLayers = [];
 
 function initPacingMap() {
-  /* Guard: non inizializzare se #pacingMap non esiste nel DOM (es. about.html). */
-  if (!document.getElementById("pacingMap")) return;
-  if (pacingMap) return;
-
-  pacingMap = L.map("pacingMap", {
-    /* Ottimizzazioni performance:
-       preferCanvas: riduce DOM nodes per tracce lunghe
-       zoomSnap/Delta: zoom più fluido */
-    preferCanvas: true,
-    zoomSnap: 0.5,
-    zoomDelta: 0.5,
-  });
-
-  /* CartoDB dark — parametri ottimizzati per ridurre tile requests:
-     maxZoom=15: sufficiente per trail (zoom 14 = ~2.4km/tile)
-     updateWhenIdle: carica tile solo a pan fermo → -60% richieste
-     updateWhenZooming: false → non carica durante zoom */
-  L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    {
-      subdomains: "abcd",
-      maxZoom: 15,
-      attribution: "© OpenStreetMap, © CartoDB",
-      updateWhenIdle: true,
-      updateWhenZooming: false,
-      keepBuffer: 2,
-    }
-  ).addTo(pacingMap);
-
-  /* Espone _wizMap e _wizHoverMarker per sincronizzazione con
-     map.js.drawTrack() e il profilo altimetrico interattivo (#elevCanvas). */
-  const hoverMarker = L.circleMarker([0, 0], {
-    radius: 6, color: "#ff0", fillColor: "#ff0", fillOpacity: 1,
-  });
-  window._wizMap         = pacingMap;
-  window._wizHoverMarker = hoverMarker;
+  /* La mappa è ora gestita da map.js (WizMap.init()) che crea L.map("pacingMap").
+     Questa funzione è mantenuta per compatibilità ma non crea più la mappa. */
+  pacingMap = window._wizMap || null;
 }
 
 function drawPacingMap(pacingChunks, avgPaceSec) {
