@@ -396,13 +396,14 @@ function drawPacingMap(pacingChunks, avgPaceSec) {
   if (!gpxPts || !gpxPts.length) return;
 
   initPacingMap();
+  if (!pacingMap) return;
 
+  // rimuove traccia base (colore WDI) prima di disegnare i layer pacing
+  if (typeof WizMap !== 'undefined') WizMap.clearTrack();
 
-  // pulizia layer precedenti
-  pacingLayers.forEach(l => pacingMap.removeLayer(l));
+  // pulizia layer pacing precedenti
+  pacingLayers.forEach(l => { try { pacingMap.removeLayer(l); } catch(e) {} });
   pacingLayers = [];
-
-  pacingMap.setView([gpxPts[0][0], gpxPts[0][1]], 13);
 
   pacingChunks.forEach(chunk => {
     const paceSec = chunk.time_sec / chunk.dist_km;
