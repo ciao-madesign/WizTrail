@@ -46,14 +46,37 @@
   }
 
   /* ------------------------------------------------------------------
-     LEAFLET — init() è no-op.
-     La mappa Leaflet è ora gestita da wiztrail-pacing.js (initPacingMap).
-     window._wizMap e window._wizHoverMarker vengono impostati da pacing.js
-     al DOMContentLoaded, prima che qualsiasi interazione utente possa
-     chiamare drawTrack() o drawProfile().
+     LEAFLET — inizializzazione mappa su #pacingMap.
+     Chiamata al primo drawTrack() — il div è sempre visibile nel DOM
+     (dentro #elevSection, non dentro display:none).
+     Pattern identico a training-analyzer.html per garantire stabilità.
      ------------------------------------------------------------------ */
   function init() {
-    /* no-op — mappa inizializzata da wiztrail-pacing.js */
+    if (map) return;
+    const container = document.getElementById('pacingMap');
+    if (!container) return;
+
+    map = L.map('pacingMap', { preferCanvas: true });
+
+    /* CartoDB dark — allineato a training-analyzer, performance ottimizzata */
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      {
+        subdomains: 'abcd', maxZoom: 15,
+        attribution: '© OpenStreetMap, © CartoDB',
+        updateWhenIdle: true, updateWhenZooming: false,
+      }
+    ).addTo(map);
+
+    map.setView([46.5, 8.3], 5);
+
+    hoverMarker = L.circleMarker([0, 0], {
+      radius: 6, color: '#ff0', fillColor: '#ff0', fillOpacity: 1,
+    });
+
+    /* Espone globals per il profilo altimetrico (hover sync) */
+    window._wizMap          = map;
+    window._wizHoverMarker  = hoverMarker;
   }
 
   /* ------------------------------------------------------------------
