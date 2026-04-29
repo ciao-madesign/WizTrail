@@ -299,27 +299,27 @@
       <div class="profile-wrap">
         <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
       </div>
+      <!-- Mappa percorso — inizializzata da map.js.init() al primo drawTrack().
+           Il div è SEMPRE nel DOM (non dentro display:none) → Leaflet si inizializza con dimensioni reali. -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin:16px 0 8px;">
+        <h3 style="margin:0; font-size:0.95rem; opacity:0.85;">Mappa percorso</h3>
+        <div style="position:relative;">
+          <button class="btn secondary" id="optionsToggle" style="padding:4px 12px; font-size:0.8rem;"
+            onclick="var d=document.getElementById('optionsDrop');d.style.display=d.style.display==='none'?'block':'none';">⋯</button>
+          <div id="optionsDrop" style="display:none; position:absolute; right:0; top:32px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:8px; min-width:150px; z-index:10; box-shadow:0 8px 24px rgba(0,0,0,.3);">
+            <button class="btn secondary" id="btnFit" style="width:100%; margin-bottom:6px;">Centra traccia</button>
+            <button class="btn secondary" id="btnKml" style="width:100%;">Scarica KML</button>
+          </div>
+        </div>
+      </div>
+      <div id="pacingMap" style="height:280px; border-radius:8px;"></div>
     </div>
 
     <!-- Pacing + Mappa — sezioni fisse post-calcolo
          pacingMap inizializzato da pacing.js → espone window._wizMap
          per sincronizzazione con profilo altimetrico -->
     <div id="pacingSection" style="display:none;">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h2 style="margin:0;">Mappa percorso</h2>
-          <!-- Menu opzioni inline -->
-          <div style="position:relative;">
-            <button class="btn secondary" id="optionsToggle" style="padding:6px 14px;"
-              onclick="var d=document.getElementById('optionsDrop');d.style.display=d.style.display==='none'?'block':'none';">⋯</button>
-            <div id="optionsDrop" style="display:none; position:absolute; right:0; top:38px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:8px; min-width:160px; z-index:10; box-shadow:0 8px 24px rgba(0,0,0,.3);">
-              <button class="btn secondary" id="btnFit" style="width:100%; margin-bottom:6px;">Centra traccia</button>
-              <button class="btn secondary" id="btnKml" style="width:100%;">Scarica KML</button>
-            </div>
-          </div>
-        </div>
-        <div id="pacingMap" style="height:320px; border-radius:8px;"></div>
-      </div>
+
 
       <div class="card">
         <h2>Pacing Planner</h2>
