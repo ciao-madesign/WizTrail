@@ -81,18 +81,20 @@
 
   /* ------------------------------------------------------------------
      LEAFLET — disegna traccia
+     Pattern lazy identico a training-analyzer.html:
+     init() viene chiamato qui, non da fuori, così la mappa è sempre
+     inizializzata con il container visibile al momento del disegno.
      ------------------------------------------------------------------ */
   function drawTrack() {
-    /* Usa window._wizMap impostato da wiztrail-pacing.js.initPacingMap()
-       (la variabile locale 'map' è sempre null — init() è no-op) */
-    const m = window._wizMap;
-    if (!m || !window.gpxPts || !window.gpxPts.length) return;
-    if (poly) { try { m.removeLayer(poly); } catch(e) {} }
+    if (!window.gpxPts || !window.gpxPts.length) return;
+    init();           // lazy — crea la mappa solo se non ancora fatto
+    if (!map) return;
+    if (poly) { try { map.removeLayer(poly); } catch(e) {} }
 
     poly = L.polyline(
       window.gpxPts.map(p => [p[0], p[1]]),
       { color: getColorWDI(window.currentWDI), weight: 4 }
-    ).addTo(m);
+    ).addTo(map);
 
     fitTrack();
   }
@@ -101,8 +103,7 @@
      LEAFLET — centra sulla traccia
      ------------------------------------------------------------------ */
   function fitTrack() {
-    const m = window._wizMap;
-    if (poly && m) { try { m.fitBounds(poly.getBounds(), { padding: [20, 20] }); } catch(e) {} }
+    if (poly && map) { try { map.fitBounds(poly.getBounds(), { padding: [20, 20] }); } catch(e) {} }
   }
 
   /* ==================================================================
