@@ -523,21 +523,25 @@ window.currentRealTime = realTimeStr;
 
   // SHARE
   btnShare.onclick = () => {
-    /* WDI_color e perfComment richiesti da share_card.html.
-       Senza WDI_color il colore fallback era sempre verde (#34A853). */
+    /* WDI salvato normalizzato (0–10 per categoria) per allinearlo al display
+       del training analyzer. WDI_raw conserva il grezzo per riferimento. */
+    const normResult  = WizTrail.normalizeWDI(result.WDI, mt.km);
+    const wdiDisplay  = normResult.isLegendPlus ? '10+' : normResult.norm.toFixed(1);
     sessionStorage.setItem("shareData", JSON.stringify({
       distance:       mt.km,
       dplus:          mt.gain,
       time_real:      realTimeStr,
       time_est:       window.currentEstSec ? fmtSec(window.currentEstSec) : null,
       includeCompare: shareCompare.checked,
-      WDI:            result.WDI.toFixed(1),
-      WDI_color:      result.color,         // fix: share_card legge WDI_color
+      WDI:            wdiDisplay,
+      WDI_raw:        result.WDI.toFixed(1),
+      WDI_category:   normResult.category,
+      WDI_color:      result.color,
       WDI_class:      result.class,
       TechScore:      result.TechScore.toFixed(1),
       techClass:      result.techClass,
       comment:        result.class,
-      perfComment:    perfComment.textContent || '', // fix: share_card legge perfComment
+      perfComment:    perfComment.textContent || '',
       pts:            pts,
       elev:           mt.e
     }));

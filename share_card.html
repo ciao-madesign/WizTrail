@@ -241,7 +241,8 @@ if(data.time_real && data.distance){
   sPaceAvg.textContent = `Pace medio: ${Math.floor(pace/60)}:${String(Math.round(pace%60)).padStart(2,"0")}/km`;
 }
 
-shareWDI.textContent = 'WDI ' + (data.WDI || data.WDIT || '—');
+shareWDI.textContent = 'WDI ' + (data.WDI || data.WDIT || '—')
+  + (data.WDI_category ? ' · ' + data.WDI_category : '');
 shareWDI.style.color = data.WDI_color || data.wdiColor || '#34A853';
 shareComment.textContent = data.comment || "";
 if(data.includeCompare && data.perfComment){
