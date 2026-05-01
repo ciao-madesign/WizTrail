@@ -166,7 +166,23 @@ document.querySelectorAll(".admin-only").forEach(el => el.style.display = isAdmi
 let races = [];
 fetch("ranking-data.json")
  .then(r => r.json())
- .then(json => { races = json; renderTable(); });
+ .then(json => { races = json; renderTable(); backgroundComputeTech(); });
+
+// Calcola TechScore da GPX in background, aggiorna le celle progressivamente
+async function backgroundComputeTech() {
+  for (const r of races) {
+    if (r.techScore !== null || !r.gpx) continue;
+    try {
+      const res  = await fetch(r.gpx);
+      const xml  = new DOMParser().parseFromString(await res.text(), 'application/xml');
+      const pts  = GPXParser.parseTrack(xml);
+      const rs   = WizTrail.computeFromGpx(pts, GPXParser.compute(pts));
+      r.techScore = parseFloat(rs.TechScore.toFixed(1));
+      renderTable();
+    } catch (e) { /* skip race on fetch/parse error */ }
+    await new Promise(ok => setTimeout(ok, 80));
+  }
+}
 
 //---------------------------------------- rendering tabella
 
