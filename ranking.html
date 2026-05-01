@@ -137,7 +137,13 @@
 <pre id="adminOutput" style="margin-top:10px;padding:8px;background:#111;border-radius:6px;"></pre>
 </div>
 
-
+<div class="card admin-only" style="display:none;">
+<h2>Batch Compute TechScore</h2>
+<p class="mini">Calcola TechScore per tutte le gare con GPX disponibile sul server. Il JSON aggiornato va copiato dentro <code>ranking-data.json</code>.</p>
+<button class="btn" id="btnBatchCompute">Calcola tutti (31 gare)</button>
+<div id="batchProgress" style="margin-top:8px; font-size:0.85rem; color:var(--muted);"></div>
+<pre id="batchOutput" style="margin-top:10px;padding:8px;background:#111;border-radius:6px;max-height:400px;overflow:auto;display:none;font-size:0.7rem;"></pre>
+</div>
 
 <div class="footer">WizTrail © 2026
     <p class="mini" style="opacity:0.5; margin-top:4px;">Foto di <a href="https://unsplash.com/@ryutaf" target="_blank" rel="noopener" style="color:inherit;">Ryuta F.</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a> (Unsplash License)</p>
@@ -160,7 +166,23 @@ document.querySelectorAll(".admin-only").forEach(el => el.style.display = isAdmi
 let races = [];
 fetch("ranking-data.json")
  .then(r => r.json())
- .then(json => { races = json; renderTable(); });
+ .then(json => { races = json; renderTable(); backgroundComputeTech(); });
+
+// Calcola TechScore da GPX in background, aggiorna le celle progressivamente
+async function backgroundComputeTech() {
+  for (const r of races) {
+    if (r.techScore !== null || !r.gpx) continue;
+    try {
+      const res  = await fetch(r.gpx);
+      const xml  = new DOMParser().parseFromString(await res.text(), 'application/xml');
+      const pts  = GPXParser.parseTrack(xml);
+      const rs   = WizTrail.computeFromGpx(pts, GPXParser.compute(pts));
+      r.techScore = parseFloat(rs.TechScore.toFixed(1));
+      renderTable();
+    } catch (e) { /* skip race on fetch/parse error */ }
+    await new Promise(ok => setTimeout(ok, 80));
+  }
+}
 
 //---------------------------------------- rendering tabella
 
@@ -315,6 +337,45 @@ adminOutput.textContent = `{
   "techClass": "${rs.techClass}",
   "max_altitude": ${Math.round(metrics.max_altitude)}
 }`;
+});
+
+//---------------------------------------- batch compute all techScore
+document.getElementById('btnBatchCompute')?.addEventListener('click', async () => {
+  const progress = document.getElementById('batchProgress');
+  const output   = document.getElementById('batchOutput');
+  const btn      = document.getElementById('btnBatchCompute');
+  const toProcess = races.filter(r => r.gpx);
+  const total = toProcess.length;
+  let done = 0, errors = 0;
+
+  btn.disabled = true;
+  output.style.display = 'none';
+  progress.textContent = `Elaborazione 0/${total}…`;
+
+  for (const r of races) {
+    if (!r.gpx) continue;
+    try {
+      const res  = await fetch(r.gpx);
+      const text = await res.text();
+      const xml  = new DOMParser().parseFromString(text, 'application/xml');
+      const pts     = GPXParser.parseTrack(xml);
+      const metrics = GPXParser.compute(pts);
+      const rs      = WizTrail.computeFromGpx(pts, metrics);
+      r.techScore = parseFloat(rs.TechScore.toFixed(1));
+    } catch (e) {
+      console.error(`Batch error — ${r.name}:`, e);
+      errors++;
+    }
+    done++;
+    progress.textContent = `Elaborazione ${done}/${total}…${errors ? ` (${errors} errori)` : ''}`;
+    await new Promise(ok => setTimeout(ok, 10));
+  }
+
+  progress.innerHTML = `<strong>✓ Completato:</strong> ${done - errors}/${total} OK${errors ? `, ${errors} errori (vedi console)` : ''}. Copia il JSON sotto in <code>ranking-data.json</code>.`;
+  output.textContent = JSON.stringify(races, null, 2);
+  output.style.display = 'block';
+  btn.disabled = false;
+  renderTable();
 });
 
 //---------------------------------------- user compute
