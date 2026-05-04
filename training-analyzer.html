@@ -125,11 +125,27 @@
 </div>
 
 <div id="paceBlock" style="margin-top:10px; display:none;">
-  <label>Il tuo passo su piano (mm:ss / km)</label>
-  <input id="paceInput" type="text" placeholder="06:00" value="06:00" class="input-text"
-         style="width:90px;"
-         pattern="^[0-9]{1,2}:[0-5][0-9]$">
-  <span class="mini" style="margin-left:8px; opacity:0.7;">es. 06:00 = 6 min/km</span>
+  <div style="margin-bottom:8px;">
+    <label>Passo su strada (mm:ss / km)</label>
+    <input id="paceInput" type="text" placeholder="06:00" value="06:00" class="input-text"
+           style="width:90px;"
+           pattern="^[0-9]{1,2}:[0-5][0-9]$">
+    <span class="mini" style="margin-left:8px; opacity:0.7;">es. 05:00 = 5 min/km</span>
+  </div>
+  <div style="margin-bottom:8px;">
+    <label>Specificità trail</label>
+    <input id="specTA" type="range" min="0" max="1" step="0.1" value="0.3" style="width:160px; vertical-align:middle; margin: 0 8px;">
+    <span id="specTALabel" class="mini">Amatore avanzato</span>
+  </div>
+  <div>
+    <label>Terreno</label>
+    <select id="terrainTA" class="input-text" style="margin-left:8px;">
+      <option value="Strada">Strada</option>
+      <option value="E" selected>E — Escursionistico</option>
+      <option value="EE">EE — Tecnico</option>
+      <option value="EA">EA — Molto tecnico</option>
+    </select>
+  </div>
 </div>
 
 <div id="shareCompareBlock" style="margin-top:8px;display:none;">
@@ -190,7 +206,7 @@
 <script src="gpx-parser.js"></script>
 <script src="wiztrail-engine.js"></script>
 <script src="wiztrail-pacing.js"></script>
-<script src="gpx-parser.js"></script>
+<script src="wiztrail-timing.js"></script>
 <script>
 
 const params = new URLSearchParams(window.location.search);
@@ -214,10 +230,18 @@ useEstimate.addEventListener("change", () => {
   updateEstimateUI(window.currentMetrics, window.currentRealTime);
 });
 
-// Ricalcola stima quando l'utente cambia il passo
-document.getElementById('paceInput')?.addEventListener('change', () => {
+// Ricalcola stima al cambio di qualsiasi parametro di input
+function _recomputeEstimate() {
   if (!window.currentMetrics || !useEstimate.checked) return;
   updateEstimateUI(window.currentMetrics, window.currentRealTime);
+}
+document.getElementById('paceInput')?.addEventListener('change', _recomputeEstimate);
+document.getElementById('terrainTA')?.addEventListener('change', _recomputeEstimate);
+document.getElementById('specTA')?.addEventListener('input', () => {
+  const S = parseFloat(document.getElementById('specTA').value);
+  const lbl = document.getElementById('specTALabel');
+  if (lbl) lbl.textContent = WizTrailTiming.levelFromS(S);
+  _recomputeEstimate();
 });
 
 /* parseGPX e computeMetrics delegati a GPXParser (gpx-parser.js)
@@ -422,18 +446,20 @@ function updateEstimateUI(mt, realTimeStr) {
 
   if (useEstimate.checked) {
 
-    // Leggi il pace inserito dall'utente (mm:ss), default 6:00
-    const paceRaw = (document.getElementById('paceInput')?.value || '06:00').trim();
+    // Leggi passo su strada (mm:ss/km) → velocità base km/h
+    const paceRaw  = (document.getElementById('paceInput')?.value || '06:00').trim();
     const paceParts = paceRaw.split(':').map(Number);
-    const paceSecPerKm = (paceParts.length === 2 && !isNaN(paceParts[0]) && !isNaN(paceParts[1]))
-      ? paceParts[0] * 60 + paceParts[1]
-      : 360; // fallback 6:00
+    const paceMin  = (paceParts.length === 2 && !isNaN(paceParts[0]) && !isNaN(paceParts[1]))
+      ? paceParts[0] + paceParts[1] / 60
+      : 6.0;
+    const velBase  = 60 / paceMin;   // km/h
 
-    /* Usa modello power-law v2.1 (wiztrail-pacing.js) — calibrato su 96 gare.
-       Sostituisce la formula semplificata km*pace + gain*0.6. */
-    const techFor10 = (window.currentTrainingResult?.TechScore || 30) / 10; // TechScore 0-100 → 0-10
-    const pacingResult = getPacingEstimate(mt.km, mt.gain, techFor10, paceRaw);
-    estSec = Math.round(pacingResult.ore * 3600);
+    const S            = parseFloat(document.getElementById('specTA')?.value  || '0.3');
+    const terrainClass = document.getElementById('terrainTA')?.value || 'E';
+
+    // Stima con lo stesso motore a segmenti del calcolatore (wiztrail-timing.js)
+    const T = WizTrailTiming.computeTime(window.currentPts, mt, velBase, S, terrainClass);
+    estSec = Math.round(T);
     window.currentEstSec = estSec;
 
     timeEst.textContent = fmtSec(estSec);
