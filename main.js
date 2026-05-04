@@ -157,44 +157,11 @@
   });
 
   /* ------------------------------------------------------------------
-     ENGINE TIME ESTIMATOR v2.0
+     ENGINE TIME ESTIMATOR v2.0 — funzioni delegate a wiztrail-timing.js
      ------------------------------------------------------------------ */
-
-  function velocityFromSlope(p, S, velBase) {
-    if (Math.abs(p) < 0.015) return velBase;
-
-    if (p > 0) {
-      // Salita: coefficiente dipende da S
-      // S=1 (elite): k=1.5 — poca penalità su salite moderate
-      // S=0 (principiante): k=4.0 — forte rallentamento anche su pendenze medie
-      const k = 1.5 + 2.5 * (1 - S);
-      const cap = 1.6 + 0.9 * (1 - S);  // S=1: cap 1.6  S=0.5: 2.05  S=0: 2.5
-      return velBase / Math.min(1 + k * p, cap);
-    }
-
-    // Discesa: elite accelera nettamente, beginner poco
-    // La tecnica di discesa è il principale vantaggio dell'elite sul trail
-    const boost = 1.05 + 0.25 * S;       // S=1: 1.30×  S=0.5: 1.175×  S=0: 1.05×
-    if (p < -0.25) {
-      // Discesa estrema: beginner rallenta, elite tiene il boost
-      const steep = (1 - S) * (Math.abs(p) - 0.25) * 2;
-      return velBase * Math.max(boost - steep, 0.85);
-    }
-    return velBase * boost;
-  }
-
-  function technicalPenalty(slope, terrainClass) {
-    if (terrainClass === 'E')   return 0;
-    if (terrainClass === 'EE' && (slope > 0.08 || slope < -0.10)) return 0.12;
-    if (terrainClass === 'EA' && (slope > 0.08 || slope < -0.10)) return 0.28;
-    return 0;
-  }
-
-  function fatigueFactor(t_hours) {
-    /* Fatica progressiva sul trail — calibrata su atleti allenati.
-       +5% dopo 1h, +19% dopo 3h, +36% dopo 6h. */
-    return 1 + 0.6 * Math.pow(t_hours / 8, 1.2);
-  }
+  const velocityFromSlope = WizTrailTiming.velocityFromSlope;
+  const technicalPenalty  = WizTrailTiming.technicalPenalty;
+  const fatigueFactor     = WizTrailTiming.fatigueFactor;
 
   /* ------------------------------------------------------------------
      BOTTONE CALCOLA
@@ -219,12 +186,7 @@
     const velBase = 60 / (m10 / 10); // km/h — m10 è minuti su 10km (es. 50:00 = 5min/km)
 
     const terrainClass = document.getElementById('terrain')?.value || 'E';
-
-    // Fattore di riduzione velocità base per superficie del trail.
-    // Su asfalto l'atleta corre alla velocità teorica; su sentiero/tecnico
-    // anche i tratti pianeggianti sono più lenti del passo su strada.
-    const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 1.00, 'EE': 0.85, 'EA': 0.75 };
-    const velBaseEff = velBase * (TRAIL_BASE_FACTOR[terrainClass] ?? 0.90);
+    const velBaseEff   = velBase * (WizTrailTiming.TRAIL_BASE_FACTOR[terrainClass] ?? 0.90);
     const S      = readNum('spec');
     const meteo  = readNum('meteo');
     const alt    = readNum('alt');
@@ -301,14 +263,7 @@
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
 
-    // Livello trail dall'slider specificità S (0=principiante, 1=élite)
-    // Usare S invece del passo 10k: l'etichetta rispecchia il cursore selezionato
-    const livello = S >= 0.9 ? 'Élite'
-                  : S >= 0.7 ? 'Agonista'
-                  : S >= 0.5 ? 'Amatore forte'
-                  : S >= 0.3 ? 'Amatore avanzato'
-                  : S >= 0.1 ? 'Amatore'
-                  :             'Principiante';
+    const livello = WizTrailTiming.levelFromS(S);
 
     // Passo medio sul percorso trail (dal tempo segmenti, non dalla velocità base)
     const pace_trail = (T / 60) / m.km;
