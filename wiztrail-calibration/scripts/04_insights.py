@@ -28,8 +28,9 @@ def load_json(path):
 
 def main():
     df       = pd.read_csv(DATA_DIR / "computed.csv")
-    wdi_cal  = load_json(OUTPUT_DIR / "1_wdi_calibration.json")
-    pac_cal  = load_json(OUTPUT_DIR / "2_pacing_coefficients.json")
+    wdi_cal     = load_json(OUTPUT_DIR / "1_wdi_calibration.json")
+    timing_cal  = load_json(OUTPUT_DIR / "2_timing_calibration.json")
+    pac_cal     = timing_cal  # alias per compatibilità con grafici esistenti
     today    = datetime.now().strftime("%d/%m/%Y")
 
     df["km_eff"]   = df["gpx_km"].fillna(df["distance_km"])
@@ -96,14 +97,14 @@ def main():
         _plot_spread(df_r)
 
     _write_report(df, today, level_counts, correlations, corr_tech_wdi,
-                  anomaly_tech, anomaly_run, outliers, df_r, wdi_cal, pac_cal)
-    _write_patch(wdi_cal, pac_cal, today)
+                  anomaly_tech, anomaly_run, outliers, df_r, wdi_cal, timing_cal)
+    _write_patch(wdi_cal, timing_cal, today)
 
     print("  ✓  output/3_insights_report.md")
     print("  ✓  output/4_wiztrail_patch.js")
     print("  ✓  Grafici in output/plots/")
 
-    save_history(wdi_cal, pac_cal, df)
+    save_history(wdi_cal, timing_cal, df)
     plot_history()
 
 
@@ -301,7 +302,7 @@ _Riesegui `bash run.sh` dopo ogni aggiunta di dati._
     (OUTPUT_DIR / "3_insights_report.md").write_text(report)
 
 
-def _write_patch(wdi_cal, pac_cal, today):
+def _write_patch(wdi_cal, timing_cal, today):
     lines = []
     lines.append(f"""/**
  * WizTrail — Calibration Patch
@@ -309,11 +310,11 @@ def _write_patch(wdi_cal, pac_cal, today):
  *
  * ISTRUZIONI:
  *   BLOCCO A → incolla in wiztrail-engine.js › buildTechScore()
- *   BLOCCO B → incolla in wiztrail-pacing.js come costanti globali
+ *   BLOCCO B → incolla in wiztrail-timing.js › VELOCITY_PARAMS
  */
 """)
 
-    # BLOCCO A — TechScore
+    # BLOCCO A — TechScore (wiztrail-engine.js)
     lines.append("// ════════ BLOCCO A — wiztrail-engine.js › buildTechScore() ════════")
     if wdi_cal.get("tech_score_weights"):
         tw = wdi_cal["tech_score_weights"]
@@ -329,43 +330,32 @@ def _write_patch(wdi_cal, pac_cal, today):
         lines.append(f"// ⚠️  {wdi_cal.get('note', 'GPX insufficienti per la calibrazione')}")
 
     lines.append("")
-    lines.append("// ════════ BLOCCO B — wiztrail-pacing.js › PACING_POWERLAW ════════")
 
-    # Struttura v2.1 (params + delta)
-    if pac_cal.get("params"):
-        p   = pac_cal["params"]
-        ref = pac_cal.get("pace10km_ref_min_km", 4.74)
-        dlt = pac_cal.get("delta", 0.994)
-        lines.append(f"// RMSE 10-60km: {p.get('rmse_10_60km', p.get('rmse_global','?'))}h  n={p.get('n_fit','?')}")
-        lines.append("const PACING_POWERLAW = {")
-        lines.append(f"  pace10km_ref: {ref},")
-        lines.append(f"  delta:        {dlt},")
-        lines.append(f"  A:     {p['A']},")
-        lines.append(f"  alpha: {p['alpha']},")
-        lines.append(f"  beta:  {p['beta']},")
-        lines.append(f"  c:     {p['c']},")
+    # BLOCCO B — VELOCITY_PARAMS (wiztrail-timing.js)
+    lines.append("// ════════ BLOCCO B — wiztrail-timing.js › VELOCITY_PARAMS ════════")
+    vp = timing_cal.get("velocity_params")
+    if vp:
+        rmse_b = timing_cal.get("rmse_before", "?")
+        rmse_a = timing_cal.get("rmse_after",  "?")
+        impr   = timing_cal.get("improvement_pct", "?")
+        n_r    = timing_cal.get("n_races_gpx", "?")
+        n_p    = timing_cal.get("n_pairs", "?")
+        lines.append(f"// RMSE: {rmse_b}h → {rmse_a}h  ({impr:+.1f}%)  n_gare={n_r}  n_coppie={n_p}"
+                     if isinstance(impr, float) else
+                     f"// RMSE: {rmse_b}h → {rmse_a}h  n_gare={n_r}  n_coppie={n_p}")
+        lines.append("// Profili: top100_men S=0.85 v=15km/h  avg_finish S=0.40 v=10km/h  top100_women S=0.80 v=12km/h")
+        lines.append("const VELOCITY_PARAMS = {")
+        lines.append(f"  k_base:        {vp['k_base']},")
+        lines.append(f"  k_spread:      {vp['k_spread']},")
+        lines.append(f"  cap_base:      {vp['cap_base']},")
+        lines.append(f"  cap_spread:    {vp['cap_spread']},")
+        lines.append(f"  boost_base:    {vp['boost_base']},")
+        lines.append(f"  boost_S:       {vp['boost_S']},")
+        lines.append(f"  fatigue_coeff: {vp['fatigue_coeff']},")
         lines.append("};")
-        lines.append("")
-        lines.append("// Helper:")
-        lines.append("// function estimatePersonalTime(km, dplus, tech, pace10km) {")
-        lines.append("//   const p = PACING_POWERLAW;")
-        lines.append("//   const dkm = dplus / Math.max(km, 1);")
-        lines.append("//   const T_ref = p.A * Math.pow(km,p.alpha) * Math.pow(Math.max(dkm,0.5),p.beta) * (1+p.c*tech/10);")
-        lines.append("//   return T_ref * Math.pow(pace10km / p.pace10km_ref, p.delta);")
-        lines.append("// }")
     else:
-        # Legacy clusters
-        for pk, pr in pac_cal.items():
-            if not isinstance(pr, dict): continue
-            for ctype, cr in pr.get("clusters", {}).items():
-                const_name = f"PACING_{pk.upper()}_{ctype.upper()}"
-                lines.append(f"const {const_name} = {{")
-                lines.append(f"  basePaceMinKm: {cr.get('base_pace_min_km','?')},")
-                lines.append(f"  coeffElev:     {cr.get('coeff_elev','?')},")
-                lines.append(f"  coeffTech:     {cr.get('coeff_tech','?')},")
-                lines.append(f"  expoDistCorr:  {cr.get('expo_dist','?')},")
-                lines.append("};")
-                lines.append("")
+        lines.append(f"// ⚠️  {timing_cal.get('note', 'GPX insufficienti per la calibrazione')}")
+        lines.append("// Usa i valori di default già presenti in wiztrail-timing.js")
 
     (OUTPUT_DIR / "4_wiztrail_patch.js").write_text("\n".join(lines))
 

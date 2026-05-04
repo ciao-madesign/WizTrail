@@ -4,9 +4,27 @@
  *
  * Usato da: main.js (calcolatore) e training-analyzer.html
  * Dipende da: gpx-parser.js (GPXParser.smoothElevation, GPXParser.computeSegments)
+ *
+ * I parametri in VELOCITY_PARAMS vengono aggiornati dalla pipeline di calibrazione
+ * (wiztrail-calibration/scripts/03_calibrate.py Parte B → patch via 04_insights.py).
  */
 (function () {
   'use strict';
+
+  /* ------------------------------------------------------------------
+     VELOCITY_PARAMS — parametri calibrati dalla pipeline Python
+     Aggiornare dopo ogni run di calibrazione con i valori dal patch JS.
+     Ultima calibrazione: vedi wiztrail-calibration/output/4_wiztrail_patch.js
+     ------------------------------------------------------------------ */
+  const VELOCITY_PARAMS = {
+    k_base:        1.5,   // coefficiente salita per elite (S=1)
+    k_spread:      2.5,   // quanto S amplifica la penalità in salita
+    cap_base:      1.6,   // tetto rallentamento salita (elite)
+    cap_spread:    0.9,   // spread del tetto tra elite e principiante
+    boost_base:    1.05,  // boost discesa per principiante (S=0)
+    boost_S:       0.25,  // quanto S amplifica il boost in discesa
+    fatigue_coeff: 0.6,   // intensità fatica progressiva
+  };
 
   /* Riduzione velocità base per superficie del trail sui tratti pianeggianti.
      Su terreno E l'atleta corre sostanzialmente al passo su strada;
@@ -21,22 +39,17 @@
      Restituisce la velocità (km/h) sul segmento
      ------------------------------------------------------------------ */
   function velocityFromSlope(p, S, velBase) {
+    const vp = VELOCITY_PARAMS;
     if (Math.abs(p) < 0.015) return velBase;
 
     if (p > 0) {
-      // Salita: coefficiente dipende da S
-      // S=1 (elite): k=1.5 — poca penalità su salite moderate
-      // S=0 (principiante): k=4.0 — forte rallentamento anche su pendenze medie
-      const k = 1.5 + 2.5 * (1 - S);
-      const cap = 1.6 + 0.9 * (1 - S);  // S=1: cap 1.6  S=0.5: 2.05  S=0: 2.5
+      const k   = vp.k_base + vp.k_spread * (1 - S);
+      const cap = vp.cap_base + vp.cap_spread * (1 - S);
       return velBase / Math.min(1 + k * p, cap);
     }
 
-    // Discesa: elite accelera nettamente, beginner poco
-    // La tecnica di discesa è il principale vantaggio dell'elite sul trail
-    const boost = 1.05 + 0.25 * S;       // S=1: 1.30×  S=0.5: 1.175×  S=0: 1.05×
+    const boost = vp.boost_base + vp.boost_S * S;
     if (p < -0.25) {
-      // Discesa estrema: beginner rallenta, elite tiene il boost
       const steep = (1 - S) * (Math.abs(p) - 0.25) * 2;
       return velBase * Math.max(boost - steep, 0.85);
     }
@@ -58,14 +71,14 @@
   /* ------------------------------------------------------------------
      fatigueFactor(t_hours)
      Fatica progressiva — calibrata su atleti allenati.
-     +5% dopo 1h, +19% dopo 3h, +36% dopo 6h.
+     Usa VELOCITY_PARAMS.fatigue_coeff.
      ------------------------------------------------------------------ */
   function fatigueFactor(t_hours) {
-    return 1 + 0.6 * Math.pow(t_hours / 8, 1.2);
+    return 1 + VELOCITY_PARAMS.fatigue_coeff * Math.pow(t_hours / 8, 1.2);
   }
 
   /* ------------------------------------------------------------------
-     computeTime(pts, metrics, velBase, S, terrainClass, meteo, alt)
+     computeTime(pts, metrics, velBase, S, terrainClass, meteo, alt, manualGain)
      Stima il tempo di percorrenza in secondi tramite il modello a segmenti.
 
      pts          = array [[lat,lon,ele], ...]
@@ -101,12 +114,10 @@
       T += t_raw * fat;
     });
 
-    // Se il GPX non ha elevazione, aggiungi correzione da D+ manuale
     if (metrics.gain === 0 && manualGain > 0) {
       T += (manualGain / 8) * 60;
     }
 
-    // Fattori meteo / altitudine
     const T_hours = T / 3600;
     T *= 1 + (meteo - 1) * (T_hours / 5);
     T *= alt;
@@ -127,6 +138,7 @@
   }
 
   window.WizTrailTiming = {
+    VELOCITY_PARAMS:    VELOCITY_PARAMS,
     TRAIL_BASE_FACTOR:  TRAIL_BASE_FACTOR,
     velocityFromSlope:  velocityFromSlope,
     technicalPenalty:   technicalPenalty,
