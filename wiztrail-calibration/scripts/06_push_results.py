@@ -44,12 +44,12 @@ def main():
     print(f"  Raccolta risultati calibrazione...")
 
     wdi_cal = load_json(OUTPUT_DIR / "1_wdi_calibration.json")
-    pacing  = load_json(OUTPUT_DIR / "2_pacing_coefficients.json")
+    timing  = load_json(OUTPUT_DIR / "2_timing_calibration.json")
     patch   = (OUTPUT_DIR / "4_wiztrail_patch.js").read_text() \
               if (OUTPUT_DIR / "4_wiztrail_patch.js").exists() else None
     # Carica tutti i grafici disponibili
     plots = {}
-    for name in ["history_rmse", "wdi_scatter", "pacing_scatter",
+    for name in ["history_rmse", "wdi_scatter", "timing_scatter",
                  "insights_distribution", "insights_tech_vs_wdi", "insights_spread"]:
         b64 = load_base64(PLOTS_DIR / f"{name}.png")
         if b64:
@@ -73,7 +73,7 @@ def main():
     payload = {
         "key":              ADMIN_TOKEN,
         "wdi_calibration":  wdi_cal,
-        "pacing":           pacing,
+        "timing":           timing,
         "stats":            stats,
         "plots":            plots,
         "plot_rmse_base64": plots.get("history_rmse"),
