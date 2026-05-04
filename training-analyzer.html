@@ -527,6 +527,7 @@ window.currentRealTime = realTimeStr;
        del training analyzer. WDI_raw conserva il grezzo per riferimento. */
     const normResult  = WizTrail.normalizeWDI(result.WDI, mt.km);
     const wdiDisplay  = normResult.isLegendPlus ? '10+' : normResult.norm.toFixed(1);
+    const tsLabel     = getTrainingLabel(normResult.norm);
     sessionStorage.setItem("shareData", JSON.stringify({
       distance:       mt.km,
       dplus:          mt.gain,
@@ -536,7 +537,7 @@ window.currentRealTime = realTimeStr;
       WDI:            wdiDisplay,
       WDI_raw:        result.WDI.toFixed(1),
       WDI_category:   normResult.category,
-      WDI_color:      result.color,
+      WDI_color:      tsLabel.color,
       WDI_class:      result.class,
       TechScore:      result.TechScore.toFixed(1),
       techClass:      result.techClass,
