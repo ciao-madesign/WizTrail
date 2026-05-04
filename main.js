@@ -301,15 +301,14 @@
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
 
-    // Livello atleta da passo 10km su strada (input utente)
-    const pace10_input = m10 / 10; // min/km
-    const livello = pace10_input < 4.5 ? 'Élite'
-                  : pace10_input < 5.0 ? 'Agonista'
-                  : pace10_input < 5.5 ? 'Amatore forte'
-                  : pace10_input < 6.0 ? 'Amatore avanzato'
-                  : pace10_input < 6.5 ? 'Amatore medio'
-                  : pace10_input < 7.5 ? 'Amatore'
-                  :                      'Principiante';
+    // Livello trail dall'slider specificità S (0=principiante, 1=élite)
+    // Usare S invece del passo 10k: l'etichetta rispecchia il cursore selezionato
+    const livello = S >= 0.9 ? 'Élite'
+                  : S >= 0.7 ? 'Agonista'
+                  : S >= 0.5 ? 'Amatore forte'
+                  : S >= 0.3 ? 'Amatore avanzato'
+                  : S >= 0.1 ? 'Amatore'
+                  :             'Principiante';
 
     // Passo medio sul percorso trail (dal tempo segmenti, non dalla velocità base)
     const pace_trail = (T / 60) / m.km;
