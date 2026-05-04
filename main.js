@@ -216,6 +216,12 @@
     const velBase = 60 / (m10 / 10); // km/h — m10 è minuti su 10km (es. 50:00 = 5min/km)
 
     const terrainClass = document.getElementById('terrain')?.value || 'E';
+
+    // Fattore di riduzione velocità base per superficie del trail.
+    // Su asfalto l'atleta corre alla velocità teorica; su sentiero/tecnico
+    // anche i tratti pianeggianti sono più lenti del passo su strada.
+    const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 0.95, 'EE': 0.85, 'EA': 0.75 };
+    const velBaseEff = velBase * (TRAIL_BASE_FACTOR[terrainClass] ?? 0.90);
     const S      = readNum('spec');
     const meteo  = readNum('meteo');
     const alt    = readNum('alt');
@@ -242,7 +248,7 @@
 
     let T = 0;
     segments.forEach(seg => {
-      const velLocal  = velocityFromSlope(seg.slope, S, velBase);
+      const velLocal  = velocityFromSlope(seg.slope, S, velBaseEff);
       const tech      = technicalPenalty(seg.slope, terrainClass);
       const velTech   = velLocal / (1 + tech);
       const t_raw     = seg.dist / (velTech * 1000 / 3600);
@@ -291,7 +297,35 @@
 
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
-    updatePersonalEstimate();
+
+    // Livello atleta da passo 10km su strada (input utente)
+    const pace10_input = m10 / 10; // min/km
+    const livello = pace10_input < 4.5 ? 'Élite'
+                  : pace10_input < 5.0 ? 'Agonista'
+                  : pace10_input < 5.5 ? 'Amatore forte'
+                  : pace10_input < 6.0 ? 'Amatore avanzato'
+                  : pace10_input < 6.5 ? 'Amatore medio'
+                  : pace10_input < 7.5 ? 'Amatore'
+                  :                      'Principiante';
+
+    // Passo medio sul percorso trail (dal tempo segmenti, non dalla velocità base)
+    const pace_trail = (T / 60) / m.km;
+    const isSkyrace  = (m.gain / Math.max(m.km, 1)) > 60;
+
+    const subEl = document.getElementById('outFinalSub');
+    if (subEl) {
+      subEl.innerHTML =
+        pace_trail.toFixed(1) + ' min/km medi sul percorso' +
+        ' &nbsp;·&nbsp; ' + livello +
+        (isSkyrace ? ' &nbsp;·&nbsp; skyrace' : '') +
+        '<br><span style="opacity:0.5; font-size:0.72rem;">modello segmenti v2.0</span>';
+    }
+
+    // Mostra riga intervallo con percentuale margine
+    const rowEl = document.getElementById('intervalRow');
+    const pctEl = document.getElementById('marginPct');
+    if (rowEl) rowEl.style.display = '';
+    if (pctEl) pctEl.textContent = Math.round(margin * 100);
     document.querySelectorAll('.kpi-placeholder').forEach(el => el.remove());
     WizUI.showError('OK');
 
