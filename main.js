@@ -164,20 +164,23 @@
     if (Math.abs(p) < 0.015) return velBase;
 
     if (p > 0) {
-      let fatt = 1 + 3.5 * p;
-      fatt *= (1 + (1 - S));
-      if (fatt > 2.0) fatt = 2.0;
-      return velBase / fatt;
+      // Salita: coefficiente dipende da S
+      // S=1 (elite): k=1.5 — poca penalità su salite moderate
+      // S=0 (principiante): k=4.0 — forte rallentamento anche su pendenze medie
+      const k = 1.5 + 2.5 * (1 - S);
+      const cap = 1.6 + 0.9 * (1 - S);  // S=1: cap 1.6  S=0.5: 2.05  S=0: 2.5
+      return velBase / Math.min(1 + k * p, cap);
     }
 
-    if (p < 0 && p > -0.10) {
-      let fatt = 1 - 0.5 * Math.abs(p);
-      if (fatt < 0.85) fatt = 0.85;
-      return velBase / fatt;
+    // Discesa: elite accelera nettamente, beginner poco
+    // La tecnica di discesa è il principale vantaggio dell'elite sul trail
+    const boost = 1.05 + 0.25 * S;       // S=1: 1.30×  S=0.5: 1.175×  S=0: 1.05×
+    if (p < -0.25) {
+      // Discesa estrema: beginner rallenta, elite tiene il boost
+      const steep = (1 - S) * (Math.abs(p) - 0.25) * 2;
+      return velBase * Math.max(boost - steep, 0.85);
     }
-
-    // Discesa ripida
-    return velBase / (1 + Math.abs(p));
+    return velBase * boost;
   }
 
   function technicalPenalty(slope, terrainClass) {
@@ -188,9 +191,9 @@
   }
 
   function fatigueFactor(t_hours) {
-    /* Fatica progressiva sul trail — modello semplice e stabile.
-       +8% dopo 1h, +30% dopo 3h, +70% dopo 6h. */
-    return 1 + Math.pow(t_hours / 8, 1.2);
+    /* Fatica progressiva sul trail — calibrata su atleti allenati.
+       +5% dopo 1h, +19% dopo 3h, +36% dopo 6h. */
+    return 1 + 0.6 * Math.pow(t_hours / 8, 1.2);
   }
 
   /* ------------------------------------------------------------------
@@ -220,7 +223,7 @@
     // Fattore di riduzione velocità base per superficie del trail.
     // Su asfalto l'atleta corre alla velocità teorica; su sentiero/tecnico
     // anche i tratti pianeggianti sono più lenti del passo su strada.
-    const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 0.95, 'EE': 0.85, 'EA': 0.75 };
+    const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 1.00, 'EE': 0.85, 'EA': 0.75 };
     const velBaseEff = velBase * (TRAIL_BASE_FACTOR[terrainClass] ?? 0.90);
     const S      = readNum('spec');
     const meteo  = readNum('meteo');
@@ -298,15 +301,14 @@
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
 
-    // Livello atleta da passo 10km su strada (input utente)
-    const pace10_input = m10 / 10; // min/km
-    const livello = pace10_input < 4.5 ? 'Élite'
-                  : pace10_input < 5.0 ? 'Agonista'
-                  : pace10_input < 5.5 ? 'Amatore forte'
-                  : pace10_input < 6.0 ? 'Amatore avanzato'
-                  : pace10_input < 6.5 ? 'Amatore medio'
-                  : pace10_input < 7.5 ? 'Amatore'
-                  :                      'Principiante';
+    // Livello trail dall'slider specificità S (0=principiante, 1=élite)
+    // Usare S invece del passo 10k: l'etichetta rispecchia il cursore selezionato
+    const livello = S >= 0.9 ? 'Élite'
+                  : S >= 0.7 ? 'Agonista'
+                  : S >= 0.5 ? 'Amatore forte'
+                  : S >= 0.3 ? 'Amatore avanzato'
+                  : S >= 0.1 ? 'Amatore'
+                  :             'Principiante';
 
     // Passo medio sul percorso trail (dal tempo segmenti, non dalla velocità base)
     const pace_trail = (T / 60) / m.km;
