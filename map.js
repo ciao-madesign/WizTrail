@@ -36,12 +36,12 @@
      COLORE TRACCIA in base al WDI
      ------------------------------------------------------------------ */
   function getColorWDI(wdi) {
-    // Soglie v2 — sincronizzate con WDI_THRESHOLDS in wiztrail-engine.js v5.1
-    if (!wdi || wdi < 18)  return '#2BB7DA';  // Sport
-    if (wdi < 40)          return '#34A853';  // Pro
-    if (wdi < 80)          return '#F4C20D';  // Advanced
-    if (wdi < 140)         return '#F79617';  // Extreme
-    if (wdi < 230)         return '#E91E63';  // Elite
+    // Soglie v3 — sincronizzate con WDI_THRESHOLDS in wiztrail-engine.js (05/05/2026)
+    if (!wdi || wdi <  22) return '#2BB7DA';  // Sport
+    if (wdi <  40)         return '#34A853';  // Pro
+    if (wdi <  70)         return '#F4C20D';  // Advanced
+    if (wdi < 120)         return '#F79617';  // Extreme
+    if (wdi < 200)         return '#E91E63';  // Elite
     return '#8E24AA';                          // Legend
   }
 
