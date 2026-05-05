@@ -608,12 +608,11 @@ btnAnalyze.addEventListener("click", async () => {
 function parseTimeToSec(t){const p=t.split(":" ).map(Number);if(p.length!==3)return null;return p[0]*3600+p[1]*60+p[2];}
 
 function loginStrava() {
-  const clientId = "219532";
-
+  const clientId   = "219532";
   const redirectUri = `${window.location.origin}/auth_strava.html`;
-
-  const url = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=auto&scope=activity:read_all`;
-
+  const state      = crypto.randomUUID();
+  sessionStorage.setItem('strava_oauth_state', state);
+  const url = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=auto&scope=activity:read_all&state=${state}`;
   window.location.href = url;
 }
 async function loadFromStrava(activityId) {
