@@ -13,13 +13,23 @@
 
   <script>
     (async function () {
-      const params = new URLSearchParams(location.search);
-      const code   = params.get('code');
+      const params      = new URLSearchParams(location.search);
+      const code        = params.get('code');
+      const state       = params.get('state');
+      const storedState = sessionStorage.getItem('strava_oauth_state');
+      sessionStorage.removeItem('strava_oauth_state');
       const status = document.getElementById('status');
 
       // Nessun code → redirect silenzioso
       if (!code) {
         status.textContent = 'Parametro mancante. Reindirizzamento…';
+        setTimeout(() => { location.href = 'training-analyzer.html'; }, 1500);
+        return;
+      }
+
+      // CSRF check: state deve coincidere con quello generato al login
+      if (!state || !storedState || state !== storedState) {
+        status.textContent = 'Errore di sicurezza. Reindirizzamento…';
         setTimeout(() => { location.href = 'training-analyzer.html'; }, 1500);
         return;
       }
