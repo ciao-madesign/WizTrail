@@ -4,13 +4,13 @@
    Espone: window.WizTrail
    Caricato da: index.html (prima di main.js)
 
-   ⚠ SOGLIE PROVVISORIE — ricalibrate dopo test su GPX reali.
    Le soglie devono restare sincronizzate con:
      - map.js → getColorWDI()
      - ui.js → showWDI() e showTechScore()
    kT = 0.50 → calibrato 20/04/2026 (era 0.35)
    normRough 0.500 → recalibrato 28/04/2026 (era 0.051, saturava su GPX reali)
    TERRAIN_DEFAULTS v2 → recalibrato 28/04/2026 per contesto gara
+   WDI_THRESHOLDS v3 → ricalibrate 05/05/2026 su 95 gare (v5.1 engine)
    =============================================================== */
 
 window.WizTrail = (function () {
@@ -29,32 +29,31 @@ window.WizTrail = (function () {
      Le soglie grezze sono fisse e documentate — non cambiano
      con l'aggiunta di nuove gare al ranking.
      
-     Categorie e scale grezze:
-       Short  ≤25km  : grezzo  5→60   → norm 0–10
+     Categorie e scale grezze (v2 — ricalibrate 05/05/2026 su 95 gare):
+       Short  ≤25km  : grezzo  5→ 60  → norm 0–10
        Medium 26–50km: grezzo 15→110  → norm 0–10
-       Long   51–95km: grezzo 30→200  → norm 0–10
-       Ultra  >95km  : grezzo 50→150  → norm 0–10 (Legend ∞ oltre 150)
+       Long   51–95km: grezzo 30→165  → norm 0–10
+       Ultra  >95km  : grezzo 80→280  → norm 0–10 (Legend ∞ oltre 280)
      
      TechScore: scala assoluta 0–100, non categorizzata per distanza.
      --------------------------------------------------------------- */
   const WDI_NORM_CATEGORIES = [
     { distMax:  25, wdiMin:  5, wdiMax:  60, label: 'Short'  },
     { distMax:  50, wdiMin: 15, wdiMax: 110, label: 'Medium' },
-    { distMax:  95, wdiMin: 30, wdiMax: 200, label: 'Long'   },
-    { distMax: Infinity, wdiMin: 50, wdiMax: 150, label: 'Ultra' },
+    { distMax:  95, wdiMin: 30, wdiMax: 165, label: 'Long'   },
+    { distMax: Infinity, wdiMin: 80, wdiMax: 280, label: 'Ultra' },
   ];
 
   /* ---------------------------------------------------------------
-     SOGLIE — ⚠ PROVVISORIE, iterare su GPX reali
+     SOGLIE — v3 calibrate su 95 gare (v5.1 engine, 05/05/2026)
+     Sincronizzare con map.js → getColorWDI() e about.html → tabella classi
      --------------------------------------------------------------- */
   const WDI_THRESHOLDS = [
-    // Soglie v2 — calibrate su kT=0.50 + DistFactor exp=0.48 (20/04/2026)
-    // Sincronizzare con map.js → getColorWDI() e ui.js → showWDI()
-    { max: 18,       level: 'Sport',    color: '#2BB7DA' },
-    { max: 40,       level: 'Pro',      color: '#34A853' },
-    { max: 80,       level: 'Advanced', color: '#F4C20D' },
-    { max: 140,      level: 'Extreme',  color: '#F79617' },
-    { max: 230,      level: 'Elite',    color: '#E91E63' },
+    { max:  22,      level: 'Sport',    color: '#2BB7DA' },
+    { max:  40,      level: 'Pro',      color: '#34A853' },
+    { max:  70,      level: 'Advanced', color: '#F4C20D' },
+    { max: 120,      level: 'Extreme',  color: '#F79617' },
+    { max: 200,      level: 'Elite',    color: '#E91E63' },
     { max: Infinity, level: 'Legend',   color: '#8E24AA' }
   ];
 
