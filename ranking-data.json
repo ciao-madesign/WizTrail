@@ -4,60 +4,60 @@
     "distance": 16.88,
     "dplus": 1309,
     "wdi": 46.3,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/orsa_pravello_trincea_trail.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 68.4
   },
   {
     "name": "Lavaredo 80K",
     "distance": 79.19,
     "dplus": 4908,
     "wdi": 127.7,
-    "class": "Extreme",
-    "color": "#F79617",
+    "class": "Elite",
+    "color": "#E91E63",
     "gpx": "gpx/lavaredo_80k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 74.6
   },
   {
     "name": "VUT90",
     "distance": 89.38,
     "dplus": 6808,
     "wdi": 153.4,
-    "class": "Extreme",
-    "color": "#F79617",
+    "class": "Elite",
+    "color": "#E91E63",
     "gpx": "gpx/vut90.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 68.4
   },
   {
     "name": "VUT35",
     "distance": 37.35,
     "dplus": 2634,
     "wdi": 71,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/vut35.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 67.8
   },
   {
     "name": "Valtellina Wine Trail",
     "distance": 40.66,
     "dplus": 2088,
     "wdi": 67.3,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/valtellina_wine_trail.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 61.9
   },
   {
     "name": "CDF 12K",
@@ -69,175 +69,175 @@
     "gpx": "gpx/cdf_12k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 50.0
   },
   {
     "name": "CDF 28",
     "distance": 28.61,
     "dplus": 1378,
     "wdi": 51.4,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/cdf_28.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 64.8
   },
   {
     "name": "CDF 38K",
     "distance": 37.05,
     "dplus": 1990,
     "wdi": 64.3,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/cdf_38k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 66.2
   },
   {
     "name": "CDF 50K",
     "distance": 48.65,
     "dplus": 2563,
     "wdi": 79.2,
-    "class": "Advanced",
-    "color": "#F4C20D",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/cdf_50k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 63.1
   },
   {
     "name": "CDF 70K",
     "distance": 67.28,
     "dplus": 3886,
     "wdi": 107.8,
-    "class": "Advanced",
-    "color": "#F4C20D",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/cdf_70k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 70.0
   },
   {
     "name": "UTLAC 30",
     "distance": 29.65,
     "dplus": 1702,
     "wdi": 53.5,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/utlac_30.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 63.6
   },
   {
     "name": "Black Canyon 100",
     "distance": 95.04,
     "dplus": 1610,
     "wdi": 105.3,
-    "class": "Advanced",
-    "color": "#F4C20D",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/black_canyon_100.gpx",
     "discipline": "ultra",
     "country": "🇺🇸",
-    "techScore": null
+    "techScore": 25.8
   },
   {
     "name": "Bettelmatt Race",
     "distance": 23.52,
     "dplus": 1589,
     "wdi": 51.6,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/bettelmatt_race.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 59.9
   },
   {
     "name": "BUT",
     "distance": 55.64,
     "dplus": 3826,
     "wdi": 96.1,
-    "class": "Advanced",
-    "color": "#F4C20D",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/but.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 69.0
   },
   {
     "name": "LUT Cortina Skyrace",
     "distance": 20.41,
     "dplus": 1527,
     "wdi": 50,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/lut_cortina_skyrace.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 67.8
   },
   {
     "name": "Dolomiti di Brenta Trail",
     "distance": 45.4,
     "dplus": 4480,
     "wdi": 96.8,
-    "class": "Advanced",
-    "color": "#F4C20D",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/dolomiti_brenta_trail.gpx",
     "discipline": "mountain",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 83.6
   },
   {
     "name": "LUT 50",
     "distance": 47.77,
     "dplus": 2823,
     "wdi": 81.3,
-    "class": "Advanced",
-    "color": "#F4C20D",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/lut_50.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 65.8
   },
   {
     "name": "LUT120",
     "distance": 120.25,
     "dplus": 6311,
     "wdi": 177.8,
-    "class": "Extreme",
-    "color": "#F79617",
+    "class": "Elite",
+    "color": "#E91E63",
     "gpx": "gpx/lut120.gpx",
     "discipline": "ultra",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 64.7
   },
   {
     "name": "LUT 20",
     "distance": 19.51,
     "dplus": 1080,
     "wdi": 43.2,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/lut_20.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 71.9
   },
   {
     "name": "Ortles Haute Route 35",
     "distance": 34.47,
     "dplus": 2271,
     "wdi": 64.2,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/ortles_hr_35.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 65.2
   },
   {
     "name": "Ortles Haute Route Trail",
@@ -249,43 +249,43 @@
     "gpx": "gpx/ortles_hr_trail.gpx",
     "discipline": "ultra",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 68.9
   },
   {
     "name": "Sella Ronda Trail",
     "distance": 43.64,
     "dplus": 2241,
     "wdi": 70.4,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/sella_ronda_trail.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 49.2
   },
   {
     "name": "Dolomyths Skyrun",
     "distance": 21.65,
     "dplus": 1868,
     "wdi": 54,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/dolomyths_skyrun.gpx",
     "discipline": "mountain",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 69.1
   },
   {
     "name": "TOR30",
     "distance": 29.57,
     "dplus": 2052,
     "wdi": 59.7,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/tor30.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 73.4
   },
   {
     "name": "TOR100",
@@ -297,19 +297,19 @@
     "gpx": "gpx/tor100.gpx",
     "discipline": "ultra",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 74.7
   },
   {
     "name": "TOR130 tot dret",
     "distance": 136.1,
     "dplus": 11468,
     "wdi": 233.1,
-    "class": "Elite",
-    "color": "#E91E63",
+    "class": "Legend",
+    "color": "#8E24AA",
     "gpx": "gpx/tor130_totdret.gpx",
     "discipline": "ultra",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 74.7
   },
   {
     "name": "TOR330",
@@ -321,54 +321,54 @@
     "gpx": "gpx/tor330.gpx",
     "discipline": "ultra",
     "country": "🇮🇹 🇫🇷",
-    "techScore": null
+    "techScore": 74.9
   },
   {
     "name": "Transvulcania Marathon",
     "distance": 43.23,
     "dplus": 1939,
     "wdi": 68.2,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/transvulcania_marathon.gpx",
     "discipline": "trail",
     "country": "🇪🇸",
-    "techScore": null
+    "techScore": 63.4
   },
   {
     "name": "Transvulcania Ultramarathon",
     "distance": 74.01,
     "dplus": 4551,
     "wdi": 119.9,
-    "class": "Advanced",
-    "color": "#F4C20D",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/transvulcania_ultra.gpx",
     "discipline": "trail",
     "country": "🇪🇸",
-    "techScore": null
+    "techScore": 66.2
   },
   {
     "name": "Transpelmo Skyrace",
     "distance": 18.7,
     "dplus": 1583,
     "wdi": 50.5,
-    "class": "Pro",
-    "color": "#34A853",
+    "class": "Advanced",
+    "color": "#F4C20D",
     "gpx": "gpx/transpelmo_skyrace.gpx",
     "discipline": "mountain",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 88.9
   },
   {
     "name": "UTLAC 60",
     "distance": 65.55,
     "dplus": 4236,
     "wdi": 108.7,
-    "class": "Advanced",
-    "color": "#F4C20D",
+    "class": "Extreme",
+    "color": "#F79617",
     "gpx": "gpx/utlac_60.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": null
+    "techScore": 64.8
   }
 ]
