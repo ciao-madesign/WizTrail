@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- HOMEPAGE / APP CORE -->
+  <!-- HOMEPAGE / LANDING -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/</loc>
-    <lastmod>2026-03-19</lastmod>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://ciao-madesign.github.io/WizTrail/landing.html</loc>
+    <lastmod>2026-05-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -12,31 +19,39 @@
   <!-- CALCOLATORE & FUNZIONI PRINCIPALI -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/index.html</loc>
-    <lastmod>2026-03-19</lastmod>
+    <lastmod>2026-05-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- TRAINING ANALYZER / WDIT -->
+  <!-- TRAINING ANALYZER -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/training-analyzer.html</loc>
-    <lastmod>2026-03-19</lastmod>
+    <lastmod>2026-05-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- SHARE CARD VIEW -->
+  <!-- RANKING GARE -->
   <url>
-    <loc>https://ciao-madesign.github.io/WizTrail/share_card.html</loc>
-    <lastmod>2026-03-19</lastmod>
+    <loc>https://ciao-madesign.github.io/WizTrail/ranking.html</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- METODOLOGIA -->
+  <url>
+    <loc>https://ciao-madesign.github.io/WizTrail/about.html</loc>
+    <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
   </url>
 
   <!-- WDI WHITE PAPER -->
   <url>
-    <loc>https://ciao-madesign.github.io/WizTrail/WDI.html</loc>
-    <lastmod>2026-03-19</lastmod>
+    <loc>https://ciao-madesign.github.io/WizTrail/wdi.html</loc>
+    <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -44,23 +59,23 @@
   <!-- PACING WHITE PAPER -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/pacing.html</loc>
-    <lastmod>2026-03-19</lastmod>
+    <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
-  <!-- RANKING GARE -->
+  <!-- SHARE CARD VIEW -->
   <url>
-    <loc>https://ciao-madesign.github.io/WizTrail/ranking.html</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <loc>https://ciao-madesign.github.io/WizTrail/share_card.html</loc>
+    <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 
   <!-- DETTAGLIO GARA -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/dettaglio.html</loc>
-    <lastmod>2026-03-19</lastmod>
+    <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
@@ -68,7 +83,7 @@
   <!-- INSTALL APP -->
   <url>
     <loc>https://ciao-madesign.github.io/WizTrail/install.html</loc>
-    <lastmod>2026-03-19</lastmod>
+    <lastmod>2026-05-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

@@ -1,3 +1,4 @@
+# Pipeline-generated outputs — rebuild with scripts/01_prepare_dataset.py + 02_compute_wdi.py
 prepared.csv
 computed.csv
 hub_activities.csv

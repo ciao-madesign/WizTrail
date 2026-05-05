@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>WizTrail — Il Metodo</title>
-  <meta name="description" content="Formula WDI, modello tempi power-law, pacing adattivo, hub di calibrazione e architettura tecnica di WizTrail.">
+  <meta name="description" content="Formula WDI, modello tempi segment-based, pacing adattivo, hub di calibrazione e architettura tecnica di WizTrail.">
   <meta property="og:title" content="WizTrail — Il Metodo" />
-  <meta property="og:description" content="La metodologia scientifica dietro WizTrail: WDI v5.1, TechScore, pacing power-law, autocalibrazione." />
+  <meta property="og:description" content="La metodologia scientifica dietro WizTrail: WDI v5.1, TechScore, stima tempi segment-based, autocalibrazione." />
   <meta property="og:type" content="website" />
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#002b2b">
@@ -89,20 +89,20 @@ Se km > 100:  DistFactor = base100 + (km^0.42 - 100^0.42) / REF × 0.6</pre>
     </details>
 
     <details class="card">
-      <summary><b>Classi WDI — soglie v2</b></summary>
+      <summary><b>Classi WDI — soglie v3</b></summary>
       <div style="margin-top:12px">
         <table class="about-table">
           <thead><tr><th>Classe</th><th>WDI</th><th>Esempi reali</th></tr></thead>
           <tbody>
-            <tr><td style="color:#2BB7DA">Sport</td><td>&lt; 18</td><td>Trail locale 15km, 400m D+</td></tr>
-            <tr><td style="color:#34A853">Pro</td><td>18–40</td><td>Valtellina Wine Trail 42K, Broken Arrow 11K</td></tr>
-            <tr><td style="color:#F4C20D">Advanced</td><td>40–80</td><td>Sierre-Zinal 31K (55.4), Zegama 42K (77.2)</td></tr>
-            <tr><td style="color:#F79617">Extreme</td><td>80–140</td><td>Speedgoat 50K (104.3), Western States 100M (158→Extreme/Elite)</td></tr>
-            <tr><td style="color:#E91E63">Elite</td><td>140–230</td><td>CCC 99K (163.3)</td></tr>
-            <tr><td style="color:#8E24AA">Legend</td><td>≥ 230</td><td>UTMB 174K (260.5), Hardrock 100 (258.5), TdG 330K</td></tr>
+            <tr><td style="color:#2BB7DA">Sport</td><td>&lt; 22</td><td>Trail locale 13km 400D+, Broken Arrow 11K</td></tr>
+            <tr><td style="color:#34A853">Pro</td><td>22–40</td><td>Chianti UTMB 20K, Trail Roc d'Azur 25K</td></tr>
+            <tr><td style="color:#F4C20D">Advanced</td><td>40–70</td><td>MEHT21 (44.4), Sierre-Zinal 31K, Zegama 42K</td></tr>
+            <tr><td style="color:#F79617">Extreme</td><td>70–120</td><td>Speedgoat 50K, CDF 70K (107.8), Transvulcania 74K</td></tr>
+            <tr><td style="color:#E91E63">Elite</td><td>120–200</td><td>CCC 99K (156.7), Western States 100 (151.6), Lavaredo 120K</td></tr>
+            <tr><td style="color:#8E24AA">Legend</td><td>≥ 200</td><td>UTMB 174K (241.4), TDS 145K, Hardrock 100, TdG 330K</td></tr>
           </tbody>
         </table>
-        <p class="mini" style="margin-top:12px; opacity:0.6;">Le soglie sono sincronizzate in wiztrail-engine.js, map.js e questa pagina. Calibrate su kT=0.50, exp=0.48.</p>
+        <p class="mini" style="margin-top:12px; opacity:0.6;">Soglie v3 calibrate su 95 gare (v5.1 engine, 05/05/2026). Sincronizzate in wiztrail-engine.js e map.js.</p>
       </div>
     </details>
   </section>
@@ -123,7 +123,7 @@ Se km > 100:  DistFactor = base100 + (km^0.42 - 100^0.42) / REF × 0.6</pre>
       <div style="margin-top:12px">
         <pre>normFRIP  = clamp(frip      / 0.924, 0, 1)  — pendenza massima su finestra 40m
 normSVar  = clamp(slopeVar  / 0.180, 0, 1)  — variabilità pendenza (dominante)
-normRough = clamp(roughness / 0.051, 0, 1)  — roughness profilo
+normRough = clamp(roughness / 0.500, 0, 1)  — roughness profilo (soglia alzata da 0.051 per evitare saturazione)
 
 vertInt   = clamp((D+/km) / 74.1, 0, 1)    — densità verticale
 
@@ -148,55 +148,87 @@ raw = (normFRIP×0.244 + normSVar×0.421 + normRough×0.208) × 0.873
   ══════════════════════════════════════════════════════════════ -->
   <section id="tempi" class="about-section">
     <div class="about-label">Stima personalizzata</div>
-    <h2>Modello Tempi — Power-law v2.1</h2>
+    <h2>Modello Tempi — Segment-based <span class="about-version">v3.0</span></h2>
 
     <div class="card">
-      <p>La stima del tempo di gara è personalizzata in base al <b>passo su 10km in piano</b> dell'atleta. Il modello scala correttamente da skyrace (15km) a ultra (170km+).</p>
+      <p>La stima del tempo di gara è calcolata <b>segmento per segmento</b> sull'intera traccia GPX, adattando la velocità istantanea a pendenza locale, tecnicità del terreno e livello dell'atleta. Il motore è centralizzato in <code>wiztrail-timing.js</code> e condiviso tra il Calcolatore e il Training Analyzer.</p>
     </div>
 
     <details class="card" open>
-      <summary><b>Formula power-law</b></summary>
+      <summary><b>Velocità locale per segmento</b></summary>
       <div style="margin-top:12px">
-        <pre>T = A × km^α × (D+/km)^β × (1 + c × tech/10)
-  × (pace10km / pace10km_ref)^δ</pre>
-        <p><b>Parametri calibrati (20/04/2026):</b></p>
-        <pre>A     = 0.00949   — coefficiente base
-α     = 1.2231    — esponente distanza
-β     = 0.3288    — esponente densità D+ (D+/km)
-c     = 0.6464    — coefficiente tecnicità
-δ     = 0.994     — scaling quasi-lineare per livello atleta
-pace_ref = 4.740 min/km  — top 100 uomini (da ricalibrate su runner medio)</pre>
+        <pre>Per ogni micro-segmento GPX (~80m):
+  vel = velocityFromSlope(pendenza, S, velBase)
+
+Salita (p &gt; 1.5%):
+  k   = k_base + k_spread × (1 − S)
+  cap = cap_base + cap_spread × (1 − S)
+  vel = velBase / min(1 + k × p, cap)
+
+Discesa (p &lt; −1.5%):
+  boost = boost_base + boost_S × S
+  vel   = velBase × boost</pre>
+        <p>Il parametro <b>S</b> (specificità trail, 0 = Principiante → 1 = Élite) controlla quanto l'atleta è avvantaggiato su salita e discesa. A S più alto corrisponde una penalità in salita più bassa e un boost in discesa più alto.</p>
       </div>
     </details>
 
     <details class="card">
-      <summary><b>Livelli atleta e fattori di scaling</b></summary>
+      <summary><b>Parametri VELOCITY_PARAMS (calibrabili)</b></summary>
+      <div style="margin-top:12px">
+        <pre>k_base        = 1.5   — penalità salita base (élite, S=1)
+k_spread      = 2.5   — amplificazione penalità per livello basso
+cap_base      = 1.6   — tetto rallentamento salita (élite)
+cap_spread    = 0.9   — spread del tetto tra élite e principiante
+boost_base    = 1.05  — boost discesa base
+boost_S       = 0.25  — amplificazione boost discesa per élite
+fatigue_coeff = 0.6   — intensità fatica progressiva</pre>
+        <p>I parametri vengono ricalibrati automaticamente dalla pipeline hub (<code>03_calibrate.py</code>, Parte B) su ~47 GPX reali con 3 profili atleta reference (top100_men S=0.85, avg_finish S=0.40, top100_women S=0.80).</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Livelli atleta</b></summary>
       <div style="margin-top:12px">
         <table class="about-table">
-          <thead><tr><th>t10km</th><th>Pace</th><th>Fattore</th><th>Livello</th></tr></thead>
+          <thead><tr><th>S</th><th>Livello</th></tr></thead>
           <tbody>
-            <tr><td>40:00</td><td>4.00 min/km</td><td>×0.84</td><td>Élite</td></tr>
-            <tr><td>45:00</td><td>4.50 min/km</td><td>×0.95</td><td>Agonista</td></tr>
-            <tr><td>50:00</td><td>5.00 min/km</td><td>×1.05</td><td>Amatore forte</td></tr>
-            <tr><td>55:00</td><td>5.50 min/km</td><td>×1.16</td><td>Amatore avanzato</td></tr>
-            <tr><td>60:00</td><td>6.00 min/km</td><td>×1.26</td><td>Amatore medio</td></tr>
-            <tr><td>70:00</td><td>7.00 min/km</td><td>×1.47</td><td>Amatore</td></tr>
+            <tr><td>0.9–1.0</td><td>Élite</td></tr>
+            <tr><td>0.7–0.9</td><td>Agonista</td></tr>
+            <tr><td>0.5–0.7</td><td>Amatore forte</td></tr>
+            <tr><td>0.3–0.5</td><td>Amatore avanzato</td></tr>
+            <tr><td>0.1–0.3</td><td>Amatore</td></tr>
+            <tr><td>0.0–0.1</td><td>Principiante</td></tr>
           </tbody>
         </table>
-        <p class="mini" style="margin-top:10px; opacity:0.6;">Il riferimento base è calibrato sui top 100 uomini. La prossima calibrazione della pipeline userà avg_finish_hours per spostare il riferimento verso il runner medio (~6.2 min/km).</p>
+        <p class="mini" style="margin-top:10px; opacity:0.6;">Su un percorso con 900m D+ / 21km, la differenza tra Principiante e Élite è circa il 30–40% del tempo totale.</p>
       </div>
     </details>
 
     <details class="card">
-      <summary><b>Fatica progressiva (modello Riegel adattivo)</b></summary>
+      <summary><b>Fatica progressiva</b></summary>
       <div style="margin-top:12px">
-        <pre>fatigue = 1 + (t_ore / 12)^1.3</pre>
+        <pre>fatigue(t) = 1 + fatigue_coeff × (t_ore / 8)^1.2</pre>
         <ul>
-          <li>Gare brevi (1–2h) → fatica quasi nulla</li>
-          <li>Gare medie (4–6h) → impatto moderato (+8–12%)</li>
-          <li>Ultra 10–15h → +15–25% sul tempo totale</li>
+          <li>Gare brevi (1–2h) → impatto quasi nullo</li>
+          <li>Gare medie (4–6h) → +8–12% sul tempo totale</li>
+          <li>Ultra 10–15h → +20–30%</li>
         </ul>
-        <p>La fatica è applicata nel modello GPX segmento per segmento. La stima power-law usa invece δ come esponente di scaling diretto.</p>
+        <p>La fatica è accumulata segmento per segmento usando il tempo percorso fino a quel punto. Il coefficiente <code>fatigue_coeff</code> è calibrabile dalla pipeline.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Penalità tecnica e fattore superficie</b></summary>
+      <div style="margin-top:12px">
+        <pre>Penalità tecnica sui tratti ripidi (slope &gt;8% o &lt;-10%):
+  Terreno EE → −12% velocità
+  Terreno EA → −28% velocità
+  Strada / E → nessuna penalità
+
+Fattore superficie (tratti pianeggianti):
+  Strada / E → ×1.00
+  EE         → ×0.85
+  EA         → ×0.75</pre>
       </div>
     </details>
   </section>
@@ -284,7 +316,7 @@ Discesa:
       <div style="margin-top:12px">
         <ul>
           <li><b>buildTechScore()</b> — i 9 coefficienti di normalizzazione e pesi (FRIP, SlopeVar, Roughness, vertInt)</li>
-          <li><b>Modello power-law</b> — A, α, β, c, δ, pace10km_ref</li>
+          <li><b>Modello tempi segment-based</b> — 7 parametri VELOCITY_PARAMS: k_base, k_spread, cap_base, cap_spread, boost_base, boost_S, fatigue_coeff</li>
         </ul>
         <p><b>Non viene calibrato automaticamente:</b> kT, esponente DistFactor, soglie WDI per classe. Questi parametri richiedono analisi manuale dopo ogni calibrazione.</p>
       </div>
@@ -326,7 +358,8 @@ Discesa:
 ├── training-analyzer.html
 ├── dettaglio.html
 ├── wiztrail-engine.js        ← WDI engine v5.1
-├── wiztrail-pacing.js        ← modello power-law v2.1
+├── wiztrail-timing.js        ← motore tempi segment-based v3.0 (condiviso)
+├── wiztrail-pacing.js        ← pacing planner chunk-based
 ├── gpx-parser.js             ← parser GPX/TCX
 ├── discipline-classifier.js  ← trail/sky/mountain/XC
 ├── map.js, ui.js, main.js    ← moduli frontend
