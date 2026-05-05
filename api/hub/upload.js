@@ -17,11 +17,14 @@ async function redisGet(key) {
   try { return JSON.parse(json.result); } catch { return json.result; }
 }
 
-async function redisSet(key, value) {
+async function redisSet(key, value, ttlSeconds = null) {
+  const cmd = ttlSeconds
+    ? ['SET', key, JSON.stringify(value), 'EX', ttlSeconds]
+    : ['SET', key, JSON.stringify(value)];
   const res = await fetch(`${UPSTASH_URL}/pipeline`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify([['SET', key, JSON.stringify(value)]])
+    body: JSON.stringify([cmd])
   });
   const json = await res.json();
   if (json[0]?.error) throw new Error(`Redis SET: ${json[0].error}`);
@@ -105,7 +108,7 @@ export default async function handler(req, res) {
     wdi_estimate: estimateWDI(body.km, body.dplus, body.technicality),
   };
 
-  await redisSet(`hub:activities:${id}`, activity);
+  await redisSet(`hub:activities:${id}`, activity, 180 * 24 * 3600); // 180-day TTL
 
   const stats = (await redisGet('hub:stats')) || { n_total: 0, n_pending: 0, last_run: null, last_rmse: null };
   await redisSet('hub:stats', {

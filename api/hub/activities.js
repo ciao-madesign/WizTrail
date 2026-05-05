@@ -17,7 +17,7 @@ async function redisGet(key) {
   try { return JSON.parse(json.result); } catch { return json.result; }
 }
 
-async function redisScan(pattern) {
+async function redisScan(pattern, maxKeys = 1000) {
   const keys = [];
   let cursor = '0';
   do {
@@ -29,7 +29,7 @@ async function redisScan(pattern) {
     if (json.error) throw new Error(`Redis SCAN: ${json.error}`);
     cursor = json.result[0];
     keys.push(...json.result[1]);
-  } while (cursor !== '0');
+  } while (cursor !== '0' && keys.length < maxKeys);
   return keys;
 }
 
