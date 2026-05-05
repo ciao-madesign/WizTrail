@@ -6,8 +6,6 @@
  *   - Leaflet
  *   - wiztrail-engine.js     → window.WizTrail
  *   - wiztrail-pacing.js     → window.WizTrailPacing / funzioni pacing
- *   - wiztrail-postgara.js   → window.WizTrailPostgara
- *   - wiztrail-report.js     → window.WizTrailReport
  *   - gpx-parser.js          → window.GPXParser
  *   - map.js                 → window.WizMap
  *   - ui.js                  → window.WizUI
