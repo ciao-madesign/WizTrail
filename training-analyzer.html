@@ -18,6 +18,9 @@
 <link rel="stylesheet" href="wiztrail.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WizTrail Training Analyzer","url":"https://wiz-trail.vercel.app/training-analyzer.html","applicationCategory":"SportsApplication","operatingSystem":"Web","description":"Analizza la difficoltà dei tuoi allenamenti trail. Carica il GPX o importa da Strava e ottieni il WDI del tuo allenamento.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}
+</script>
 </head>
 <body data-theme="dark">
 <!-- STRAVA MODAL -->
@@ -781,5 +784,7 @@ gpxFile?.addEventListener('change', () => {
   img.src = 'img/hero-calc.jpg';
 })();
 </script>
+<script>window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>
