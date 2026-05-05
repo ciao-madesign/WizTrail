@@ -1,27 +1,32 @@
 User-agent: *
 Allow: /
 
-# Non indicizzare file tecnici o di servizio
+# Pagine pubbliche indicizzabili
+Allow: /index.html
+Allow: /landing.html
+Allow: /ranking.html
+Allow: /about.html
+Allow: /wdi.html
+Allow: /pacing.html
+Allow: /training-analyzer.html
+Allow: /install.html
+
+# Pagine tecniche/dinamiche — non indicizzare
+Disallow: /hub.html
+Disallow: /auth_strava.html
+Disallow: /import_strava.html
+Disallow: /share_card.html
+Disallow: /dettaglio.html
+
+# Risorse non navigabili
 Disallow: /manifest.webmanifest
 Disallow: /icons/
 Disallow: /img/icons/
 Disallow: /favicon.ico
-
-# Evita indicizzazione di file sistemici o secondari
 Disallow: /CNAME
 Disallow: /LICENSE
 Disallow: /README
 Disallow: /README.md
 
-# Evita indicizzazione di pagine inutili ai motori
-Disallow: /install.html
-Disallow: /dettaglio.html
-
-# Permetti invece Ranking, WDI, Pacing e Homepage
-Allow: /index.html
-Allow: /ranking.html
-Allow: /WDI.html
-Allow: /pacing.html
-
 # Sitemap ufficiale
-Sitemap: https://ciao-madesign.github.io/WizTrail/sitemap.xml
+Sitemap: https://wiz-trail.vercel.app/sitemap.xml
