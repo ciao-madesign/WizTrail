@@ -13,7 +13,7 @@ WizTrail calculates the **WDI (WizTrail Difficulty Index)** of any trail route, 
 | Feature | Description |
 |---|---|
 | **WDI v5.1** | Objective difficulty score from GPX data (distance, elevation, terrain variability) |
-| **Time estimation** | Personalized estimate via power-law model v2.1, calibrated on 96 real races |
+| **Time estimation** | Segment-based model (`wiztrail-timing.js`), calibrated on 47 real GPX — shared between Calculator and Training Analyzer |
 | **Adaptive pacing** | Chunk-based pacing plan segmented by terrain difficulty |
 | **Training Analyzer** | Analyze Strava activities with TrainingScore layer |
 | **Post-race report** | Compare predicted vs actual performance |
@@ -27,7 +27,8 @@ WizTrail calculates the **WDI (WizTrail Difficulty Index)** of any trail route, 
 ```
 Browser (client-side calculation)
 ├── wiztrail-engine.js      — WDI v5.1 unified engine
-├── wiztrail-pacing.js      — power-law model v2.1
+├── wiztrail-timing.js      — segment-based time model (shared: Calculator + Training Analyzer)
+├── wiztrail-pacing.js      — pacing planner (chunk-based distribution of T_target)
 ├── gpx-parser.js           — GPX/TCX parser, adaptive smoothing
 ├── discipline-classifier.js — trail/sky/mountain/XC auto-classification
 ├── map.js                  — Leaflet map + elevation profile
@@ -130,7 +131,7 @@ The hub allows continuous model improvement via real user data:
 1. User uploads a GPX with finish time and technicality rating
 2. Data is stored in Upstash Redis
 3. Admin triggers the calibration pipeline via GitHub Actions
-4. Pipeline re-optimizes TechScore weights and power-law parameters
+4. Pipeline re-optimizes TechScore weights and VELOCITY_PARAMS (segment-based time model)
 5. Results are published as a patch for manual review and application
 
 ```bash
@@ -169,7 +170,8 @@ WizTrail/
 ├── install.html              # PWA install guide
 ├── share_card.html           # Shareable result card
 ├── wiztrail-engine.js        # WDI engine v5.1
-├── wiztrail-pacing.js        # Power-law model v2.1
+├── wiztrail-timing.js        # Segment-based time model v3.0 (shared)
+├── wiztrail-pacing.js        # Pacing planner (chunk-based)
 ├── gpx-parser.js             # GPX/TCX parser
 ├── discipline-classifier.js  # Discipline auto-classification
 ├── map.js                    # Map + elevation profile
