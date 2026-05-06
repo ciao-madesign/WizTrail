@@ -448,6 +448,62 @@
     .lnd-footer-right a:hover { color: var(--landing-accent); }
 
     /* ── Mobile ─────────────────────────────────────────────────── */
+    /* ── FAQ ───────────────────────────────────────────────── */
+    .lnd-faq {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 64px 32px;
+      border-top: 1px solid rgba(79,209,197,0.08);
+    }
+    .lnd-faq-label {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--landing-accent);
+      margin-bottom: 28px;
+      opacity: 0.8;
+    }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 48px;
+    }
+    .faq-item {
+      border-bottom: 1px solid rgba(79,209,197,0.1);
+    }
+    .faq-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 13px 0;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: rgba(232,245,244,0.82);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      user-select: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      font-size: 1rem;
+      color: var(--landing-accent);
+      flex-shrink: 0;
+      line-height: 1;
+      font-weight: 400;
+    }
+    .faq-item[open] summary::after { content: '−'; }
+    .faq-answer {
+      padding: 0 0 13px;
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      color: rgba(232,245,244,0.48);
+      line-height: 1.7;
+    }
+
     @media (max-width: 680px) {
       /* Mobile header: gestito da .app-header in wiztrail.css */
       .app-header { padding: 8px 16px; }
@@ -457,12 +513,27 @@
       .lnd-section { padding: 64px 20px; }
       .wdi-showcase-inner,
       .privacy-block { grid-template-columns: 1fr; gap: 40px; }
+      .faq-grid { grid-template-columns: 1fr; }
+      .lnd-faq { padding: 48px 20px; }
       .lnd-cta { padding: 64px 20px; }
       .lnd-footer { flex-direction: column; align-items: flex-start; padding: 24px 20px; }
     }
   </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://wiz-trail.vercel.app/#website","url":"https://wiz-trail.vercel.app/","name":"WizTrail","description":"Piattaforma per l'analisi tecnica dei percorsi trail running: WDI, stima tempi, pacing adattivo.","inLanguage":"it"},{"@type":"SoftwareApplication","@id":"https://wiz-trail.vercel.app/#app","name":"WizTrail","url":"https://wiz-trail.vercel.app/","applicationCategory":"SportsApplication","operatingSystem":"Web","description":"WizTrail calcola il WDI del tuo percorso trail, stima il tempo di gara personalizzato e genera il pacing adattivo. Carica il GPX, tutto in locale.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Cos'è il WDI e come si calcola?","acceptedAnswer":{"@type":"Answer","text":"Il WDI (WizTrail Difficulty Index) misura la difficoltà reale di un percorso trail. Combina distanza, dislivello, pendenza massima su finestra 40m (FRIP), variabilità del terreno (SlopeVar) e rugosità del profilo altimetrico (Roughness). Calibrato su 96 gare e 47 GPX reali."}},
+{"@type":"Question","name":"Che file posso caricare?","acceptedAnswer":{"@type":"Answer","text":"WizTrail supporta file GPX e TCX esportati da Garmin, Suunto, Wahoo, Coros, Polar o scaricati da Strava. Puoi anche importare un'attività direttamente da Strava nel Training Analyzer."}},
+{"@type":"Question","name":"WizTrail funziona offline?","acceptedAnswer":{"@type":"Answer","text":"Sì. WizTrail è una Progressive Web App (PWA): dopo il primo caricamento, tutto il codice e le risorse sono salvati localmente. Solo l'import da Strava richiede Internet. Installabile su iOS da Safari e su Android da Chrome."}},
+{"@type":"Question","name":"WizTrail funziona su mobile?","acceptedAnswer":{"@type":"Answer","text":"Sì, l'interfaccia è ottimizzata per smartphone. Puoi installarlo come app PWA: su iOS usa Safari → Aggiungi a schermo Home; su Android usa Chrome → Installa app."}},
+{"@type":"Question","name":"Posso importare da Strava?","acceptedAnswer":{"@type":"Answer","text":"Sì. Nel Training Analyzer puoi collegarti a Strava tramite OAuth e importare le attività recenti per analizzarle. L'accesso è opzionale e richiede il tuo consenso esplicito."}},
+{"@type":"Question","name":"Cos'è il TechScore?","acceptedAnswer":{"@type":"Answer","text":"Il TechScore misura la tecnicità pura di un percorso, indipendente dalla lunghezza. Analizza pendenza massima (FRIP), variabilità delle pendenze (SlopeVar) e rugosità del profilo altimetrico (Roughness). Scala 0–10: sopra 7 è terreno tecnico estremo."}},
+{"@type":"Question","name":"Come viene stimato il tempo di gara?","acceptedAnswer":{"@type":"Answer","text":"Il modello segment-based v3.0 calcola la velocità per ogni tratto del percorso in funzione di pendenza, tecnicità, meteo, quota e livello dell'atleta. La stima è personalizzata: due atleti con livelli diversi ottengono stime diverse sullo stesso percorso."}},
+{"@type":"Question","name":"Cos'è il pacing adattivo?","acceptedAnswer":{"@type":"Answer","text":"Il Pacing Planner divide il percorso in segmenti da 5 km e calcola il ritmo consigliato per ciascuno, considerando pendenza, tecnicità del terreno e fatica progressiva. L'obiettivo è distribuire lo sforzo per evitare cali di ritmo nella seconda metà di gara."}},
+{"@type":"Question","name":"Come interpreto la classe WDI?","acceptedAnswer":{"@type":"Answer","text":"Il WDI ha sei classi: Sport (meno di 22), Pro (22–40), Advanced (40–70), Extreme (70–120), Elite (120–200), Legend (200 e oltre). Il valore è normalizzato per categoria di distanza (Short/Medium/Long/Ultra) su scala 0–10, così percorsi di lunghezze diverse restano confrontabili."}}
+]}
 </script>
 </head>
 <body>
@@ -702,6 +773,53 @@
         Installabile come app sul telefono. Una volta caricato,
         funziona senza connessione.
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="lnd-faq">
+  <p class="lnd-faq-label">Domande frequenti</p>
+  <div class="faq-grid">
+    <div>
+      <details class="faq-item">
+        <summary>Cos'è il WDI e come si calcola?</summary>
+        <p class="faq-answer">Il WDI (WizTrail Difficulty Index) misura la difficoltà reale di un percorso trail. Combina distanza, dislivello, pendenza massima su finestra 40m (FRIP), variabilità del terreno (SlopeVar) e rugosità del profilo altimetrico (Roughness). Calibrato su 96 gare e 47 GPX reali.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Che file posso caricare?</summary>
+        <p class="faq-answer">Supporta file GPX e TCX esportati da Garmin, Suunto, Wahoo, Coros, Polar o scaricati da Strava. Puoi anche importare un'attività direttamente da Strava nel Training Analyzer.</p>
+      </details>
+      <details class="faq-item">
+        <summary>WizTrail funziona offline?</summary>
+        <p class="faq-answer">Sì. WizTrail è una PWA: dopo il primo caricamento tutto funziona senza connessione. Solo l'import da Strava richiede Internet. Installabile su iOS da Safari e su Android da Chrome.</p>
+      </details>
+      <details class="faq-item">
+        <summary>WizTrail funziona su mobile?</summary>
+        <p class="faq-answer">Sì, l'interfaccia è ottimizzata per smartphone. Installalo come app: su iOS usa Safari → Aggiungi a schermo Home; su Android usa Chrome → Installa app.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Posso importare da Strava?</summary>
+        <p class="faq-answer">Sì. Nel Training Analyzer puoi collegarti a Strava tramite OAuth e importare le attività recenti per analizzarle. L'accesso è opzionale e richiede il tuo consenso esplicito.</p>
+      </details>
+    </div>
+    <div>
+      <details class="faq-item">
+        <summary>Cos'è il TechScore?</summary>
+        <p class="faq-answer">Misura la tecnicità pura del percorso, indipendente dalla lunghezza. Analizza pendenza massima (FRIP), variabilità delle pendenze (SlopeVar) e rugosità del profilo (Roughness). Scala 0–10: sopra 7 è terreno tecnico estremo.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Come viene stimato il tempo di gara?</summary>
+        <p class="faq-answer">Il modello segment-based v3.0 calcola la velocità per ogni tratto in funzione di pendenza, tecnicità, meteo, quota e livello dell'atleta. La stima è personalizzata: due atleti con livelli diversi ottengono stime diverse sullo stesso percorso.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Cos'è il pacing adattivo?</summary>
+        <p class="faq-answer">Il Pacing Planner divide il percorso in segmenti da 5 km e calcola il ritmo consigliato per ciascuno, considerando pendenza, tecnicità e fatica progressiva. L'obiettivo è distribuire lo sforzo per evitare cali di ritmo nella seconda metà di gara.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Come interpreto la classe WDI?</summary>
+        <p class="faq-answer">Il WDI ha sei classi: Sport (&lt;22), Pro (22–40), Advanced (40–70), Extreme (70–120), Elite (120–200), Legend (≥200). Il valore è normalizzato per categoria di distanza su scala 0–10, così percorsi di lunghezze diverse restano confrontabili.</p>
+      </details>
     </div>
   </div>
 </div>
