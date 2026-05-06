@@ -49,6 +49,19 @@ h3 { font-family: var(--font-sans); font-size: 0.95rem; font-weight: 600; }
 label, .mini, .tab-btn, .btn, .wdi-btn, .brand-name, button,
 input, select, textarea { font-family: var(--font-sans); }
 
+/* ===== Topo texture — fixed background layer ===== */
+html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url('/img/topo_texture_light.png');
+    background-size: 720px;
+    opacity: 0.05;
+    mix-blend-mode: screen;
+}
+
 /* ===== Background hero removed — clean gradients only ===== */
 
 body::before {
@@ -113,6 +126,7 @@ body::after {
     padding: 0 14px;
 
     position: relative;
+    z-index: 1;
     background: color-mix(in oklab, var(--card) 70%, transparent);
     border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
     border-radius: 16px;
