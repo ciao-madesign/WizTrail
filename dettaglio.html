@@ -6,6 +6,7 @@
 <title>WizTrail — Dettaglio Gara</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Analisi WDI dettagliata del percorso trail.">
+<meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/icons/logo-192.png">
@@ -45,7 +46,7 @@
     <span class="brand-name">WizTrail</span>
   </a>
   <nav class="app-nav">
-    <a href="index.html" class="nav-active">Calcolatore</a>
+    <a href="index.html">Calcolatore</a>
       <a href="training-analyzer.html" class="">Training</a>
       <a href="ranking.html" class="">Ranking</a>
       <a href="about.html" class="">Il Metodo</a>
@@ -129,8 +130,6 @@
     map=L.map('mapLeaflet',{zoomControl:true});
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
       {subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap, © CartoDB'}).addTo(map);
-    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-      {opacity:0.35,maxZoom:17,attribution:'© OpenTopoMap'}).addTo(map);
     map.setView([46,8],5);
   }
 
