@@ -8,10 +8,11 @@
 <meta name="description" content="Analisi WDI dettagliata del percorso trail.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#002b2b">
+<meta name="theme-color" content="#111111">
 <link rel="apple-touch-icon" href="/icons/logo.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="wiztrail.css">
+  <link rel="stylesheet" href="colors_and_type.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -137,7 +138,7 @@
     initMap();
     if(poly){map.removeLayer(poly);poly=null;}
     poly=L.polyline(pts.map(function(p){return[p[0],p[1]];}),
-      {color:color||'#4fd1c5',weight:4,opacity:0.9}).addTo(map);
+      {color:color||'#B8D400',weight:4,opacity:0.9}).addTo(map);
     try{map.fitBounds(poly.getBounds(),{padding:[24,24]});}catch(e){}
   }
 
@@ -189,7 +190,7 @@
     // linea
     ctx.beginPath();ctx.moveTo(xs[0],ys[0]);
     for(var n=1;n<xs.length;n++) ctx.lineTo(xs[n],ys[n]);
-    ctx.strokeStyle='#4fd1c5';ctx.lineWidth=2;ctx.stroke();
+    ctx.strokeStyle='#B8D400';ctx.lineWidth=2;ctx.stroke();
   }
 
   function fillMetrics(metrics,rs){

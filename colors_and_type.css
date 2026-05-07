@@ -1,0 +1,160 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   WizTrail Design System v1.1 — Tokens
+   Tool, not a fitness app. ACG-inspired, IGM-grounded.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ── BASE / NEUTRI ──────────────────────────────────────────────────────── */
+  --wt-black:        #111111;  /* dark mode bg, text on light */
+  --wt-off-black:    #1C1C1C;  /* card on dark, second layer */
+  --wt-charcoal:     #2E2E2E;  /* surface 2, borders on dark */
+  --wt-stone-gray:   #6A6A6A;  /* secondary text, label, metadata */
+  --wt-fog:          #C8C8C8;  /* borders, dividers on light */
+  --wt-chalk:        #F3F2F0;  /* light mode bg, card on light */
+
+  /* ── TERRAIN ────────────────────────────────────────────────────────────── */
+  --wt-moss:         #4A5240;  /* OK state, terrain */
+  --wt-stone:        #7A756E;  /* texture, neutral decoration */
+  --wt-sand:         #BEB3A2;  /* warm alt bg, secondary accent */
+
+  /* ── TECNICO / ACCENT ───────────────────────────────────────────────────── */
+  --wt-lime:         #B8D400;  /* primary CTA, active score, critical data */
+  --wt-lime-dark:    #8FA000;  /* hover / on dark surfaces */
+
+  /* ── WDI RANKING (use ONLY in difficulty components) ────────────────────── */
+  --wdi-l1:          #4E7C59;  /* Facile        · WDI 1–2 */
+  --wdi-l2:          #A8B94F;  /* Moderato      · WDI 3–4 */
+  --wdi-l3:          #D4A843;  /* Impegnativo   · WDI 5–6 */
+  --wdi-l4:          #C06030;  /* Difficile     · WDI 7–8 */
+  --wdi-l5:          #8B2020;  /* Estremo       · WDI 9–10 */
+
+  /* ── TYPE ───────────────────────────────────────────────────────────────── */
+  --wt-font-ui:      'Inter', Arial, 'Helvetica Neue', sans-serif;
+  --wt-font-display: 'Inter', Arial, sans-serif;            /* Neue Haas Grotesk preferred */
+  --wt-font-mono:    'JetBrains Mono', 'Courier New', monospace; /* Mono DB preferred */
+
+  /* Type scale (px) */
+  --t-score-min:     64px;     /* Score WDI floor */
+  --t-score-max:     96px;     /* Score WDI ceiling */
+  --t-display-min:   32px;
+  --t-display-max:   48px;
+  --t-heading:       22px;
+  --t-body:          16px;
+  --t-label:         12px;
+  --t-mono-coord:    13px;
+  --t-mono-ui:       14px;
+
+  /* Letterspacing */
+  --ls-label:        0.10em;   /* +100 — uppercase labels */
+  --ls-display:      -0.01em;
+  --ls-mono:         0.01em;
+
+  /* Line-heights */
+  --lh-display:      1.15;
+  --lh-body:         1.55;
+  --lh-mono:         1.4;
+
+  /* ── LAYOUT ─────────────────────────────────────────────────────────────── */
+  --gutter-mobile:   16px;
+  --gutter-tablet:   24px;
+  --gutter-desktop:  32px;
+
+  /* Spacing scale (4-based) */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px;
+
+  /* Radii — max 4px, no soft radius */
+  --r-0: 0;
+  --r-1: 2px;
+  --r-2: 4px;
+
+  /* Borders */
+  --bw: 1px;
+
+  /* Elevation — shadows minimal or absent */
+  --shadow-flat:  none;
+  --shadow-soft:  0 2px 8px rgba(0,0,0,0.08);  /* light mode only */
+  --shadow-card:  0 1px 0 rgba(0,0,0,0.04);    /* hairline */
+
+  /* Topo overlay (apply to dark surfaces) */
+  --topo-opacity-light: 0.06;
+  --topo-opacity-dark:  0.09;
+
+  /* ── SEMANTIC ALIASES (resolved against base) ───────────────────────────── */
+  --wt-bg:           var(--wt-black);
+  --wt-surface:      var(--wt-off-black);
+  --wt-surface-2:    var(--wt-charcoal);
+  --wt-ink:          var(--wt-chalk);
+  --wt-ink-muted:    var(--wt-stone-gray);
+  --wt-border:       var(--wt-charcoal);
+  --wt-border-soft:  rgba(200,200,200,0.08);
+  --wt-accent:       var(--wt-lime);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/*  Type primitives                                                            */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.wt-score {
+  font-family: var(--wt-font-mono);
+  font-weight: 500;
+  font-size: clamp(var(--t-score-min), 7vw, var(--t-score-max));
+  line-height: 1;
+  letter-spacing: var(--ls-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--wt-ink);
+}
+
+.wt-display {
+  font-family: var(--wt-font-display);
+  font-weight: 600;
+  font-size: clamp(var(--t-display-min), 4vw, var(--t-display-max));
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-display);
+}
+
+.wt-heading {
+  font-family: var(--wt-font-ui);
+  font-weight: 700;
+  font-size: var(--t-heading);
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+}
+
+.wt-body {
+  font-family: var(--wt-font-ui);
+  font-weight: 400;
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  max-width: 65ch;
+}
+
+.wt-label {
+  font-family: var(--wt-font-ui);
+  font-weight: 500;
+  font-size: var(--t-label);
+  line-height: 1;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--wt-stone-gray);
+}
+
+.wt-mono {
+  font-family: var(--wt-font-mono);
+  font-weight: 400;
+  font-size: var(--t-mono-ui);
+  line-height: var(--lh-mono);
+  letter-spacing: var(--ls-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.wt-coord {
+  font-family: var(--wt-font-mono);
+  font-weight: 400;
+  font-size: var(--t-mono-coord);
+  letter-spacing: var(--ls-mono);
+  color: var(--wt-stone-gray);
+  font-variant-numeric: tabular-nums;
+}

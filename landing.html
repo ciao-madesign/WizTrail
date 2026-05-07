@@ -21,22 +21,21 @@
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#002b2b">
+  <meta name="theme-color" content="#111111">
   <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="WizTrail">
 
   <link rel="stylesheet" href="wiztrail.css">
+  <link rel="stylesheet" href="colors_and_type.css">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <style>
-    /* ── Landing-specific styles ─────────────────────────────────── */
+    /* ── Landing-specific styles (DS v1.1) ───────────────────────── */
     :root {
-      --landing-accent: #4fd1c5;
-      --landing-accent2: #81e6d9;
-      --landing-dark: #021a1a;
+      --landing-accent: #B8D400;
+      --landing-accent2: #8FA000;
+      --landing-dark: #111111;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -44,7 +43,7 @@
     body {
       font-family: var(--font-sans);
       background: var(--landing-dark);
-      color: #e8f5f4;
+      color: #F3F2F0;
       overflow-x: hidden;
     }
 
@@ -75,9 +74,9 @@
       inset: 0;
       background: linear-gradient(
         to bottom,
-        rgba(2,26,26,0.15) 0%,
-        rgba(2,26,26,0.4) 50%,
-        rgba(2,26,26,0.92) 100%
+        rgba(17,17,17,0.15) 0%,
+        rgba(17,17,17,0.4) 50%,
+        rgba(17,17,17,0.92) 100%
       );
     }
     .lnd-hero-content {
@@ -104,14 +103,15 @@
     .lnd-hero-title {
       font-family: var(--font-sans);
       font-size: clamp(1.8rem, 4.5vw, 3rem);
-      font-weight: 900;
+      font-weight: 600;
       line-height: 1.1;
+      letter-spacing: -0.015em;
       color: #fff;
       margin: 0 0 14px;
       max-width: 520px;
     }
     .lnd-hero-title em {
-      font-style: italic;
+      font-style: normal;
       color: var(--landing-accent);
     }
     .lnd-hero-desc {
@@ -133,13 +133,14 @@
       align-items: center;
       gap: 8px;
       background: var(--landing-accent);
-      color: var(--landing-dark);
-      padding: 14px 28px;
-      border-radius: 4px;
+      color: #111;
+      padding: 13px 28px;
+      border-radius: 2px;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 13px;
       text-decoration: none;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       transition: background 0.2s, transform 0.15s;
       font-family: var(--font-sans);
     }
@@ -150,18 +151,20 @@
     .btn-ghost-lnd {
       display: inline-flex;
       align-items: center;
-      color: rgba(232,245,244,0.75);
-      padding: 14px 24px;
-      border: 1px solid rgba(79,209,197,0.35);
-      border-radius: 4px;
-      font-size: 0.88rem;
+      color: rgba(243,242,240,0.75);
+      padding: 13px 24px;
+      border: 1px solid rgba(243,242,240,0.2);
+      border-radius: 2px;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       text-decoration: none;
       transition: border-color 0.2s, color 0.2s;
       font-family: var(--font-sans);
     }
     .btn-ghost-lnd:hover {
-      border-color: var(--landing-accent);
-      color: var(--landing-accent);
+      border-color: rgba(243,242,240,0.5);
+      color: #F3F2F0;
     }
 
     /* ── Scroll indicator ───────────────────────────────────────── */
@@ -189,36 +192,33 @@
 
     /* ── Stats bar ──────────────────────────────────────────────── */
     .lnd-stats {
-      background: rgba(10,36,36,0.95);
-      border-top: 1px solid rgba(79,209,197,0.12);
-      border-bottom: 1px solid rgba(79,209,197,0.12);
-      display: flex;
-      justify-content: center;
-      gap: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: #2E2E2E;
+      border-top: 1px solid #2E2E2E;
+      border-bottom: 1px solid #2E2E2E;
     }
     .lnd-stat {
-      flex: 1;
-      max-width: 200px;
+      background: #111;
       padding: 28px 24px;
-      text-align: center;
-      border-right: 1px solid rgba(79,209,197,0.1);
     }
-    .lnd-stat:last-child { border-right: none; }
     .lnd-stat-val {
-      /* Numeri KPI — DM Mono per coerenza con .kpi .val nelle altre pagine */
       font-family: var(--font-mono);
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--landing-accent);
+      font-size: 2rem;
+      font-weight: 500;
+      color: #F3F2F0;
       line-height: 1;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
+      font-variant-numeric: tabular-nums;
     }
     .lnd-stat-label {
-      font-size: 0.72rem;
-      color: rgba(232,245,244,0.5);
-      letter-spacing: 1.5px;
+      font-size: 11px;
+      color: #6A6A6A;
+      letter-spacing: 0.10em;
       text-transform: uppercase;
       font-family: var(--font-sans);
+      font-weight: 500;
     }
 
     /* ── Features ───────────────────────────────────────────────── */
@@ -239,70 +239,99 @@
     .lnd-section-title {
       font-family: var(--font-sans);
       font-size: clamp(1.8rem, 4vw, 2.8rem);
-      color: #e8f5f4;
-      font-weight: 400;
-      line-height: 1.25;
+      color: #F3F2F0;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
       margin-bottom: 48px;
       max-width: 640px;
     }
     .lnd-section-title em {
-      font-style: italic;
+      font-style: normal;
       color: var(--landing-accent);
     }
 
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2px;
-      background: rgba(79,209,197,0.08);
-      border: 1px solid rgba(79,209,197,0.1);
-      border-radius: 8px;
+      gap: 1px;
+      background: #2E2E2E;
+      border: 1px solid #2E2E2E;
       overflow: hidden;
     }
     .feature-card {
-      background: rgba(2,26,26,0.95);
-      padding: 40px 32px;
-      transition: background 0.2s;
+      background: #1C1C1C;
+      padding: 32px 28px;
+      transition: background 0.15s;
+      position: relative;
+      overflow: hidden;
     }
-    .feature-card:hover { background: rgba(10,40,40,0.98); }
-    .feature-icon {
-      font-size: 2rem;
-      margin-bottom: 20px;
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url('/img/topo-pattern-on-dark.svg');
+      background-size: 480px;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+    .feature-card:hover { background: #222; }
+    .feature-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #6A6A6A;
+      letter-spacing: 0.10em;
+      margin-bottom: 14px;
       display: block;
     }
     .feature-title {
       font-family: var(--font-sans);
-      font-size: 1.15rem;
-      color: #e8f5f4;
+      font-size: 22px;
+      color: #F3F2F0;
       margin-bottom: 12px;
-      font-weight: 400;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      position: relative;
     }
     .feature-desc {
       font-family: var(--font-sans);
-      font-size: 0.8rem;
-      color: rgba(232,245,244,0.55);
-      line-height: 1.7;
+      font-size: 14px;
+      color: #C8C8C8;
+      line-height: 1.55;
+      position: relative;
     }
     .feature-tag {
       display: inline-block;
       margin-top: 16px;
       padding: 4px 10px;
-      background: rgba(79,209,197,0.1);
-      border: 1px solid rgba(79,209,197,0.2);
-      border-radius: 3px;
+      background: transparent;
+      border: 1px solid #2E2E2E;
+      border-radius: 2px;
       font-family: var(--font-sans);
-      font-size: 0.68rem;
-      color: var(--landing-accent);
-      letter-spacing: 1px;
+      font-size: 11px;
+      color: #6A6A6A;
+      letter-spacing: 0.10em;
       text-transform: uppercase;
+      position: relative;
     }
 
     /* ── WDI showcase ───────────────────────────────────────────── */
     .wdi-showcase {
-      padding: 80px 32px;
-      background: rgba(5,20,20,0.6);
-      border-top: 1px solid rgba(79,209,197,0.08);
-      border-bottom: 1px solid rgba(79,209,197,0.08);
+      padding: 96px 32px;
+      background: #1C1C1C;
+      border-top: 1px solid #2E2E2E;
+      border-bottom: 1px solid #2E2E2E;
+      position: relative;
+      overflow: hidden;
+    }
+    .wdi-showcase::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url('/img/topo-pattern-on-dark.svg');
+      background-size: 900px;
+      opacity: 0.07;
+      pointer-events: none;
     }
     .wdi-showcase-inner {
       max-width: 1100px;
@@ -315,21 +344,21 @@
     .wdi-classes {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 1px;
+      background: #2E2E2E;
+      border: 1px solid #2E2E2E;
+      position: relative;
     }
     .wdi-class-row {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 12px 16px;
-      border-radius: 4px;
-      background: rgba(10,36,36,0.6);
+      gap: 20px;
+      padding: 16px 20px;
+      background: #111;
       border-left: 3px solid transparent;
-      transition: border-color 0.2s, background 0.2s;
+      transition: background 0.15s;
     }
-    .wdi-class-row:hover {
-      background: rgba(10,36,36,0.9);
-    }
+    .wdi-class-row:hover { background: #181818; }
     .wdi-class-dot {
       width: 10px; height: 10px;
       border-radius: 50%;
@@ -337,20 +366,21 @@
     }
     .wdi-class-name {
       font-family: var(--font-sans);
-      font-size: 0.78rem;
-      color: rgba(232,245,244,0.9);
+      font-size: 14px;
+      color: #F3F2F0;
       font-weight: 600;
-      min-width: 80px;
+      min-width: 90px;
     }
     .wdi-class-range {
-      font-family: var(--font-sans);
-      font-size: 0.7rem;
-      color: rgba(232,245,244,0.4);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: #6A6A6A;
+      min-width: 80px;
     }
     .wdi-class-example {
       font-family: var(--font-sans);
-      font-size: 0.68rem;
-      color: rgba(232,245,244,0.35);
+      font-size: 13px;
+      color: #6A6A6A;
       margin-left: auto;
       text-align: right;
     }
@@ -383,11 +413,11 @@
     .privacy-point-text {
       font-family: var(--font-sans);
       font-size: 0.82rem;
-      color: rgba(232,245,244,0.65);
+      color: #6A6A6A;
       line-height: 1.6;
     }
     .privacy-point-text strong {
-      color: rgba(232,245,244,0.9);
+      color: #C8C8C8;
       display: block;
       margin-bottom: 2px;
     }
@@ -396,27 +426,29 @@
     .lnd-cta {
       padding: 100px 32px;
       text-align: center;
-      background: linear-gradient(to bottom, transparent, rgba(5,30,30,0.8));
+      background: #111;
+      border-top: 1px solid #2E2E2E;
     }
     .lnd-cta-title {
       font-family: var(--font-sans);
       font-size: clamp(1.8rem, 4vw, 3rem);
-      color: #e8f5f4;
-      font-weight: 400;
+      color: #F3F2F0;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       margin-bottom: 16px;
     }
-    .lnd-cta-title em { font-style: italic; color: var(--landing-accent); }
+    .lnd-cta-title em { font-style: normal; color: var(--landing-accent); }
     .lnd-cta-sub {
       font-family: var(--font-sans);
       font-size: 0.85rem;
-      color: rgba(232,245,244,0.5);
+      color: #6A6A6A;
       margin-bottom: 40px;
     }
 
     /* ── Footer ─────────────────────────────────────────────────── */
     .lnd-footer {
-      background: rgba(2,15,15,0.98);
-      border-top: 1px solid rgba(79,209,197,0.1);
+      background: #111;
+      border-top: 1px solid #2E2E2E;
       padding: 32px;
       display: flex;
       justify-content: space-between;
@@ -427,13 +459,14 @@
     .lnd-footer-left {
       font-family: var(--font-sans);
       font-size: 0.72rem;
-      color: rgba(232,245,244,0.35);
+      color: #6A6A6A;
       line-height: 1.6;
     }
     .lnd-footer-left a {
-      color: rgba(232,245,244,0.5);
+      color: #6A6A6A;
       text-decoration: none;
     }
+    .lnd-footer-left a:hover { color: #F3F2F0; }
     .lnd-footer-right {
       display: flex;
       gap: 20px;
@@ -441,7 +474,7 @@
     .lnd-footer-right a {
       font-family: var(--font-sans);
       font-size: 0.72rem;
-      color: rgba(232,245,244,0.4);
+      color: #6A6A6A;
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -453,7 +486,7 @@
       max-width: 880px;
       margin: 0 auto;
       padding: 64px 32px;
-      border-top: 1px solid rgba(79,209,197,0.08);
+      border-top: 1px solid #2E2E2E;
     }
     .lnd-faq-label {
       font-family: var(--font-sans);
@@ -470,7 +503,7 @@
       gap: 0 48px;
     }
     .faq-item {
-      border-bottom: 1px solid rgba(79,209,197,0.1);
+      border-bottom: 1px solid #2E2E2E;
     }
     .faq-item summary {
       list-style: none;
@@ -479,7 +512,7 @@
       font-family: var(--font-sans);
       font-size: 0.82rem;
       font-weight: 600;
-      color: rgba(232,245,244,0.82);
+      color: #C8C8C8;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -500,7 +533,7 @@
       padding: 0 0 13px;
       font-family: var(--font-sans);
       font-size: 0.78rem;
-      color: rgba(232,245,244,0.48);
+      color: #6A6A6A;
       line-height: 1.7;
     }
 
@@ -613,31 +646,31 @@
 
   <div class="features-grid" style="margin-bottom:0;">
     <div class="feature-card">
-      <span class="feature-icon">🏔️</span>
-      <h3 class="feature-title">Prepara la tua gara</h3>
+      <span class="feature-num">01</span>
+      <h3 class="feature-title">Prepara la gara</h3>
       <p class="feature-desc">
         Carica il GPX, calcola il WDI (Indice di Difficoltà) e ottieni la stima di tempo
         calibrata sul tuo livello. Poi pianifica il pacing segmento per segmento.
       </p>
-      <a href="index.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Apri il Calcolatore →</a>
+      <a href="index.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">APRI IL CALCOLATORE</a>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🏃</span>
+      <span class="feature-num">02</span>
       <h3 class="feature-title">Analizza l'allenamento</h3>
       <p class="feature-desc">
         Hai appena finito un'uscita? Carica il GPX o importa da Strava e scopri
         quanto è stata impegnativa, calibrato sul tuo livello.
       </p>
-      <a href="training-analyzer.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Apri Training Analyzer →</a>
+      <a href="training-analyzer.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">APRI TRAINING ANALYZER</a>
     </div>
     <div class="feature-card">
-      <span class="feature-icon">🏅</span>
-      <h3 class="feature-title">Certifica la tua gara</h3>
+      <span class="feature-num">03</span>
+      <h3 class="feature-title">Confronta nel ranking</h3>
       <p class="feature-desc">
-        Sei un organizzatore? Carica il GPX del tuo percorso e confrontalo
-        con le gare del ranking ufficiale WizTrail.
+        Carica il GPX del percorso e confrontalo con le gare del ranking ufficiale WizTrail.
+        Dati reali, nessuna stima.
       </p>
-      <a href="ranking.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Vai al Ranking →</a>
+      <a href="ranking.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">VAI AL RANKING</a>
     </div>
   </div>
 </section>
@@ -651,33 +684,33 @@
 
   <div class="features-grid">
     <div class="feature-card">
-      <span class="feature-icon">⛰️</span>
-      <h3 class="feature-title">WDI — Difficulty Index</h3>
+      <span class="feature-num">01</span>
+      <h3 class="feature-title">WDI</h3>
       <p class="feature-desc">
-        Calcola la difficoltà oggettiva del percorso analizzando distanza, dislivello,
-        pendenza massima, variabilità del terreno e quota media. Calibrato su 96 gare reali.
+        Difficoltà oggettiva. Distanza, dislivello, pendenza massima,
+        variabilità del terreno e quota media. Calibrato su 96 gare reali.
       </p>
-      <span class="feature-tag">WizTrail Engine v5.1</span>
+      <span class="feature-tag">ENGINE V5.1</span>
     </div>
 
     <div class="feature-card">
-      <span class="feature-icon">📊</span>
-      <h3 class="feature-title">Pacing Planner</h3>
+      <span class="feature-num">02</span>
+      <h3 class="feature-title">TECHSCORE</h3>
       <p class="feature-desc">
-        Genera una tabella di pacing adattivo segmento per segmento. Ogni tratto
-        tiene conto di pendenza, tecnicità e fatica progressiva.
+        Tecnicità del terreno indipendente dalla distanza. FRIP, SlopeVar, Roughness.
+        Scala 0–10: sopra 7 è terreno tecnico estremo.
       </p>
-      <span class="feature-tag">GPX required</span>
+      <span class="feature-tag">GPX REQUIRED</span>
     </div>
 
     <div class="feature-card">
-      <span class="feature-icon">🏃</span>
-      <h3 class="feature-title">Training Analyzer</h3>
+      <span class="feature-num">03</span>
+      <h3 class="feature-title">PACING</h3>
       <p class="feature-desc">
-        Analizza le tue sessioni di allenamento importate da Strava.
-        Il TrainingScore adatta i giudizi al contesto di allenamento.
+        Tabella adattiva segmento per segmento. Pendenza, tecnicità,
+        fatica progressiva. Personalizzata sul tuo livello.
       </p>
-      <span class="feature-tag">Strava OAuth</span>
+      <span class="feature-tag">SEGMENT-BASED V3.0</span>
     </div>
 
   </div>
@@ -685,56 +718,56 @@
 
 <!-- WDI SHOWCASE -->
 <div class="wdi-showcase">
-  <div class="wdi-showcase-inner">
+  <div class="wdi-showcase-inner" style="position:relative;">
     <div>
       <p class="lnd-section-label">Il WDI — Indice di Difficoltà</p>
       <h2 class="lnd-section-title" style="margin-bottom:24px;">
         Sei classi di difficoltà,<br><em>calibrate su dati reali</em>.
       </h2>
-      <p style="font-family:var(--font-sans); font-size:0.8rem; color:rgba(232,245,244,0.5); line-height:1.7; max-width:420px;">
+      <p style="font-family:var(--font-sans); font-size:0.8rem; color:#6A6A6A; line-height:1.7; max-width:420px;">
         Il WizTrail Difficulty Index combina volume (D+, distanza) e tecnicità
         del terreno (FRIP, SlopeVar, Roughness) in un indice unico.
         Più GPX reali vengono caricati, più il modello si affina automaticamente.
       </p>
-      <a href="about.html" style="display:inline-block; margin-top:24px; font-family:var(--font-sans); font-size:0.78rem; color:var(--landing-accent); text-decoration:none; border-bottom:1px solid rgba(79,209,197,0.3); padding-bottom:2px;">
-        Formula completa e metodologia →
+      <a href="about.html" style="display:inline-block; margin-top:24px; font-family:var(--font-mono); font-size:12px; color:var(--landing-accent); text-decoration:none; letter-spacing:0.06em; text-transform:uppercase;">
+        FORMULA COMPLETA E METODOLOGIA →
       </a>
     </div>
     <div class="wdi-classes">
-      <div class="wdi-class-row" style="border-left-color:#2BB7DA;">
-        <span class="wdi-class-dot" style="background:#2BB7DA;"></span>
-        <span class="wdi-class-name" style="color:#2BB7DA;">Sport</span>
-        <span class="wdi-class-range">WDI &lt; 22</span>
+      <div class="wdi-class-row" style="border-left-color:#4E7C59;">
+        <span class="wdi-class-dot" style="background:#4E7C59;"></span>
+        <span class="wdi-class-name">Sport</span>
+        <span class="wdi-class-range">WDI 1–2</span>
         <span class="wdi-class-example">Trail locale 13km</span>
       </div>
-      <div class="wdi-class-row" style="border-left-color:#34A853;">
-        <span class="wdi-class-dot" style="background:#34A853;"></span>
-        <span class="wdi-class-name" style="color:#34A853;">Pro</span>
-        <span class="wdi-class-range">WDI 22–40</span>
-        <span class="wdi-class-example">Chianti UTMB 20K</span>
+      <div class="wdi-class-row" style="border-left-color:#A8B94F;">
+        <span class="wdi-class-dot" style="background:#A8B94F;"></span>
+        <span class="wdi-class-name">Pro</span>
+        <span class="wdi-class-range">WDI 3–4</span>
+        <span class="wdi-class-example">Valtellina Wine Trail</span>
       </div>
-      <div class="wdi-class-row" style="border-left-color:#F4C20D;">
-        <span class="wdi-class-dot" style="background:#F4C20D;"></span>
-        <span class="wdi-class-name" style="color:#F4C20D;">Advanced</span>
-        <span class="wdi-class-range">WDI 40–70</span>
-        <span class="wdi-class-example">MEHT21 · Sierre-Zinal</span>
+      <div class="wdi-class-row" style="border-left-color:#D4A843;">
+        <span class="wdi-class-dot" style="background:#D4A843;"></span>
+        <span class="wdi-class-name">Advanced</span>
+        <span class="wdi-class-range">WDI 5–6</span>
+        <span class="wdi-class-example">Sierre-Zinal · Zegama</span>
       </div>
-      <div class="wdi-class-row" style="border-left-color:#F79617;">
-        <span class="wdi-class-dot" style="background:#F79617;"></span>
-        <span class="wdi-class-name" style="color:#F79617;">Extreme</span>
-        <span class="wdi-class-range">WDI 70–120</span>
-        <span class="wdi-class-example">Speedgoat 50K · CDF 70K</span>
+      <div class="wdi-class-row" style="border-left-color:#C06030;">
+        <span class="wdi-class-dot" style="background:#C06030;"></span>
+        <span class="wdi-class-name">Extreme</span>
+        <span class="wdi-class-range">WDI 7–8</span>
+        <span class="wdi-class-example">Speedgoat 50K · CCC</span>
       </div>
-      <div class="wdi-class-row" style="border-left-color:#E91E63;">
-        <span class="wdi-class-dot" style="background:#E91E63;"></span>
-        <span class="wdi-class-name" style="color:#E91E63;">Elite</span>
-        <span class="wdi-class-range">WDI 120–200</span>
+      <div class="wdi-class-row" style="border-left-color:#8B2020;">
+        <span class="wdi-class-dot" style="background:#8B2020;"></span>
+        <span class="wdi-class-name">Elite</span>
+        <span class="wdi-class-range">WDI 8–9</span>
         <span class="wdi-class-example">CCC 99K · Western States</span>
       </div>
-      <div class="wdi-class-row" style="border-left-color:#8E24AA;">
-        <span class="wdi-class-dot" style="background:#8E24AA;"></span>
-        <span class="wdi-class-name" style="color:#8E24AA;">Legend</span>
-        <span class="wdi-class-range">WDI ≥ 200</span>
+      <div class="wdi-class-row" style="border-left-color:#5C0F0F;">
+        <span class="wdi-class-dot" style="background:#5C0F0F;"></span>
+        <span class="wdi-class-name">Legend</span>
+        <span class="wdi-class-range">WDI 9–10</span>
         <span class="wdi-class-example">UTMB · Hardrock · TdG</span>
       </div>
     </div>
