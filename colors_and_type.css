@@ -31,9 +31,9 @@
   --wdi-l5:          #8B2020;  /* Estremo       · WDI 9–10 */
 
   /* ── TYPE ───────────────────────────────────────────────────────────────── */
-  --wt-font-ui:      'Inter', Arial, 'Helvetica Neue', sans-serif;
-  --wt-font-display: 'Inter', Arial, sans-serif;            /* Neue Haas Grotesk preferred */
-  --wt-font-mono:    'JetBrains Mono', 'Courier New', monospace; /* Mono DB preferred */
+  --wt-font-ui:      'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --wt-font-display: 'Neue Haas Grotesk', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --wt-font-mono:    'DB Mono', 'JetBrains Mono', 'Courier New', monospace;
 
   /* Type scale (px) */
   --t-score-min:     64px;     /* Score WDI floor */

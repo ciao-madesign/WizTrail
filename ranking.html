@@ -64,20 +64,34 @@
 
 <!-- SEZIONE 1 — Analisi GPX (prominente, prima del ranking) -->
 <div class="card" id="analizza-gara" style="margin-bottom:20px;">
-  <h2>Analizza il tuo percorso</h2>
+  <h2>ANALIZZA GPX</h2>
   <p class="mini" style="opacity:0.7; margin-bottom:16px;">
-    Carica il GPX della tua gara per ottenere WDI, TechScore e disciplina.
-    Confronta subito con le gare del ranking ufficiale.
+    WDI, TechScore e disciplina dal file di traccia.
+    Confronto diretto con le gare del ranking ufficiale.
   </p>
-  <label>Carica GPX</label>
-  <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
-  <button class="btn" id="btnUserCompute" style="margin-top:8px;">Analizza →</button>
+
+  <label for="gpxUser" class="gpx-dropzone" id="gpxDropzoneRanking">
+    <div class="gpx-dropzone-icon" style="position:relative;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <div class="gpx-dropzone-text" style="position:relative;">
+      <span class="gpx-dropzone-main">Trascina il GPX qui o clicca per selezionare</span>
+      <span class="gpx-dropzone-sub">GPX · TCX — Garmin, Suunto, Wikiloc, Komoot</span>
+    </div>
+    <input id="gpxUser" type="file" accept=".gpx,.tcx" style="display:none;"/>
+  </label>
+
+  <button class="btn" id="btnUserCompute" style="margin-top:12px;">ANALIZZA</button>
   <div id="userResult" style="margin-top:16px;"></div>
 </div>
 
 <!-- SEZIONE 2 — Ranking ufficiale -->
 <div class="card" id="ranking-table">
-<h2>Ranking ufficiale WDI</h2>
+<h2>RANKING WDI</h2>
 <div class="grid grid-2">
 <div>
 <label>Filtra per nome gara</label>
@@ -87,11 +101,11 @@
 <label>Disciplina</label>
 <select id="filterDiscipline">
   <option value="">Tutte le discipline</option>
-  <option value="trail">🌲 Trail</option>
-  <option value="sky">⛰️ Sky</option>
-  <option value="mountain">🏔️ Mountain</option>
-  <option value="ultra">🔥 Ultra</option>
-  <option value="xc">🏅 XC</option>
+  <option value="trail">Trail</option>
+  <option value="sky">Sky</option>
+  <option value="mountain">Mountain</option>
+  <option value="ultra">Ultra</option>
+  <option value="xc">XC</option>
 </select>
 </div>
 <div>
@@ -110,7 +124,7 @@
 </div>
 
 <div class="card">
-<h2>Ranking complessivo WDI</h2>
+<h2>RANKING COMPLESSIVO</h2>
 <div class="responsive-table">
 <table id="raceTable">
 <thead>

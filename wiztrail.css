@@ -11,8 +11,14 @@
   --error:#C06030;
   --border:#2E2E2E;
   --panel:#111111;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Font stack — DS v1.1
+     Display/Hero: Neue Haas Grotesk (licensed) → Inter fallback
+     UI/Interface: Inter → Helvetica Neue fallback
+     Mono tecnico: DB Mono (licensed) → JetBrains Mono fallback */
+  --font-display: 'Neue Haas Grotesk', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans:    'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:    'DB Mono', 'JetBrains Mono', 'Courier New', monospace;
 
   /* WDI ranking — use ONLY in difficulty components */
   --wdi-l1: #4E7C59;
@@ -50,14 +56,34 @@ html,body{
   margin:0;
 }
 
-h1, h2 {
-  font-family: var(--font-sans);
+/* DS type scale */
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
 }
-h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.15; }
-h2 { font-size: clamp(1.2rem, 3vw, 1.6rem); line-height: 1.25; }
-h3 { font-family: var(--font-sans); font-size: 0.95rem; font-weight: 700; }
+h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 3vw, 1.5rem); /* ~22px */
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+}
+h3 { font-family: var(--font-sans); font-size: 0.95rem; font-weight: 700; letter-spacing: -0.005em; }
+
+/* Label/meta — maiuscoletto */
+.label, .mini, .kpi-sec-label, .pc-visuals-label { font-family: var(--font-sans); }
+
+/* Numeric/technical output — DB Mono */
+.kpi .val,
+.kpi-sec-val,
+.pc-time-input,
+.pacing-table,
+.ta-score-wdi,
+.feedback-delta,
+.pc-summary-kpi .val { font-family: var(--font-mono); }
 
 label, .mini, .tab-btn, .btn, .wdi-btn, .brand-name, button,
 input, select, textarea { font-family: var(--font-sans); }
@@ -194,6 +220,44 @@ input[type=file]{ color:var(--ink); font-size:14px; }
 .banner-3d{ margin-top:12px; padding:12px; background: var(--panel); border-radius:2px; color:var(--ink); text-align:center; border:1px solid var(--border); }
 
 .footer{ color:var(--muted); font-size:.85rem; margin:14px 0 6px; }
+
+/* ── Range input — lime accent ──────────────────────────────────────────── */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: var(--border);
+  outline: none;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+}
+input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  background: var(--border);
+  height: 2px;
+}
+input[type=range]::-moz-range-track {
+  background: var(--border);
+  height: 2px;
+}
 
 #distCanvas{ width:100%; height:100px; display:block; touch-action:none; }
 
@@ -434,12 +498,13 @@ select:focus {
   opacity: 1;
 }
 
-/* ===== KPI GERARCHIA ===== */
+/* ===== WDI BADGE — componente principale ===== */
 .kpi-primary {
   background: var(--card);
-  border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--border));
+  border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
+  padding: 20px 16px;
 }
 .kpi-primary::before {
   content: "";
@@ -447,8 +512,62 @@ select:focus {
   inset: 0;
   background-image: url('/img/topo-pattern-on-dark.svg');
   background-size: 480px;
-  opacity: 0.08;
+  opacity: 0.09;
   pointer-events: none;
+}
+
+/* Score numerico — Mono DB, isolato, dominante */
+.kpi .val {
+  font-family: var(--font-mono);
+  font-size: clamp(48px, 7vw, 80px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  position: relative;
+}
+
+/* Label "WDI" sopra il numero */
+.kpi h3 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 10px;
+  position: relative;
+}
+
+/* Griglia dati tecnici — label sopra + valore Mono DB sotto */
+.kpi-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 16px 24px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  position: relative;
+}
+.kpi-data-item {}
+.kpi-data-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+}
+.kpi-data-val {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  display: block;
 }
 
 .kpi-secondary-row {
@@ -1219,41 +1338,53 @@ table {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px;
-  border: 1.5px dashed color-mix(in oklab, var(--accent) 40%, var(--border));
+  padding: 20px 16px;
+  border: 1px dashed var(--border);
   border-radius: 2px;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.15s;
   margin-bottom: 10px;
-  background: color-mix(in oklab, var(--accent) 4%, var(--panel));
+  background: var(--panel);
+  position: relative;
+  overflow: hidden;
+}
+.gpx-dropzone::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/img/topo-pattern-on-dark.svg');
+  background-size: 400px;
+  opacity: 0.06;
+  pointer-events: none;
 }
 .gpx-dropzone:hover,
 .gpx-dropzone.dragover {
   border-color: var(--accent);
-  background: color-mix(in oklab, var(--accent) 8%, var(--panel));
+  border-style: dashed;
 }
 .gpx-dropzone.loaded {
   border-color: var(--accent);
   border-style: solid;
-  background: color-mix(in oklab, var(--accent) 6%, var(--panel));
 }
 .gpx-dropzone-icon {
-  color: var(--accent);
-  opacity: 0.7;
+  color: var(--muted);
   flex-shrink: 0;
-  transition: opacity 0.2s;
+  position: relative;
+  transition: color 0.15s;
 }
-.gpx-dropzone:hover .gpx-dropzone-icon { opacity: 1; }
+.gpx-dropzone:hover .gpx-dropzone-icon { color: var(--accent); }
 .gpx-dropzone-text {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+  position: relative;
 }
 .gpx-dropzone-main {
   font-family: var(--font-sans);
-  font-size: 0.82rem;
+  font-size: 13px;
   color: var(--ink);
   font-weight: 500;
+  letter-spacing: 0.02em;
 }
 .gpx-dropzone-sub {
   font-family: var(--font-sans);
