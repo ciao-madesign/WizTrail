@@ -320,6 +320,57 @@
       position: relative;
     }
 
+    /* ── Card mockups ───────────────────────────────────────────── */
+    .card-mock {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid #2E2E2E;
+    }
+    .mock-inner {
+      background: #111;
+      border: 1px solid #2E2E2E;
+      border-radius: 2px;
+      overflow: hidden;
+      font-family: var(--font-mono);
+    }
+    .mock-pad { padding: 12px 14px; }
+    .mock-lbl {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: #6A6A6A;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .mock-val {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      line-height: 1;
+      color: #F3F2F0;
+    }
+    .mock-accent { color: #B8D400; }
+    .mock-muted  { color: #6A6A6A; font-family: var(--font-mono); font-size: 10px; }
+    .mock-divider { border: none; border-top: 1px solid #2E2E2E; margin: 0; }
+    .mock-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .mock-cell {
+      padding: 9px 12px;
+      border-right: 1px solid #2E2E2E;
+    }
+    .mock-cell:last-child { border-right: none; }
+    .mock-tbl-row {
+      display: grid;
+      grid-template-columns: 1fr 44px 72px;
+      border-bottom: 1px solid #1C1C1C;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+    }
+    .mock-tbl-row:last-child { border-bottom: none; }
+    .mock-tbl-cell { padding: 7px 12px; }
+
     /* ── WDI showcase ───────────────────────────────────────────── */
     .wdi-showcase {
       padding: 96px 32px;
@@ -649,6 +700,8 @@
   </h2>
 
   <div class="features-grid" style="margin-bottom:0;">
+
+    <!-- 01 CALCOLATORE -->
     <div class="feature-card">
       <span class="feature-num">01</span>
       <h3 class="feature-title">CALCOLATORE</h3>
@@ -656,8 +709,34 @@
         Carica il GPX. Calcola WDI e TechScore. Ottieni la stima di tempo
         e il pacing segmento per segmento calibrato sul tuo livello.
       </p>
-      <a href="index.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">APRI CALCOLATORE</a>
+      <div class="card-mock">
+        <div class="mock-inner">
+          <div class="mock-pad">
+            <span class="mock-lbl">Stima tempo</span>
+            <div class="mock-val mock-accent" style="font-size:28px;">7h 42m</div>
+            <div class="mock-muted" style="margin-top:8px;">WDI 6.4 &nbsp;·&nbsp; 42.5 km &nbsp;·&nbsp; 2 800 D+</div>
+          </div>
+          <hr class="mock-divider">
+          <div class="mock-grid-3">
+            <div class="mock-cell">
+              <span class="mock-lbl">Passo medio</span>
+              <div class="mock-val" style="font-size:13px;">10:51/km</div>
+            </div>
+            <div class="mock-cell">
+              <span class="mock-lbl">Classe</span>
+              <div class="mock-val" style="font-size:13px; color:#D4A843;">Advanced</div>
+            </div>
+            <div class="mock-cell">
+              <span class="mock-lbl">TechScore</span>
+              <div class="mock-val" style="font-size:13px;">6.1/10</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="index.html" class="feature-tag" style="text-decoration:none; cursor:pointer; margin-top:14px;">APRI CALCOLATORE</a>
     </div>
+
+    <!-- 02 TRAINING ANALYZER -->
     <div class="feature-card">
       <span class="feature-num">02</span>
       <h3 class="feature-title">TRAINING ANALYZER</h3>
@@ -665,8 +744,33 @@
         Carica il GPX dell'uscita o importa da Strava. WDI, TechScore
         e carico effettivo della sessione.
       </p>
-      <a href="training-analyzer.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">APRI TRAINING ANALYZER</a>
+      <div class="card-mock">
+        <div class="mock-inner">
+          <div class="mock-pad" style="padding-bottom:10px;">
+            <span class="mock-lbl">Sessione — Amatore</span>
+            <div style="font-family:var(--font-mono); font-size:12px; color:#F4C20D; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:10px;">Allenamento solido</div>
+          </div>
+          <hr class="mock-divider">
+          <div class="mock-grid-3">
+            <div class="mock-cell">
+              <span class="mock-lbl">WDI</span>
+              <div class="mock-val mock-accent" style="font-size:20px;">4.8</div>
+            </div>
+            <div class="mock-cell">
+              <span class="mock-lbl">Distanza</span>
+              <div class="mock-val" style="font-size:20px;">22km</div>
+            </div>
+            <div class="mock-cell">
+              <span class="mock-lbl">D+</span>
+              <div class="mock-val" style="font-size:20px;">980m</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="training-analyzer.html" class="feature-tag" style="text-decoration:none; cursor:pointer; margin-top:14px;">APRI TRAINING ANALYZER</a>
     </div>
+
+    <!-- 03 RANKING WDI -->
     <div class="feature-card">
       <span class="feature-num">03</span>
       <h3 class="feature-title">RANKING WDI</h3>
@@ -674,8 +778,33 @@
         Confronta il tuo percorso con le gare del ranking ufficiale WizTrail.
         Dati reali, nessuna stima.
       </p>
-      <a href="ranking.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">VAI AL RANKING</a>
+      <div class="card-mock">
+        <div class="mock-inner">
+          <div class="mock-tbl-row" style="border-bottom:1px solid #2E2E2E;">
+            <div class="mock-tbl-cell mock-lbl" style="margin-bottom:0;">Gara</div>
+            <div class="mock-tbl-cell mock-lbl" style="margin-bottom:0;">WDI</div>
+            <div class="mock-tbl-cell mock-lbl" style="margin-bottom:0;">Classe</div>
+          </div>
+          <div class="mock-tbl-row">
+            <div class="mock-tbl-cell" style="color:#F3F2F0;">UTMB</div>
+            <div class="mock-tbl-cell mock-accent">9.1</div>
+            <div class="mock-tbl-cell" style="color:#8B2020;">Elite</div>
+          </div>
+          <div class="mock-tbl-row">
+            <div class="mock-tbl-cell" style="color:#F3F2F0;">Sierre-Zinal</div>
+            <div class="mock-tbl-cell mock-accent">5.8</div>
+            <div class="mock-tbl-cell" style="color:#D4A843;">Advanced</div>
+          </div>
+          <div class="mock-tbl-row">
+            <div class="mock-tbl-cell" style="color:#F3F2F0;">Valtellina WT</div>
+            <div class="mock-tbl-cell mock-accent">3.2</div>
+            <div class="mock-tbl-cell" style="color:#A8B94F;">Pro</div>
+          </div>
+        </div>
+      </div>
+      <a href="ranking.html" class="feature-tag" style="text-decoration:none; cursor:pointer; margin-top:14px;">VAI AL RANKING</a>
     </div>
+
   </div>
 </section>
 
@@ -687,6 +816,8 @@
   </h2>
 
   <div class="features-grid">
+
+    <!-- 01 WDI -->
     <div class="feature-card">
       <span class="feature-num">01</span>
       <h3 class="feature-title">WDI</h3>
@@ -694,9 +825,28 @@
         Difficoltà oggettiva. Distanza, dislivello, pendenza massima,
         variabilità del terreno e quota media. Calibrato su 96 gare reali.
       </p>
-      <span class="feature-tag">ENGINE V5.1</span>
+      <div class="card-mock">
+        <div class="mock-inner mock-pad">
+          <div style="display:flex; align-items:flex-end; gap:14px; margin-bottom:12px;">
+            <div class="mock-val mock-accent" style="font-size:44px;">7.2</div>
+            <div style="padding-bottom:4px;">
+              <span class="mock-lbl">WDI Score</span>
+              <div style="font-family:var(--font-mono); font-size:11px; color:#C06030; letter-spacing:0.08em; text-transform:uppercase;">Extreme</div>
+            </div>
+          </div>
+          <!-- difficulty bar -->
+          <div style="height:3px; background:#2E2E2E; position:relative; margin-bottom:5px;">
+            <div style="position:absolute; left:0; top:0; height:3px; width:72%; background:linear-gradient(to right,#4E7C59,#D4A843,#C06030);"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between;" class="mock-muted">
+            <span>Sport</span><span>Pro</span><span>Adv</span><span>Ext</span><span>Elite</span><span>10+</span>
+          </div>
+        </div>
+      </div>
+      <span class="feature-tag" style="margin-top:14px;">ENGINE V5.1</span>
     </div>
 
+    <!-- 02 TECHSCORE -->
     <div class="feature-card">
       <span class="feature-num">02</span>
       <h3 class="feature-title">TECHSCORE</h3>
@@ -704,9 +854,33 @@
         Tecnicità del terreno indipendente dalla distanza. FRIP, SlopeVar, Roughness.
         Scala 0–10: sopra 7 è terreno tecnico estremo.
       </p>
-      <span class="feature-tag">GPX REQUIRED</span>
+      <div class="card-mock">
+        <div class="mock-inner mock-pad">
+          <span class="mock-lbl">TechScore</span>
+          <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:12px;">
+            <span class="mock-val mock-accent" style="font-size:36px;">8.3</span>
+            <span class="mock-muted" style="font-size:13px;">/ 10</span>
+          </div>
+          <!-- 10-segment dot scale -->
+          <div style="display:flex; gap:4px; align-items:center; margin-bottom:8px;">
+            <div style="flex:1; height:3px; background:#B8D400; border-radius:0;"></div>
+            <div style="flex:1; height:3px; background:#B8D400;"></div>
+            <div style="flex:1; height:3px; background:#B8D400;"></div>
+            <div style="flex:1; height:3px; background:#B8D400;"></div>
+            <div style="flex:1; height:3px; background:#B8D400;"></div>
+            <div style="flex:1; height:3px; background:#B8D400;"></div>
+            <div style="flex:1; height:3px; background:#B8D400;"></div>
+            <div style="flex:1; height:3px; background:#B8D400;"></div>
+            <div style="flex:1; height:3px; background:#2E2E2E;"></div>
+            <div style="flex:1; height:3px; background:#2E2E2E;"></div>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:9px; color:#E91E63; letter-spacing:0.08em; text-transform:uppercase;">Terreno tecnico estremo</div>
+        </div>
+      </div>
+      <span class="feature-tag" style="margin-top:14px;">GPX REQUIRED</span>
     </div>
 
+    <!-- 03 PACING -->
     <div class="feature-card">
       <span class="feature-num">03</span>
       <h3 class="feature-title">PACING</h3>
@@ -714,7 +888,41 @@
         Tabella adattiva segmento per segmento. Pendenza, tecnicità,
         fatica progressiva. Personalizzata sul tuo livello.
       </p>
-      <span class="feature-tag">SEGMENT-BASED V3.0</span>
+      <div class="card-mock">
+        <div class="mock-inner">
+          <!-- elevation silhouette SVG -->
+          <svg width="100%" height="36" viewBox="0 0 240 36" preserveAspectRatio="none" style="display:block;">
+            <defs>
+              <linearGradient id="pgElev" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#B8D400" stop-opacity="0.22"/>
+                <stop offset="100%" stop-color="#B8D400" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+            <polygon points="0,36 0,28 30,20 55,24 80,8 105,16 130,4 155,10 175,18 200,22 224,14 240,18 240,36" fill="url(#pgElev)"/>
+            <polyline points="0,28 30,20 55,24 80,8 105,16 130,4 155,10 175,18 200,22 224,14 240,18" fill="none" stroke="#B8D400" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <hr class="mock-divider">
+          <!-- pacing rows -->
+          <div style="font-family:var(--font-mono); font-size:10px;">
+            <div style="display:grid; grid-template-columns:60px 1fr 44px; padding:6px 12px; border-bottom:1px solid #1C1C1C;">
+              <span class="mock-muted">km 0–10</span>
+              <span class="mock-accent">5:12/km</span>
+              <span class="mock-muted">D+ 240m</span>
+            </div>
+            <div style="display:grid; grid-template-columns:60px 1fr 44px; padding:6px 12px; border-bottom:1px solid #1C1C1C;">
+              <span class="mock-muted">km 10–22</span>
+              <span style="color:#ff00a8;">7:38/km</span>
+              <span class="mock-muted">D+ 840m</span>
+            </div>
+            <div style="display:grid; grid-template-columns:60px 1fr 44px; padding:6px 12px;">
+              <span class="mock-muted">km 22–30</span>
+              <span class="mock-accent">4:55/km</span>
+              <span class="mock-muted">D+ 80m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span class="feature-tag" style="margin-top:14px;">SEGMENT-BASED V3.0</span>
     </div>
 
   </div>
