@@ -58,12 +58,15 @@ html::before {
   z-index: 0;
   background-image: url('/img/topo_texture_light.png');
   background-size: 720px;
-  opacity: 0.05;
+  opacity: 0.025;
   mix-blend-mode: screen;
 }
 
-html,body{
-  background:var(--bg);
+html{
+  background: #111111;
+}
+body{
+  background: linear-gradient(180deg, #0A0A0A 0%, #111111 28%, #111111 100%);
   color:var(--ink);
   font:16px/1.55 var(--font-sans);
   margin:0;
@@ -181,7 +184,9 @@ h1{
   background: var(--card);
   border-radius:2px; padding:14px 12px;
   border:1px solid var(--border);
-  box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+  box-shadow:
+    0 2px 14px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
 fieldset{
@@ -319,7 +324,7 @@ input[type=range]::-moz-range-progress {
 
 /* Quando c'è una hero, il wrap successivo non ha margin-top extra */
 .hero-fullwidth + .wrap {
-  margin-top: 18px;
+  margin-top: 0;
 }
 @media (max-width: 600px) {
   .hero-fullwidth { height: 340px; }
@@ -352,8 +357,11 @@ input[type=range]::-moz-range-progress {
     ),
     linear-gradient(
       to top,
-      rgba(0, 5, 5, 0.75) 0%,
-      transparent 50%
+      #111111 0%,
+      rgba(17,17,17,0.92) 14%,
+      rgba(17,17,17,0.60) 30%,
+      rgba(17,17,17,0.15) 52%,
+      transparent 68%
     );
 }
 
