@@ -36,7 +36,19 @@
     <a href="ranking.html">Ranking</a>
     <a href="about.html" class="nav-active">Il Metodo</a>
   </nav>
-</header><div class="wrap">
+</header>
+
+<div class="hero-fullwidth" id="heroSection">
+  <div class="hero-bg-img" id="heroBgImg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">WizTrail — Il Metodo</div>
+    <h1 class="hero-title">La formula.<br>I parametri. I dati.</h1>
+    <p class="hero-desc">WDI, TechScore, modello tempi, pacing adattivo.</p>
+  </div>
+</div>
+
+<div class="wrap">
 
   <!-- NAV INTERNA -->
   <nav class="about-toc">
@@ -426,13 +438,18 @@ GET /api/v1/pacing — stima tempo personalizzata</pre>
         <li><b>OpenTopoMap</b> — overlay topografico. <span class="mini">© OpenTopoMap (CC-BY-SA)</span></li>
         <li><b>OpenStreetMap</b> — dati cartografici. <span class="mini">© OpenStreetMap contributors (ODbL 1.0)</span></li>
         <li><b>DM Mono</b> — typeface (Google Fonts, Open Font License). <span class="mini">© Colophon Foundry</span></li>
-        <li><b>Foto hero landing</b> — <a href="https://unsplash.com/@brian_erickson" target="_blank" rel="noopener">Brian Erickson</a> su <a href="https://unsplash.com/photos/8TJbrQGKFyU" target="_blank" rel="noopener">Unsplash</a> (Unsplash License)</li>
+        <li><b>Foto hero landing</b> — <a href="https://unsplash.com/it/@bsherman?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Blake Sherman</a> su <a href="https://unsplash.com/it/foto/una-strada-sterrata-in-mezzo-a-un-bosco-0F2nuBLdNpo?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Unsplash</a> (Unsplash License)</li>
+        <li><b>Foto hero calcolatore</b> — <a href="https://unsplash.com/it/@gbhatt_2?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Gantavya Bhatt</a> su <a href="https://unsplash.com/it/foto/una-vista-di-una-catena-montuosa-dalla-cima-di-una-collina-_870rwlbkLw?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Unsplash</a> (Unsplash License)</li>
+        <li><b>Foto hero ranking</b> — <a href="https://unsplash.com/it/@kbru?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Kevin Brunet</a> su <a href="https://unsplash.com/it/foto/vista-sulla-collina-WRbMkwf2zjM?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Unsplash</a> (Unsplash License)</li>
+        <li><b>Foto hero training</b> — <a href="https://unsplash.com/it/@sanderlenaerts?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Sander Lenaerts</a> su <a href="https://unsplash.com/it/foto/2-persone-in-piedi-sul-campo-di-erba-verde-vicino-ad-alberi-verdi-e-montagne-durante-il-giorno-6Yypj_ZB9h0?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Unsplash</a> (Unsplash License)</li>
+        <li><b>Foto hero il metodo</b> — <a href="https://unsplash.com/it/@leyameera?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Tina Dawson</a> su <a href="https://unsplash.com/it/foto/erba-a-valle-HYAXHM9gETA?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Unsplash</a> (Unsplash License)</li>
         <li><b>WizTrail WDI</b> — indice proprietario. <span class="mini">© WizTrail — all rights reserved</span></li>
       </ul>
     </div>
   </section>
 
   <div class="footer">WizTrail © 2026
+    <p class="mini" style="opacity:0.5; margin-bottom:6px;">Foto di <a href="https://unsplash.com/it/@leyameera?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener" style="color:inherit;">Tina Dawson</a> su <a href="https://unsplash.com/it/foto/erba-a-valle-HYAXHM9gETA?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a></p>
     <p>
       <a href="https://www.youtube.com/@WizTrail" target="_blank" rel="noopener"
          style="color:var(--accent); font-weight:600;">📺 Visita il mio canale YouTube</a>
@@ -542,6 +559,19 @@ GET /api/v1/pacing — stima tempo personalizzata</pre>
   .about-table tr:last-child td { border-bottom: none; }
   h1 .about-version, h2 .about-version { font-size: 0.65rem; }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const heroBg = document.getElementById('heroBgImg');
+  if (heroBg) {
+    const img = new Image();
+    img.onload = function() {
+      heroBg.style.backgroundImage = "url('img/hero-about.jpg')";
+      heroBg.classList.add('hero-bg-loaded');
+    };
+    img.src = 'img/hero-about.jpg';
+  }
+});
+</script>
 <script>window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};</script>
 <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
