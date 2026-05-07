@@ -1,22 +1,24 @@
-# WizTrail Web UI Kit
+# WizTrail Web UI Kit (DS v1.1)
 
 Pixel-level recreation of the WizTrail landing page + calculator app, built as reusable React components.
 
+> **Note:** These components reflect DS v1.1 token names. Colors are lime (#B8D400), not teal. Radii are max 4px. No glass/blur. See `design-system/README.md` for full system documentation.
+
 ## Files
 - `index.html` — clickable demo: landing → "Apri l'app →" → calculator tab system.
-- `Header.jsx` — fixed transparent header with logo lockup and nav.
-- `Hero.jsx` — full-bleed landing hero with topo texture + teal overlay.
-- `Button.jsx` — Primary / Secondary / Ghost / Link.
-- `Eyebrow.jsx`, `SectionTitle.jsx` — marketing section headers with italic teal emphasis.
-- `FeatureCard.jsx` — 3×2 feature grid card with emoji icon + teal tag.
-- `WDILadder.jsx` — six-class WDI scale with colored dots + examples.
-- `StatBar.jsx` — four-up stat strip (96+, 47, −59%, 0).
-- `PrivacyPoint.jsx` — icon + title + paragraph stack.
-- `Footer.jsx` — landing footer with photo credit + social links.
-- `GPXDropzone.jsx` — dashed teal drop area + Strava alt.
-- `Field.jsx`, `Select.jsx` — labeled inputs + select.
-- `Tabs.jsx` — Calcolatore / Pacing / Mappa / Feedback switcher.
-- `KPICard.jsx` — primary KPI tile + interval row.
-- `PageWrap.jsx` — glass slab container under the fixed header.
+- `components.jsx` — all React components.
+- `components.export.jsx` — same, export-formatted.
+- `index.export.html` — standalone export.
+
+## Key components
+- `Header` — fixed transparent header with logo lockup and nav.
+- `Hero` — full-bleed landing hero with topo texture overlay.
+- `Button` — Primary (lime/dark) / Secondary / Ghost / Link.
+- `FeatureCard` — 3×2 feature grid card.
+- `WDILadder` — six-class WDI scale with colored dots + examples.
+- `GPXDropzone` — dashed lime drop area + Strava alt.
+- `Field`, `Select` — labeled inputs.
+- `Tabs` — Calcolatore / Pacing / Mappa / Feedback switcher.
+- `KPICard` — primary KPI tile + interval row (Mono font).
 
 All components are recreations, not production logic. See source repo `ciao-madesign/WizTrail@backend` for the real implementations.
