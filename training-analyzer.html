@@ -70,10 +70,10 @@
   <div class="hero-overlay"></div>
   <div class="hero-inner">
     <div class="hero-eyebrow">WizTrail — Training Analyzer</div>
-    <h1 class="hero-title">Analizza i tuoi<br>allenamenti</h1>
-    <p class="hero-desc">Importa da Strava o carica il GPX. WDI, TechScore e stima tempo calibrati sul tuo livello.</p>
+    <h1 class="hero-title">WDI e TechScore<br>per ogni uscita.</h1>
+    <p class="hero-desc">Carica il GPX o importa da Strava. Analisi calibrata sul tuo livello.</p>
     <div class="hero-actions">
-      <a href="#training-card" class="hero-btn-primary">Inizia l'analisi →</a>
+      <a href="#training-card" class="hero-btn-primary">ANALIZZA ALLENAMENTO</a>
     </div>
   </div>
 </div>
@@ -330,34 +330,34 @@ const TRAINING_LEVELS = {
      Ricalibrate 29/04/2026: allineate alla realtà percepita degli atleti.
      20km/1500D+ (norm ~6.8) → Amatore: Sessione intensa | Pro: Sessione intensa */
   amatore: [
-    { max: 1.3, label: 'Riscaldamento',      emoji: '🌿', color: '#2BB7DA',
-      motivation: 'Perfetto per recuperare. Il corpo ringrazia.' },
-    { max: 3.0, label: 'Uscita media',        emoji: '🏃', color: '#34A853',
-      motivation: 'Buona routine. La costanza costruisce i campioni.' },
-    { max: 5.5, label: 'Allenamento solido',  emoji: '💪', color: '#F4C20D',
-      motivation: 'Stai lavorando bene. Questo fa la differenza.' },
-    { max: 7.5, label: 'Sessione intensa',    emoji: '🔥', color: '#F79617',
-      motivation: 'Roba seria. Pochi si spingono fino a qui.' },
-    { max: 9.2, label: 'Giornata epica',      emoji: '⚡', color: '#E91E63',
-      motivation: 'Oltre i tuoi limiti abituali. Ricordatelo.' },
-    { max: 99,  label: 'Leggenda',            emoji: '🔱', color: '#8E24AA',
-      motivation: 'Una di quelle giornate che si raccontano.' },
+    { max: 1.3, label: 'Riscaldamento',      color: '#2BB7DA',
+      motivation: 'Carico basso. Adatto a recupero attivo.' },
+    { max: 3.0, label: 'Uscita media',        color: '#34A853',
+      motivation: 'Volume nella norma per il livello amatore.' },
+    { max: 5.5, label: 'Allenamento solido',  color: '#F4C20D',
+      motivation: 'Carico significativo. Recupero 24–48h.' },
+    { max: 7.5, label: 'Sessione intensa',    color: '#F79617',
+      motivation: 'Carico elevato. Monitorare la fatica residua.' },
+    { max: 9.2, label: 'Uscita estrema',      color: '#E91E63',
+      motivation: 'Fuori dalla zona di routine. Recupero completo necessario.' },
+    { max: 99,  label: 'Limite assoluto',     color: '#8E24AA',
+      motivation: 'Carico massimale. Recupero esteso.' },
   ],
   pro: [
     /* Soglie ricalibrate P7 — WDI 6.8 (es. 20km/1500D+) → "Allenamento solido"
        per il pro (un livello sotto l'amatore che otterrebbe "Sessione intensa"). */
-    { max: 1.8, label: 'Recupero attivo',     emoji: '🌿', color: '#2BB7DA',
-      motivation: 'Gambe fresche per domani.' },
-    { max: 4.0, label: 'Uscita leggera',      emoji: '🏃', color: '#34A853',
-      motivation: 'Volume di base. La base si costruisce così.' },
-    { max: 6.5, label: 'Allenamento medio',   emoji: '💪', color: '#F4C20D',
-      motivation: 'Buon lavoro. Il motore gira.' },
-    { max: 8.0, label: 'Allenamento solido',  emoji: '🔥', color: '#F79617',
-      motivation: 'Questa è roba seria.' },
-    { max: 9.3, label: 'Sessione intensa',    emoji: '⚡', color: '#E91E63',
-      motivation: 'Ai limiti. Raro per chiunque.' },
-    { max: 99,  label: 'Giornata da pro',     emoji: '🏆', color: '#8E24AA',
-      motivation: 'Solo i migliori arrivano qui.' },
+    { max: 1.8, label: 'Recupero attivo',     color: '#2BB7DA',
+      motivation: 'Carico basso. Ripristino glicogeno.' },
+    { max: 4.0, label: 'Uscita leggera',      color: '#34A853',
+      motivation: 'Volume di base. Stimolo aerobico lieve.' },
+    { max: 6.5, label: 'Allenamento medio',   color: '#F4C20D',
+      motivation: 'Carico nella norma per il livello pro.' },
+    { max: 8.0, label: 'Allenamento solido',  color: '#F79617',
+      motivation: 'Stimolo significativo. Recupero 24h.' },
+    { max: 9.3, label: 'Sessione intensa',    color: '#E91E63',
+      motivation: 'Carico elevato. Adeguare il piano di recupero.' },
+    { max: 99,  label: 'Limite assoluto',     color: '#8E24AA',
+      motivation: 'Picco di carico. Recupero esteso.' },
   ],
 };
 
@@ -410,7 +410,7 @@ function updateTrainingDisplay(result, metrics) {
     trainingScore.style.color = tsLabel.color;
   }
   if (trainingComment) {
-    trainingComment.textContent = tsLabel.emoji + ' ' + tsLabel.label;
+    trainingComment.textContent = tsLabel.label;
     trainingComment.style.color = tsLabel.color;
   }
 
@@ -429,16 +429,16 @@ function performanceComment(realSec, estSec){
 
   // TEMPO REALE MIGLIORE DELLO STIMATO
   if(deltaPerc < -0.10)
-    return "Serve un un estintore... sei on fiiire! 🔥";          // oltre -10%
+    return "Tempo reale oltre −10% sulla stima. Modello conservativo per questo profilo."; // oltre -10%
 
   if(deltaPerc < 0)
-    return "Si volaaa! 🚀";                      // tra 0% e -10%
+    return "Tempo reale inferiore alla stima. Buona aderenza al modello."; // tra 0% e -10%
 
   // TEMPO REALE PEGGIORE DELLO STIMATO
   if(deltaPerc <= 0.05)
-    return "In scioltezza! 💅";                // tra 0% e +5%
+    return "Aderenza alla stima entro il 5%. Nella norma."; // tra 0% e +5%
 
-  return "Non si molla, c'è margine di miglioramento! 💪";  // oltre +5%
+  return "Tempo reale superiore alla stima oltre il 5%. Verificare le condizioni di gara."; // oltre +5%
 }
 
 function updateEstimateUI(mt, realTimeStr) {

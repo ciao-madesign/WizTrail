@@ -42,11 +42,11 @@
   <div class="hero-overlay"></div>
   <div class="hero-inner">
     <div class="hero-eyebrow">WizTrail — Ranking WDI</div>
-    <h1 class="hero-title">Quanto è difficile<br>il tuo percorso?</h1>
-    <p class="hero-desc">Carica il GPX e scopri WDI e TechScore. Poi confronta con le gare del ranking ufficiale.</p>
+    <h1 class="hero-title">WDI e TechScore.<br>Ranking su 96 gare reali.</h1>
+    <p class="hero-desc">Carica il GPX. Confronta con le gare del ranking ufficiale.</p>
     <div class="hero-actions">
-      <a href="#analizza-gara" class="hero-btn-primary">Analizza il tuo GPX →</a>
-      <a href="#ranking-table" class="hero-btn-ghost">Esplora il ranking</a>
+      <a href="#analizza-gara" class="hero-btn-primary">ANALIZZA GPX</a>
+      <a href="#ranking-table" class="hero-btn-ghost">VISUALIZZA RANKING</a>
     </div>
   </div>
 </div>
@@ -205,7 +205,7 @@ async function backgroundComputeTech() {
 //---------------------------------------- rendering tabella
 
 function wdiLabel(cls, legendPlus){
-  if (legendPlus) return '🏆 Legend ∞';
+  if (legendPlus) return 'Legend ∞';
   const map = { Sport:'Sport', Pro:'Pro', Advanced:'Advanced',
                 Extreme:'Extreme', Elite:'Elite', Legend:'Legend' };
   return map[cls] || cls;
