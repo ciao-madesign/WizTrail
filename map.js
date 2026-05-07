@@ -37,7 +37,7 @@
      ------------------------------------------------------------------ */
   function getColorWDI(wdi) {
     // Soglie v3 — sincronizzate con WDI_THRESHOLDS in wiztrail-engine.js (05/05/2026)
-    if (!wdi || wdi <  22) return '#2BB7DA';  // Sport
+    if (!wdi || wdi <  22) return '#4E7C59';  // Sport
     if (wdi <  40)         return '#34A853';  // Pro
     if (wdi <  70)         return '#F4C20D';  // Advanced
     if (wdi < 120)         return '#F79617';  // Extreme
@@ -226,7 +226,7 @@
     ctx.beginPath();
     ctx.moveTo(xs[0], ys[0]);
     for (let i = 1; i < xs.length; i++) ctx.lineTo(xs[i], ys[i]);
-    ctx.strokeStyle = '#4fd1c5';
+    ctx.strokeStyle = '#B8D400';
     ctx.lineWidth = 2;
     ctx.stroke();
   }

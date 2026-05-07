@@ -278,8 +278,8 @@ function pc_renderTable(pacingChunks, avgPaceSec) {
     const paceSec = chunk.time_sec / chunk.dist_km;
     const paceStr = pc_secToPace(paceSec);
     const isSlow  = paceSec > avgPaceSec;
-    const color   = isSlow ? "#ff00a8" : "#4fd1c5";
-    const bgColor = isSlow ? "rgba(255,0,168,0.08)" : "rgba(79,209,197,0.08)";
+    const color   = isSlow ? "#ff00a8" : "#B8D400";
+    const bgColor = isSlow ? "rgba(255,0,168,0.08)" : "rgba(184,212,0,0.08)";
 
     // D+ del chunk
     const dplus = Math.round(chunk.segs.reduce((s, seg) => s + Math.max(0, seg.elev_diff || 0), 0));
@@ -332,7 +332,7 @@ function drawPacingMap(pacingChunks, avgPaceSec) {
     const paceSec = chunk.time_sec / chunk.dist_km;
 
     const color =
-      paceSec > avgPaceSec ? "#ff00a8" : "#4fd1c5";
+      paceSec > avgPaceSec ? "#ff00a8" : "#B8D400";
 
     // costruzione polyline chunk
     const segPts = chunk.segs.map(s => {
@@ -440,8 +440,8 @@ function pacingDrawProfile() {
   // area
   const baseY = pacingElevState.pxH - pad.bottom;
   const grad = ctx.createLinearGradient(0, pad.top, 0, baseY);
-  grad.addColorStop(0,'rgba(79,209,197,0.25)');
-  grad.addColorStop(1,'rgba(14,165,233,0.08)');
+  grad.addColorStop(0,'rgba(184,212,0,0.22)');
+  grad.addColorStop(1,'rgba(184,212,0,0.03)');
 
   ctx.beginPath();
   ctx.moveTo(xs[0], baseY);
@@ -454,7 +454,7 @@ function pacingDrawProfile() {
   ctx.beginPath();
   ctx.moveTo(xs[0], ys[0]);
   for (let i=1; i<xs.length; i++) ctx.lineTo(xs[i], ys[i]);
-  ctx.strokeStyle = '#4fd1c5';
+  ctx.strokeStyle = '#B8D400';
   ctx.lineWidth = 2;
   ctx.stroke();
 }

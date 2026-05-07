@@ -12,8 +12,8 @@
       --bg2:      #161b22;
       --bg3:      #21262d;
       --border:   #30363d;
-      --accent:   #4fd1c5;
-      --accent2:  #2d9e94;
+      --accent:   #B8D400;
+      --accent2:  #8FA000;
       --text:     #e6edf3;
       --muted:    #8b949e;
       --green:    #3fb950;
@@ -266,7 +266,7 @@
       padding: 10px 14px; border-radius: 6px;
       font-size: 0.85rem; margin: 10px 0; display: none;
     }
-    .msg.info    { background: rgba(79,209,197,0.1); border: 1px solid var(--accent); color: var(--accent); }
+    .msg.info    { background: rgba(184,212,0,0.1); border: 1px solid var(--accent); color: var(--accent); }
     .msg.error   { background: rgba(248,81,73,0.1);  border: 1px solid var(--red);    color: var(--red); }
     .msg.success { background: rgba(63,185,80,0.1);  border: 1px solid var(--green);  color: var(--green); }
     .msg.show    { display: block; }
@@ -297,7 +297,7 @@
     }
     .drop-zone:hover, .drop-zone.drag-over {
       border-color: var(--accent);
-      background: rgba(79,209,197,0.04);
+      background: rgba(184,212,0,0.04);
       color: var(--text);
     }
     .drop-zone .icon { font-size: 2rem; margin-bottom: 8px; display: block; }
@@ -486,7 +486,7 @@
 
       <div class="card">
         <div class="card-title">// stato modello</div>
-        <div id="pipelineBanner" style="display:none; background:rgba(79,209,197,0.08); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:0.82rem; color:var(--accent);">
+        <div id="pipelineBanner" style="display:none; background:rgba(184,212,0,0.08); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:0.82rem; color:var(--accent);">
           <span class="spinner"></span> Pipeline in corso — aggiornamento automatico...
         </div>
         <div class="model-grid" id="modelStats">
@@ -880,8 +880,8 @@ function drawElevPreview() {
 
   // Area fill
   const grad = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
-  grad.addColorStop(0, 'rgba(79,209,197,0.3)');
-  grad.addColorStop(1, 'rgba(79,209,197,0.02)');
+  grad.addColorStop(0, 'rgba(184,212,0,0.25)');
+  grad.addColorStop(1, 'rgba(184,212,0,0.02)');
   ctx.beginPath();
   ctx.moveTo(xs[0], H - pad.bottom);
   xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
@@ -894,7 +894,7 @@ function drawElevPreview() {
   ctx.beginPath();
   ctx.moveTo(xs[0], ys[0]);
   xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
-  ctx.strokeStyle = '#4fd1c5';
+  ctx.strokeStyle = '#B8D400';
   ctx.lineWidth   = 1.5;
   ctx.stroke();
 }

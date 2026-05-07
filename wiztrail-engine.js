@@ -49,7 +49,7 @@ window.WizTrail = (function () {
      Sincronizzare con map.js → getColorWDI() e about.html → tabella classi
      --------------------------------------------------------------- */
   const WDI_THRESHOLDS = [
-    { max:  22,      level: 'Sport',    color: '#2BB7DA' },
+    { max:  22,      level: 'Sport',    color: '#4E7C59' },
     { max:  40,      level: 'Pro',      color: '#34A853' },
     { max:  70,      level: 'Advanced', color: '#F4C20D' },
     { max: 120,      level: 'Extreme',  color: '#F79617' },
@@ -62,7 +62,7 @@ window.WizTrail = (function () {
      Ricalibrate 29/04/2026: MEHT21 (20km 1470D+) → ~76/100 → 7.6/10 → 'Molto tecnico' ✓
      Soglie alzate per riflettere la realtà dei terreni alpini. */
   const TECH_THRESHOLDS = [
-    { max: 25,       level: 'Facile',        color: '#2BB7DA' },
+    { max: 25,       level: 'Facile',        color: '#4E7C59' },
     { max: 40,       level: 'Scorrevole',    color: '#34A853' },
     { max: 55,       level: 'Moderato',      color: '#F4C20D' },
     { max: 70,       level: 'Tecnico',       color: '#F79617' },
