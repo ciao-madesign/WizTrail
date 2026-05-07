@@ -190,7 +190,7 @@
     }
 
     ctx.fillStyle = 'rgba(232,242,255,0.85)';
-    ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    ctx.font = "12px 'Inter', 'Helvetica Neue', Arial, sans-serif";
 
     ctx.textAlign    = 'left';
     ctx.textBaseline = 'top';

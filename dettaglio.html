@@ -169,7 +169,7 @@
     for(var i=0;i<=4;i++){var y=pad.top+(i/4)*H;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(cssW-pad.right,y);ctx.stroke();}
     for(var j=0;j<=5;j++){var x=pad.left+(j/5)*W;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,cssH-pad.bottom);ctx.stroke();}
     // label
-    ctx.fillStyle='rgba(232,242,255,0.7)';ctx.font='11px system-ui,sans-serif';
+    ctx.fillStyle='rgba(232,242,255,0.7)';ctx.font="11px 'Inter','Helvetica Neue',Arial,sans-serif";
     ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText(Math.round(maxE)+' m',4,pad.top);
     ctx.textBaseline='bottom';ctx.fillText(Math.round(minE)+' m',4,cssH-pad.bottom+2);
     // coordinate

@@ -864,7 +864,7 @@ function drawElevPreview() {
   const W = canvas.clientWidth, H = canvas.clientHeight;
   const eles = STATE.gpxData?.elevArr;
   if (!eles || eles.length < 2) {
-    ctx.fillStyle = '#888'; ctx.font = '12px system-ui';
+    ctx.fillStyle = '#888'; ctx.font = "12px 'Inter','Helvetica Neue',Arial,sans-serif";
     ctx.fillText('Nessun profilo altimetrico (GPX senza quota)', 12, H/2);
     return;
   }
