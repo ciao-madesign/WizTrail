@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Fonts loaded via <link> in HTML — see each page's <head> */
 
 :root{
   /* ── DS v1.1 tokens ── */
@@ -76,14 +76,26 @@ h3 { font-family: var(--font-sans); font-size: 0.95rem; font-weight: 700; letter
 /* Label/meta — maiuscoletto */
 .label, .mini, .kpi-sec-label, .pc-visuals-label { font-family: var(--font-sans); }
 
-/* Numeric/technical output — DB Mono */
+/* Numeric/technical output — JetBrains Mono (DB Mono for licensed installs) */
 .kpi .val,
 .kpi-sec-val,
+.kpi-data-val,
 .pc-time-input,
 .pacing-table,
+.pacing-table td,
 .ta-score-wdi,
 .feedback-delta,
-.pc-summary-kpi .val { font-family: var(--font-mono); }
+.pc-summary-kpi .val,
+/* ranking table numeric cells */
+#raceTable td,
+/* result readouts */
+#userResult .val,
+.result-val,
+.stat-val,
+/* pre/code blocks */
+pre, code,
+/* coordinate / mono-ui elements */
+.wt-coord, .wt-mono { font-family: var(--font-mono); }
 
 label, .mini, .tab-btn, .btn, .wdi-btn, .brand-name, button,
 input, select, textarea { font-family: var(--font-sans); }
@@ -222,16 +234,18 @@ input[type=file]{ color:var(--ink); font-size:14px; }
 .footer{ color:var(--muted); font-size:.85rem; margin:14px 0 6px; }
 
 /* ── Range input — lime accent ──────────────────────────────────────────── */
+/* --fill set by JS (wiztrail-slider.js) on input: gradient lime → neutral   */
 input[type=range] {
   -webkit-appearance: none;
   appearance: none;
-  height: 2px;
-  background: var(--border);
+  height: 3px;
+  background: transparent;
   outline: none;
   border: none;
   border-radius: 0;
   cursor: pointer;
   padding: 0;
+  width: 100%;
 }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -241,6 +255,7 @@ input[type=range]::-webkit-slider-thumb {
   background: var(--accent);
   cursor: pointer;
   border: none;
+  margin-top: -5.5px;
 }
 input[type=range]::-moz-range-thumb {
   width: 14px;
@@ -249,14 +264,26 @@ input[type=range]::-moz-range-thumb {
   background: var(--accent);
   cursor: pointer;
   border: none;
+  box-sizing: border-box;
 }
 input[type=range]::-webkit-slider-runnable-track {
-  background: var(--border);
-  height: 2px;
+  height: 3px;
+  border-radius: 0;
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--fill, 50%),
+    rgba(255,255,255,0.15) var(--fill, 50%)
+  );
 }
 input[type=range]::-moz-range-track {
-  background: var(--border);
-  height: 2px;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 0;
+}
+input[type=range]::-moz-range-progress {
+  height: 3px;
+  background: var(--accent);
+  border-radius: 0;
 }
 
 #distCanvas{ width:100%; height:100px; display:block; touch-action:none; }
