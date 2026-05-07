@@ -351,9 +351,9 @@ input[type=range]::-moz-range-progress {
   background:
     linear-gradient(
       to right,
-      rgba(0, 10, 10, 0.82) 0%,
-      rgba(0, 20, 20, 0.45) 55%,
-      rgba(0, 10, 10, 0.20) 100%
+      rgba(0, 0, 0, 0.82) 0%,
+      rgba(0, 0, 0, 0.45) 55%,
+      rgba(0, 0, 0, 0.20) 100%
     ),
     linear-gradient(
       to top,

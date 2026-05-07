@@ -100,9 +100,9 @@ overflow: hidden;
   font-size:1.2rem;
   font-weight:700;
   border:none;
-  border-radius:12px;
-  background:#00ffcc;
-  color:#000;
+  border-radius:4px;
+  background:#B8D400;
+  color:#111111;
   cursor:pointer;
   margin-top:18px;
 }
@@ -244,11 +244,11 @@ if(data.time_real && data.distance){
 
 shareWDI.textContent = 'WDI ' + (data.WDI || data.WDIT || '—')
   + (data.WDI_category ? ' · ' + data.WDI_category : '');
-shareWDI.style.color = data.WDI_color || data.wdiColor || '#34A853';
+shareWDI.style.color = data.WDI_color || data.wdiColor || '#4E7C59';
 shareComment.textContent = data.comment || "";
 if(data.includeCompare && data.perfComment){
   sharePerf.textContent = data.perfComment;
-  sharePerf.style.color = data.WDI_color || data.wdiColor || '#34A853';
+  sharePerf.style.color = data.WDI_color || data.wdiColor || '#4E7C59';
 }
 
 // TITOLO
@@ -316,7 +316,7 @@ function drawLeafletMap() {
   const latlngs = data.pts.map(p => [p[0], p[1]]);
 
   const polyline = L.polyline(latlngs, {
-    color: data.WDI_color || data.wdiColor || '#34A853',
+    color: data.WDI_color || data.wdiColor || '#4E7C59',
     weight: 4
   }).addTo(map);
 
@@ -369,7 +369,7 @@ function drawElevProfile(elev){
   const min = Math.min(...elev);
   const padTop = H*0.25;
   const span = (max-min)||1;
-  const lineColor = data.WDI_color || data.wdiColor || '#34A853';
+  const lineColor = data.WDI_color || data.wdiColor || '#4E7C59';
 
   ctx.beginPath();
   for(let i=0;i<elev.length;i++){
