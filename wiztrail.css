@@ -662,7 +662,7 @@ select:focus {
   fieldset { padding: 10px 12px; }
 }
 
-
+.site-intro {
   padding: 4px 10px;          /* meno spazio interno */
   margin: 8px auto 2px;       /* riduce spazi sopra e sotto */
   max-width: 720px;           /* leggermente più stretta */
