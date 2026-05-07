@@ -15,7 +15,6 @@
 <meta name="theme-color" content="#111111">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -173,10 +172,11 @@
   </div>
 </div>
 
-<script src="discipline-classifier.js?v=20260424"></script>
-<script src="wiztrail-engine.js?v=20260505"></script>
-<script src="gpx-parser.js?v=20260415"></script>
+<script src="discipline-classifier.js?v=20260424" defer></script>
+<script src="wiztrail-engine.js?v=20260505" defer></script>
+<script src="gpx-parser.js?v=20260415" defer></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
 //---------------------------------------- tema
 const themeSel = document.getElementById("themeSel");
 themeSel.addEventListener("change", e => document.body.setAttribute("data-theme", e.target.value));
@@ -191,10 +191,11 @@ fetch("ranking-data.json")
  .then(r => r.json())
  .then(json => { races = json; renderTable(); backgroundComputeTech(); });
 
-// Calcola TechScore da GPX in background, aggiorna le celle progressivamente
+// Calcola TechScore da GPX in background solo per gare che ne sono prive
 async function backgroundComputeTech() {
-  for (const r of races) {
-    if (r.techScore !== null || !r.gpx) continue;
+  const missing = races.filter(r => r.techScore === null && r.gpx);
+  if (!missing.length) return;
+  for (const r of missing) {
     try {
       const res  = await fetch(r.gpx);
       const xml  = new DOMParser().parseFromString(await res.text(), 'application/xml');
@@ -202,7 +203,7 @@ async function backgroundComputeTech() {
       const rs   = WizTrail.computeFromGpx(pts, GPXParser.compute(pts));
       r.techScore = parseFloat(rs.TechScore.toFixed(1));
       renderTable();
-    } catch (e) { /* skip race on fetch/parse error */ }
+    } catch (e) { /* skip */ }
     await new Promise(ok => setTimeout(ok, 80));
   }
 }
@@ -440,9 +441,11 @@ userResult.innerHTML = `
   </div>
 </div>`;
 });
+
+}); // end DOMContentLoaded
 </script>
 <script>
-// Hero image loader
+// Hero image loader — IIFE, non dipende dai deferred scripts
 (function() {
   const heroBg = document.getElementById('heroBgImg');
   if (!heroBg) return;
