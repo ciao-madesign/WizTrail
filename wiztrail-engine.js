@@ -50,11 +50,11 @@ window.WizTrail = (function () {
      --------------------------------------------------------------- */
   const WDI_THRESHOLDS = [
     { max:  22,      level: 'Sport',    color: '#4E7C59' },
-    { max:  40,      level: 'Pro',      color: '#34A853' },
-    { max:  70,      level: 'Advanced', color: '#F4C20D' },
-    { max: 120,      level: 'Extreme',  color: '#F79617' },
-    { max: 200,      level: 'Elite',    color: '#E91E63' },
-    { max: Infinity, level: 'Legend',   color: '#8E24AA' }
+    { max:  40,      level: 'Pro',      color: '#A8B94F' },
+    { max:  70,      level: 'Advanced', color: '#D4A843' },
+    { max: 120,      level: 'Extreme',  color: '#C06030' },
+    { max: 200,      level: 'Elite',    color: '#8B2020' },
+    { max: Infinity, level: 'Legend',   color: '#C8C8C8' }
   ];
 
   /* TECH_THRESHOLDS — soglie su scala interna 0-100.
@@ -63,12 +63,12 @@ window.WizTrail = (function () {
      Soglie alzate per riflettere la realtà dei terreni alpini. */
   const TECH_THRESHOLDS = [
     { max: 25,       level: 'Facile',        color: '#4E7C59' },
-    { max: 40,       level: 'Scorrevole',    color: '#34A853' },
-    { max: 55,       level: 'Moderato',      color: '#F4C20D' },
-    { max: 70,       level: 'Tecnico',       color: '#F79617' },
-    { max: 85,       level: 'Molto tecnico', color: '#E91E63' },
-    { max: 95,       level: 'Alpinistico',   color: '#8E24AA' },
-    { max: Infinity, level: 'Estremo',       color: '#FF0080' }
+    { max: 40,       level: 'Scorrevole',    color: '#A8B94F' },
+    { max: 55,       level: 'Moderato',      color: '#D4A843' },
+    { max: 70,       level: 'Tecnico',       color: '#C06030' },
+    { max: 85,       level: 'Molto tecnico', color: '#8B2020' },
+    { max: 95,       level: 'Alpinistico',   color: '#8B2020' },
+    { max: Infinity, level: 'Estremo',       color: '#C8C8C8' }
   ];
 
   const SURFACE_MULT = { 1: 0.92, 2: 0.97, 3: 1.00, 4: 1.04, 5: 1.08 };

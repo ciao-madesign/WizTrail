@@ -38,11 +38,11 @@
   function getColorWDI(wdi) {
     // Soglie v3 — sincronizzate con WDI_THRESHOLDS in wiztrail-engine.js (05/05/2026)
     if (!wdi || wdi <  22) return '#4E7C59';  // Sport
-    if (wdi <  40)         return '#34A853';  // Pro
-    if (wdi <  70)         return '#F4C20D';  // Advanced
-    if (wdi < 120)         return '#F79617';  // Extreme
-    if (wdi < 200)         return '#E91E63';  // Elite
-    return '#8E24AA';                          // Legend
+    if (wdi <  40)         return '#A8B94F';  // Pro
+    if (wdi <  70)         return '#D4A843';  // Advanced
+    if (wdi < 120)         return '#C06030';  // Extreme
+    if (wdi < 200)         return '#8B2020';  // Elite
+    return '#C8C8C8';                          // Legend
   }
 
   /* ------------------------------------------------------------------
