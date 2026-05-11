@@ -78,7 +78,8 @@ export default async function handler(req, res) {
   // Salva modello corrente
   const model = {
     wdi_calibration: body.wdi_calibration || null,
-    pacing:          body.pacing          || null,
+    timing:          body.timing          || null,
+    pacing:          body.timing          || body.pacing || null,  // retrocompatibilità
     stats:           body.stats           || null,
     timestamp:       ts,
     patch_js:        body.patch_js        || null,

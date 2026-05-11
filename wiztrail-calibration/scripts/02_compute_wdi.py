@@ -1,7 +1,7 @@
 """
 Script 02 — Calcola WDI su ogni gara del dataset
-Replica esatta di wiztrail-engine.js v5.0.
-GPX: usa solo punti con quota valida; ignora salti >500m (dati corrotti).
+Replica esatta di wiztrail-engine.js v5.1.
+GPX: usa solo punti con quota valida; ignora salti >300m (dati corrotti).
 Manual: usa distance_km + elevation_m + technicality dal dataset.
 """
 import math, warnings
@@ -13,13 +13,13 @@ from pathlib import Path
 warnings.filterwarnings("ignore")
 DATA_DIR = Path("data")
 
-kT    = 0.35
-REF42 = math.pow(42, 0.55)
+kT    = 0.50                   # calibrato 20/04/2026 — sincronizzato con wiztrail-engine.js v5.1
+REF42 = math.pow(42, 0.48)    # era 0.55 — esponente ridotto per le ultra
 SURFACE_MULT = {1:0.92,2:0.97,3:1.00,4:1.04,5:1.08}
-TERRAIN_DEFAULTS = {
-    "E":  {"frip":0.10,"slope_var":0.12,"roughness":0.06},
-    "EE": {"frip":0.18,"slope_var":0.20,"roughness":0.12},
-    "EA": {"frip":0.28,"slope_var":0.30,"roughness":0.20},
+TERRAIN_DEFAULTS = {           # sincronizzati con wiztrail-engine.js TERRAIN_DEFAULTS v2
+    "E":  {"frip":0.22,"slope_var":0.38,"roughness":0.18},
+    "EE": {"frip":0.38,"slope_var":0.55,"roughness":0.28},
+    "EA": {"frip":0.55,"slope_var":0.70,"roughness":0.40},
 }
 
 def tech_to_terrain(t):
@@ -30,9 +30,10 @@ def tech_to_terrain(t):
 def clamp(x,a,b): return max(a,min(b,x))
 
 def build_tech_score(frip,slope_var,roughness,gain,km,surf=3):
-    nf = clamp(frip/0.60,0,1); ns = clamp(slope_var/0.55,0,1)
-    nr = clamp(roughness/0.35,0,1); nv = clamp((gain/max(km,0.1))/150,0,1)
-    raw = (nf*0.45+ns*0.35+nr*0.20)*0.70+nv*0.30
+    # Pesi calibrati v1.0 — sincronizzati con wiztrail-engine.js buildTechScore()
+    nf = clamp(frip/0.924,0,1); ns = clamp(slope_var/0.180,0,1)
+    nr = clamp(roughness/0.500,0,1); nv = clamp((gain/max(km,0.1))/74.1,0,1)
+    raw = (nf*0.244+ns*0.421+nr*0.208)*0.873+nv*0.127
     return round(raw*100*(SURFACE_MULT.get(surf,1.0)),1)
 
 def build_volume_score(gain,loss):
@@ -40,8 +41,9 @@ def build_volume_score(gain,loss):
     return (dk*10)/(1+math.sqrt(max(dk,1e-6))/8)+(dl*4)/(1+math.sqrt(max(dl,1e-6))/6)
 
 def build_dist_factor(km):
-    if km<=100: return math.pow(km,0.55)/REF42
-    b=math.pow(100,0.55)/REF42; r=math.pow(100,0.42)
+    # esponente 0.48 (era 0.55) — sincronizzato con wiztrail-engine.js buildDistFactor()
+    if km<=100: return math.pow(km,0.48)/REF42
+    b=math.pow(100,0.48)/REF42; r=math.pow(100,0.42)
     return b+(math.pow(km,0.42)-r)/REF42*0.6
 
 def build_alt_factor(alt): return 1+clamp((alt-1300)/10000,0,0.15)
@@ -186,4 +188,3 @@ def main():
 
 if __name__=="__main__":
     main()
-# (patch applicata inline — vedi versione aggiornata)
