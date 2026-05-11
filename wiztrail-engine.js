@@ -29,19 +29,19 @@ window.WizTrail = (function () {
      Le soglie grezze sono fisse e documentate — non cambiano
      con l'aggiunta di nuove gare al ranking.
      
-     Categorie e scale grezze (v2 — ricalibrate 05/05/2026 su 95 gare):
-       Short  ≤25km  : grezzo  5→ 60  → norm 0–10
-       Medium 26–50km: grezzo 15→110  → norm 0–10
-       Long   51–95km: grezzo 30→165  → norm 0–10
-       Ultra  >95km  : grezzo 80→280  → norm 0–10 (Legend ∞ oltre 280)
-     
+     Categorie e scale grezze (v3 — ricalibrate 11/05/2026 su 31 gare):
+       Short  ≤25km  : grezzo 15→ 65  → norm 0–10
+       Medium 26–50km: grezzo 20→120  → norm 0–10
+       Long   51–95km: grezzo 50→175  → norm 0–10
+       Ultra  >95km  : grezzo 80→300  → norm 0–10 (Legend ∞ oltre 300)
+
      TechScore: scala assoluta 0–100, non categorizzata per distanza.
      --------------------------------------------------------------- */
   const WDI_NORM_CATEGORIES = [
-    { distMax:  25, wdiMin:  5, wdiMax:  60, label: 'Short'  },
-    { distMax:  50, wdiMin: 15, wdiMax: 110, label: 'Medium' },
-    { distMax:  95, wdiMin: 30, wdiMax: 165, label: 'Long'   },
-    { distMax: Infinity, wdiMin: 80, wdiMax: 280, label: 'Ultra' },
+    { distMax:  25, wdiMin: 15, wdiMax:  65, label: 'Short'  },
+    { distMax:  50, wdiMin: 20, wdiMax: 120, label: 'Medium' },
+    { distMax:  95, wdiMin: 50, wdiMax: 175, label: 'Long'   },
+    { distMax: Infinity, wdiMin: 80, wdiMax: 300, label: 'Ultra' },
   ];
 
   /* ---------------------------------------------------------------
@@ -105,7 +105,7 @@ window.WizTrail = (function () {
 
   /**
    * Normalizza il WDI grezzo su scala 0–10 per la sua categoria di distanza.
-   * Oltre il massimo della categoria Ultra (150 grezzo) → 10 con flag isLegendPlus.
+   * Oltre il massimo della categoria Ultra (300 grezzo) → 10 con flag isLegendPlus.
    * @param {number} wdi — WDI grezzo
    * @param {number} km  — distanza in km (determina la categoria)
    * @returns {{ norm: number, category: string, isLegendPlus: boolean }}
@@ -230,7 +230,7 @@ window.WizTrail = (function () {
       WDI:          wdi,           // grezzo — usato per calcoli interni
       WDI_norm:     normResult.norm,        // 0–10 per categoria distanza
       WDI_category: normResult.category,    // 'Short'|'Medium'|'Long'|'Ultra'
-      WDI_legendPlus: normResult.isLegendPlus, // true se Ultra >150 grezzo
+      WDI_legendPlus: normResult.isLegendPlus, // true se Ultra >300 grezzo
       class:     wi.level,
       color:     wi.color,
       TechScore: finalTech,        // assoluto 0–100, non categorizzato
