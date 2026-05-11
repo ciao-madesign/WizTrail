@@ -58,7 +58,7 @@ html::before {
     z-index: 0;
     background-image: url('/img/topo_texture_light.png');
     background-size: 720px;
-    opacity: 0.05;
+    opacity: 0.02;
     mix-blend-mode: screen;
 }
 
@@ -296,6 +296,8 @@ body[data-theme="light"] fieldset{
   opacity: 0;
   transition: opacity 0.8s ease;
   filter: brightness(0.42) saturate(0.75);
+  -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 88%);
+  mask-image:         linear-gradient(to bottom, black 30%, transparent 88%);
 }
 .hero-bg-img.hero-bg-loaded {
   opacity: 1;
