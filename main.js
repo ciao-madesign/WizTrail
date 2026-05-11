@@ -130,6 +130,93 @@
   }
 
   /* ------------------------------------------------------------------
+     IMPORT DA URL/LINK
+     ------------------------------------------------------------------ */
+  (function setupLinkImport() {
+    const btn    = document.getElementById('linkImportBtn');
+    const row    = document.getElementById('linkImportRow');
+    const input  = document.getElementById('linkImportUrl');
+    const goBtn  = document.getElementById('linkImportGo');
+    if (!btn || !row || !input || !goBtn) return;
+
+    btn.addEventListener('click', () => {
+      const open = row.style.display !== 'none' && row.style.display !== '';
+      row.style.display = open ? 'none' : 'flex';
+      if (!open) input.focus();
+    });
+
+    async function importFromUrl() {
+      const raw = input.value.trim();
+      if (!raw) return;
+
+      const dz      = document.getElementById('gpxDropzone');
+      const mainTxt = dz?.querySelector('.gpx-dropzone-main');
+      if (mainTxt) mainTxt.textContent = 'Caricamento…';
+      goBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Errore nel caricamento');
+        }
+        const text = await res.text();
+        const xml  = new DOMParser().parseFromString(text, 'application/xml');
+        window.gpxPts  = GPXParser.parseTrack(xml);
+        window.metrics = GPXParser.compute(window.gpxPts);
+
+        if (!window.gpxPts.length) throw new Error('Nessuna traccia trovata nel file');
+
+        WizUI.updateGpxInfo(window.gpxPts, window.metrics);
+        const es = document.getElementById('elevSection');
+        if (es) es.style.display = 'block';
+        WizMap.init();
+        WizMap.drawTrack();
+        requestAnimationFrame(() => WizMap.drawProfile());
+
+        if (dz) dz.classList.add('loaded');
+        if (mainTxt) mainTxt.textContent = '✓ Traccia caricata da link';
+        row.style.display = 'none';
+        input.value = '';
+      } catch (e) {
+        if (mainTxt) mainTxt.textContent = '✗ ' + e.message;
+        if (dz) dz.classList.remove('loaded');
+      } finally {
+        goBtn.disabled = false;
+      }
+    }
+
+    goBtn.addEventListener('click', importFromUrl);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') importFromUrl(); });
+  })();
+
+  /* ------------------------------------------------------------------
+     WEB SHARE TARGET — GPX condiviso da un'altra app mobile
+     Il service worker intercetta il POST e mette il file in cache;
+     qui lo recuperiamo e lo carichiamo.
+     ------------------------------------------------------------------ */
+  (async function loadSharedGpx() {
+    const sp = new URLSearchParams(location.search);
+    if (sp.get('shared') !== '1') return;
+    history.replaceState(null, '', location.pathname);
+
+    try {
+      const cache = await caches.open('wiztrail-share-queue');
+      const stored = await cache.match('/shared-gpx');
+      if (!stored) return;
+
+      const blob     = await stored.blob();
+      const filename = stored.headers.get('X-Filename') || 'shared.gpx';
+      await cache.delete('/shared-gpx');
+
+      const file = new File([blob], filename, { type: blob.type || 'application/gpx+xml' });
+      await handleGpxFile(file);
+    } catch (e) {
+      console.error('share target load error:', e);
+    }
+  })();
+
+  /* ------------------------------------------------------------------
      AUTO-LOAD DA STRAVA (index.html?source=strava&id=...)
      Attivato quando l'utente torna da import_strava.html
      ------------------------------------------------------------------ */
