@@ -224,62 +224,84 @@
       border: 1px solid;
     }
     .status-badge.pending  { color: var(--orange); border-color: var(--orange); }
-    .status-badge.done     { color: var(--green);  border-color: var(--green);  }
-    .status-badge.excluded { color: var(--muted);  border-color: var(--border); }
+    .status-badge.calibrated { color: var(--green); border-color: var(--green); }
 
-    /* ── Stats dashboard ────────────────────────────────────────────────── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px; margin-bottom: 24px;
-    }
-    .stat-card {
-      background: var(--bg2);
+    /* ── Stats model ─────────────────────────────────────────────────────── */
+    .model-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 500px) { .model-grid { grid-template-columns: 1fr 1fr; } }
+    .model-kpi {
+      background: var(--bg3);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px; text-align: center;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
     }
-    .stat-val {
+    .model-kpi .val {
       font-family: var(--font);
-      font-size: 1.6rem; color: var(--accent);
+      font-size: 1.5rem; color: var(--accent);
       font-weight: bold; display: block;
     }
-    .stat-lbl { font-size: 0.75rem; color: var(--muted); }
+    .model-kpi .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
 
-    /* ── Spinner ────────────────────────────────────────────────────────── */
+    /* ── Runner autorizzati ──────────────────────────────────────────────── */
+    .runner-list {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+    }
+    .runner-chip {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 10px 4px 12px;
+      font-size: 0.8rem;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .runner-chip button {
+      background: none; border: none; cursor: pointer;
+      color: var(--red); font-size: 0.9rem; line-height: 1;
+      padding: 0;
+    }
+
+    /* ── Messaggi ────────────────────────────────────────────────────────── */
+    .msg {
+      padding: 10px 14px; border-radius: 6px;
+      font-size: 0.85rem; margin: 10px 0; display: none;
+    }
+    .msg.info    { background: rgba(79,209,197,0.1); border: 1px solid var(--accent); color: var(--accent); }
+    .msg.error   { background: rgba(248,81,73,0.1);  border: 1px solid var(--red);    color: var(--red); }
+    .msg.success { background: rgba(63,185,80,0.1);  border: 1px solid var(--green);  color: var(--green); }
+    .msg.show    { display: block; }
+
+    /* ── Loading ─────────────────────────────────────────────────────────── */
     .spinner {
-      width: 20px; height: 20px;
+      display: inline-block; width: 14px; height: 14px;
       border: 2px solid var(--border);
       border-top-color: var(--accent);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle; margin-right: 6px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Messages ───────────────────────────────────────────────────────── */
-    .msg {
-      font-size: 0.82rem; padding: 8px 12px;
-      border-radius: 6px; margin: 8px 0;
-      display: none;
-    }
-    .msg.show { display: block; }
-    .msg.success { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid var(--green); }
-    .msg.error   { background: rgba(248,81,73,0.1);  color: var(--red);   border: 1px solid var(--red);   }
-    .msg.info    { background: rgba(79,209,197,0.1); color: var(--accent); border: 1px solid var(--accent); }
+    /* ── Grafico RMSE ────────────────────────────────────────────────────── */
+    #rmseImg { width: 100%; border-radius: 8px; margin-top: 12px; display: none; }
 
-    /* ── Progress bar ───────────────────────────────────────────────────── */
-    .progress-wrap {
-      background: var(--bg3); border-radius: 4px;
-      height: 6px; margin: 8px 0;
-      overflow: hidden;
+    /* ── Upload zona drag ────────────────────────────────────────────────── */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      color: var(--muted); font-size: 0.88rem;
     }
-    .progress-bar {
-      height: 100%; background: var(--accent);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-      width: 0%;
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(79,209,197,0.04);
+      color: var(--text);
     }
+    .drop-zone .icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+    .drop-zone input { display: none; }
 
     /* ── Lock screen ─────────────────────────────────────────────────────── */
     #lockScreen {
@@ -337,3 +359,996 @@
 
 <!-- ── App (nascosta finché il token non è verificato) ────────────────────── -->
 <div id="app" style="display:none;">
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">WizTrail<span>.hub</span></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span id="aliasDisplay" style="font-size:0.8rem; color:var(--muted);"></span>
+        <span id="roleBadge" class="badge"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="tabs">
+      <button class="tab active" data-tab="upload">Carica attività</button>
+      <button class="tab" data-tab="dashboard">Dashboard</button>
+      <button class="tab admin-only" data-tab="admin" style="display:none;">Admin</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ UPLOAD -->
+    <div id="tab-upload" class="panel active">
+
+      <!-- Step 1: Alias -->
+      <div class="card" id="step-alias">
+        <div class="card-title">// identità</div>
+        <div class="form-group">
+          <label>Il tuo alias (nome con cui appariranno i tuoi dati)</label>
+          <input id="aliasInput" type="text" placeholder="es. marco_trail" maxlength="30"/>
+        </div>
+        <div style="margin-top:12px; text-align:right;">
+          <button class="btn btn-primary" onclick="confirmAlias()">Continua</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Form upload (nascosto finché alias non confermato) -->
+      <div id="step-form" style="display:none;">
+
+        <div class="card">
+          <div class="card-title">// traccia gpx</div>
+          <label class="drop-zone" id="dropZone">
+            <span class="icon">↑</span>
+            <span id="dropLabel">Trascina il GPX qui o clicca per selezionare</span>
+            <input type="file" id="gpxFile" accept=".gpx"/>
+          </label>
+          <div id="gpxStatus" style="font-size:0.78rem; color:var(--muted); margin-top:8px;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">// dati attività</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nome attività</label>
+              <input id="actName" type="text" placeholder="es. Zegama 2026"/>
+            </div>
+            <div class="form-group">
+              <label>Tipo</label>
+              <select id="actType">
+                <option value="personal">Attività personale</option>
+                <option value="reference">Gara di riferimento</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Distanza (km) <span style="color:var(--accent)">— da GPX</span></label>
+              <input id="actKm" type="number" step="0.01" placeholder="auto"/>
+            </div>
+            <div class="form-group">
+              <label>D+ (m) <span style="color:var(--accent)">— da GPX</span></label>
+              <input id="actDplus" type="number" step="1" placeholder="auto"/>
+            </div>
+            <div class="form-group">
+              <label>Tempo effettivo (hh:mm:ss o mm:ss) — opzionale</label>
+              <input id="actTime" type="text" placeholder="es. 5:42:00"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">// tecnicità percepita</div>
+          <div class="tech-value" id="techVal">5.0</div>
+          <div class="slider-wrap">
+            <input type="range" id="techSlider" min="0" max="10" step="0.5" value="5"/>
+            <div class="slider-labels">
+              <span>Corribile</span><span>Misto</span><span>Tecnico</span><span>Alpino</span><span>Estremo</span>
+            </div>
+          </div>
+          <div style="margin-top:14px;">
+            <label>Etichetta terreno</label>
+            <select id="techLabel">
+              <option value="runnable">Runnable — scorrevole, quasi sempre corribile</option>
+              <option value="mixed" selected>Mixed — alternanza corribile/camminata</option>
+              <option value="technical">Technical — sentiero impegnativo, roccioso</option>
+              <option value="alpine">Alpine — ambiente alpino, esposizione</option>
+              <option value="extreme">Extreme — ridge, ferrate, terreno estremo</option>
+            </select>
+          </div>
+          <div style="margin-top:14px;">
+            <label>Commento (opzionale)</label>
+            <textarea id="actComment" rows="2" placeholder="Note sul percorso, condizioni meteo, ecc."></textarea>
+          </div>
+        </div>
+
+        <!-- Preview / validazione -->
+        <div id="previewSection" style="display:none;">
+          <div class="preview-box">
+            <div style="font-size:0.78rem; color:var(--accent); margin-bottom:12px;">
+              // anteprima — conferma prima di inviare
+            </div>
+            <canvas id="elevPreview"></canvas>
+            <div class="preview-grid" style="margin-top:14px;">
+              <div class="kpi-mini">
+                <span class="val" id="pvKm">—</span>
+                <span class="lbl">km</span>
+              </div>
+              <div class="kpi-mini">
+                <span class="val" id="pvDplus">—</span>
+                <span class="lbl">m D+</span>
+              </div>
+              <div class="kpi-mini">
+                <span class="val" id="pvWdi">—</span>
+                <span class="lbl">WDI stimato</span>
+              </div>
+            </div>
+            <div id="previewDetails" style="font-size:0.78rem; color:var(--muted);"></div>
+          </div>
+          <div id="uploadMsg" class="msg"></div>
+          <div style="display:flex; gap:10px; margin-top:4px;">
+            <button class="btn btn-secondary" onclick="resetForm()">Modifica</button>
+            <button class="btn btn-primary" id="confirmBtn" onclick="submitActivity()">Confermo e invio</button>
+          </div>
+        </div>
+
+        <div id="previewBtn" style="margin-top:4px; display:none;">
+          <div id="formMsg" class="msg"></div>
+          <button class="btn btn-primary" onclick="buildPreview()">Anteprima e conferma</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ DASHBOARD -->
+    <div id="tab-dashboard" class="panel">
+
+      <div class="card">
+        <div class="card-title">// stato modello</div>
+        <div id="pipelineBanner" style="display:none; background:rgba(79,209,197,0.08); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:0.82rem; color:var(--accent);">
+          <span class="spinner"></span> Pipeline in corso — aggiornamento automatico...
+        </div>
+        <div class="model-grid" id="modelStats">
+          <div class="model-kpi"><span class="val" id="statTotal">—</span><div class="lbl">attività totali</div></div>
+          <div class="model-kpi"><span class="val" id="statPending">—</span><div class="lbl">in attesa calibrazione</div></div>
+          <div class="model-kpi"><span class="val" id="statRmse">—</span><div class="lbl">RMSE TechScore (punti)</div></div>
+        </div>
+        <div id="lastRun" style="font-size:0.75rem; color:var(--muted); margin-top:10px;"></div>
+        <img id="rmseImg" alt="Grafico evoluzione RMSE"/>
+        <div id="reportSection" style="display:none; margin-top:16px;">
+          <div class="card-title" style="cursor:pointer;" onclick="toggleReport()">
+            // insights report <span id="reportToggleIcon">▼</span>
+          </div>
+          <div id="reportBody" style="display:none; margin-top:10px; font-size:0.8rem; color:var(--muted); white-space:pre-wrap; line-height:1.6; max-height:400px; overflow-y:auto; background:var(--bg3); border-radius:6px; padding:14px;"></div>
+        </div>
+        <div id="plotsSection" style="display:none; margin-top:16px;">
+          <div class="card-title">// grafici calibrazione</div>
+          <div id="plotsGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="card" id="patchCard" style="display:none;">
+        <div class="card-title">// output calibrazione</div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+          Nuova calibrazione completata. Scarica il pacchetto completo o solo la patch.
+        </p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="downloadPackage()">
+            Scarica pacchetto completo (.zip)
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadPatch()">
+            Solo patch JS
+          </button>
+        </div>
+        <div id="zipProgress" style="display:none; font-size:0.78rem; color:var(--muted); margin-top:8px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// le mie attività</div>
+        <div id="activityList" class="activity-list">
+          <div style="color:var(--muted); font-size:0.85rem;">Caricamento...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════ ADMIN -->
+    <div id="tab-admin" class="panel">
+
+      <div class="card">
+        <div class="card-title">// pipeline calibrazione</div>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">
+          Avvia la pipeline di calibrazione su GitHub Actions.
+          Verranno processate tutte le attività in stato "pending".
+        </p>
+        <div id="pipelineStatus" style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;"></div>
+        <div id="runMsg" class="msg"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="runBtn" onclick="runPipeline()">
+            Avvia calibrazione
+          </button>
+          <button class="btn btn-secondary btn-sm" id="resetPipelineBtn" onclick="resetPipelineFlag()" style="display:none;">
+            Reset flag "in corso"
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// runner autorizzati</div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+          Gli alias in questa lista possono avviare la pipeline (oltre a te).
+        </p>
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <input id="newRunnerInput" type="text" placeholder="alias da aggiungere" style="flex:1;"/>
+          <button class="btn btn-secondary btn-sm" onclick="addRunner()">Aggiungi</button>
+        </div>
+        <div id="runnerList" class="runner-list"></div>
+        <div id="runnerMsg" class="msg"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// tutte le attività</div>
+        <div id="allActivitiesList" class="activity-list">
+          <div style="color:var(--muted); font-size:0.85rem;">Caricamento...</div>
+        </div>
+      </div>
+
+      <div class="card" id="patchCardAdmin" style="display:none;">
+        <div class="card-title">// patch disponibile</div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+          Scarica la patch e applicala a WizTrail, oppure esegui il merge del branch
+          <code style="color:var(--accent);">model-update</code> su GitHub.
+        </p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="downloadPackage()">
+            Scarica pacchetto completo (.zip)
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadPatch()">
+            Solo patch JS
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /app -->
+
+<script>
+/* ── Stato globale ──────────────────────────────────────────────────────── */
+const STATE = {
+  key:      new URLSearchParams(location.search).get('key') || '',
+  alias:    localStorage.getItem('hub_alias') || '',
+  isAdmin:  false,
+  gpxData:  null,   // { base64, filename, km, dplus, elevArr, distArr }
+  runners:  [],
+  model:    null,
+};
+
+/* ── API helper ─────────────────────────────────────────────────────────── */
+async function api(path, opts = {}) {
+  const url    = `/api/hub/${path}`;
+  const method = opts.method || 'GET';
+
+  /* Il token viaggia SEMPRE nell'header X-Hub-Key — mai nel query param URL.
+     Motivo: i query param finiscono in log server, log CDN e cronologia browser. */
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-Hub-Key':    STATE.key,
+  };
+
+  let body    = undefined;
+  let finalUrl = url;
+
+  if (method === 'POST') {
+    /* Per POST il token è nell'header — non includerlo nel body */
+    body = JSON.stringify(opts.body || {});
+  }
+
+  if (method === 'GET' && opts.qs) {
+    finalUrl = url + (path.includes('?') ? '&' : '?') + opts.qs;
+  }
+
+  const res = await fetch(finalUrl, { method, headers, body });
+  return res.json();
+}
+
+/* ── Helpers UI ─────────────────────────────────────────────────────────── */
+function showMsg(id, text, type = 'info') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = `msg ${type} show`;
+}
+function hideMsg(id) {
+  const el = document.getElementById(id);
+  if (el) el.className = 'msg';
+}
+
+/* ── Verifica accesso ───────────────────────────────────────────────────── */
+function _showLockForm(msg) {
+  document.getElementById('lockMsg').textContent = msg;
+  document.getElementById('lockSpinner').style.display = 'none';
+  const form = document.getElementById('lockKeyForm');
+  form.style.display = 'block';
+  const urlKey = new URLSearchParams(location.search).get('key');
+  if (urlKey) document.getElementById('lockKeyInput').value = urlKey;
+  document.getElementById('lockKeyInput').focus();
+}
+
+async function submitKey(e) {
+  e.preventDefault();
+  const val = document.getElementById('lockKeyInput').value.trim();
+  if (!val) return;
+  STATE.key = val;
+  document.getElementById('lockKeyForm').style.display = 'none';
+  document.getElementById('lockSpinner').style.display = '';
+  document.getElementById('lockMsg').textContent = 'Verifica accesso in corso...';
+  await checkAccess();
+}
+
+async function checkAccess() {
+  if (!STATE.key) {
+    _showLockForm('Inserisci il token di accesso.');
+    return;
+  }
+  try {
+    const r = await api('auth');
+    if (!r.ok) throw new Error(r.error || 'Non autorizzato');
+
+    STATE.isAdmin = r.isAdmin;
+
+    // Nascondi lock, mostra app
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+
+    // Badge ruolo
+    const badge = document.getElementById('roleBadge');
+    badge.textContent = STATE.isAdmin ? 'admin' : 'utente';
+    if (STATE.isAdmin) badge.classList.add('admin');
+
+    // Tab admin
+    if (STATE.isAdmin) {
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+    }
+
+    // Se alias già salvato, salta step 1
+    if (STATE.alias) {
+      document.getElementById('aliasInput').value = STATE.alias;
+      showAlias(STATE.alias);
+    }
+
+    // Carica dashboard
+    loadDashboard();
+
+  } catch (e) {
+    _showLockForm('Token non valido. Inserisci o correggi il token.');
+  }
+}
+
+/* ── Alias ──────────────────────────────────────────────────────────────── */
+function confirmAlias() {
+  const val = document.getElementById('aliasInput').value.trim();
+  if (!val || val.length < 2) return alert('Alias troppo corto (min 2 caratteri)');
+  if (!/^[a-z0-9_]+$/i.test(val)) return alert('Solo lettere, numeri e underscore');
+  STATE.alias = val.toLowerCase();
+  localStorage.setItem('hub_alias', STATE.alias);
+  showAlias(STATE.alias);
+}
+
+function showAlias(alias) {
+  document.getElementById('step-alias').style.display = 'none';
+  document.getElementById('step-form').style.display = 'block';
+  document.getElementById('aliasDisplay').textContent = alias;
+  document.getElementById('previewBtn').style.display = 'block';
+}
+
+/* ── Tab switching ──────────────────────────────────────────────────────── */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'admin') loadAdmin();
+  });
+});
+
+/* ── GPX parsing lato client ────────────────────────────────────────────── */
+function setupGpxDrop() {
+  const zone  = document.getElementById('dropZone');
+  const input = document.getElementById('gpxFile');
+
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) processGpx(file);
+  });
+  input.addEventListener('change', () => { if (input.files[0]) processGpx(input.files[0]); });
+}
+
+async function processGpx(file) {
+  document.getElementById('gpxStatus').textContent = 'Parsing GPX...';
+  document.getElementById('dropLabel').textContent = file.name;
+
+  try {
+    const text     = await file.text();
+    const xml      = new DOMParser().parseFromString(text, 'application/xml');
+    const pts      = [];
+
+    // Leggi track points e route points
+    const trkpts   = xml.querySelectorAll('trkpt');
+    const rtepts   = xml.querySelectorAll('rtept');
+    const src      = trkpts.length > 0 ? trkpts : rtepts;
+
+    src.forEach(pt => {
+      const lat = parseFloat(pt.getAttribute('lat'));
+      const lon = parseFloat(pt.getAttribute('lon'));
+      const ele = parseFloat(pt.querySelector('ele')?.textContent || 'NaN');
+      if (!isNaN(lat) && !isNaN(lon)) pts.push({ lat, lon, ele: isNaN(ele) ? null : ele });
+    });
+
+    if (pts.length < 10) throw new Error('GPX troppo corto (meno di 10 punti)');
+
+    // Calcola distanza cumulativa
+    const R = 6371000;
+    const dists = [0];
+    for (let i = 1; i < pts.length; i++) {
+      const p1 = pts[i - 1], p2 = pts[i];
+      const φ1 = p1.lat * Math.PI / 180, φ2 = p2.lat * Math.PI / 180;
+      const Δφ = (p2.lat - p1.lat) * Math.PI / 180;
+      const Δλ = (p2.lon - p1.lon) * Math.PI / 180;
+      const a  = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+      dists.push(dists[dists.length - 1] + R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    }
+    const km = Math.round(dists[dists.length - 1] / 10) / 100;
+
+    // Calcola D+
+    const eles  = pts.map(p => p.ele).filter(e => e !== null);
+    let dplus   = 0;
+    for (let i = 1; i < eles.length; i++) {
+      if (eles[i] > eles[i - 1]) dplus += eles[i] - eles[i - 1];
+    }
+    dplus = Math.round(dplus);
+
+    // Base64
+    const arrBuf = await file.arrayBuffer();
+    const bytes  = new Uint8Array(arrBuf);
+    let binary   = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+    }
+    const b64 = btoa(binary);
+
+    STATE.gpxData = { base64: b64, filename: file.name, km, dplus, elevArr: eles, distArr: dists };
+
+    // Aggiorna form
+    document.getElementById('actKm').value    = km;
+    document.getElementById('actDplus').value = dplus;
+    document.getElementById('gpxStatus').textContent = `✓ ${pts.length} punti — ${km} km / ${dplus}m D+`;
+    document.getElementById('gpxStatus').style.color = 'var(--green)';
+
+  } catch (e) {
+    document.getElementById('gpxStatus').textContent = '❌ ' + e.message;
+    document.getElementById('gpxStatus').style.color = 'var(--red)';
+    STATE.gpxData = null;
+  }
+}
+
+/* ── Slider tecnicità ───────────────────────────────────────────────────── */
+document.getElementById('techSlider').addEventListener('input', function() {
+  document.getElementById('techVal').textContent = parseFloat(this.value).toFixed(1);
+});
+
+/* ── Preview ────────────────────────────────────────────────────────────── */
+function buildPreview() {
+  const name  = document.getElementById('actName').value.trim();
+  const km    = parseFloat(document.getElementById('actKm').value);
+  const dplus = parseFloat(document.getElementById('actDplus').value);
+  const tech  = parseFloat(document.getElementById('techSlider').value);
+
+  if (!name)     return showMsg('formMsg', 'Inserisci il nome attività', 'error');
+  if (!km || km <= 0) return showMsg('formMsg', 'Distanza non valida', 'error');
+  if (!dplus && dplus !== 0) return showMsg('formMsg', 'D+ non valido', 'error');
+  hideMsg('formMsg');
+
+  /* Stima WDI — parametri v5.1 (calibrati 20/04/2026).
+     Sincronizzata con upload.js e wiztrail-engine.js.
+     Aggiornare qui se cambiano kT o EXP nel motore. */
+  const EXP    = 0.48;                    // era 0.55
+  const kT     = 0.50;                    // era 0.35
+  const REF42  = Math.pow(42, EXP);
+  const dkm    = dplus / 1000;
+  const dlkm   = dkm;                    // stima loss = gain
+  const VS     = (dkm  * 10) / (1 + Math.sqrt(Math.max(dkm,  0.001)) / 8)
+               + (dlkm *  4) / (1 + Math.sqrt(Math.max(dlkm, 0.001)) / 6);
+  const TS     = tech * 10;
+  const DF     = km <= 100
+    ? Math.pow(km, EXP) / REF42
+    : Math.pow(100, EXP) / REF42 + (Math.pow(km, 0.42) - Math.pow(100, 0.42)) / REF42 * 0.6;
+  const wdi    = Math.round((VS + TS * kT) * DF * 10) / 10;
+
+  document.getElementById('pvKm').textContent    = km.toFixed(1);
+  document.getElementById('pvDplus').textContent = dplus.toLocaleString();
+  document.getElementById('pvWdi').textContent   = wdi;
+
+  // Profilo altimetrico
+  drawElevPreview();
+
+  const time    = document.getElementById('actTime').value.trim();
+  const comment = document.getElementById('actComment').value.trim();
+  /* esc() applicato su time e comment (input utente libero) per evitare XSS.
+     name è dal selettore tipo attività (opzioni predefinite, non input libero). */
+  document.getElementById('previewDetails').innerHTML =
+    `<b>${name}</b> · ${document.getElementById('actType').options[document.getElementById('actType').selectedIndex].text}<br>` +
+    `Tecnicità: ${tech}/10 · ${document.getElementById('techLabel').options[document.getElementById('techLabel').selectedIndex].text.split('—')[0].trim()}<br>` +
+    (time    ? `Tempo: ${esc(time)}<br>` : '') +
+    (comment ? `Note: ${esc(comment)}` : '');
+
+  document.getElementById('previewBtn').style.display    = 'none';
+  document.getElementById('previewSection').style.display = 'block';
+}
+
+function drawElevPreview() {
+  const canvas = document.getElementById('elevPreview');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = canvas.clientWidth  * (devicePixelRatio || 1);
+  canvas.height = canvas.clientHeight * (devicePixelRatio || 1);
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  const eles = STATE.gpxData?.elevArr;
+  if (!eles || eles.length < 2) {
+    ctx.fillStyle = '#888'; ctx.font = '12px system-ui';
+    ctx.fillText('Nessun profilo altimetrico (GPX senza quota)', 12, H/2);
+    return;
+  }
+
+  const pad = { top: 8, right: 8, bottom: 8, left: 8 };
+  const w = W - pad.left - pad.right, h = H - pad.top - pad.bottom;
+  const minE = Math.min(...eles), maxE = Math.max(...eles);
+  const norm = e => 1 - (e - minE) / (maxE - minE + 1);
+  const xs   = eles.map((_, i) => pad.left + (i / (eles.length - 1)) * w);
+  const ys   = eles.map(e => pad.top + norm(e) * h);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Area fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
+  grad.addColorStop(0, 'rgba(79,209,197,0.3)');
+  grad.addColorStop(1, 'rgba(79,209,197,0.02)');
+  ctx.beginPath();
+  ctx.moveTo(xs[0], H - pad.bottom);
+  xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
+  ctx.lineTo(xs[xs.length-1], H - pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Linea profilo
+  ctx.beginPath();
+  ctx.moveTo(xs[0], ys[0]);
+  xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
+  ctx.strokeStyle = '#4fd1c5';
+  ctx.lineWidth   = 1.5;
+  ctx.stroke();
+}
+
+function resetForm() {
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('previewBtn').style.display     = 'block';
+  hideMsg('uploadMsg');
+}
+
+/* ── Submit ─────────────────────────────────────────────────────────────── */
+async function submitActivity() {
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Invio...';
+
+  const timeStr = document.getElementById('actTime').value.trim();
+  let time_hours = null;
+  if (timeStr) {
+    const parts = timeStr.split(':').map(Number);
+    if (parts.length === 3) time_hours = parts[0] + parts[1]/60 + parts[2]/3600;
+    else if (parts.length === 2) time_hours = parts[0]/60 + parts[1]/3600; // mm:ss
+  }
+
+  const payload = {
+    alias:        STATE.alias,
+    name:         document.getElementById('actName').value.trim(),
+    type:         document.getElementById('actType').value,
+    gpx_base64:   STATE.gpxData?.base64 || null,
+    gpx_filename: STATE.gpxData?.filename || null,
+    km:           parseFloat(document.getElementById('actKm').value) || null,
+    dplus:        parseFloat(document.getElementById('actDplus').value) || 0,
+    time_hours,
+    technicality: parseFloat(document.getElementById('techSlider').value),
+    tech_label:   document.getElementById('techLabel').value,
+    comment:      document.getElementById('actComment').value.trim() || null,
+  };
+
+  try {
+    const r = await api('upload', { method: 'POST', body: payload });
+    if (!r.ok) throw new Error(r.error || JSON.stringify(r.details));
+
+    showMsg('uploadMsg', `✓ Attività caricata (WDI stimato: ${r.wdi_estimate ?? '—'})`, 'success');
+    btn.innerHTML = '✓ Inviato';
+
+    // Reset dopo 2s
+    setTimeout(() => {
+      STATE.gpxData = null;
+      document.getElementById('gpxFile').value = '';
+      document.getElementById('dropLabel').textContent = 'Trascina il GPX qui o clicca per selezionare';
+      document.getElementById('actName').value = '';
+      document.getElementById('actKm').value = '';
+      document.getElementById('actDplus').value = '';
+      document.getElementById('actTime').value = '';
+      document.getElementById('actComment').value = '';
+      document.getElementById('gpxStatus').textContent = '';
+      resetForm();
+      btn.disabled = false;
+      btn.textContent = 'Confermo e invio';
+      loadDashboard();
+    }, 2000);
+
+  } catch (e) {
+    showMsg('uploadMsg', '❌ Errore: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Confermo e invio';
+  }
+}
+
+/* ── Dashboard ──────────────────────────────────────────────────────────── */
+let _pollTimer = null;
+
+async function loadDashboard() {
+  try {
+    const r = await api(`activities?alias=${encodeURIComponent(STATE.alias)}`);
+    if (!r.ok) return;
+
+    // Stats
+    document.getElementById('statTotal').textContent   = r.stats?.n_total   ?? '—';
+    document.getElementById('statPending').textContent = r.stats?.n_pending  ?? '—';
+    document.getElementById('statRmse').textContent    = r.stats?.last_rmse != null
+      ? r.stats.last_rmse.toFixed(2) + ' pts' : '—';
+
+    if (r.stats?.last_run) {
+      document.getElementById('lastRun').textContent =
+        'Ultimo run: ' + new Date(r.stats.last_run).toLocaleString('it-IT');
+    }
+
+    // Pipeline banner + polling automatico
+    const banner = document.getElementById('pipelineBanner');
+    if (r.stats?.pipeline_running) {
+      if (banner) banner.style.display = 'block';
+      if (!_pollTimer) {
+        _pollTimer = setInterval(() => loadDashboard(), 10000);
+      }
+    } else {
+      if (banner) banner.style.display = 'none';
+      if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
+    }
+
+    // Grafico RMSE
+    if (r.plot_rmse) {
+      const img = document.getElementById('rmseImg');
+      img.src   = 'data:image/png;base64,' + r.plot_rmse;
+      img.style.display = 'block';
+    }
+
+    // Report markdown completo
+    if (r.report_md) {
+      const sec = document.getElementById('reportSection');
+      const body = document.getElementById('reportBody');
+      if (sec && body) {
+        sec.style.display = 'block';
+        body.textContent = r.report_md;
+      }
+    } else if (r.model?.stats || r.model?.wdi_calibration) {
+      // Fallback: costruisci riepilogo dal model
+      const sec = document.getElementById('reportSection');
+      const body = document.getElementById('reportBody');
+      if (sec && body) {
+        sec.style.display = 'block';
+        const wdi = r.model?.wdi_calibration || {};
+        const pac = r.model?.pacing || {};
+        const st  = r.model?.stats  || {};
+        let txt = '';
+        txt += `Calibrazione del: ${r.model?.timestamp ? new Date(r.model.timestamp).toLocaleString('it-IT') : '—'}\n\n`;
+        txt += `Dataset: ${st.n_races_total ?? '—'} gare totali, ${st.n_races_gpx ?? '—'} GPX reali\n\n`;
+        if (wdi.rmse_after) {
+          txt += `TechScore WDI: RMSE ${wdi.rmse_before} → ${wdi.rmse_after} (${wdi.improvement_pct > 0 ? '+' : ''}${wdi.improvement_pct?.toFixed(1)}%)\n`;
+        } else {
+          txt += `TechScore: ${wdi.note || 'dati insufficienti'}\n`;
+        }
+        if (pac.params) {
+          txt += `Modello tempi: RMSE globale ${pac.params.rmse_global}h, RMSE 10-60km ${pac.params.rmse_10_60km}h\n`;
+        }
+        body.textContent = txt;
+      }
+    }
+
+    // Grafici
+    if (r.plots && Object.keys(r.plots).length > 0) {
+      const sec  = document.getElementById('plotsSection');
+      const grid = document.getElementById('plotsGrid');
+      if (sec && grid) {
+        sec.style.display = 'block';
+        const labels = {
+          wdi_scatter:             'TechScore calibrazione',
+          pacing_scatter:          'Modello tempi',
+          insights_distribution:   'Distribuzione WDI',
+          insights_tech_vs_wdi:    'Technicality vs WDI',
+          insights_spread:         'Dispersione del campo',
+          history_rmse:            'Evoluzione RMSE',
+        };
+        grid.innerHTML = Object.entries(r.plots).map(([name, b64]) => `
+          <div>
+            <div style="font-size:0.72rem; color:var(--muted); margin-bottom:6px;">${labels[name] || name}</div>
+            <img src="data:image/png;base64,${b64}" style="width:100%; border-radius:6px;" alt="${name}"/>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Patch disponibile
+    if (r.model?.patch_js) {
+      const pc = document.getElementById('patchCard');
+      if (pc) pc.style.display = 'block';
+    }
+
+    // Attività dell'utente
+    renderActivities('activityList', r.activities);
+
+    // Salva per admin e per downloadPackage
+    STATE.model    = r.model;
+    STATE.runners  = r.authorized_runners || [];
+    STATE._plots   = r.plots   || {};
+    STATE._report_md = r.report_md || null;
+
+  } catch (e) {
+    console.error('Dashboard error:', e);
+  }
+}
+
+function toggleReport() {
+  const body = document.getElementById('reportBody');
+  const icon = document.getElementById('reportToggleIcon');
+  if (!body) return;
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  if (icon) icon.textContent = open ? '▲' : '▼';
+}
+
+function renderActivities(containerId, activities) {
+  const el = document.getElementById(containerId);
+  if (!activities || activities.length === 0) {
+    el.innerHTML = '<div style="color:var(--muted); font-size:0.85rem;">Nessuna attività ancora.</div>';
+    return;
+  }
+  el.innerHTML = activities.map(a => `
+    <div class="activity-item">
+      <div>
+        <div class="activity-name">${esc(a.name)}</div>
+        <div class="activity-meta">
+          ${a.km?.toFixed(1) ?? '—'} km · ${(a.dplus ?? '—').toLocaleString()} m D+ ·
+          tech ${a.technicality}/10 ·
+          ${a.alias} ·
+          ${new Date(a.timestamp).toLocaleDateString('it-IT')}
+        </div>
+      </div>
+      <span class="status-badge ${a.status}">${a.status}</span>
+    </div>
+  `).join('');
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── Admin ──────────────────────────────────────────────────────────────── */
+async function loadAdmin() {
+  if (!STATE.isAdmin) return;
+
+  // Pipeline status
+  try {
+    const r = await api(`activities?alias=${encodeURIComponent(STATE.alias)}`);
+    if (!r.ok) return;
+
+    const s = r.stats || {};
+    const resetBtn = document.getElementById('resetPipelineBtn');
+    if (s.pipeline_running) {
+      const elapsed = s.pipeline_started_at ? Date.now() - new Date(s.pipeline_started_at).getTime() : 0;
+      const elapsedMin = Math.round(elapsed / 60000);
+      /* esc() sanitizza il campo pipeline_started_by che viene da Redis
+         (inserito dall'admin al momento dell'avvio — self-XSS mitigato) */
+      document.getElementById('pipelineStatus').innerHTML =
+        `<span class="spinner"></span> Pipeline in corso — avviata da <b>${esc(s.pipeline_started_by || '')}</b> il ${new Date(s.pipeline_started_at).toLocaleString('it-IT')} (${elapsedMin} min fa)`;
+      document.getElementById('runBtn').disabled = true;
+      if (resetBtn) resetBtn.style.display = elapsed > 5 * 60 * 1000 ? 'block' : 'none';
+    } else {
+      document.getElementById('pipelineStatus').textContent = '';
+      document.getElementById('runBtn').disabled = false;
+      if (resetBtn) resetBtn.style.display = 'none';
+    }
+
+    // Tutte le attività
+    renderActivities('allActivitiesList', r.activities);
+
+    // Runner autorizzati
+    STATE.runners = r.authorized_runners || [];
+    renderRunners();
+
+    // Patch disponibile (pannello admin)
+    if (STATE.model?.patch_js) {
+      document.getElementById('patchCardAdmin').style.display = 'block';
+    }
+
+  } catch (e) { console.error('Admin load error:', e); }
+}
+
+async function resetPipelineFlag() {
+  try {
+    const r = await api('run', { method: 'POST', body: { alias: STATE.alias, force_reset: true } });
+    showMsg('runMsg', '✓ Flag resettato', 'success');
+    setTimeout(() => loadAdmin(), 1000);
+  } catch(e) {
+    // Usa patch endpoint per resettare direttamente
+    try {
+      await api('patch', { method: 'POST', body: { _reset_pipeline: true } });
+      showMsg('runMsg', '✓ Flag resettato via patch', 'success');
+      setTimeout(() => loadAdmin(), 1000);
+    } catch(e2) {
+      showMsg('runMsg', '❌ ' + e2.message, 'error');
+    }
+  }
+}
+
+async function runPipeline() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Avvio...';
+
+  try {
+    const r = await api('run', { method: 'POST', body: { alias: STATE.alias } });
+    if (!r.ok) throw new Error(r.error || r.message);
+    showMsg('runMsg', '✓ Pipeline avviata su GitHub Actions. Attendi 3-5 minuti.', 'success');
+    btn.innerHTML = '✓ In corso';
+    document.getElementById('pipelineStatus').innerHTML =
+      `<span class="spinner"></span> Pipeline avviata — controlla GitHub Actions per i log`;
+  } catch (e) {
+    showMsg('runMsg', '❌ ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Avvia calibrazione';
+  }
+}
+
+function renderRunners() {
+  const el = document.getElementById('runnerList');
+  if (!STATE.runners.length) {
+    el.innerHTML = '<span style="color:var(--muted); font-size:0.82rem;">Nessun runner autorizzato oltre all\'admin.</span>';
+    return;
+  }
+  el.innerHTML = STATE.runners.map(r => `
+    <div class="runner-chip">
+      ${esc(r)}
+      <button onclick="removeRunner('${esc(r)}')" title="Rimuovi">×</button>
+    </div>
+  `).join('');
+}
+
+async function addRunner() {
+  const val = document.getElementById('newRunnerInput').value.trim().toLowerCase();
+  if (!val) return;
+  if (STATE.runners.includes(val)) return showMsg('runnerMsg', 'Alias già presente', 'error');
+
+  const newList = [...STATE.runners, val];
+  await saveRunners(newList);
+  document.getElementById('newRunnerInput').value = '';
+}
+
+async function removeRunner(alias) {
+  const newList = STATE.runners.filter(r => r !== alias);
+  await saveRunners(newList);
+}
+
+async function saveRunners(list) {
+  try {
+    // Aggiorna tramite patch endpoint (riusa il canale admin)
+    const r = await api('patch', { method: 'POST', body: { authorized_runners: list } });
+    if (!r.ok) throw new Error(r.error);
+    STATE.runners = list;
+    renderRunners();
+    showMsg('runnerMsg', '✓ Lista aggiornata', 'success');
+    setTimeout(() => hideMsg('runnerMsg'), 2000);
+  } catch (e) {
+    showMsg('runnerMsg', '❌ ' + e.message, 'error');
+  }
+}
+
+function downloadPatch() {
+  if (!STATE.model?.patch_js) return;
+  const blob = new Blob([STATE.model.patch_js], { type: 'text/javascript' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = '4_wiztrail_patch.js';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function downloadPackage() {
+  if (!STATE.model) return;
+
+  const prog = document.getElementById('zipProgress');
+  if (prog) { prog.style.display = 'block'; prog.textContent = 'Creazione pacchetto in corso...'; }
+
+  try {
+    const zip  = new JSZip();
+    const date = STATE.model.timestamp
+      ? new Date(STATE.model.timestamp).toISOString().slice(0,10).replace(/-/g,'')
+      : new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const folder = zip.folder(`wiztrail-model-${date}`);
+
+    // Patch JS
+    if (STATE.model.patch_js) {
+      folder.file('4_wiztrail_patch.js', STATE.model.patch_js);
+    }
+
+    // Report markdown
+    if (STATE._report_md) {
+      folder.file('3_insights_report.md', STATE._report_md);
+    }
+
+    // Grafici PNG
+    const plotLabels = {
+      history_rmse:           'history_rmse.png',
+      wdi_scatter:             'wdi_scatter.png',
+      pacing_scatter:          'pacing_scatter.png',
+      insights_distribution:   'insights_distribution.png',
+      insights_tech_vs_wdi:    'insights_tech_vs_wdi.png',
+      insights_spread:         'insights_spread.png',
+    };
+    const plotsFolder = folder.folder('plots');
+    for (const [key, filename] of Object.entries(plotLabels)) {
+      const b64 = STATE._plots?.[key];
+      if (b64) {
+        plotsFolder.file(filename, b64, { base64: true });
+      }
+    }
+
+    // JSON calibrazione
+    if (STATE.model.wdi_calibration) {
+      folder.file('1_wdi_calibration.json',
+        JSON.stringify(STATE.model.wdi_calibration, null, 2));
+    }
+    if (STATE.model.pacing) {
+      folder.file('2_pacing_coefficients.json',
+        JSON.stringify(STATE.model.pacing, null, 2));
+    }
+
+    if (prog) prog.textContent = 'Compressione...';
+
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = `wiztrail-model-${date}.zip`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    if (prog) { prog.textContent = '✓ Pacchetto scaricato'; setTimeout(() => { prog.style.display='none'; }, 3000); }
+
+  } catch (e) {
+    if (prog) prog.textContent = '❌ Errore: ' + e.message;
+  }
+}
+
+/* ── Init ───────────────────────────────────────────────────────────────── */
+setupGpxDrop();
+checkAccess();
+</script>
+<script>window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>
