@@ -70,7 +70,18 @@
   </p>
   <label>Carica GPX</label>
   <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
-  <button class="btn" id="btnUserCompute" style="margin-top:8px;">Analizza →</button>
+  <div class="gpx-alt-row" style="margin-top:8px;">
+    <button class="btn" id="btnUserCompute">Analizza →</button>
+    <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
+    <button type="button" class="gpx-alt-link" id="rkLinkBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      link
+    </button>
+  </div>
+  <div id="rkLinkRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
+    <input id="rkLinkUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
+    <button id="rkLinkGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
+  </div>
   <div id="userResult" style="margin-top:16px;"></div>
 </div>
 
@@ -420,6 +431,83 @@ userResult.innerHTML = `
   </div>
 </div>`;
 });
+
+/* ── Import da link ───────────────────────────────────────────── */
+(function() {
+  const btn   = document.getElementById('rkLinkBtn');
+  const row   = document.getElementById('rkLinkRow');
+  const input = document.getElementById('rkLinkUrl');
+  const go    = document.getElementById('rkLinkGo');
+  const result = document.getElementById('userResult');
+  if (!btn || !row || !input || !go) return;
+
+  btn.addEventListener('click', () => {
+    const open = row.style.display === 'flex';
+    row.style.display = open ? 'none' : 'flex';
+    if (!open) input.focus();
+  });
+
+  async function importFromUrl() {
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    go.disabled = true;
+    if (result) result.innerHTML = '<span style="font-size:0.85rem;opacity:0.6;">Caricamento…</span>';
+
+    try {
+      const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Errore nel caricamento');
+      }
+      const text = await res.text();
+      const xml  = new DOMParser().parseFromString(text, 'application/xml');
+      const pts  = GPXParser.parseTrack(xml);
+      if (!pts.length) throw new Error('Nessuna traccia trovata nel file');
+
+      const metrics    = GPXParser.compute(pts);
+      const rs         = WizTrail.computeFromGpx(pts, metrics);
+      const userNorm   = WizTrail.normalizeWDI(rs.WDI, metrics.km);
+      const discResult = (typeof DisciplineClassifier !== 'undefined')
+        ? DisciplineClassifier.classify({ distance_km: metrics.km, dplus: metrics.gain, max_altitude: 0, wdi: rs.WDI })
+        : null;
+      const discBadge  = discResult ? DisciplineClassifier.renderBadge(discResult) : '—';
+
+      result.innerHTML = `
+      <div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:8px;">
+        <div class="kpi" style="flex:1; min-width:130px;">
+          <h3>WDI ${userNorm.category}</h3>
+          <div class="val" style="font-size:2.2rem; color:${rs.color}; font-weight:900;">
+            ${userNorm.isLegendPlus ? '10+' : userNorm.norm.toFixed(1)}
+          </div>
+          <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">
+            grezzo ${rs.WDI.toFixed(1)} · ${wdiLabel(rs.class, userNorm.isLegendPlus)}
+          </div>
+        </div>
+        <div class="kpi" style="flex:1; min-width:130px;">
+          <h3>TechScore</h3>
+          <div class="val" style="font-size:2.2rem; color:${rs.techColor}; font-weight:900;">${(rs.TechScore / 10).toFixed(1)}</div>
+          <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">${rs.techClass}</div>
+        </div>
+        <div class="kpi" style="flex:1; min-width:130px;">
+          <h3>Disciplina</h3>
+          <div style="margin-top:10px;">${discBadge}</div>
+          <div style="font-size:0.74rem; color:var(--muted); margin-top:8px;">${metrics.km.toFixed(1)} km · ${Math.round(metrics.gain)} m D+</div>
+        </div>
+      </div>`;
+
+      row.style.display = 'none';
+      input.value = '';
+    } catch (e) {
+      if (result) result.innerHTML = '<span style="color:var(--error,#f44);font-size:0.85rem;">✗ ' + e.message + '</span>';
+    } finally {
+      go.disabled = false;
+    }
+  }
+
+  go.addEventListener('click', importFromUrl);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') importFromUrl(); });
+})();
 </script>
 <script>
 // Hero image loader

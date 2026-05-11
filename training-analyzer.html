@@ -110,13 +110,22 @@
          style="display:none;"/>
 </label>
 
-<!-- Alternativa Strava — stile uniforme con index.html -->
+<!-- Alternativa Strava / link — stile uniforme con index.html -->
 <div class="gpx-alt-row">
   <span class="gpx-alt-sep">oppure</span>
   <button type="button" class="gpx-alt-link" onclick="openStravaModal()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
     Importa da Strava
   </button>
+  <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
+  <button type="button" class="gpx-alt-link" id="taLinkBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    link
+  </button>
+</div>
+<div id="taLinkRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
+  <input id="taLinkUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
+  <button id="taLinkGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
 </div>
 <div style="margin-top:12px;">
 <label>Tempo reale (modificabile)</label>
@@ -725,6 +734,58 @@ const res = await fetch(`/api/strava/activities?token=${token}`);
 if (sessionStorage.getItem("strava_token") && source !== "strava") {
   // opzionale: non auto-aprire sempre
 }
+
+/* ── Import da link ───────────────────────────────────────────── */
+(function() {
+  const btn   = document.getElementById('taLinkBtn');
+  const row   = document.getElementById('taLinkRow');
+  const input = document.getElementById('taLinkUrl');
+  const go    = document.getElementById('taLinkGo');
+  if (!btn || !row || !input || !go) return;
+
+  btn.addEventListener('click', () => {
+    const open = row.style.display === 'flex';
+    row.style.display = open ? 'none' : 'flex';
+    if (!open) input.focus();
+  });
+
+  async function importFromUrl() {
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    const dz      = document.getElementById('gpxDropzone');
+    const mainTxt = dz?.querySelector('.gpx-dropzone-main');
+    if (mainTxt) mainTxt.textContent = 'Caricamento…';
+    go.disabled = true;
+
+    try {
+      const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Errore nel caricamento');
+      }
+      const text = await res.text();
+      const g    = parseGPX(text);
+      if (!g.pts.length) throw new Error('Nessuna traccia trovata nel file');
+
+      const mt = computeMetrics(g.pts);
+      renderAnalysis(g.pts, mt, '');
+
+      if (dz) dz.classList.add('loaded');
+      if (mainTxt) mainTxt.textContent = '✓ Traccia caricata da link';
+      row.style.display = 'none';
+      input.value = '';
+    } catch (e) {
+      if (mainTxt) mainTxt.textContent = '✗ ' + e.message;
+      if (dz) dz.classList.remove('loaded');
+    } finally {
+      go.disabled = false;
+    }
+  }
+
+  go.addEventListener('click', importFromUrl);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') importFromUrl(); });
+})();
 </script>
 <script>
 /* Listener 'change' per selezione file manuale (click):
