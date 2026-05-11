@@ -255,12 +255,14 @@ function renderTable() {
       const wdiLegPlus  = normResult.isLegendPlus;
       const wdiCat      = normResult.category;
 
-      /* Display WDI: valore grezzo assoluto — comparabile tra tutte le gare */
-      const wdiDisplay = `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiLegPlus ? '10+' : r.wdi.toFixed(1)}</span>`;
+      /* Display WDI: valore grezzo assoluto — sempre il numero reale, nessun cap */
+      const wdiDisplay = `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${r.wdi.toFixed(1)}</span>`;
 
       /* Display Score: WDI normalizzato 0–10 nella sua categoria di distanza */
       const catChip = `<span style="display:inline-block;margin-top:3px;padding:1px 7px;border-radius:8px;font-size:0.62rem;font-weight:700;letter-spacing:0.04em;color:var(--muted);background:color-mix(in oklab,var(--border) 55%,transparent);">${wdiCat}</span>`;
-      const scoreDisplay = `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiLegPlus ? '10+' : wdiNorm.toFixed(1)}</span><span style="color:var(--muted); font-size:0.72rem;">/10</span><br>${catChip}`;
+      const scoreDisplay = wdiLegPlus
+        ? `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">∞</span><br>${catChip}`
+        : `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiNorm.toFixed(1)}</span><span style="color:var(--muted); font-size:0.72rem;">/10</span><br>${catChip}`;
 
       /* TechScore: calcolo interno 0–100, display 0–10 */
       const techDisplay = (r.techScore != null)
