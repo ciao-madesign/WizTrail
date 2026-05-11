@@ -130,6 +130,67 @@
   }
 
   /* ------------------------------------------------------------------
+     AUTO-LOAD DA STRAVA (index.html?source=strava&id=...)
+     Attivato quando l'utente torna da import_strava.html
+     ------------------------------------------------------------------ */
+  (async function loadFromStravaIfNeeded() {
+    const sp = new URLSearchParams(location.search);
+    if (sp.get('source') !== 'strava') return;
+    const activityId = sp.get('id');
+    if (!activityId || !/^\d{1,20}$/.test(activityId)) return;
+
+    const token = sessionStorage.getItem('strava_token');
+    if (!token) return;
+
+    // Feedback visivo
+    const dz = document.getElementById('gpxDropzone');
+    const mainTxt = dz?.querySelector('.gpx-dropzone-main');
+    if (mainTxt) mainTxt.textContent = 'Caricamento da Strava…';
+
+    let data;
+    try {
+      const res = await fetch('/api/strava/activity?mode=analyze&id=' + encodeURIComponent(activityId), {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (res.status === 401) {
+        sessionStorage.removeItem('strava_token');
+        sessionStorage.removeItem('strava_athlete_id');
+        if (mainTxt) mainTxt.textContent = 'Sessione Strava scaduta — riconnettiti';
+        return;
+      }
+      if (!res.ok) {
+        if (mainTxt) mainTxt.textContent = 'Errore nel caricamento attività Strava';
+        return;
+      }
+      data = await res.json();
+    } catch {
+      if (mainTxt) mainTxt.textContent = 'Errore di rete — riprova';
+      return;
+    }
+
+    if (!data.pts || !data.pts.length) {
+      if (mainTxt) mainTxt.textContent = 'Attività senza traccia GPS';
+      return;
+    }
+
+    window.gpxPts  = data.pts;
+    window.metrics = data.metrics;
+    WizUI.updateGpxInfo(window.gpxPts, window.metrics);
+
+    const es = document.getElementById('elevSection');
+    if (es) es.style.display = 'block';
+    WizMap.init();
+    WizMap.drawTrack();
+    requestAnimationFrame(() => WizMap.drawProfile());
+
+    if (dz) dz.classList.add('loaded');
+    if (mainTxt) mainTxt.textContent = '✓ Attività Strava caricata';
+
+    // Rimuove i params dall'URL senza ricaricare la pagina
+    history.replaceState(null, '', location.pathname);
+  })();
+
+  /* ------------------------------------------------------------------
      PULSANTE "Centra sulla traccia"
      ------------------------------------------------------------------ */
   document.getElementById('btnFit')?.addEventListener('click', () => WizMap.fitTrack());
