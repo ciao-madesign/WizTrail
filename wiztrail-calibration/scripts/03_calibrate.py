@@ -31,7 +31,7 @@ DATA_DIR=Path("data"); OUTPUT_DIR=Path("output"); PLOTS_DIR=OUTPUT_DIR/"plots"
 GPX_DIR =Path("gpx")
 OUTPUT_DIR.mkdir(exist_ok=True); PLOTS_DIR.mkdir(exist_ok=True)
 
-kT=0.35; REF42=math.pow(42,0.55)
+kT=0.50; REF42=math.pow(42,0.48)  # sincronizzato con wiztrail-engine.js v5.1
 
 def clamp(x,a,b): return max(a,min(b,x))
 def enrich_df(df):
@@ -168,7 +168,9 @@ def main():
     df_gpx=df[df["calc_source"]=="gpx"].dropna(
         subset=["gpx_frip","gpx_slope_var","gpx_roughness","gpx_gain","gpx_km","technicality"])
     n=len(df_gpx); print(f"\n  [A] TechScore — {n} GPX")
-    wdi_calib={}; xo=[0.60,0.55,0.35,150.,0.45,0.35,0.20,0.30,0.70]
+    # x0 = parametri calibrati v1.0 da wiztrail-engine.js (punto di partenza ottimale)
+    # ordine: [nf_r, ns_r, nr_r, nv_r, w_frip, w_svar, w_rough, w_vert, shape_w]
+    wdi_calib={}; xo=[0.924,0.180,0.500,74.1,0.244,0.421,0.208,0.127,0.873]
     if n>=5:
         target=df_gpx["technicality"].values*10.
         bounds=[(0.20,1.50),(0.10,1.50),(0.05,1.50),(50,300),
@@ -353,4 +355,3 @@ def _plot_timing(df_gpx,gpx_cache,timing_calib):
 
 if __name__=="__main__":
     main()
-# versione aggiornata con modello per tipo gara — vedi run successivo
