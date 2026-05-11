@@ -133,6 +133,7 @@
 <th data-sort="techScore">Tech ↑↓</th>
 <th>Classe</th>
 <th>Disciplina</th>
+<th title="WDI normalizzato 0–10 per categoria di distanza (Short ≤25km · Medium 26–50km · Long 51–95km · Ultra >95km)">Score / cat.</th>
 </tr>
 </thead>
 <tbody id="raceBody"></tbody>
@@ -254,12 +255,12 @@ function renderTable() {
       const wdiLegPlus  = normResult.isLegendPlus;
       const wdiCat      = normResult.category;
 
-      /* Display WDI: valore norm grande + grezzo piccolo affiancato */
-      const wdiDisplay = wdiLegPlus
-        ? `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">10+</span>
-           <span style="color:var(--muted); font-size:0.7rem; margin-left:4px;">${r.wdi.toFixed(0)} grezzo</span>`
-        : `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiNorm.toFixed(1)}</span>
-           <span style="color:var(--muted); font-size:0.7rem; margin-left:4px;">${r.wdi.toFixed(0)} grezzo</span>`;
+      /* Display WDI: valore grezzo assoluto — comparabile tra tutte le gare */
+      const wdiDisplay = `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiLegPlus ? '10+' : r.wdi.toFixed(1)}</span>`;
+
+      /* Display Score: WDI normalizzato 0–10 nella sua categoria di distanza */
+      const catChip = `<span style="display:inline-block;margin-top:3px;padding:1px 7px;border-radius:8px;font-size:0.62rem;font-weight:700;letter-spacing:0.04em;color:var(--muted);background:color-mix(in oklab,var(--border) 55%,transparent);">${wdiCat}</span>`;
+      const scoreDisplay = `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiLegPlus ? '10+' : wdiNorm.toFixed(1)}</span><span style="color:var(--muted); font-size:0.72rem;">/10</span><br>${catChip}`;
 
       /* TechScore: calcolo interno 0–100, display 0–10 */
       const techDisplay = (r.techScore != null)
@@ -281,10 +282,11 @@ function renderTable() {
         <td style="font-size:1.1rem; letter-spacing:0.05em;">${country}</td>
         <td>${r.distance.toFixed(1)}</td>
         <td>${Math.round(r.dplus).toLocaleString('it-IT')}</td>
-        <td title="WDI ${wdiCat} — grezzo: ${r.wdi.toFixed(1)}">${wdiDisplay}</td>
+        <td title="WDI grezzo — valore assoluto comparabile tra tutte le gare">${wdiDisplay}</td>
         <td>${techDisplay}</td>
         <td>${classPill}</td>
         <td>${disciplineBadge}</td>
+        <td style="text-align:center; white-space:nowrap;">${scoreDisplay}</td>
       `;
 
       raceBody.appendChild(tr);
