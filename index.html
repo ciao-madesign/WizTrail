@@ -116,13 +116,22 @@
           <input id="gpxfile" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml" style="display:none;"/>
         </label>
 
-        <!-- Alternativa Strava -->
+        <!-- Alternativa Strava / link -->
         <div class="gpx-alt-row">
           <span class="gpx-alt-sep">oppure</span>
           <a href="import_strava.html?return=index" class="gpx-alt-link">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
             Importa da Strava
           </a>
+          <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
+          <button type="button" class="gpx-alt-link" id="linkImportBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            link
+          </button>
+        </div>
+        <div id="linkImportRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
+          <input id="linkImportUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
+          <button id="linkImportGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
         </div>
 
         <!-- Info dopo caricamento -->
