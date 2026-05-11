@@ -1,1 +1,256 @@
-placeholder_wdi
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WizTrail — Cos'è il WDI (Difficulty Index)</title>
+<meta name="description" content="Il WDI misura la difficoltà oggettiva di un percorso trail analizzando GPX, dislivello, tecnicità e variabilità delle pendenze.">
+<meta property="og:title" content="WizTrail — Cos'è il WDI (Difficulty Index)" />
+<meta property="og:description" content="Il WDI misura la difficoltà oggettiva dei percorsi trail: formula, parametri e metodologia." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WizTrail — Cos'è il WDI">
+<meta name="twitter:description" content="Il WDI misura la difficoltà oggettiva dei percorsi trail. Scopri la formula.">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#002b2b">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="wiztrail.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Article","headline":"WDI — WizTrail Difficulty Index (White Paper)","description":"Il WDI misura la difficoltà oggettiva di un percorso trail analizzando GPX, dislivello, tecnicità e variabilità delle pendenze.","url":"https://wiz-trail.vercel.app/wdi.html","inLanguage":"it","dateModified":"2026-05-05"},{"@type":"DefinedTerm","name":"WDI","alternateName":"WizTrail Difficulty Index","description":"Indice proprietario che misura la difficoltà oggettiva di un percorso Trail/Ultra analizzando parametri reali estratti dal file GPX.","inDefinedTermSet":{"@type":"DefinedTermSet","name":"WizTrail Trail Metrics"}}]}
+</script>
+</head>
+<body data-theme="dark">
+<header class="app-header">
+  <a href="landing.html" class="app-brand-link">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </a>
+  <nav class="app-nav">
+    <a href="index.html" class="">Calcolatore</a>
+      <a href="training-analyzer.html" class="">Training</a>
+      <a href="ranking.html" class="">Ranking</a>
+      <a href="about.html" class="nav-active">Il Metodo</a>
+  </nav>
+</header><div class="wrap">
+<h1>
+<span>WDI — WizTrail Difficulty Index (White Paper)</span>
+<span class="theme-ctrl">
+<label class="mini">Tema</label>
+<select id="themeSel">
+<option value="dark" selected>Scuro</option>
+<option value="light">Chiaro</option>
+</select>
+</span>
+</h1>
+<div class="card">
+  <details open>
+    <summary><b>Dualità WDI: grezzo e normalizzato</b></summary>
+    <div style="margin-top:12px; line-height:1.7;">
+      <p>WizTrail usa <b>due rappresentazioni del WDI</b> con scopi diversi:</p>
+      <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.88rem;">
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left; padding:8px; color:var(--muted);">Tipo</th>
+          <th style="text-align:left; padding:8px; color:var(--muted);">Scala</th>
+          <th style="text-align:left; padding:8px; color:var(--muted);">Usato per</th>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)33;">
+          <td style="padding:8px;"><b>WDI grezzo</b></td>
+          <td style="padding:8px;">0 → ∞ (illimitato)</td>
+          <td style="padding:8px;">Calcoli interni, confronto assoluto tra categorie, hub calibrazione</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;"><b>WDI normalizzato</b></td>
+          <td style="padding:8px;">0 → 10 per categoria</td>
+          <td style="padding:8px;">Display all'utente — stessa dignità a tutte le distanze</td>
+        </tr>
+      </table>
+      <p>La normalizzazione è <b>per categoria di distanza</b>:</p>
+      <ul>
+        <li><b>Short</b> (≤25km): grezzo 5–60 → 0–10</li>
+        <li><b>Medium</b> (26–50km): grezzo 15–110 → 0–10</li>
+        <li><b>Long</b> (51–95km): grezzo 30–165 → 0–10</li>
+        <li><b>Ultra</b> (&gt;95km): grezzo 80–280 → 0–10 · oltre 280 → <b>10+ Legend ∞</b></li>
+      </ul>
+      <p>Il WDI grezzo rimane sempre visibile accanto al valore normalizzato per permettere il confronto assoluto tra gare di distanza diversa.</p>
+    </div>
+  </details>
+</div>
+
+<div class="back-btn-container">
+<a href="index.html" class="back-btn">← Torna alla pagina principale</a>
+</div>
+
+<!-- =============================== INTRO =============================== -->
+<div class="card">
+<h2>White Paper – Extended</h2>
+<p>
+Il <b>WDI – WizTrail Difficulty Index</b> è un indice proprietario che misura la
+<b>difficoltà oggettiva</b> di un percorso Trail/Ultra analizzando parametri reali
+estratti direttamente dal GPX. Non considera elementi soggettivi (atleta,
+tempo finale, condizioni meteo), ma esclusivamente la struttura fisica del
+percorso.
+</p>
+</div>
+
+<details class="card" open>
+  <summary><b>1) Formula del WDI</b></summary>
+  <div style="margin-top:10px">
+
+    <p>
+      Il WDI utilizza un modello a <b>4 componenti indipendenti</b>,
+      progettate per essere stabili, resilienti al rumore GPS e interpretabili.
+      La formula generale è:
+    </p>
+
+<pre>
+WDI = (Dist_eff + Dplus_eff + SlopePct) × TecFactor
+</pre>
+
+    <p>Le quattro componenti sono:</p>
+
+    <ul>
+      <li><b>Dist_eff</b> — distanza attenuata in base alla geometria del percorso</li>
+      <li><b>Dplus_eff</b> — dislivello positivo smorzato per evitare esplosioni nelle ultra</li>
+      <li><b>SlopePct</b> — pendenza media assoluta del percorso</li>
+      <li><b>TecFactor</b> — coefficiente tecnico (1.01 → 1.10)</li>
+    </ul>
+
+    <p>
+      Questo approccio rende il WDI
+      <b>più stabile, scalabile e universalmente leggibile</b>.
+    </p>
+
+  </div>
+</details>
+<!-- =============================== FATTORI =============================== -->
+<details class="card">
+  <summary><b>2) Le Componenti del WDI</b></summary>
+  <div style="margin-top:10px">
+
+    <h3>Distanza_eff</h3>
+    <p>
+      La distanza effettiva utilizza la funzione:
+    </p>
+<pre>
+Dist_eff = (km − 1.5·√km) + (50 / √km)
+</pre>
+    <p>
+      Ciò riduce l'impatto delle gare lunghissime, mantenendo proporzioni realistiche.
+    </p>
+
+    <h3>Dplus_eff</h3>
+    <p>
+      Il dislivello positivo è convertito in punti tramite una funzione di smorzamento:
+    </p>
+<pre>
+Dplus_eff = (D+_km × 10) / (1 + √D+_km / 8)
+</pre>
+    <p>
+      Questo mantiene forte il peso del dislivello nelle gare corte/medie,
+      e attenua l'esplosione nelle ultra.
+    </p>
+
+    <h3>Pendenza media (SlopePct)</h3>
+    <p>
+      È la pendenza media assoluta del percorso:
+    </p>
+<pre>
+SlopePct = | D+ / distanza | × 100
+</pre>
+
+    <h3>TecFactor (1.01 → 1.10)</h3>
+    <p>
+      Il fattore tecnico ingloba in modo robusto:
+    </p>
+    <ul>
+      <li>max pendenza salita</li>
+      <li>max pendenza discesa</li>
+      <li>variabilità del profilo (molto attenuata)</li>
+      <li>roughness (molto attenuata)</li>
+    </ul>
+
+    <p>
+      Il TecFactor finale varia tra <b>1.01 e 1.10</b>, evitando sovrastime.
+    </p>
+
+  </div>
+</details>
+
+<!-- =============================== SOGLIE 2026 =============================== -->
+<details class="card" open>
+  <summary><b>4) Soglie Ufficiali WDI</b></summary>
+  <div style="margin-top:10px">
+
+    <p>
+      Le soglie sono calibrate su un dataset reale di oltre 150 gare internazionali
+      (vertical, trail, skyrace, ultra, endurance), con normalizzazione interna WDI.
+    </p>
+
+<pre>
+Soglie WDI grezzo v3 (calibrate 05/05/2026 su 95 gare, kT=0.50, exp=0.48):
+
+  WDI grezzo &lt; 22     → Sport
+  22 ≤ WDI &lt; 40       → Pro
+  40 ≤ WDI &lt; 70       → Advanced
+  70 ≤ WDI &lt; 120      → Extreme
+  120 ≤ WDI &lt; 200     → Elite
+  WDI ≥ 200            → Legend
+
+Nota: il WDI grezzo è illimitato — il TOR330 vale 546.
+</pre>
+
+    <p>
+      Le categorie sono studiate per coprire l'intera gamma dei percorsi
+      — dalle gare corribili alle ultra più devastanti (es. Tor des Géants).
+    </p>
+
+  </div>
+</details>
+
+<!-- =============================== ESEMPI =============================== -->
+<details class="card">
+  <summary><b>5) Esempi Reali (calibrati WDI )</b></summary>
+  <div style="margin-top:10px">
+
+   
+    <h3>MEHT (21 km, D+ ~900)</h3>
+    <p>
+      WDI grezzo ≈ 44 → <b>Advanced</b> (WDI normalizzato Short: ~7.2/10)
+    </p>
+
+    <h3>VUT35 (34 km, 2080 m D+)</h3>
+    <p>
+      WDI grezzo ≈ 71 → <b>Extreme</b> (WDI normalizzato Medium: ~5.9/10)
+    </p>
+
+    <h3>Lavaredo 80K (80 km, 4900 m D+)</h3>
+    <p>
+      WDI grezzo ≈ 128 → <b>Elite</b> (WDI normalizzato Long: ~7.1/10)
+    </p>
+
+    <h3>Valmalenco UltraDistance Trail 90 (89 km, 6800 m D+)</h3>
+    <p>
+      WDI grezzo ≈ 153 → <b>Elite</b> (WDI normalizzato Ultra: ~3.7/10)
+    </p>
+
+    <h3>Tor des Géants (330 km, 24 000 m D+)</h3>
+    <p>
+      WDI grezzo ≈ 546 → <b>Legend ∞</b> (WDI normalizzato Ultra: 10+/10)
+    </p>
+
+  </div>
+</details>
+
+<div class="footer">WizTrail © 2026 &nbsp;·&nbsp; <a href="hub.html" style="color:var(--muted);">Hub Calibrazione</a></div>
+</div>
+<script>
+document.getElementById("themeSel").addEventListener("change", e => {
+ document.body.setAttribute("data-theme", e.target.value);
+});
+</script>
+<script>window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>
