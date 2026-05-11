@@ -323,19 +323,6 @@
       margin-bottom: 4px;
     }
     .lock-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 24px; }
-    #lockKeyForm { display: none; margin-top: 16px; }
-    #lockKeyForm input {
-      width: 100%; box-sizing: border-box;
-      padding: 8px 10px; border-radius: var(--radius);
-      border: 1px solid var(--border); background: var(--bg);
-      color: var(--text); font-size: 0.82rem; margin-bottom: 8px;
-    }
-    #lockKeyForm input:focus { outline: none; border-color: var(--accent); }
-    #lockKeyForm button {
-      width: 100%; padding: 9px; border-radius: var(--radius);
-      background: var(--accent); color: #111; font-weight: 700;
-      border: none; cursor: pointer; font-size: 0.9rem;
-    }
   </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-rRoXxn2yHlrZYB587Ki9RO1tONhLdM6XfORg7Rw4uwH4/Fh/5nP7IUX91bkaKUgs" crossorigin="anonymous"></script>
 </head>
@@ -350,10 +337,6 @@
       Verifica accesso in corso...
     </div>
     <div id="lockSpinner" class="spinner"></div>
-    <form id="lockKeyForm" onsubmit="submitKey(event)">
-      <input id="lockKeyInput" type="password" placeholder="Incolla il tuo token di accesso" autocomplete="off" />
-      <button type="submit">Accedi</button>
-    </form>
   </div>
 </div>
 
@@ -664,30 +647,10 @@ function hideMsg(id) {
 }
 
 /* ── Verifica accesso ───────────────────────────────────────────────────── */
-function _showLockForm(msg) {
-  document.getElementById('lockMsg').textContent = msg;
-  document.getElementById('lockSpinner').style.display = 'none';
-  const form = document.getElementById('lockKeyForm');
-  form.style.display = 'block';
-  const urlKey = new URLSearchParams(location.search).get('key');
-  if (urlKey) document.getElementById('lockKeyInput').value = urlKey;
-  document.getElementById('lockKeyInput').focus();
-}
-
-async function submitKey(e) {
-  e.preventDefault();
-  const val = document.getElementById('lockKeyInput').value.trim();
-  if (!val) return;
-  STATE.key = val;
-  document.getElementById('lockKeyForm').style.display = 'none';
-  document.getElementById('lockSpinner').style.display = '';
-  document.getElementById('lockMsg').textContent = 'Verifica accesso in corso...';
-  await checkAccess();
-}
-
 async function checkAccess() {
   if (!STATE.key) {
-    _showLockForm('Inserisci il token di accesso.');
+    document.getElementById('lockMsg').textContent = 'Token mancante nell\'URL.';
+    document.getElementById('lockSpinner').style.display = 'none';
     return;
   }
   try {
@@ -720,7 +683,8 @@ async function checkAccess() {
     loadDashboard();
 
   } catch (e) {
-    _showLockForm('Token non valido. Inserisci o correggi il token.');
+    document.getElementById('lockMsg').textContent = 'Accesso negato: ' + e.message;
+    document.getElementById('lockSpinner').style.display = 'none';
   }
 }
 
