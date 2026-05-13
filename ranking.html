@@ -412,28 +412,7 @@ const discResult = (typeof DisciplineClassifier !== 'undefined')
   : null;
 const discBadge = discResult ? DisciplineClassifier.renderBadge(discResult) : '—';
 
-userResult.innerHTML = `
-<div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:8px;">
-  <div class="kpi" style="flex:1; min-width:130px;">
-    <h3>WDI ${userNorm.category}</h3>
-    <div class="val" style="font-size:2.2rem; color:${rs.color}; font-weight:900;">
-      ${userNorm.isLegendPlus ? '10+' : userNorm.norm.toFixed(1)}
-    </div>
-    <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">
-      grezzo ${rs.WDI.toFixed(1)} · ${wdiLabel(rs.class, userNorm.isLegendPlus)}
-    </div>
-  </div>
-  <div class="kpi" style="flex:1; min-width:130px;">
-    <h3>TechScore</h3>
-    <div class="val" style="font-size:2.2rem; color:${rs.techColor}; font-weight:900;">${(rs.TechScore / 10).toFixed(1)}</div>
-    <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">${rs.techClass}</div>
-  </div>
-  <div class="kpi" style="flex:1; min-width:130px;">
-    <h3>Disciplina</h3>
-    <div style="margin-top:10px;">${discBadge}</div>
-    <div style="font-size:0.74rem; color:var(--muted); margin-top:8px;">${metrics.km.toFixed(1)} km · ${Math.round(metrics.gain)} m D+</div>
-  </div>
-</div>`;
+userResult.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
 });
 
 /* ── Import da link ───────────────────────────────────────────── */
@@ -477,28 +456,7 @@ userResult.innerHTML = `
         : null;
       const discBadge  = discResult ? DisciplineClassifier.renderBadge(discResult) : '—';
 
-      result.innerHTML = `
-      <div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:8px;">
-        <div class="kpi" style="flex:1; min-width:130px;">
-          <h3>WDI ${userNorm.category}</h3>
-          <div class="val" style="font-size:2.2rem; color:${rs.color}; font-weight:900;">
-            ${userNorm.isLegendPlus ? '10+' : userNorm.norm.toFixed(1)}
-          </div>
-          <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">
-            grezzo ${rs.WDI.toFixed(1)} · ${wdiLabel(rs.class, userNorm.isLegendPlus)}
-          </div>
-        </div>
-        <div class="kpi" style="flex:1; min-width:130px;">
-          <h3>TechScore</h3>
-          <div class="val" style="font-size:2.2rem; color:${rs.techColor}; font-weight:900;">${(rs.TechScore / 10).toFixed(1)}</div>
-          <div style="font-size:0.74rem; color:var(--muted); margin-top:4px;">${rs.techClass}</div>
-        </div>
-        <div class="kpi" style="flex:1; min-width:130px;">
-          <h3>Disciplina</h3>
-          <div style="margin-top:10px;">${discBadge}</div>
-          <div style="font-size:0.74rem; color:var(--muted); margin-top:8px;">${metrics.km.toFixed(1)} km · ${Math.round(metrics.gain)} m D+</div>
-        </div>
-      </div>`;
+      result.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
 
       row.style.display = 'none';
       input.value = '';
@@ -512,6 +470,107 @@ userResult.innerHTML = `
   go.addEventListener('click', importFromUrl);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') importFromUrl(); });
 })();
+
+/* ── Shared analysis renderer + cert CTA ──────────────────────────────── */
+let _lastAnalysis = null;
+
+function renderAnalysisHTML(rs, userNorm, discBadge, metrics) {
+  _lastAnalysis = { rs, userNorm, metrics };
+  return `
+  <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:8px;">
+    <div class="kpi" style="flex:1;min-width:130px;">
+      <h3>WDI ${userNorm.category}</h3>
+      <div class="val" style="font-size:2.2rem;color:${rs.color};font-weight:900;">
+        ${userNorm.isLegendPlus ? '10+' : userNorm.norm.toFixed(1)}
+      </div>
+      <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;">
+        grezzo ${rs.WDI.toFixed(1)} · ${wdiLabel(rs.class, userNorm.isLegendPlus)}
+      </div>
+    </div>
+    <div class="kpi" style="flex:1;min-width:130px;">
+      <h3>TechScore</h3>
+      <div class="val" style="font-size:2.2rem;color:${rs.techColor};font-weight:900;">${(rs.TechScore/10).toFixed(1)}</div>
+      <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;">${rs.techClass}</div>
+    </div>
+    <div class="kpi" style="flex:1;min-width:130px;">
+      <h3>Disciplina</h3>
+      <div style="margin-top:10px;">${discBadge}</div>
+      <div style="font-size:0.74rem;color:var(--muted);margin-top:8px;">${metrics.km.toFixed(1)} km · ${Math.round(metrics.gain)} m D+</div>
+    </div>
+  </div>
+  <div style="margin-top:18px;padding:13px 16px;border:1px solid var(--accent,#009688);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:color-mix(in oklab,var(--accent,#009688) 8%,transparent);">
+    <div>
+      <div style="font-weight:700;font-size:.87rem;">🏅 Vuoi certificare questa gara?</div>
+      <div style="font-size:.74rem;opacity:.6;margin-top:3px;">Ottieni badge ufficiale WizTrail e l'inserimento nel ranking certificato</div>
+    </div>
+    <button onclick="openCertModal()" style="white-space:nowrap;padding:8px 16px;border:none;border-radius:8px;background:var(--accent,#009688);color:#fff;font-weight:700;font-size:.81rem;cursor:pointer;">Richiedi →</button>
+  </div>`;
+}
+
+/* ── Cert request modal logic ─────────────────────────────────────────── */
+function openCertModal() {
+  const m = document.getElementById('certModalBg');
+  if (!m) return;
+  const d = document.getElementById('certModalData');
+  if (d && _lastAnalysis) {
+    const { rs, userNorm, metrics } = _lastAnalysis;
+    d.innerHTML = `<strong style="font-size:.78rem;">Dati analisi GPX</strong><br>
+      <span style="font-size:.75rem;opacity:.8;">
+        WDI ${rs.WDI.toFixed(1)} (${userNorm.category}) &nbsp;·&nbsp;
+        TechScore ${(rs.TechScore/10).toFixed(1)}/10 &nbsp;·&nbsp;
+        ${metrics.km.toFixed(1)} km &nbsp;·&nbsp; ${Math.round(metrics.gain)} m D+
+      </span>`;
+  }
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('cf-race')?.focus(), 50);
+}
+
+function closeCertModal() {
+  const m = document.getElementById('certModalBg');
+  if (m) m.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function submitCertRequest(e) {
+  e.preventDefault();
+  const btn = document.getElementById('certSubmitBtn');
+  const status = document.getElementById('certFormStatus');
+  btn.disabled = true; btn.textContent = 'Invio in corso…';
+  status.textContent = '';
+  const a = _lastAnalysis;
+  const payload = {
+    race:      document.getElementById('cf-race').value.trim(),
+    organizer: document.getElementById('cf-organizer').value.trim(),
+    email:     document.getElementById('cf-email').value.trim(),
+    edition:   document.getElementById('cf-edition').value.trim(),
+    notes:     document.getElementById('cf-notes').value.trim(),
+    km:        a?.metrics?.km ?? null,
+    dplus:     a?.metrics?.gain ? Math.round(a.metrics.gain) : null,
+    wdi:       a?.rs?.WDI ?? null,
+    tech:      a?.rs?.TechScore ? +(a.rs.TechScore/10).toFixed(2) : null,
+    wdicat:    a?.userNorm?.category ?? null,
+  };
+  try {
+    const res = await fetch('/api/cert/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error();
+    status.style.color = 'var(--accent,#009688)';
+    status.textContent = '✓ Richiesta inviata! Ti contatteremo all\'indirizzo indicato.';
+    document.getElementById('certForm').reset();
+    setTimeout(closeCertModal, 3000);
+  } catch {
+    status.style.color = '#f66';
+    status.textContent = '✗ Errore durante l\'invio. Riprova o contattaci direttamente.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Invia richiesta';
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCertModal(); });
 </script>
 <script>
 // Hero image loader
@@ -526,6 +585,45 @@ userResult.innerHTML = `
   img.src = 'img/hero-ranking.jpg';
 })();
 </script>
+<!-- ── CERT REQUEST MODAL ────────────────────────────────────────────── -->
+<div id="certModalBg"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;align-items:center;justify-content:center;padding:20px;"
+     onclick="if(event.target===this)closeCertModal()">
+  <div style="background:var(--surface,#1e1e1e);border-radius:14px;padding:28px 30px 24px;max-width:460px;width:100%;max-height:90vh;overflow-y:auto;position:relative;border:1px solid var(--border,#333);">
+    <button onclick="closeCertModal()"
+            style="position:absolute;top:12px;right:14px;background:none;border:none;color:inherit;font-size:1.3rem;cursor:pointer;opacity:.4;line-height:1;">✕</button>
+    <h3 style="margin-bottom:5px;font-size:1.05rem;">Richiesta Certificazione WizTrail</h3>
+    <p style="font-size:.76rem;opacity:.55;margin-bottom:18px;line-height:1.5;">
+      Compila il modulo. Il team WizTrail ti contatterà per avviare il processo di certificazione ufficiale.
+    </p>
+    <div id="certModalData"
+         style="padding:10px 13px;border-radius:8px;font-size:.78rem;margin-bottom:18px;background:color-mix(in oklab,var(--accent,#009688) 10%,transparent);border:1px solid color-mix(in oklab,var(--accent,#009688) 30%,transparent);">
+    </div>
+    <form id="certForm" onsubmit="submitCertRequest(event)">
+      <label style="display:block;font-size:.75rem;margin-bottom:4px;opacity:.65;">Nome gara *</label>
+      <input id="cf-race" required placeholder="es. Lavaredo Ultra Trail 2026"
+             style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border,#444);background:var(--input-bg,#111);color:inherit;font-family:inherit;font-size:.85rem;margin-bottom:13px;">
+      <label style="display:block;font-size:.75rem;margin-bottom:4px;opacity:.65;">Nome referente / organizzatore *</label>
+      <input id="cf-organizer" required placeholder="Nome Cognome"
+             style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border,#444);background:var(--input-bg,#111);color:inherit;font-family:inherit;font-size:.85rem;margin-bottom:13px;">
+      <label style="display:block;font-size:.75rem;margin-bottom:4px;opacity:.65;">Email contatto *</label>
+      <input id="cf-email" type="email" required placeholder="email@organizzatore.it"
+             style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border,#444);background:var(--input-bg,#111);color:inherit;font-family:inherit;font-size:.85rem;margin-bottom:13px;">
+      <label style="display:block;font-size:.75rem;margin-bottom:4px;opacity:.65;">Edizione</label>
+      <input id="cf-edition" placeholder="es. 2026"
+             style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border,#444);background:var(--input-bg,#111);color:inherit;font-family:inherit;font-size:.85rem;margin-bottom:13px;">
+      <label style="display:block;font-size:.75rem;margin-bottom:4px;opacity:.65;">Note</label>
+      <textarea id="cf-notes" rows="3" placeholder="Informazioni aggiuntive, link sito gara, ecc."
+                style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border,#444);background:var(--input-bg,#111);color:inherit;font-family:inherit;font-size:.85rem;resize:vertical;margin-bottom:18px;"></textarea>
+      <button type="submit" id="certSubmitBtn"
+              style="width:100%;padding:11px;border:none;border-radius:9px;background:var(--accent,#009688);color:#fff;font-weight:700;font-size:.88rem;cursor:pointer;font-family:inherit;">
+        Invia richiesta
+      </button>
+      <div id="certFormStatus" style="margin-top:10px;text-align:center;font-size:.79rem;min-height:1.2em;"></div>
+    </form>
+  </div>
+</div>
+
 <script>window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};</script>
 <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
