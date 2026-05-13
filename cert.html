@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WizTrail — Certificazione Gara</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:#f2f2f2;--wdi-color:#009688}
+
+/* ── CONTROLS ─────────────────────────────────────────────────────────── */
+#controls{
+  background:#18181f;color:#fff;padding:13px 22px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  font-size:.82rem;
+}
+#controls strong{margin-right:auto;font-size:.9rem;letter-spacing:.04em}
+#controls button{
+  padding:7px 15px;border:none;border-radius:7px;cursor:pointer;
+  font-family:inherit;font-size:.8rem;font-weight:700;
+}
+.btn-badge{background:var(--wdi-color);color:#fff}
+.btn-cert{background:#fff;color:#111}
+.file-lbl{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 12px;
+  border:1px solid #444;border-radius:7px;cursor:pointer;color:#bbb;
+}
+.file-lbl input{display:none}
+
+/* ── PAGE SECTIONS ───────────────────────────────────────────────────── */
+.pg-section{max-width:720px;margin:36px auto}
+.pg-label{
+  text-align:center;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  color:#999;margin-bottom:14px;
+}
+
+/* ── BADGE ───────────────────────────────────────────────────────────── */
+#badge-wrap{display:flex;justify-content:center}
+#badge-svg{
+  width:460px;max-width:100%;
+  filter:drop-shadow(0 8px 28px rgba(0,0,0,.2));
+}
+
+/* ── CERTIFICATE ─────────────────────────────────────────────────────── */
+#cert{
+  width:794px;min-height:1122px;margin:0 auto;background:#fff;
+  padding:56px 62px 44px;position:relative;
+  box-shadow:0 6px 40px rgba(0,0,0,.13);display:flex;flex-direction:column;
+}
+.cert-frame{
+  position:absolute;inset:14px;border:2px solid var(--wdi-color);pointer-events:none;
+}
+.cert-frame::after{
+  content:'';position:absolute;inset:4px;
+  border:.5px solid var(--wdi-color);opacity:.35;
+}
+
+/* header */
+.cert-head{text-align:center;margin-bottom:20px}
+.cert-wlogo{height:50px;margin-bottom:5px}
+.cert-brand{
+  font-size:.72rem;letter-spacing:.28em;font-weight:700;color:#333;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.cert-brand::before,.cert-brand::after{
+  content:'';display:inline-block;width:36px;height:1px;background:#555;
+}
+.cert-racename{
+  font-size:clamp(1.6rem,5vw,2.8rem);font-weight:900;line-height:1.08;
+  text-transform:uppercase;color:#0d0d0d;margin:14px 0 6px;letter-spacing:-.02em;
+}
+.cert-subtitle{
+  font-size:.85rem;font-weight:700;letter-spacing:.2em;
+  color:var(--wdi-color);text-transform:uppercase;margin-bottom:11px;
+}
+.cert-desc{
+  font-size:.8rem;color:#666;line-height:1.55;max-width:460px;margin:0 auto 18px;
+}
+
+/* stats */
+.cert-stats{
+  display:flex;border:1px solid #e0e0e0;border-radius:10px;
+  overflow:hidden;margin-bottom:18px;
+}
+.cert-stat{flex:1;padding:13px 20px;display:flex;align-items:center;gap:14px}
+.cert-stat+.cert-stat{border-left:1px solid #e0e0e0}
+.cert-stat-icon{color:var(--wdi-color);flex-shrink:0}
+.cert-stat-lbl{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#999}
+.cert-stat-val{font-size:1.7rem;font-weight:800;color:#111;line-height:1.1}
+.cert-stat-val span{font-size:.85rem;font-weight:400;color:#aaa}
+
+/* map */
+.cert-map{
+  width:100%;height:196px;border-radius:10px;overflow:hidden;
+  margin-bottom:11px;background:#dde8e5;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.cert-map img{width:100%;height:100%;object-fit:cover;display:none}
+.cert-map-ph{color:#aaa;font-size:.78rem;text-align:center}
+
+/* elevation profile */
+.cert-profile{
+  width:100%;height:136px;border-radius:8px;overflow:hidden;
+  margin-bottom:18px;background:#f8f8f8;border:1px solid #ebebeb;
+  position:relative;
+}
+.cert-profile img{width:100%;height:100%;object-fit:contain;display:none}
+.cert-profile svg{display:block;width:100%;height:100%}
+
+/* scores */
+.cert-scores{
+  display:flex;border:1px solid #ebebeb;border-radius:12px;
+  overflow:hidden;margin-bottom:22px;
+}
+.cert-score-col{
+  flex:1;padding:17px 20px;background:#fafafa;
+}
+.cert-score-col+.cert-score-col{border-left:1px solid #ebebeb}
+.cert-score-lbl{
+  font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--wdi-color);font-weight:700;margin-bottom:3px;
+}
+.cert-score-val{font-size:2rem;font-weight:900;color:#111;line-height:1}
+.cert-score-val span{font-size:.95rem;font-weight:400;color:#bbb}
+.cert-score-bar{height:5px;background:#e8e8e8;border-radius:3px;margin:9px 0 7px}
+.cert-score-bar-fill{height:100%;border-radius:3px;background:var(--wdi-color)}
+.cert-score-desc{font-size:.71rem;color:#999;line-height:1.45}
+
+/* center cat */
+.cert-cat-mid{
+  flex:0 0 auto;padding:17px 14px;background:#fafafa;
+  border-left:1px solid #ebebeb;border-right:1px solid #ebebeb;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* footer */
+.cert-footer{
+  margin-top:auto;padding-top:16px;border-top:1px solid #ebebeb;
+  display:flex;align-items:flex-end;justify-content:space-between;
+}
+.cert-date-lbl{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#bbb}
+.cert-date-val{font-size:.88rem;font-weight:600;color:#333}
+.cert-sig-name{font-size:.84rem;font-weight:700;color:#111;text-align:right}
+.cert-sig-title{font-size:.7rem;color:#999;font-style:italic;text-align:right}
+.cert-disclaimer{
+  text-align:center;font-size:.63rem;color:#bbb;margin-top:16px;line-height:1.55;
+}
+
+@media print{
+  body{background:#fff}
+  #controls,.pg-label,#badge-section{display:none!important}
+  .pg-section{margin:0;max-width:none}
+  #cert{box-shadow:none;width:100%;padding:48px 54px 38px}
+  @page{size:A4 portrait;margin:0}
+}
+</style>
+</head>
+<body>
+
+<!-- CONTROLS -->
+<div id="controls">
+  <strong>⚙ WizTrail Cert Generator</strong>
+  <label class="file-lbl">
+    🗺 Carica mappa
+    <input type="file" accept="image/*" onchange="loadImg(this,'map-img','map-ph')">
+  </label>
+  <label class="file-lbl">
+    📈 Carica profilo altimetrico
+    <input type="file" accept="image/*" onchange="loadImg(this,'profile-img','profile-ph')">
+  </label>
+  <button class="btn-badge" onclick="downloadBadgeSVG()">⬇ Badge SVG</button>
+  <button class="btn-cert" onclick="window.print()">🖨 Certificato PDF</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     BADGE
+══════════════════════════════════════════════════════════════════════════ -->
+<div class="pg-section" id="badge-section">
+  <div class="pg-label">Badge — formato quadrato 1:1</div>
+  <div id="badge-wrap">
+    <!-- viewBox 500×570 — hex center (250,265) r=230 -->
+    <svg id="badge-svg" viewBox="0 0 500 570" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Hex clip (pointy-top, center 250,265 r=230) -->
+        <!-- vertices: top(250,35) ur(449,150) lr(449,380) bot(250,495) ll(51,380) ul(51,150) -->
+        <clipPath id="hc">
+          <polygon points="250,35 449,150 449,380 250,495 51,380 51,150"/>
+        </clipPath>
+        <!-- Elevation gradient for badge (tinted overlay) -->
+        <linearGradient id="mtn-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity=".95"/>
+          <stop offset="100%" stop-color="#e8f5f3" stop-opacity=".6"/>
+        </linearGradient>
+      </defs>
+
+      <!-- White fill behind everything -->
+      <polygon points="250,35 449,150 449,380 250,495 51,380 51,150" fill="#fff"/>
+
+      <!-- ── CLIPPED CONTENT ─────────────────────────────────────── -->
+      <g clip-path="url(#hc)">
+
+        <!-- Sky gradient -->
+        <rect x="0" y="0" width="500" height="500" fill="url(#mtn-grad)"/>
+
+        <!-- Mountains (back) -->
+        <g id="mtn-back" opacity=".11" fill="#1A7F75">
+          <polygon points="80,290 175,115 270,290"/>
+          <polygon points="195,290 305,70 415,290"/>
+          <polygon points="330,290 415,145 500,290"/>
+          <polygon points="0,290 80,160 160,290"/>
+        </g>
+        <!-- Mountains (front) -->
+        <g id="mtn-front" opacity=".16" fill="#0f5e58">
+          <polygon points="40,290 145,140 250,290"/>
+          <polygon points="180,290 295,100 410,290"/>
+          <polygon points="320,290 410,155 500,290"/>
+        </g>
+        <!-- Trees -->
+        <g opacity=".15" fill="#0f5e58">
+          <polygon points="68,291 76,262 84,291"/>
+          <polygon points="82,291 90,265 98,291"/>
+          <polygon points="96,291 103,268 110,291"/>
+          <polygon points="375,291 383,265 391,291"/>
+          <polygon points="390,291 397,262 405,291"/>
+          <polygon points="404,291 412,266 420,291"/>
+        </g>
+
+        <!-- W Logo -->
+        <!-- Original viewBox 0 0 933 676, target 64×46 at (218,42) -->
+        <g transform="translate(218,42) scale(0.0686)">
+          <path d="M208.768 321.919L330.269 538.919L463.768 274.419L586.269 538.919L878.269 31.4187"
+                id="badge-w-path"
+                stroke="#1A7F75" stroke-width="126" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <line x1="36.3834" y1="340.21" x2="329.383" y2="170.21"
+                id="badge-w-line"
+                stroke="#1A7F75" stroke-width="145" stroke-linecap="round"/>
+        </g>
+
+        <!-- WIZTRAIL brand -->
+        <text x="250" y="115" text-anchor="middle"
+              font-family="Outfit,sans-serif" font-size="14.5" font-weight="700"
+              id="badge-brand" fill="#1A7F75" letter-spacing="5.5">WIZTRAIL</text>
+        <line x1="152" y1="120" x2="174" y2="120" id="badge-dash-l" stroke="#1A7F75" stroke-width="1.5"/>
+        <line x1="326" y1="120" x2="348" y2="120" id="badge-dash-r" stroke="#1A7F75" stroke-width="1.5"/>
+
+        <!-- Race name (set by JS) -->
+        <text id="badge-racename" x="250" y="175"
+              text-anchor="middle" dominant-baseline="auto"
+              font-family="Outfit,sans-serif" font-weight="900"
+              fill="#111" letter-spacing="-.5">
+        </text>
+
+        <!-- ── TECHNICALITY RATING band ─────────────────────────── -->
+        <rect x="51" y="282" width="398" height="36" fill="#111"/>
+        <text x="250" y="305" text-anchor="middle"
+              font-family="Outfit,sans-serif" font-size="11" font-weight="700"
+              fill="#fff" letter-spacing="4.5">★  TECHNICALITY RATING  ★</text>
+
+        <!-- ── Dark scores section ──────────────────────────────── -->
+        <rect x="51" y="318" width="398" height="152" fill="#141414"/>
+
+        <!-- divider -->
+        <line x1="250" y1="328" x2="250" y2="458" stroke="#2e2e2e" stroke-width="1.2"/>
+
+        <!-- TechScore left -->
+        <text x="80" y="346" font-family="Outfit,sans-serif" font-size="10.5" font-weight="700"
+              id="badge-ts-lbl" fill="#1A7F75" letter-spacing="1.8">TECHSCORE</text>
+        <text x="80" y="393" font-family="Outfit,sans-serif" fill="#fff">
+          <tspan id="badge-ts-val" font-size="44" font-weight="900">—</tspan><tspan
+            id="badge-ts-den" font-size="18" font-weight="400" fill="#666" dy="-6">/100</tspan>
+        </text>
+        <rect x="80" y="403" width="144" height="5" rx="2.5" fill="#2a2a2a"/>
+        <rect id="badge-ts-bar" x="80" y="403" width="0" height="5" rx="2.5" fill="#1A7F75"/>
+        <text x="80" y="423" font-family="Outfit,sans-serif" font-size="9" fill="#555">
+          Tecnicità del percorso
+        </text>
+
+        <!-- WDI Score right -->
+        <text x="264" y="346" font-family="Outfit,sans-serif" font-size="10.5" font-weight="700"
+              id="badge-wdi-lbl" fill="#1A7F75" letter-spacing="1.8">WDI SCORE</text>
+        <text x="264" y="393" font-family="Outfit,sans-serif" fill="#fff">
+          <tspan id="badge-wdi-val" font-size="44" font-weight="900">—</tspan><tspan
+            id="badge-wdi-den" font-size="18" font-weight="400" fill="#666" dy="-6">/10</tspan>
+        </text>
+        <rect x="264" y="403" width="144" height="5" rx="2.5" fill="#2a2a2a"/>
+        <rect id="badge-wdi-bar" x="264" y="403" width="0" height="5" rx="2.5" fill="#1A7F75"/>
+        <text x="264" y="423" font-family="Outfit,sans-serif" font-size="9" fill="#555">
+          Livello nella categoria
+        </text>
+
+        <!-- Category bottom section -->
+        <!-- Mountains icon small -->
+        <g transform="translate(224,440) scale(.52)">
+          <polygon points="24,38 4,70 44,70" fill="#1A7F75" id="badge-cat-mtn1" opacity=".6"/>
+          <polygon points="42,38 26,70 58,70" fill="#1A7F75" id="badge-cat-mtn2"/>
+        </g>
+        <text x="250" y="469" text-anchor="middle"
+              font-family="Outfit,sans-serif" font-size="8.5" fill="#555" letter-spacing="3">
+          — CATEGORY —
+        </text>
+        <text id="badge-cat" x="250" y="490" text-anchor="middle"
+              font-family="Outfit,sans-serif" font-size="19" font-weight="900"
+              fill="#1A7F75" letter-spacing="3.5">ULTR</text>
+
+      </g><!-- end clip -->
+
+      <!-- ── Hex border (on top, not clipped) ──────────────────── -->
+      <polygon id="badge-hex-border"
+               points="250,35 449,150 449,380 250,495 51,380 51,150"
+               fill="none" stroke="#1A7F75" stroke-width="13"/>
+      <polygon id="badge-hex-inner"
+               points="250,46 439,157 439,373 250,484 61,373 61,157"
+               fill="none" stroke="#1A7F75" stroke-width="2" opacity=".55"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     CERTIFICATE
+══════════════════════════════════════════════════════════════════════════ -->
+<div class="pg-section" id="cert-section">
+  <div class="pg-label">Certificato — stampa come PDF (A4)</div>
+  <div id="cert">
+    <div class="cert-frame"></div>
+
+    <!-- Header -->
+    <div class="cert-head">
+      <svg class="cert-wlogo" viewBox="0 0 933 676" xmlns="http://www.w3.org/2000/svg" aria-label="WizTrail logo">
+        <path d="M208.768 321.919L330.269 538.919L463.768 274.419L586.269 538.919L878.269 31.4187"
+              stroke="#1A7F75" stroke-width="126" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <line x1="36.3834" y1="340.21" x2="329.383" y2="170.21"
+              stroke="#1A7F75" stroke-width="145" stroke-linecap="round"/>
+      </svg>
+      <div class="cert-brand">WIZTRAIL</div>
+      <div id="cert-racename" class="cert-racename">NOME GARA</div>
+      <div class="cert-subtitle">Certificato di Tecnicità</div>
+      <p class="cert-desc">
+        WizTrail certifica che questa gara ranked presenta il seguente profilo di tecnicità,
+        calcolato secondo i parametri ufficiali del sistema WizTrail.
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="cert-stats">
+      <div class="cert-stat">
+        <svg class="cert-stat-icon" width="32" height="32" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="8" cy="6" r="2"/><circle cx="16" cy="18" r="2"/>
+          <path d="M8 8c0 4 8 2 8 8"/>
+        </svg>
+        <div>
+          <div class="cert-stat-lbl">Distanza</div>
+          <div class="cert-stat-val"><span id="cert-km">—</span>&thinsp;<span>km</span></div>
+        </div>
+      </div>
+      <div class="cert-stat">
+        <svg class="cert-stat-icon" width="32" height="32" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3,18 8,6 13,13 17,4 21,10"/>
+        </svg>
+        <div>
+          <div class="cert-stat-lbl">Dislivello Positivo</div>
+          <div class="cert-stat-val"><span id="cert-dplus">—</span>&thinsp;<span>m</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="cert-map" id="map-wrap">
+      <img id="map-img" alt="Mappa percorso">
+      <div id="map-ph" class="cert-map-ph">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.2" stroke-linecap="round">
+          <polygon points="3,6 9,3 15,6 21,3 21,18 15,21 9,18 3,21"/>
+          <line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+        <div style="margin-top:6px;font-size:.75rem">Carica mappa dal pannello in alto</div>
+      </div>
+    </div>
+
+    <!-- Elevation profile -->
+    <div class="cert-profile" id="profile-wrap">
+      <img id="profile-img" alt="Profilo altimetrico">
+      <div id="profile-ph">
+        <svg id="prof-svg" viewBox="0 0 670 110" preserveAspectRatio="none"
+             xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%">
+          <defs>
+            <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+              <stop id="pg-stop1" offset="0%" stop-color="#1A7F75" stop-opacity=".3"/>
+              <stop offset="100%" stop-color="#1A7F75" stop-opacity=".03"/>
+            </linearGradient>
+          </defs>
+          <path id="prof-path" fill="url(#pg)" stroke="#1A7F75" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Scores -->
+    <div class="cert-scores">
+      <div class="cert-score-col">
+        <div class="cert-score-lbl">TechScore</div>
+        <div class="cert-score-val"><span id="cert-ts">—</span><span>/100</span></div>
+        <div class="cert-score-bar">
+          <div id="cert-ts-bar" class="cert-score-bar-fill" style="width:0"></div>
+        </div>
+        <div class="cert-score-desc">
+          Il TechScore rappresenta la tecnicità complessiva del percorso,
+          calcolata sulla base di fattori ambientali, orografici e strutturali.
+        </div>
+      </div>
+
+      <!-- Category mini badge -->
+      <div class="cert-cat-mid">
+        <svg id="cert-cat-svg" width="106" height="120" viewBox="0 0 106 120"
+             xmlns="http://www.w3.org/2000/svg">
+          <!-- pointy-top hex center (53,60) r=50 -->
+          <!-- top(53,10) ur(96,35) lr(96,85) bot(53,110) ll(10,85) ul(10,35) -->
+          <polygon id="cc-hex" points="53,10 96,35 96,85 53,110 10,85 10,35"
+                   fill="none" stroke="#1A7F75" stroke-width="3.5"/>
+          <polygon points="53,16 90,38 90,82 53,104 16,82 16,38"
+                   id="cc-hex2" fill="none" stroke="#1A7F75" stroke-width="1" opacity=".4"/>
+          <!-- mountains icon -->
+          <g transform="translate(25,26)">
+            <polygon points="13,22 0,38 26,38" fill="#1A7F75" opacity=".5"/>
+            <polygon points="24,20 13,38 35,38" fill="#1A7F75"/>
+          </g>
+          <text x="53" y="75" text-anchor="middle"
+                font-family="Outfit,sans-serif" font-size="7.5" font-weight="700"
+                id="cc-cat-top" fill="#1A7F75" letter-spacing="2">CATEGORIA</text>
+          <text x="53" y="97" text-anchor="middle"
+                font-family="Outfit,sans-serif" font-size="15" font-weight="900"
+                id="cc-cat" fill="#1A7F75" letter-spacing="2.5">ULTR</text>
+          <text x="53" y="108" text-anchor="middle"
+                font-family="Outfit,sans-serif" font-size="6.5" font-weight="600"
+                id="cc-class" fill="#1A7F75" letter-spacing="2" opacity=".65">ELITE</text>
+        </svg>
+      </div>
+
+      <div class="cert-score-col">
+        <div class="cert-score-lbl">WDI Score</div>
+        <div class="cert-score-val"><span id="cert-wdinorm">—</span><span>/10</span></div>
+        <div class="cert-score-bar">
+          <div id="cert-wdi-bar" class="cert-score-bar-fill" style="width:0"></div>
+        </div>
+        <div class="cert-score-desc">
+          Il WDI Score esprime il livello di difficoltà tecnica
+          all'interno della categoria di gara ranked.
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="cert-footer">
+      <div>
+        <div class="cert-date-lbl">Data di emissione</div>
+        <div id="cert-date" class="cert-date-val">—</div>
+      </div>
+
+      <!-- Circular stamp -->
+      <svg width="92" height="92" viewBox="0 0 92 92" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="46" cy="46" r="42" fill="none" id="stamp-ring" stroke="#1A7F75" stroke-width="2"/>
+        <circle cx="46" cy="46" r="35" fill="none" id="stamp-ring2"
+                stroke="#1A7F75" stroke-width="1" stroke-dasharray="3 2.5" opacity=".5"/>
+        <path id="stamp-arc"
+              d="M 46,46 m -31,0 a 31,31 0 1,1 62,0 a 31,31 0 1,1 -62,0"
+              fill="none"/>
+        <text font-family="Outfit,sans-serif" font-size="7.2" font-weight="700" letter-spacing="3.5">
+          <textPath href="#stamp-arc" startOffset="6%" id="stamp-txt" fill="#1A7F75">
+            WIZTRAIL · CERTIFIED · RANKING ·
+          </textPath>
+        </text>
+        <!-- W logo in stamp -->
+        <g transform="translate(30,30) scale(0.0344)">
+          <path d="M208.768 321.919L330.269 538.919L463.768 274.419L586.269 538.919L878.269 31.4187"
+                id="stamp-w" stroke="#1A7F75" stroke-width="126"
+                stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <line x1="36.3834" y1="340.21" x2="329.383" y2="170.21"
+                id="stamp-wl" stroke="#1A7F75" stroke-width="145" stroke-linecap="round"/>
+        </g>
+      </svg>
+
+      <div>
+        <svg width="88" height="34" viewBox="0 0 88 34" fill="none">
+          <path d="M4,27 C12,8 22,30 32,17 C42,5 52,28 62,18 C70,10 76,22 84,17"
+                stroke="#444" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <div class="cert-sig-name">WizTrail Team</div>
+        <div class="cert-sig-title">Sistema di Ranking Ufficiale</div>
+      </div>
+    </div>
+
+    <p class="cert-disclaimer">
+      Questo certificato è rilasciato da WizTrail e attesta la validità del punteggio di tecnicità.<br>
+      Scopri di più su <strong>www.wiztrail.com</strong>
+    </p>
+  </div>
+</div>
+
+<script>
+/* ── WDI THRESHOLDS (mirror wiztrail-engine.js) ─────────────────────── */
+const WDI_T = [
+  {max:22,  level:'Sport',    color:'#2BB7DA'},
+  {max:40,  level:'Pro',      color:'#34A853'},
+  {max:70,  level:'Advanced', color:'#F4C20D'},
+  {max:120, level:'Extreme',  color:'#F79617'},
+  {max:200, level:'Elite',    color:'#E91E63'},
+  {max:Infinity, level:'Legend', color:'#8E24AA'},
+];
+const CAT_SHORT = {Short:'SHRT', Medium:'MDIU', Long:'LONG', Ultra:'ULTR'};
+
+function wdiClass(v) {
+  for (const t of WDI_T) if (v < t.max) return t;
+  return WDI_T[WDI_T.length-1];
+}
+
+/* ── PARSE PARAMS ────────────────────────────────────────────────────── */
+const P       = new URLSearchParams(location.search);
+const race    = decodeURIComponent(P.get('race')    || 'NOME GARA');
+const km      = P.get('km')      || '—';
+const dplus   = P.get('dplus')   || '—';
+const wdiRaw  = parseFloat(P.get('wdi')     || '0');
+const wdiNorm = parseFloat(P.get('wdinorm') || '0');
+const wdiCat  = P.get('wdicat')  || 'Ultra';
+const tech    = parseFloat(P.get('tech')    || '0');
+const dateStr = P.get('date')    || new Date().toISOString().split('T')[0];
+
+const cls      = wdiClass(wdiRaw);
+const color    = cls.color;
+const catLabel = CAT_SHORT[wdiCat] || wdiCat.slice(0,4).toUpperCase();
+
+document.documentElement.style.setProperty('--wdi-color', color);
+
+/* ── HELPERS ─────────────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+function setAttr(id, attr, val) { const e=$(id); if(e) e.setAttribute(attr, val); }
+function colorEl(id, attr) { setAttr(id, attr, color); }
+function setText(id, val)  { const e=$(id); if(e) e.textContent = val; }
+
+/* ── BADGE ───────────────────────────────────────────────────────────── */
+function renderBadge() {
+  // Colors
+  ['badge-w-path','badge-w-line','badge-brand','badge-dash-l','badge-dash-r'].forEach(id => {
+    const e=$(id); if(!e) return;
+    const attr = (id==='badge-brand') ? 'fill'
+               : (id.includes('dash')) ? 'stroke' : 'stroke';
+    e.setAttribute(attr, color);
+  });
+  ['badge-ts-lbl','badge-wdi-lbl'].forEach(id => setAttr(id,'fill',color));
+  ['badge-ts-bar','badge-wdi-bar'].forEach(id => setAttr(id,'fill',color));
+  ['badge-hex-border','badge-hex-inner'].forEach(id => setAttr(id,'stroke',color));
+  ['badge-cat-mtn1','badge-cat-mtn2'].forEach(id => setAttr(id,'fill',color));
+  setAttr('badge-cat','fill',color);
+
+  // Race name — responsive font size + optional two lines
+  const rn = $('badge-racename');
+  const words = race.trim().split(/\s+/);
+  const len   = race.length;
+  if (words.length <= 3 && len <= 22) {
+    rn.textContent = race.toUpperCase();
+    const fs = len > 17 ? 24 : len > 13 ? 28 : 34;
+    rn.setAttribute('font-size', fs);
+    rn.setAttribute('y', '175');
+  } else {
+    const half = Math.ceil(words.length/2);
+    const l1 = words.slice(0,half).join(' ').toUpperCase();
+    const l2 = words.slice(half).join(' ').toUpperCase();
+    const fs  = Math.min(28, Math.max(17, Math.floor(400/Math.max(l1.length,l2.length))));
+    const ns  = 'http://www.w3.org/2000/svg';
+    const mk  = (txt,dy) => {
+      const t = document.createElementNS(ns,'tspan');
+      t.setAttribute('x','250'); t.setAttribute('dy',dy);
+      t.setAttribute('font-size',fs); t.textContent = txt; return t;
+    };
+    rn.textContent = '';
+    rn.setAttribute('y', words.length>4 ? '148' : '158');
+    rn.appendChild(mk(l1,'0'));
+    rn.appendChild(mk(l2, String(fs+5)));
+  }
+
+  // TechScore — tspan flow handles /100 position automatically
+  setText('badge-ts-val', tech.toFixed(1));
+  setAttr('badge-ts-bar','width', String(Math.round(tech/100*144)));
+
+  // WDI Score — tspan flow handles /10 position automatically
+  setText('badge-wdi-val', wdiNorm.toFixed(1));
+  setAttr('badge-wdi-bar','width', String(Math.round(wdiNorm/10*144)));
+
+  // Category
+  setText('badge-cat', catLabel);
+}
+
+/* ── CERTIFICATE ─────────────────────────────────────────────────────── */
+function renderCert() {
+  setText('cert-racename', race.toUpperCase());
+  setText('cert-km',    km);
+  setText('cert-dplus', dplus !== '—' ? Number(dplus).toLocaleString('it-IT') : '—');
+  setText('cert-ts',    tech.toFixed(1));
+  setText('cert-wdinorm', wdiNorm.toFixed(1));
+  $('cert-ts-bar').style.width  = tech + '%';
+  $('cert-wdi-bar').style.width = (wdiNorm*10) + '%';
+
+  const d = new Date(dateStr + 'T12:00:00');
+  setText('cert-date', d.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}));
+
+  // Category badge
+  ['cc-hex','cc-hex2','cc-cat-top','cc-cat','cc-class'].forEach(id => {
+    const e=$(id); if(!e) return;
+    const attr = id.startsWith('cc-hex') ? 'stroke' : 'fill';
+    e.setAttribute(attr, color);
+  });
+  setText('cc-cat', catLabel);
+  setText('cc-class', cls.level.toUpperCase());
+
+  // Stamp colors
+  ['stamp-ring','stamp-txt'].forEach(id => colorEl(id,'stroke'));
+  $('stamp-txt') && $('stamp-txt').setAttribute('fill', color);
+  ['stamp-w','stamp-wl'].forEach(id => colorEl(id,'stroke'));
+  $('stamp-ring2').setAttribute('stroke', color);
+
+  // Profile placeholder
+  buildProfile();
+}
+
+/* ── ELEVATION PROFILE PLACEHOLDER ──────────────────────────────────── */
+function buildProfile() {
+  const W=670, H=110, pad=8;
+  const aw=W-pad*2, ah=H-pad;
+  const pts=[
+    [0,ah],[20,ah*.84],[60,ah*.6],[110,ah*.36],[155,ah*.52],
+    [205,ah*.22],[260,ah*.1],[310,ah*.28],[355,ah*.44],[400,ah*.2],
+    [445,ah*.38],[500,ah*.52],[545,ah*.64],[590,ah*.7],[635,ah*.78],[aw,ah]
+  ].map(([x,y])=>[x+pad, y+pad]);
+  const d='M'+pts.map(p=>p[0]+','+p[1]).join('L')+
+          'L'+(aw+pad)+','+(ah+pad)+'L'+pad+','+(ah+pad)+'Z';
+  $('prof-path').setAttribute('d',d);
+  $('prof-path').setAttribute('stroke', color);
+  $('pg-stop1').setAttribute('stop-color', color);
+}
+
+/* ── FILE LOADERS ────────────────────────────────────────────────────── */
+function loadImg(input, imgId, phId) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = $(imgId); img.src = e.target.result; img.style.display='block';
+    const ph  = $(phId);  if(ph) ph.style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── DOWNLOAD BADGE SVG ──────────────────────────────────────────────── */
+function downloadBadgeSVG() {
+  const svg  = $('badge-svg');
+  const data = new XMLSerializer().serializeToString(svg);
+  const blob = new Blob([data], {type:'image/svg+xml;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = race.replace(/\s+/g,'-').toLowerCase() + '-wiztrail-badge.svg';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ── INIT ────────────────────────────────────────────────────────────── */
+renderBadge();
+renderCert();
+</script>
+</body>
+</html>
