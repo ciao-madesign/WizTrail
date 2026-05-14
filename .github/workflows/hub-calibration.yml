@@ -63,6 +63,10 @@ jobs:
         working-directory: wiztrail-calibration
         run: python scripts/06_push_results.py
 
+      - name: Applica calibrazione a wiztrail-engine.js e wiztrail-timing.js
+        working-directory: wiztrail-calibration
+        run: python scripts/07_apply_patch.py
+
       - name: Crea branch model-update con patch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,7 +75,7 @@ jobs:
           git config user.email "bot@wiztrail.app"
           git checkout -B model-update
           cp wiztrail-calibration/output/4_wiztrail_patch.js .
-          git add 4_wiztrail_patch.js
+          git add wiztrail-engine.js wiztrail-timing.js 4_wiztrail_patch.js
           git diff --cached --quiet || git commit -m "chore: calibrazione modello $(date +'%Y-%m-%d %H:%M') [bot]"
           git push origin model-update --force
 
