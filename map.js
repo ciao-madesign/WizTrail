@@ -66,7 +66,7 @@
     );
 
     L.layerGroup([dark, topo]).addTo(map);
-    map.setView([46.5, 8.3], 5);
+    map.setView([20, 0], 2);
 
     hoverMarker = L.circleMarker([0, 0], {
       radius: 6, color: '#ff0', fillColor: '#ff0', fillOpacity: 1,
