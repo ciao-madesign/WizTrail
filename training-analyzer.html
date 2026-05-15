@@ -128,12 +128,12 @@
   <button id="taLinkGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
 </div>
 <div style="margin-top:12px;">
-<label>Tempo reale (modificabile)</label>
+<label>Tempo di completamento</label>
 <input id="timeRealInput" type="text" placeholder="hh:mm:ss" class="input-text">
 </div>
 
 <div style="margin-top:12px;">
-<label><input type="checkbox" id="useEstimate"> Usa la stima del calcolatore</label>
+<label><input type="checkbox" id="useEstimate"> Stima il tempo automaticamente</label>
 </div>
 
 <div id="paceBlock" style="margin-top:10px; display:none;">
@@ -145,7 +145,7 @@
     <span class="mini" style="margin-left:8px; opacity:0.7;">es. 05:00 = 5 min/km</span>
   </div>
   <div style="margin-bottom:8px;">
-    <label>Specificità trail</label>
+    <label>Livello atleta</label>
     <input id="specTA" type="range" min="0" max="1" step="0.1" value="0.3" style="width:160px; vertical-align:middle; margin: 0 8px;">
     <span id="specTALabel" class="mini">Amatore avanzato</span>
   </div>
@@ -171,7 +171,7 @@
 <div id="results" style="display:none;margin-top:20px;">
 
 <div class="card">
-<h2>Mappa 2D (Leaflet)</h2>
+<h2>Mappa percorso</h2>
 <div id="mapLeaflet" style="width:100%;height:300px;border-radius:8px;"></div>
 </div>
 
