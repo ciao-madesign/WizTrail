@@ -7,6 +7,9 @@
  *
  * I parametri in VELOCITY_PARAMS vengono aggiornati dalla pipeline di calibrazione
  * (wiztrail-calibration/scripts/03_calibrate.py Parte B → patch via 04_insights.py).
+ *
+ * PORT SERVER-SIDE: api/lib/timing-node.js — ogni modifica a VELOCITY_PARAMS,
+ * TRAIL_BASE_FACTOR o alle formule va replicata anche lì (engine drift).
  */
 (function () {
   'use strict';

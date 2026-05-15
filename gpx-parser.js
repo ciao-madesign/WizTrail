@@ -7,6 +7,9 @@
  * compute() restituisce { km, gain, e[], d[], max_altitude }
  *
  * Formati supportati: GPX trkpt, GPX rtept (Komoot), TCX Trackpoint, Suunto SML Sample
+ *
+ * PORT SERVER-SIDE: api/lib/gpx-node.js — ogni modifica alla logica di parsing,
+ * sanitizzazione o calcolo metriche va replicata anche lì (engine drift).
  */
 (function () {
   'use strict';

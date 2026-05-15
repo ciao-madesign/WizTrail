@@ -7,6 +7,8 @@
    Le soglie devono restare sincronizzate con:
      - map.js → getColorWDI()
      - ui.js → showWDI() e showTechScore()
+     - api/lib/engine-node.js → PORT SERVER-SIDE: ogni modifica a soglie, kT, EXP
+       o formule qui va replicata anche lì (engine drift rischio regressione API)
    kT = 0.50 → calibrato 20/04/2026 (era 0.35)
    normRough 0.500 → recalibrato 28/04/2026 (era 0.051, saturava su GPX reali)
    TERRAIN_DEFAULTS v2 → recalibrato 28/04/2026 per contesto gara

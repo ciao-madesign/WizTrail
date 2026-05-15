@@ -41,6 +41,7 @@
     <a href="#tempi">Modello Tempi</a>
     <a href="#pacing">Pacing</a>
     <a href="#hub">Hub</a>
+    <a href="#api">API</a>
     <a href="#licenze">Licenze</a>
   </nav>
 
@@ -250,7 +251,70 @@
   </section>
 
   <!-- ══════════════════════════════════════════════════════════════
-       6. LICENZE
+       6. API PUBBLICA
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="api" class="about-section">
+    <div class="about-label">Integrazioni & sviluppatori</div>
+    <h2>API Pubblica</h2>
+
+    <div class="card">
+      <p>WizTrail espone una REST API che restituisce gli stessi output del calcolatore web — WDI, stima tempo e piano pacing — pronti per essere integrati in app, siti o dispositivi di terze parti.</p>
+      <p style="margin-top:10px;">L'API è ospitata su Vercel ed è autenticata tramite API key (header <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">x-api-key</code>). Per richiedere una chiave, contattare il team WizTrail.</p>
+    </div>
+
+    <details class="card" open>
+      <summary><b>Endpoint disponibili</b></summary>
+      <div style="margin-top:12px">
+        <p style="margin-bottom:12px;"><b>Base URL:</b> <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">https://wiz-trail.vercel.app</code></p>
+        <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:6px 8px;color:var(--muted);">Endpoint</th>
+              <th style="text-align:left;padding:6px 8px;color:var(--muted);">Descrizione</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)22;">
+              <td style="padding:8px;font-family:var(--font-mono,monospace);font-size:0.8em;white-space:nowrap;">POST /api/v1/analyze</td>
+              <td style="padding:8px;">Analisi completa da file GPX: WDI, disciplina, stima tempo, piano pacing segmentato</td>
+            </tr>
+            <tr>
+              <td style="padding:8px;font-family:var(--font-mono,monospace);font-size:0.8em;white-space:nowrap;">POST /api/v1/wdi</td>
+              <td style="padding:8px;">Stima WDI da input manuali (distanza, D+) senza GPX — risposta marcata <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:0.85em;">estimate:true</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Esempio rapido</b></summary>
+      <div style="margin-top:12px">
+        <pre style="background:var(--bg3);border-radius:6px;padding:14px;overflow-x:auto;font-size:0.8rem;line-height:1.6;"><code># Codifica il GPX e chiama l'endpoint
+GPX=$(base64 -w 0 mia_gara.gpx)
+
+curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: la-tua-chiave" \
+  -d "{\"gpx_base64\":\"$GPX\",\"target_time\":\"05:00:00\",\"terrain_class\":\"EE\"}"</code></pre>
+        <p style="margin-top:10px;font-size:0.88rem;">Documentazione completa in <a href="https://github.com/ciao-madesign/WizTrail/blob/backend/docs/api-public.md" target="_blank" rel="noopener"><code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">docs/api-public.md</code></a>.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Limiti del piano attuale (Vercel Hobby)</b></summary>
+      <div style="margin-top:12px">
+        <ul style="line-height:2;">
+          <li><b>Rate limit:</b> 30 richieste/minuto per IP</li>
+          <li><b>SLA:</b> nessuna garanzia formale di uptime — adatto a integrazioni tecniche, non a servizi commerciali mission-critical</li>
+          <li><b>Banda:</b> 100 GB/mese inclusi (sufficiente per migliaia di chiamate)</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       7. LICENZE
   ══════════════════════════════════════════════════════════════ -->
   <section id="licenze" class="about-section">
     <div class="about-label">Open source & credits</div>
