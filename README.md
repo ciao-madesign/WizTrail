@@ -170,20 +170,6 @@ Full reference: [docs/api-public.md](docs/api-public.md)
 
 ---
 
-## Roadmap
-
-| Status | Milestone |
-|---|---|
-| ✅ | M0 — Strava security (serverless callback, env vars) |
-| ✅ | M1 — Codebase refactor (modular JS) |
-| ✅ | M2 — Rate limiting (Upstash Redis) |
-| 🟡 | M3 — Algorithm + UX (WDI v5.1 ✅, hub ✅, UX in progress) |
-| ✅ | M5 — Public API (`/api/v1/analyze`, `/api/v1/wdi`) |
-| 🔵 | M6 — Android (Capacitor) |
-| ⏸️ | M4 — Auth (HTTP-only cookies, deferred) |
-
----
-
 ## Project Structure
 
 ```
