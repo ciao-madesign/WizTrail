@@ -1,0 +1,19 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Square background fills entire icon — required for maskable (OS applies its own mask shape) -->
+  <rect width="192" height="192" fill="#002b2b"/>
+  <!-- Logo scaled to 80% of icon area and centered: safe zone = 153.6px, offset = 19.2px on each side -->
+  <g transform="translate(19.2 19.2) scale(0.8)">
+    <circle cx="96" cy="96" r="96" fill="url(#grad)"/>
+    <path d="M49.388 102.555L70.6196 140.474L93.9479 94.2542L115.354 140.474L166.379 51.7913"
+          stroke="white" stroke-width="22.0178" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="19.2632" y1="105.751" x2="70.4633" y2="76.0444"
+          stroke="white" stroke-width="25.3379" stroke-linecap="round"/>
+  </g>
+  <defs>
+    <radialGradient id="grad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(96 96) rotate(43.2693) scale(159.458)">
+      <stop stop-color="#4BB9A3"/>
+      <stop offset="0.746051"/>
+    </radialGradient>
+  </defs>
+</svg>

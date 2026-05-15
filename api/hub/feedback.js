@@ -25,6 +25,20 @@ const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
    Previene flood di dati fittizi che corromperebbero le statistiche. */
 const FEEDBACK_RATE_LIMIT = 10;
 
+/* CSRF — origini autorizzate a inviare feedback.
+   I browser inviano sempre Origin per POST cross-origin; le richieste
+   senza Origin sono same-origin o server-to-server (entrambe OK qui). */
+const ALLOWED_ORIGINS = [
+  'https://wiz-trail.vercel.app',
+  'https://ciao-madesign.github.io',
+];
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true; // same-origin o server-to-server
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  try { return new URL(origin).hostname.endsWith('.vercel.app'); } catch { return false; }
+}
+
 async function redisGet(key) {
   const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
@@ -58,11 +72,20 @@ function validate(body) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '';
+  const corsOrigin = isAllowedOrigin(origin) ? (origin || ALLOWED_ORIGINS[0]) : '';
+  if (corsOrigin) res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
+
+  // CSRF: rifiuta POST da origini non autorizzate (browser invia sempre Origin per cross-origin)
+  if (origin && !isAllowedOrigin(origin)) {
+    return res.status(403).json({ error: 'Origine non autorizzata' });
+  }
 
   /* Rate limiting: 10 richieste/minuto per IP.
      Usa lo stesso Upstash Redis degli altri endpoint. */
