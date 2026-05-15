@@ -7,6 +7,15 @@
 (function () {
   'use strict';
 
+  /* Ritorna '#fff' o '#021' in base alla luminosità percepita del colore
+     di sfondo (formula W3C perceived brightness). Usato per badge WDI/Tech. */
+  function badgeTextColor(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 128 ? '#021' : '#fff';
+  }
+
   /* ------------------------------------------------------------------
      HELPERS
      ------------------------------------------------------------------ */
@@ -66,7 +75,7 @@
     /* Badge classe WDI */
     const badge = `<div style="
       display:inline-block; padding:4px 10px; border-radius:12px;
-      font-weight:700; color:#021; background:${rs.color}; margin-bottom:6px;
+      font-weight:700; color:${badgeTextColor(rs.color)}; background:${rs.color}; margin-bottom:6px;
     ">${rs.WDI_legendPlus ? '🏆 Legend ∞' : wdiLabel(rs.class)}</div>`;
 
     /* Riga normalizzazione — visibile solo se il valore è normalizzato */
@@ -108,7 +117,7 @@
     if (rs.factors && rs.factors.osmConfidence > 0) note += '<br><span style="font-size:0.75rem;opacity:0.7;">✦ Enhanced OSM: ' + Math.round(rs.factors.osmConfidence * 100) + '%</span>';
 
     subEl.innerHTML = '<div style="display:inline-block; padding:4px 10px; border-radius:12px;' +
-      'font-weight:700; color:#021; background:' + rs.techColor + '; margin-bottom:4px;">' +
+      'font-weight:700; color:' + badgeTextColor(rs.techColor) + '; background:' + rs.techColor + '; margin-bottom:4px;">' +
       rs.techClass + '</div>' + note;
   }
 

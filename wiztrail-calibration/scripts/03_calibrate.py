@@ -31,7 +31,7 @@ DATA_DIR=Path("data"); OUTPUT_DIR=Path("output"); PLOTS_DIR=OUTPUT_DIR/"plots"
 GPX_DIR =Path("gpx")
 OUTPUT_DIR.mkdir(exist_ok=True); PLOTS_DIR.mkdir(exist_ok=True)
 
-kT=0.35; REF42=math.pow(42,0.55)
+kT=0.50; REF42=math.pow(42,0.48)  # sincronizzato con wiztrail-engine.js v5.1
 
 def clamp(x,a,b): return max(a,min(b,x))
 def enrich_df(df):
@@ -160,6 +160,24 @@ def timing_obj(params_arr,gpx_cache,df):
     if len(errors)<5: return 1e9
     return float(np.sqrt(np.average(np.array(errors)**2,weights=np.array(weights))))
 
+def _load_x0():
+    """Costruisce x0 dall'ultima calibrazione (output/1_wdi_calibration.json).
+    Fallback ai parametri calibrati v1.0 se il file non esiste o è incompleto.
+    ordine: [nf_r, ns_r, nr_r, nv_r, w_frip, w_svar, w_rough, w_vert, shape_w]
+    """
+    _default = [0.924,0.180,0.500,74.1,0.244,0.421,0.208,0.127,0.873]
+    try:
+        cal = json.loads((OUTPUT_DIR/"1_wdi_calibration.json").read_text())
+        refs = cal.get("norm_refs",{}); wts = cal.get("tech_score_weights",{})
+        if refs and wts and all(k in refs for k in ("frip","slope_var","roughness","vert")) \
+                        and all(k in wts  for k in ("w_frip","w_svar","w_rough","w_vert","shape_w")):
+            print("  [A] Bootstrap x0 da output/1_wdi_calibration.json")
+            return [refs["frip"],refs["slope_var"],refs["roughness"],refs["vert"],
+                    wts["w_frip"],wts["w_svar"],wts["w_rough"],wts["w_vert"],wts["shape_w"]]
+    except Exception:
+        pass
+    return _default
+
 def main():
     df=pd.read_csv(DATA_DIR/"computed.csv"); df=enrich_df(df)
     print(f"  Gare totali: {len(df)}")
@@ -168,7 +186,7 @@ def main():
     df_gpx=df[df["calc_source"]=="gpx"].dropna(
         subset=["gpx_frip","gpx_slope_var","gpx_roughness","gpx_gain","gpx_km","technicality"])
     n=len(df_gpx); print(f"\n  [A] TechScore — {n} GPX")
-    wdi_calib={}; xo=[0.60,0.55,0.35,150.,0.45,0.35,0.20,0.30,0.70]
+    wdi_calib={}; xo=_load_x0()
     if n>=5:
         target=df_gpx["technicality"].values*10.
         bounds=[(0.20,1.50),(0.10,1.50),(0.05,1.50),(50,300),
@@ -353,4 +371,3 @@ def _plot_timing(df_gpx,gpx_cache,timing_calib):
 
 if __name__=="__main__":
     main()
-# versione aggiornata con modello per tipo gara — vedi run successivo

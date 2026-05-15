@@ -10,13 +10,14 @@
  *   { distance_km, dplus, max_altitude, wdi }
  *   (tutti disponibili da GPXParser.compute() + WizTrail.computeFromGpx())
  *
- * ⚠ Soglie PROVVISORIE — ricalibrate dopo dataset ITRA completo (B1-B3).
+ * Calibrate su 34 gare reali (31 esistenti + 3 nuove sky/mountain). Accuracy: 97.1% (34 gare).
+ * Edge case noto: LUT Cortina Skyrace → classifier ritorna 'trail'; JSON override corregge il badge.
  *
  * Logica di classificazione (in ordine di priorità):
- *   ULTRA    → distanza ≥ 95km (indipendente da tecnicità)
- *   SKY      → quota >2000m E (D+/km >100 O WDI alto)
- *   MOUNTAIN → D+/km >80 E quota >1200m (senza i requisiti sky)
- *   XC       → distanza <=12km E D+ <200m (gara pianeggiante)
+ *   ULTRA    → distanza ≥ 95km
+ *   SKY      → (quota>2900m E D+/km>70) O (quota>2200m E D+/km>84) O (quota>2000m E D+/km>100)
+ *   MOUNTAIN → D+/km >80 E quota >1200m
+ *   XC       → distanza ≤12km E D+ <200m
  *   TRAIL    → default
  */
 
@@ -40,7 +41,7 @@ window.DisciplineClassifier = (function () {
      @param {number} opts.distance_km   — distanza totale in km
      @param {number} opts.dplus         — dislivello positivo in metri
      @param {number} [opts.max_altitude=0] — quota massima in metri
-     @param {number} [opts.wdi=0]       — WDI calcolato (opzionale, raffina sky)
+     @param {number} [opts.wdi=0]       — WDI calcolato (riservato per usi futuri)
      @returns {'trail'|'sky'|'mountain'|'xc'}
      ------------------------------------------------------------------ */
   function classify(opts) {
@@ -62,11 +63,18 @@ window.DisciplineClassifier = (function () {
     }
 
     // — SKYRUNNING —
-    // Alta quota + pendenza estrema o WDI elevato.
-    // Nota: senza max_altitude nel JSON, questo check usa solo D+/km.
+    // Tre condizioni OR (dalla più selettiva alla più permissiva):
+    // A) Alta quota alpina (>2900m) + pendenza significativa (>70 D+/km)
+    //    → Speedgoat 30K, Dolomyths Skyrun, Skyrace Comapedrosa
+    // B) Quota molto alta (>2200m) + pendenza estrema (>84 D+/km)
+    //    → Transpelmo Skyrace, Dolomiti di Brenta Trail
+    // C) Quota alta (>2000m) + pendenza assoluta (>100 D+/km) — catch-all
+    // Nota: LUT Cortina Skyrace (74.8 D+/km, 2110m) è un edge case noto
+    // non catturabile senza false positives — usa discipline nel JSON.
     if (
-      max_altitude > 2000 &&
-      (avg_gain_per_km > 100 || wdi > 80)
+      (max_altitude > 2900 && avg_gain_per_km > 70) ||
+      (max_altitude > 2200 && avg_gain_per_km > 84) ||
+      (max_altitude > 2000 && avg_gain_per_km > 100)
     ) {
       return 'sky';
     }

@@ -48,22 +48,6 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- WDI WHITE PAPER -->
-  <url>
-    <loc>https://wiz-trail.vercel.app/wdi.html</loc>
-    <lastmod>2026-05-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- PACING WHITE PAPER -->
-  <url>
-    <loc>https://wiz-trail.vercel.app/pacing.html</loc>
-    <lastmod>2026-05-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
   <!-- INSTALL APP -->
   <url>
     <loc>https://wiz-trail.vercel.app/install.html</loc>

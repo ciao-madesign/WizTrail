@@ -1,1 +1,550 @@
-placeholder_ranking
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WizTrail — Ranking difficoltà gare trail</title>
+<meta name="description" content="Classifica WDI delle gare trail più famose. Scopri quanto è difficile la tua prossima gara e confrontala con il tuo GPX.">
+<meta property="og:title" content="WizTrail — Ranking difficoltà gare trail" />
+<meta property="og:description" content="Classifica WDI delle gare trail. Confronta la tua gara e scopri il tuo livello." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WizTrail — Ranking gare trail">
+<meta name="twitter:description" content="Classifica WDI delle gare trail più famose. Confronta la tua.">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#002b2b">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="wiztrail.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ItemList","name":"Ranking WDI — Gare Trail Running","description":"Classifica WDI delle gare trail più famose. Scopri quanto è difficile la tua prossima gara e confrontala con il tuo GPX.","url":"https://wiz-trail.vercel.app/ranking.html","numberOfItems":31,"itemListElement":[{"@type":"ListItem","position":1,"name":"TOR330 — Tor des Géants","description":"WDI 546 · Legend ∞ · 336 km · 29536 m D+"},{"@type":"ListItem","position":2,"name":"TOR130 tot dret","description":"WDI 233 · Legend · 136 km · 11468 m D+"},{"@type":"ListItem","position":3,"name":"Ortles Haute Route Trail","description":"WDI 198 · Elite · 122 km · 9066 m D+"},{"@type":"ListItem","position":4,"name":"TOR100","description":"WDI 182 · Elite · 106 km · 8508 m D+"},{"@type":"ListItem","position":5,"name":"LUT120","description":"WDI 178 · Elite · 120 km · 6311 m D+"},{"@type":"ListItem","position":6,"name":"VUT90","description":"WDI 153 · Elite · 89 km · 6808 m D+"}]}
+</script>
+</head>
+<body data-theme="dark">
+<header class="app-header">
+  <a href="landing.html" class="app-brand-link">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </a>
+  <nav class="app-nav">
+    <a href="index.html" class="">Calcolatore</a>
+      <a href="training-analyzer.html" class="">Training</a>
+      <a href="ranking.html" class="nav-active">Ranking</a>
+      <a href="about.html" class="">Il Metodo</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<div class="hero-fullwidth">
+  <div class="hero-bg-img" id="heroBgImg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">WizTrail — Ranking WDI</div>
+    <h1 class="hero-title">Quanto è difficile<br>il tuo percorso?</h1>
+    <p class="hero-desc">Carica il GPX e scopri WDI e TechScore. Poi confronta con le gare del ranking ufficiale.</p>
+    <div class="hero-actions">
+      <a href="#analizza-gara" class="hero-btn-primary">Analizza il tuo GPX →</a>
+      <a href="#ranking-table" class="hero-btn-ghost">Esplora il ranking</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+<div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+  <span class="theme-ctrl">
+    <label class="mini">Tema</label>
+    <select id="themeSel">
+      <option value="dark" selected>Scuro</option>
+      <option value="light">Chiaro</option>
+    </select>
+  </span>
+</div>
+
+<!-- SEZIONE 1 — Analisi GPX (prominente, prima del ranking) -->
+<div class="card" id="analizza-gara" style="margin-bottom:20px;">
+  <h2>Analizza il tuo percorso</h2>
+  <p class="mini" style="opacity:0.7; margin-bottom:16px;">
+    Carica il GPX della tua gara per ottenere WDI, TechScore e disciplina.
+    Confronta subito con le gare del ranking ufficiale.
+  </p>
+  <label>Carica GPX</label>
+  <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
+  <div class="gpx-alt-row" style="margin-top:8px;">
+    <button class="btn" id="btnUserCompute">Analizza →</button>
+    <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
+    <button type="button" class="gpx-alt-link" id="rkLinkBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      link
+    </button>
+  </div>
+  <div id="rkLinkRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
+    <input id="rkLinkUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
+    <button id="rkLinkGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
+  </div>
+  <div id="userResult" style="margin-top:16px;"></div>
+</div>
+
+<!-- SEZIONE 2 — Ranking ufficiale -->
+<div class="card" id="ranking-table">
+<h2>Ranking ufficiale WDI</h2>
+<div class="grid grid-2">
+<div>
+<label>Filtra per nome gara</label>
+<input id="filterName" type="text" placeholder="Es: Zegama, UTMB…">
+</div>
+<div>
+<label>Disciplina</label>
+<select id="filterDiscipline">
+  <option value="">Tutte le discipline</option>
+  <option value="trail">🌲 Trail</option>
+  <option value="sky">⛰️ Sky</option>
+  <option value="mountain">🏔️ Mountain</option>
+  <option value="ultra">🔥 Ultra</option>
+  <option value="xc">🏅 XC</option>
+</select>
+</div>
+<div>
+<label>Classe WDI</label>
+<select id="filterClass">
+  <option value="">Tutte le classi</option>
+  <option value="Sport">Sport (&lt;22)</option>
+  <option value="Pro">Pro (22–40)</option>
+  <option value="Advanced">Advanced (40–70)</option>
+  <option value="Extreme">Extreme (70–120)</option>
+  <option value="Elite">Elite (120–200)</option>
+  <option value="Legend">Legend (≥200)</option>
+</select>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Ranking complessivo WDI</h2>
+<div class="responsive-table">
+<table id="raceTable">
+<thead>
+<tr>
+<th data-sort="name">Gara ↑↓</th>
+<th>Paese</th>
+<th data-sort="distance">km ↑↓</th>
+<th data-sort="dplus">D+ ↑↓</th>
+<th data-sort="wdi">WDI ↑↓</th>
+<th data-sort="techScore">Tech ↑↓</th>
+<th>Classe</th>
+<th>Disciplina</th>
+<th title="WDI normalizzato 0–10 per categoria di distanza (Short ≤25km · Medium 26–50km · Long 51–95km · Ultra >95km)">WDI norm.</th>
+</tr>
+</thead>
+<tbody id="raceBody"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card admin-only" style="display:none;">
+<h2>Aggiungi una nuova gara al ranking</h2>
+<p class="mini">Carica il GPX reale per ottenere distanza, D+, WDI.<br>Il JSON generato va copiato dentro <code>ranking-data.json</code>.</p>
+<label>GPX reale</label>
+<input type="file" id="gpxAdmin" accept=".gpx,.tcx"/>
+<label>Nome gara</label>
+<input type="text" id="adminName" placeholder="Es: Gran Trail XYZ"/>
+<button class="btn" id="btnAdminCompute">Calcola</button>
+<pre id="adminOutput" style="margin-top:10px;padding:8px;background:#111;border-radius:6px;"></pre>
+</div>
+
+<div class="card admin-only" style="display:none;">
+<h2>Batch Compute TechScore</h2>
+<p class="mini">Calcola TechScore per tutte le gare con GPX disponibile sul server. Il JSON aggiornato va copiato dentro <code>ranking-data.json</code>.</p>
+<button class="btn" id="btnBatchCompute">Calcola tutti (31 gare)</button>
+<div id="batchProgress" style="margin-top:8px; font-size:0.85rem; color:var(--muted);"></div>
+<pre id="batchOutput" style="margin-top:10px;padding:8px;background:#111;border-radius:6px;max-height:400px;overflow:auto;display:none;font-size:0.7rem;"></pre>
+</div>
+
+<div class="footer">WizTrail © 2026
+    <p class="mini" style="opacity:0.5; margin-top:4px;">Foto di <a href="https://unsplash.com/@ryutaf" target="_blank" rel="noopener" style="color:inherit;">Ryuta F.</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a> (Unsplash License)</p>
+  </div>
+</div>
+
+<script src="discipline-classifier.js?v=20260424"></script>
+<script src="wiztrail-engine.js?v=20260505"></script>
+<script src="gpx-parser.js?v=20260415"></script>
+<script>
+//---------------------------------------- tema
+const themeSel = document.getElementById("themeSel");
+themeSel.addEventListener("change", e => document.body.setAttribute("data-theme", e.target.value));
+
+//---------------------------------------- admin mode
+const isAdmin = new URLSearchParams(location.search).get("admin") === "1";
+document.querySelectorAll(".admin-only").forEach(el => el.style.display = isAdmin ? "block" : "none");
+
+//---------------------------------------- load ranking
+let races = [];
+fetch("ranking-data.json")
+ .then(r => r.json())
+ .then(json => { races = json; renderTable(); backgroundComputeTech(); });
+
+// Calcola TechScore da GPX in background, aggiorna le celle progressivamente
+async function backgroundComputeTech() {
+  for (const r of races) {
+    if (r.techScore !== null || !r.gpx) continue;
+    try {
+      const res  = await fetch(r.gpx);
+      const xml  = new DOMParser().parseFromString(await res.text(), 'application/xml');
+      const pts  = GPXParser.parseTrack(xml);
+      const rs   = WizTrail.computeFromGpx(pts, GPXParser.compute(pts));
+      r.techScore = parseFloat(rs.TechScore.toFixed(1));
+      renderTable();
+    } catch (e) { /* skip race on fetch/parse error */ }
+    await new Promise(ok => setTimeout(ok, 80));
+  }
+}
+
+//---------------------------------------- rendering tabella
+
+function wdiLabel(cls, legendPlus){
+  if (legendPlus) return '🏆 Legend ∞';
+  const map = { Sport:'Sport', Pro:'Pro', Advanced:'Advanced',
+                Extreme:'Extreme', Elite:'Elite', Legend:'Legend' };
+  return map[cls] || cls;
+}
+
+function badgeTextColor(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000>128?'#021':'#fff';
+}
+
+function renderTable() {
+  const nameFilter       = filterName.value.toLowerCase();
+  const disciplineFilter = document.getElementById('filterDiscipline')?.value || '';
+  const classFilter      = document.getElementById('filterClass')?.value      || '';
+
+  raceBody.innerHTML = '';
+
+  races
+    .filter(r => r.name.toLowerCase().includes(nameFilter))
+    .filter(r => !disciplineFilter || r.discipline === disciplineFilter)
+    .filter(r => !classFilter      || r.class      === classFilter)
+    .forEach(r => {
+
+      const tr = document.createElement('tr');
+      tr.style.cssText = `cursor:pointer; border-left:4px solid ${r.color}; background:${r.color}18; transition:background 0.2s;`;
+
+      tr.addEventListener('click', () => {
+        if (!r.gpx) { alert('GPX non disponibile per questa gara.'); return; }
+        fetch(r.gpx)
+          .then(res => res.text())
+          .then(gpxText => {
+            sessionStorage.setItem('currentRaceGPX', gpxText);
+            sessionStorage.setItem('currentRaceMeta', JSON.stringify({
+              name:       r.name,
+              distance:   r.distance,
+              dplus:      r.dplus,
+              wdi:        r.wdi,
+              class:      r.class,
+              color:      r.color,
+              discipline: r.discipline || 'trail'
+            }));
+            window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
+          })
+          .catch(() => alert('Errore nel caricamento GPX.'));
+      });
+
+      tr.addEventListener('mouseenter', () => tr.style.background = r.color + '2e');
+      tr.addEventListener('mouseleave', () => tr.style.background = r.color + '18');
+
+      const disciplineBadge = r.discipline ? DisciplineClassifier.renderBadge(r.discipline) : '';
+
+      /* WDI normalizzato per categoria — calcolato al volo dall'engine */
+      const normResult  = WizTrail.normalizeWDI(r.wdi, r.distance);
+      const wdiNorm     = normResult.norm;
+      const wdiLegPlus  = normResult.isLegendPlus;
+      const wdiCat      = normResult.category;
+
+      /* Display WDI: valore grezzo assoluto — sempre il numero reale, nessun cap */
+      const wdiDisplay = `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${r.wdi.toFixed(1)}</span>`;
+
+      /* Display Score: WDI normalizzato 0–10 nella sua categoria di distanza */
+      const catChip = `<span style="display:inline-block;margin-top:3px;padding:1px 7px;border-radius:8px;font-size:0.62rem;font-weight:700;letter-spacing:0.04em;color:var(--muted);background:color-mix(in oklab,var(--border) 55%,transparent);">${wdiCat}</span>`;
+      const scoreDisplay = wdiLegPlus
+        ? `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">∞</span><br>${catChip}`
+        : `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiNorm.toFixed(1)}</span><span style="color:var(--muted); font-size:0.72rem;">/10</span><br>${catChip}`;
+
+      /* TechScore: calcolo interno 0–100, display 0–10 */
+      const techDisplay = (r.techScore != null)
+        ? `<span style="color:var(--muted); font-weight:600;">${(Number(r.techScore) / 10).toFixed(1)}</span>`
+        : `<span style="color:var(--muted); opacity:0.4;" title="Da calcolare con GPX">—</span>`;
+
+      /* Classe WDI: pill colorata */
+      const classPill = `<span style="
+        display:inline-block; padding:2px 9px; border-radius:12px;
+        font-size:0.75rem; font-weight:700;
+        background:${r.color}; color:${badgeTextColor(r.color)}; letter-spacing:0.03em;
+      ">${wdiLabel(r.class, wdiLegPlus)}</span>`;
+
+      /* Categoria distanza: tooltip sulla colonna WDI */
+      const country = r.country || '';
+
+      tr.innerHTML = `
+        <td style="font-weight:600;">${r.name}</td>
+        <td style="font-size:1.1rem; letter-spacing:0.05em;">${country}</td>
+        <td>${r.distance.toFixed(1)}</td>
+        <td>${Math.round(r.dplus).toLocaleString('it-IT')}</td>
+        <td title="WDI grezzo — valore assoluto comparabile tra tutte le gare">${wdiDisplay}</td>
+        <td>${techDisplay}</td>
+        <td>${classPill}</td>
+        <td>${disciplineBadge}</td>
+        <td style="text-align:center; white-space:nowrap;">${scoreDisplay}</td>
+      `;
+
+      raceBody.appendChild(tr);
+    });
+}
+
+//---------------------------------------- ordinamento
+let sortState = { column:null, asc:true };
+document.querySelectorAll("#raceTable th[data-sort]").forEach(th => {
+ th.addEventListener("click", () => {
+   const col = th.dataset.sort;
+   if (sortState.column === col) sortState.asc = !sortState.asc;
+   else { sortState.column = col; sortState.asc = true; }
+
+    races.sort((a, b) => {
+      /* Ordinamento numerico per colonne numeriche */
+      if (['wdi','distance','dplus','techScore'].includes(col)) {
+        const av = a[col] ?? -1;
+        const bv = b[col] ?? -1;
+        return sortState.asc ? av - bv : bv - av;
+      }
+      /* Ordinamento alfabetico per nome */
+      if (a[col] < b[col]) return sortState.asc ? -1 : 1;
+      if (a[col] > b[col]) return sortState.asc ? 1 : -1;
+      return 0;
+    });
+
+   renderTable();
+ });
+});
+
+//---------------------------------------- filtri
+document.getElementById('filterName').addEventListener('input', renderTable);
+document.getElementById('filterDiscipline')?.addEventListener('change', renderTable);
+document.getElementById('filterClass')?.addEventListener('change', renderTable);
+
+//---------------------------------------- admin compute
+btnAdminCompute?.addEventListener("click", async () => {
+ const gp = gpxAdmin.files[0];
+ if (!gp) return alert("Carica un GPX");
+ const raceName = adminName.value.trim();
+ if (!raceName) return alert("Inserisci il nome gara");
+ const text = await gp.text();
+ const xml = new DOMParser().parseFromString(text, "application/xml");
+const pts = GPXParser.parseTrack(xml);
+const metrics = GPXParser.compute(pts);
+const rs = WizTrail.computeFromGpx(pts, metrics);
+const disc = DisciplineClassifier.classify({
+  distance_km: metrics.km,
+  dplus: metrics.gain,
+  max_altitude: metrics.max_altitude,
+  wdi: rs.WDI
+});
+
+adminOutput.textContent = `{
+  "name": "${raceName}",
+  "distance": ${metrics.km.toFixed(2)},
+  "dplus": ${metrics.gain},
+  "wdi": ${rs.WDI.toFixed(1)},
+  "class": "${rs.class}",
+  "color": "${rs.color}",
+  "discipline": "${disc}",
+  "techScore": ${rs.TechScore.toFixed(1)},
+  "techClass": "${rs.techClass}",
+  "max_altitude": ${Math.round(metrics.max_altitude)}
+}`;
+});
+
+//---------------------------------------- batch compute all techScore
+document.getElementById('btnBatchCompute')?.addEventListener('click', async () => {
+  const progress = document.getElementById('batchProgress');
+  const output   = document.getElementById('batchOutput');
+  const btn      = document.getElementById('btnBatchCompute');
+  const toProcess = races.filter(r => r.gpx);
+  const total = toProcess.length;
+  let done = 0, errors = 0;
+
+  btn.disabled = true;
+  output.style.display = 'none';
+  progress.textContent = `Elaborazione 0/${total}…`;
+
+  for (const r of races) {
+    if (!r.gpx) continue;
+    try {
+      const res  = await fetch(r.gpx);
+      const text = await res.text();
+      const xml  = new DOMParser().parseFromString(text, 'application/xml');
+      const pts     = GPXParser.parseTrack(xml);
+      const metrics = GPXParser.compute(pts);
+      const rs      = WizTrail.computeFromGpx(pts, metrics);
+      r.techScore = parseFloat(rs.TechScore.toFixed(1));
+    } catch (e) {
+      console.error(`Batch error — ${r.name}:`, e);
+      errors++;
+    }
+    done++;
+    progress.textContent = `Elaborazione ${done}/${total}…${errors ? ` (${errors} errori)` : ''}`;
+    await new Promise(ok => setTimeout(ok, 10));
+  }
+
+  progress.innerHTML = `<strong>✓ Completato:</strong> ${done - errors}/${total} OK${errors ? `, ${errors} errori (vedi console)` : ''}. Copia il JSON sotto in <code>ranking-data.json</code>.`;
+  output.textContent = JSON.stringify(races, null, 2);
+  output.style.display = 'block';
+  btn.disabled = false;
+  renderTable();
+});
+
+//---------------------------------------- user compute
+btnUserCompute?.addEventListener("click", async () => {
+ const gp = gpxUser.files[0];
+ if (!gp) return alert("Carica un GPX");
+ const text = await gp.text();
+ const xml = new DOMParser().parseFromString(text, "application/xml");
+const pts = GPXParser.parseTrack(xml);
+const metrics = GPXParser.compute(pts);
+const rs = WizTrail.computeFromGpx(pts, metrics);
+
+const userNorm   = WizTrail.normalizeWDI(rs.WDI, metrics.km);
+const discResult = (typeof DisciplineClassifier !== 'undefined')
+  ? DisciplineClassifier.classify({ distance_km: metrics.km, dplus: metrics.gain, max_altitude: metrics.max_altitude || 0, wdi: rs.WDI })
+  : null;
+const discBadge = discResult ? DisciplineClassifier.renderBadge(discResult) : '—';
+
+userResult.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
+});
+
+/* ── Import da link ───────────────────────────────────────────── */
+(function() {
+  const btn   = document.getElementById('rkLinkBtn');
+  const row   = document.getElementById('rkLinkRow');
+  const input = document.getElementById('rkLinkUrl');
+  const go    = document.getElementById('rkLinkGo');
+  const result = document.getElementById('userResult');
+  if (!btn || !row || !input || !go) return;
+
+  btn.addEventListener('click', () => {
+    const open = row.style.display === 'flex';
+    row.style.display = open ? 'none' : 'flex';
+    if (!open) input.focus();
+  });
+
+  async function importFromUrl() {
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    go.disabled = true;
+    if (result) result.innerHTML = '<span style="font-size:0.85rem;opacity:0.6;">Caricamento…</span>';
+
+    try {
+      const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Errore nel caricamento');
+      }
+      const text = await res.text();
+      const xml  = new DOMParser().parseFromString(text, 'application/xml');
+      const pts  = GPXParser.parseTrack(xml);
+      if (!pts.length) throw new Error('Nessuna traccia trovata nel file');
+
+      const metrics    = GPXParser.compute(pts);
+      const rs         = WizTrail.computeFromGpx(pts, metrics);
+      const userNorm   = WizTrail.normalizeWDI(rs.WDI, metrics.km);
+      const discResult = (typeof DisciplineClassifier !== 'undefined')
+        ? DisciplineClassifier.classify({ distance_km: metrics.km, dplus: metrics.gain, max_altitude: metrics.max_altitude || 0, wdi: rs.WDI })
+        : null;
+      const discBadge  = discResult ? DisciplineClassifier.renderBadge(discResult) : '—';
+
+      result.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
+
+      row.style.display = 'none';
+      input.value = '';
+    } catch (e) {
+      if (result) result.innerHTML = '<span style="color:var(--error,#f44);font-size:0.85rem;">✗ ' + e.message + '</span>';
+    } finally {
+      go.disabled = false;
+    }
+  }
+
+  go.addEventListener('click', importFromUrl);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') importFromUrl(); });
+})();
+
+/* ── Shared analysis renderer + cert CTA ──────────────────────────────── */
+let _lastAnalysis = null;
+
+function renderAnalysisHTML(rs, userNorm, discBadge, metrics) {
+  _lastAnalysis = { rs, userNorm, metrics };
+  return `
+  <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:8px;">
+    <div class="kpi" style="flex:1;min-width:130px;">
+      <h3>WDI ${userNorm.category}</h3>
+      <div class="val" style="font-size:2.2rem;color:${rs.color};font-weight:900;">
+        ${userNorm.isLegendPlus ? '10+' : userNorm.norm.toFixed(1)}
+      </div>
+      <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;">
+        grezzo ${rs.WDI.toFixed(1)} · ${wdiLabel(rs.class, userNorm.isLegendPlus)}
+      </div>
+    </div>
+    <div class="kpi" style="flex:1;min-width:130px;">
+      <h3>TechScore</h3>
+      <div class="val" style="font-size:2.2rem;color:${rs.techColor};font-weight:900;">${(rs.TechScore/10).toFixed(1)}</div>
+      <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;">${rs.techClass}</div>
+    </div>
+    <div class="kpi" style="flex:1;min-width:130px;">
+      <h3>Disciplina</h3>
+      <div style="margin-top:10px;">${discBadge}</div>
+      <div style="font-size:0.74rem;color:var(--muted);margin-top:8px;">${metrics.km.toFixed(1)} km · ${Math.round(metrics.gain)} m D+</div>
+    </div>
+  </div>
+  <div style="margin-top:18px;padding:13px 16px;border:1px solid var(--accent,#009688);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:color-mix(in oklab,var(--accent,#009688) 8%,transparent);">
+    <div>
+      <div style="font-weight:700;font-size:.87rem;">🏅 Vuoi certificare questa gara?</div>
+      <div style="font-size:.74rem;opacity:.6;margin-top:3px;">Ottieni badge ufficiale WizTrail e l'inserimento nel ranking certificato</div>
+    </div>
+    <button onclick="openCertContact()" style="white-space:nowrap;padding:8px 16px;border:none;border-radius:8px;background:var(--accent,#009688);color:#fff;font-weight:700;font-size:.81rem;cursor:pointer;">Richiedi →</button>
+  </div>`;
+}
+
+/* ── Cert contact — apre mailto con dati analisi pre-compilati ─────────── */
+function openCertContact() {
+  const a = _lastAnalysis;
+  const gpxInfo = a
+    ? 'Distanza: ' + a.metrics.km.toFixed(1) + ' km\n'
+      + 'D+: ' + Math.round(a.metrics.gain) + ' m\n'
+      + 'WDI: ' + a.rs.WDI.toFixed(1) + ' (' + a.userNorm.category + ')\n'
+      + 'TechScore: ' + (a.rs.TechScore / 10).toFixed(1) + '/10\n\n'
+    : '';
+  const subject = encodeURIComponent('Richiesta certificazione WizTrail');
+  const body = encodeURIComponent(
+    'Nome gara: \nOrganizzatore / Referente: \nEdizione: \nNote: \n\n'
+    + '--- Dati analisi GPX ---\n'
+    + gpxInfo
+  );
+  window.location.href = 'mailto:ciao.madesign@gmail.com?subject=' + subject + '&body=' + body;
+}
+</script>
+<script>
+// Hero image loader
+(function() {
+  const heroBg = document.getElementById('heroBgImg');
+  if (!heroBg) return;
+  const img = new Image();
+  img.onload = function() {
+    heroBg.style.backgroundImage = "url('img/hero-ranking.jpg')";
+    heroBg.classList.add('hero-bg-loaded');
+  };
+  img.src = 'img/hero-ranking.jpg';
+})();
+</script>
+
+<script>window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

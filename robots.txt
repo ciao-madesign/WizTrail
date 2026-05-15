@@ -6,8 +6,6 @@ Allow: /index.html
 Allow: /landing.html
 Allow: /ranking.html
 Allow: /about.html
-Allow: /wdi.html
-Allow: /pacing.html
 Allow: /training-analyzer.html
 Allow: /install.html
 

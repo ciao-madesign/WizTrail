@@ -19,7 +19,7 @@
 
 <div class="wrap">
   <h1>Importa attività da Strava</h1>
-  <button class="btn secondary" onclick="location.href='training-analyzer.html'">← Torna indietro</button>
+  <button class="btn secondary">← Torna indietro</button>
 
   <div class="card" style="margin-top:20px;">
     <p class="mini">Seleziona un'attività da analizzare con WizTrail.</p>
@@ -32,10 +32,25 @@
 
 <script>
   (function () {
+    const params     = new URLSearchParams(location.search);
+    const returnPage = params.get('return') || 'training-analyzer.html';
+    const backHref   = returnPage === 'index' ? 'index.html' : 'training-analyzer.html';
+
+    // Persiste il returnPage attraverso il flusso OAuth
+    if (params.has('return')) {
+      sessionStorage.setItem('strava_import_return', returnPage);
+    }
+    const savedReturn = sessionStorage.getItem('strava_import_return') || returnPage;
+    const finalBack   = savedReturn === 'index' ? 'index.html' : 'training-analyzer.html';
+
+    document.querySelector('button.secondary').addEventListener('click', () => {
+      location.href = finalBack;
+    });
+
     const token = sessionStorage.getItem('strava_token');
 
     if (!token) {
-      location.href = 'training-analyzer.html';
+      location.href = finalBack;
       return;
     }
 
@@ -60,10 +75,10 @@
       }
 
       if (!res.ok) {
-        // Token scaduto o non valido → torna al login
+        // Token scaduto o non valido → torna al chiamante
         sessionStorage.removeItem('strava_token');
         sessionStorage.removeItem('strava_athlete_id');
-        location.href = 'training-analyzer.html';
+        location.href = finalBack;
         return;
       }
 
@@ -101,7 +116,9 @@
     }
 
     function openActivity(id) {
-      location.href = 'training-analyzer.html?source=strava&id=' + encodeURIComponent(id);
+      const dest = savedReturn === 'index' ? 'index.html' : 'training-analyzer.html';
+      sessionStorage.removeItem('strava_import_return');
+      location.href = dest + '?source=strava&id=' + encodeURIComponent(id);
     }
 
     // Sanifica testo prima di inserirlo nel DOM

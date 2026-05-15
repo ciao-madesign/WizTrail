@@ -2,7 +2,7 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-05-05c";
+const CACHE_VERSION = "wiztrail-v2026-05-13a";
 const CORE_CACHE = [
   "/",
   "/landing.html",
@@ -66,6 +66,37 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+
+// ===============================
+// WEB SHARE TARGET — intercetta POST da app mobile
+// ===============================
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  const url = new URL(req.url);
+
+  if (req.method === "POST" && url.pathname === "/index.html") {
+    event.respondWith((async () => {
+      try {
+        const formData = await req.formData();
+        const file = formData.get("gpx");
+        if (file && file.size > 0) {
+          const buf = await file.arrayBuffer();
+          const shareCache = await caches.open("wiztrail-share-queue");
+          await shareCache.put("/shared-gpx", new Response(buf, {
+            headers: {
+              "Content-Type": file.type || "application/gpx+xml",
+              "X-Filename":   file.name  || "shared.gpx",
+            }
+          }));
+        }
+      } catch (e) {
+        console.error("share target error:", e);
+      }
+      return Response.redirect("/index.html?shared=1", 303);
+    })());
+    return;
+  }
+});
 
 // ===============================
 // FETCH — network first per HTML, CSS, JS · cache first per immagini

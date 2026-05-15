@@ -24,7 +24,6 @@
   window.currentWDI        = null;   // WDI grezzo — usato da map.js e discipline-classifier
   window.currentWDI_norm   = null;   // WDI normalizzato 0–10 per categoria — solo display
   window.lastRS            = null;
-  window.currentSurfaceLevel = 3;
   window.lastOsmResult       = null;
 
   /* ------------------------------------------------------------------
@@ -128,6 +127,154 @@
       await handleGpxFile(e.dataTransfer?.files?.[0]);
     });
   }
+
+  /* ------------------------------------------------------------------
+     IMPORT DA URL/LINK
+     ------------------------------------------------------------------ */
+  (function setupLinkImport() {
+    const btn    = document.getElementById('linkImportBtn');
+    const row    = document.getElementById('linkImportRow');
+    const input  = document.getElementById('linkImportUrl');
+    const goBtn  = document.getElementById('linkImportGo');
+    if (!btn || !row || !input || !goBtn) return;
+
+    btn.addEventListener('click', () => {
+      const open = row.style.display !== 'none' && row.style.display !== '';
+      row.style.display = open ? 'none' : 'flex';
+      if (!open) input.focus();
+    });
+
+    async function importFromUrl() {
+      const raw = input.value.trim();
+      if (!raw) return;
+
+      const dz      = document.getElementById('gpxDropzone');
+      const mainTxt = dz?.querySelector('.gpx-dropzone-main');
+      if (mainTxt) mainTxt.textContent = 'Caricamento…';
+      goBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Errore nel caricamento');
+        }
+        const text = await res.text();
+        const xml  = new DOMParser().parseFromString(text, 'application/xml');
+        window.gpxPts  = GPXParser.parseTrack(xml);
+        window.metrics = GPXParser.compute(window.gpxPts);
+
+        if (!window.gpxPts.length) throw new Error('Nessuna traccia trovata nel file');
+
+        WizUI.updateGpxInfo(window.gpxPts, window.metrics);
+        const es = document.getElementById('elevSection');
+        if (es) es.style.display = 'block';
+        WizMap.init();
+        WizMap.drawTrack();
+        requestAnimationFrame(() => WizMap.drawProfile());
+
+        if (dz) dz.classList.add('loaded');
+        if (mainTxt) mainTxt.textContent = '✓ Traccia caricata da link';
+        row.style.display = 'none';
+        input.value = '';
+      } catch (e) {
+        if (mainTxt) mainTxt.textContent = '✗ ' + e.message;
+        if (dz) dz.classList.remove('loaded');
+      } finally {
+        goBtn.disabled = false;
+      }
+    }
+
+    goBtn.addEventListener('click', importFromUrl);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') importFromUrl(); });
+  })();
+
+  /* ------------------------------------------------------------------
+     WEB SHARE TARGET — GPX condiviso da un'altra app mobile
+     Il service worker intercetta il POST e mette il file in cache;
+     qui lo recuperiamo e lo carichiamo.
+     ------------------------------------------------------------------ */
+  (async function loadSharedGpx() {
+    const sp = new URLSearchParams(location.search);
+    if (sp.get('shared') !== '1') return;
+    history.replaceState(null, '', location.pathname);
+
+    try {
+      const cache = await caches.open('wiztrail-share-queue');
+      const stored = await cache.match('/shared-gpx');
+      if (!stored) return;
+
+      const blob     = await stored.blob();
+      const filename = stored.headers.get('X-Filename') || 'shared.gpx';
+      await cache.delete('/shared-gpx');
+
+      const file = new File([blob], filename, { type: blob.type || 'application/gpx+xml' });
+      await handleGpxFile(file);
+    } catch (e) {
+      console.error('share target load error:', e);
+    }
+  })();
+
+  /* ------------------------------------------------------------------
+     AUTO-LOAD DA STRAVA (index.html?source=strava&id=...)
+     Attivato quando l'utente torna da import_strava.html
+     ------------------------------------------------------------------ */
+  (async function loadFromStravaIfNeeded() {
+    const sp = new URLSearchParams(location.search);
+    if (sp.get('source') !== 'strava') return;
+    const activityId = sp.get('id');
+    if (!activityId || !/^\d{1,20}$/.test(activityId)) return;
+
+    const token = sessionStorage.getItem('strava_token');
+    if (!token) return;
+
+    // Feedback visivo
+    const dz = document.getElementById('gpxDropzone');
+    const mainTxt = dz?.querySelector('.gpx-dropzone-main');
+    if (mainTxt) mainTxt.textContent = 'Caricamento da Strava…';
+
+    let data;
+    try {
+      const res = await fetch('/api/strava/activity?mode=analyze&id=' + encodeURIComponent(activityId), {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (res.status === 401) {
+        sessionStorage.removeItem('strava_token');
+        sessionStorage.removeItem('strava_athlete_id');
+        if (mainTxt) mainTxt.textContent = 'Sessione Strava scaduta — riconnettiti';
+        return;
+      }
+      if (!res.ok) {
+        if (mainTxt) mainTxt.textContent = 'Errore nel caricamento attività Strava';
+        return;
+      }
+      data = await res.json();
+    } catch {
+      if (mainTxt) mainTxt.textContent = 'Errore di rete — riprova';
+      return;
+    }
+
+    if (!data.pts || !data.pts.length) {
+      if (mainTxt) mainTxt.textContent = 'Attività senza traccia GPS';
+      return;
+    }
+
+    window.gpxPts  = data.pts;
+    window.metrics = data.metrics;
+    WizUI.updateGpxInfo(window.gpxPts, window.metrics);
+
+    const es = document.getElementById('elevSection');
+    if (es) es.style.display = 'block';
+    WizMap.init();
+    WizMap.drawTrack();
+    requestAnimationFrame(() => WizMap.drawProfile());
+
+    if (dz) dz.classList.add('loaded');
+    if (mainTxt) mainTxt.textContent = '✓ Attività Strava caricata';
+
+    // Rimuove i params dall'URL senza ricaricare la pagina
+    history.replaceState(null, '', location.pathname);
+  })();
 
   /* ------------------------------------------------------------------
      PULSANTE "Centra sulla traccia"
@@ -243,14 +390,13 @@
         gain:        manualGain,
         loss:        manualGain,
         terrainCat:  window.currentTerrainCat  || 'EE',
-        surfaceLevel: window.currentSurfaceLevel || 3,
         altMedia:    m.altMedia || 800,
       });
     } else {
       rs = WizTrail.computeFromGpx(
         window.gpxPts,
         m,
-        window.currentSurfaceLevel,
+        null,
         window.lastOsmResult
       );
     }
@@ -414,24 +560,6 @@
      ------------------------------------------------------------------ */
   document.addEventListener('DOMContentLoaded', () => {
     WizUI.initTipsToggle();
-  });
-
-  /* ------------------------------------------------------------------
-     SLIDER SUPERFICIE
-     ------------------------------------------------------------------ */
-  document.getElementById('surfaceSlider')?.addEventListener('input', function () {
-    window.currentSurfaceLevel = parseInt(this.value) || 3;
-    if (window.gpxPts && window.gpxPts.length && window.metrics) {
-      const rs = WizTrail.computeFromGpx(
-        window.gpxPts, window.metrics,
-        window.currentSurfaceLevel, window.lastOsmResult
-      );
-      window.currentWDI      = rs.WDI;
-      window.currentWDI_norm = rs.WDI_norm;
-      window.lastRS     = rs;
-      WizUI.showWDI(rs);
-      WizUI.showTechScore(rs);
-    }
   });
 
   // wiztrail-osm.js disabilitato: OSM Enhanced rimosso (0% copertura Overpass API).

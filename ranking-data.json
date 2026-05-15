@@ -57,7 +57,8 @@
     "gpx": "gpx/valtellina_wine_trail.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 61.9
+    "techScore": 61.9,
+    "max_altitude": 2318
   },
   {
     "name": "CDF 12K",
@@ -69,7 +70,8 @@
     "gpx": "gpx/cdf_12k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 50.0
+    "techScore": 50.0,
+    "max_altitude": 695
   },
   {
     "name": "CDF 28",
@@ -81,7 +83,8 @@
     "gpx": "gpx/cdf_28.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 64.8
+    "techScore": 64.8,
+    "max_altitude": 1222
   },
   {
     "name": "CDF 38K",
@@ -93,7 +96,8 @@
     "gpx": "gpx/cdf_38k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 66.2
+    "techScore": 66.2,
+    "max_altitude": 1221
   },
   {
     "name": "CDF 50K",
@@ -105,7 +109,8 @@
     "gpx": "gpx/cdf_50k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 63.1
+    "techScore": 63.1,
+    "max_altitude": 1219
   },
   {
     "name": "CDF 70K",
@@ -117,7 +122,8 @@
     "gpx": "gpx/cdf_70k.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 70.0
+    "techScore": 70.0,
+    "max_altitude": 1221
   },
   {
     "name": "UTLAC 30",
@@ -141,7 +147,8 @@
     "gpx": "gpx/black_canyon_100.gpx",
     "discipline": "ultra",
     "country": "🇺🇸",
-    "techScore": 25.8
+    "techScore": 25.8,
+    "max_altitude": 1280
   },
   {
     "name": "Bettelmatt Race",
@@ -165,7 +172,8 @@
     "gpx": "gpx/but.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 69.0
+    "techScore": 69.0,
+    "max_altitude": 2925
   },
   {
     "name": "LUT Cortina Skyrace",
@@ -175,9 +183,10 @@
     "class": "Advanced",
     "color": "#F4C20D",
     "gpx": "gpx/lut_cortina_skyrace.gpx",
-    "discipline": "trail",
+    "discipline": "sky",
     "country": "🇮🇹",
-    "techScore": 67.8
+    "techScore": 67.8,
+    "max_altitude": 2110
   },
   {
     "name": "Dolomiti di Brenta Trail",
@@ -187,9 +196,10 @@
     "class": "Extreme",
     "color": "#F79617",
     "gpx": "gpx/dolomiti_brenta_trail.gpx",
-    "discipline": "mountain",
+    "discipline": "sky",
     "country": "🇮🇹",
-    "techScore": 83.6
+    "techScore": 83.6,
+    "max_altitude": 2591
   },
   {
     "name": "LUT 50",
@@ -201,7 +211,8 @@
     "gpx": "gpx/lut_50.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 65.8
+    "techScore": 65.8,
+    "max_altitude": 2430
   },
   {
     "name": "LUT120",
@@ -213,7 +224,8 @@
     "gpx": "gpx/lut120.gpx",
     "discipline": "ultra",
     "country": "🇮🇹",
-    "techScore": 64.7
+    "techScore": 64.7,
+    "max_altitude": 2459
   },
   {
     "name": "LUT 20",
@@ -225,7 +237,8 @@
     "gpx": "gpx/lut_20.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 71.9
+    "techScore": 71.9,
+    "max_altitude": 2042
   },
   {
     "name": "Ortles Haute Route 35",
@@ -237,7 +250,8 @@
     "gpx": "gpx/ortles_hr_35.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 65.2
+    "techScore": 65.2,
+    "max_altitude": 2417
   },
   {
     "name": "Ortles Haute Route Trail",
@@ -249,7 +263,8 @@
     "gpx": "gpx/ortles_hr_trail.gpx",
     "discipline": "ultra",
     "country": "🇮🇹",
-    "techScore": 68.9
+    "techScore": 68.9,
+    "max_altitude": 3246
   },
   {
     "name": "Sella Ronda Trail",
@@ -261,7 +276,8 @@
     "gpx": "gpx/sella_ronda_trail.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 49.2
+    "techScore": 49.2,
+    "max_altitude": 2231
   },
   {
     "name": "Dolomyths Skyrun",
@@ -271,9 +287,10 @@
     "class": "Advanced",
     "color": "#F4C20D",
     "gpx": "gpx/dolomyths_skyrun.gpx",
-    "discipline": "mountain",
+    "discipline": "sky",
     "country": "🇮🇹",
-    "techScore": 69.1
+    "techScore": 69.1,
+    "max_altitude": 3150
   },
   {
     "name": "TOR30",
@@ -285,7 +302,8 @@
     "gpx": "gpx/tor30.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 73.4
+    "techScore": 73.4,
+    "max_altitude": 2921
   },
   {
     "name": "TOR100",
@@ -297,7 +315,8 @@
     "gpx": "gpx/tor100.gpx",
     "discipline": "ultra",
     "country": "🇮🇹",
-    "techScore": 74.7
+    "techScore": 74.7,
+    "max_altitude": 2922
   },
   {
     "name": "TOR130 tot dret",
@@ -309,7 +328,8 @@
     "gpx": "gpx/tor130_totdret.gpx",
     "discipline": "ultra",
     "country": "🇮🇹",
-    "techScore": 74.7
+    "techScore": 74.7,
+    "max_altitude": 2922
   },
   {
     "name": "TOR330",
@@ -321,7 +341,8 @@
     "gpx": "gpx/tor330.gpx",
     "discipline": "ultra",
     "country": "🇮🇹 🇫🇷",
-    "techScore": 74.9
+    "techScore": 74.9,
+    "max_altitude": 3298
   },
   {
     "name": "Transvulcania Marathon",
@@ -333,7 +354,8 @@
     "gpx": "gpx/transvulcania_marathon.gpx",
     "discipline": "trail",
     "country": "🇪🇸",
-    "techScore": 63.4
+    "techScore": 63.4,
+    "max_altitude": 2434
   },
   {
     "name": "Transvulcania Ultramarathon",
@@ -345,7 +367,8 @@
     "gpx": "gpx/transvulcania_ultra.gpx",
     "discipline": "trail",
     "country": "🇪🇸",
-    "techScore": 66.2
+    "techScore": 66.2,
+    "max_altitude": 2381
   },
   {
     "name": "Transpelmo Skyrace",
@@ -355,9 +378,10 @@
     "class": "Advanced",
     "color": "#F4C20D",
     "gpx": "gpx/transpelmo_skyrace.gpx",
-    "discipline": "mountain",
+    "discipline": "sky",
     "country": "🇮🇹",
-    "techScore": 88.9
+    "techScore": 88.9,
+    "max_altitude": 2490
   },
   {
     "name": "UTLAC 60",
@@ -369,6 +393,43 @@
     "gpx": "gpx/utlac_60.gpx",
     "discipline": "trail",
     "country": "🇮🇹",
-    "techScore": 64.8
+    "techScore": 64.8,
+    "max_altitude": 1652
+  },
+  {
+    "name": "Skyrace Comapedrosa 24K",
+    "distance": 23.8,
+    "dplus": 2471,
+    "wdi": 76.1,
+    "class": "Extreme",
+    "color": "#F79617",
+    "discipline": "sky",
+    "country": "🇦🇩",
+    "techScore": 80.4,
+    "max_altitude": 2933
+  },
+  {
+    "name": "Speedgoat 30K",
+    "distance": 31.0,
+    "dplus": 2296,
+    "wdi": 67.2,
+    "class": "Advanced",
+    "color": "#F4C20D",
+    "discipline": "sky",
+    "country": "🇺🇸",
+    "techScore": 72.1,
+    "max_altitude": 3344
+  },
+  {
+    "name": "Gran Trail Orobie 70K",
+    "distance": 71.2,
+    "dplus": 6351,
+    "wdi": 148.3,
+    "class": "Elite",
+    "color": "#E91E63",
+    "discipline": "mountain",
+    "country": "🇮🇹",
+    "techScore": 75.8,
+    "max_altitude": 2141
   }
 ]
