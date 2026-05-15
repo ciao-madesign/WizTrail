@@ -10,7 +10,7 @@
  *   { distance_km, dplus, max_altitude, wdi }
  *   (tutti disponibili da GPXParser.compute() + WizTrail.computeFromGpx())
  *
- * ⚠ Soglie PROVVISORIE — ricalibrate dopo dataset ITRA completo (B1-B3).
+ * Soglie calibrate su 31 gare reali (25 con max_altitude da GPX). Estendere con sky/xc per fase 2.
  *
  * Logica di classificazione (in ordine di priorità):
  *   ULTRA    → distanza ≥ 95km (indipendente da tecnicità)
@@ -40,7 +40,7 @@ window.DisciplineClassifier = (function () {
      @param {number} opts.distance_km   — distanza totale in km
      @param {number} opts.dplus         — dislivello positivo in metri
      @param {number} [opts.max_altitude=0] — quota massima in metri
-     @param {number} [opts.wdi=0]       — WDI calcolato (opzionale, raffina sky)
+     @param {number} [opts.wdi=0]       — WDI calcolato (riservato per usi futuri)
      @returns {'trail'|'sky'|'mountain'|'xc'}
      ------------------------------------------------------------------ */
   function classify(opts) {
@@ -62,11 +62,11 @@ window.DisciplineClassifier = (function () {
     }
 
     // — SKYRUNNING —
-    // Alta quota + pendenza estrema o WDI elevato.
-    // Nota: senza max_altitude nel JSON, questo check usa solo D+/km.
+    // Alta quota + pendenza estrema. WDI escluso: correla con difficoltà generale,
+    // non con skyrunning (falsi positivi su trail duri ad alta quota).
     if (
       max_altitude > 2000 &&
-      (avg_gain_per_km > 100 || wdi > 80)
+      avg_gain_per_km > 100
     ) {
       return 'sky';
     }

@@ -413,7 +413,7 @@ const rs = WizTrail.computeFromGpx(pts, metrics);
 
 const userNorm   = WizTrail.normalizeWDI(rs.WDI, metrics.km);
 const discResult = (typeof DisciplineClassifier !== 'undefined')
-  ? DisciplineClassifier.classify({ distance_km: metrics.km, dplus: metrics.gain, max_altitude: 0, wdi: rs.WDI })
+  ? DisciplineClassifier.classify({ distance_km: metrics.km, dplus: metrics.gain, max_altitude: metrics.max_altitude || 0, wdi: rs.WDI })
   : null;
 const discBadge = discResult ? DisciplineClassifier.renderBadge(discResult) : '—';
 
@@ -457,7 +457,7 @@ userResult.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
       const rs         = WizTrail.computeFromGpx(pts, metrics);
       const userNorm   = WizTrail.normalizeWDI(rs.WDI, metrics.km);
       const discResult = (typeof DisciplineClassifier !== 'undefined')
-        ? DisciplineClassifier.classify({ distance_km: metrics.km, dplus: metrics.gain, max_altitude: 0, wdi: rs.WDI })
+        ? DisciplineClassifier.classify({ distance_km: metrics.km, dplus: metrics.gain, max_altitude: metrics.max_altitude || 0, wdi: rs.WDI })
         : null;
       const discBadge  = discResult ? DisciplineClassifier.renderBadge(discResult) : '—';
 
