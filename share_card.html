@@ -157,6 +157,7 @@ overflow: hidden;
         <div class="left-col">
           <div id="shareWDI" class="wdi-big"></div>
           <div id="shareComment" class="wdit-comment"></div>
+          <div id="shareTechScore" class="share-data" style="margin-top:4px;opacity:0.8;"></div>
           <div id="sharePerf" class="perf-comment"></div>
         </div>
 
@@ -242,10 +243,16 @@ if(data.time_real && data.distance){
   sPaceAvg.textContent = `Pace medio: ${Math.floor(pace/60)}:${String(Math.round(pace%60)).padStart(2,"0")}/km`;
 }
 
-shareWDI.textContent = 'WDI ' + (data.WDI || data.WDIT || '—')
+const wdiVal = data.WDI_legendPlus ? '10+' : (data.WDI || data.WDIT || '—');
+shareWDI.textContent = 'WDI ' + wdiVal
   + (data.WDI_category ? ' · ' + data.WDI_category : '');
 shareWDI.style.color = data.WDI_color || data.wdiColor || '#34A853';
 shareComment.textContent = data.comment || "";
+if (data.TechScore) {
+  const ts = (parseFloat(data.TechScore) / 10).toFixed(1);
+  shareTechScore.textContent = 'Tech ' + ts + '/10'
+    + (data.techClass ? ' · ' + data.techClass : '');
+}
 if(data.includeCompare && data.perfComment){
   sharePerf.textContent = data.perfComment;
   sharePerf.style.color = data.WDI_color || data.wdiColor || '#34A853';
