@@ -64,7 +64,7 @@ def main():
 
     stats = get_stats()
 
-    url = f"{VERCEL_HUB_URL}/api/hub/patch?key={ADMIN_TOKEN}"
+    url = f"{VERCEL_HUB_URL}/api/hub?action=patch&key={ADMIN_TOKEN}"
 
     headers = {"Content-Type": "application/json"}
     if BYPASS_SECRET:
@@ -81,7 +81,7 @@ def main():
         "patch_js":         patch,
     }
 
-    print(f"  Invio a {VERCEL_HUB_URL}/api/hub/patch ...")
+    print(f"  Invio a {VERCEL_HUB_URL}/api/hub?action=patch ...")
     try:
         r = requests.post(url, json=payload, headers=headers, timeout=30)
         print(f"  HTTP status: {r.status_code}")

@@ -625,7 +625,7 @@ const STATE = {
 
 /* ── API helper ─────────────────────────────────────────────────────────── */
 async function api(path, opts = {}) {
-  const url    = `/api/hub/${path}`;
+  const url    = `/api/hub?action=${path}`;
   const method = opts.method || 'GET';
 
   /* Il token viaggia SEMPRE nell'header X-Hub-Key — mai nel query param URL.
