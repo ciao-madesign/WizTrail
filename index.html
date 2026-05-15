@@ -98,7 +98,7 @@
     <div class="card">
 
       <fieldset>
-        <legend>Traccia GPS (opzionale ma consigliata)</legend>
+        <legend>Traccia GPX — consigliata per calcolo completo</legend>
 
         <!-- Drop zone visiva -->
         <label for="gpxfile" class="gpx-dropzone" id="gpxDropzone">
@@ -137,16 +137,7 @@
         <!-- Info dopo caricamento -->
         <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
         <div id="gpxEmpty" class="gpx-empty" style="display:none;">
-          <span>Distanza e D+ possono essere inseriti manualmente sotto</span>
-        </div>
-        <div style="margin-top:12px;">
-          <label>Tipo di terreno prevalente</label>
-          <input type="range" id="surfaceSlider" min="1" max="5" value="3" step="1"
-                 style="width:100%; margin:6px 0;">
-          <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7;">
-            <span>Strada</span><span>Sentiero</span><span>Misto</span><span>Ghiaione</span><span>Roccia</span>
-          </div>
-          <div class="mini" style="opacity:0.6; margin-top:4px;">Fattore indicativo — incide ≤2% sul WDI finale</div>
+          <span>Senza GPX: inserisci distanza e D+ manualmente</span>
         </div>
       </fieldset>
 
@@ -154,7 +145,7 @@
         <legend>Parametri atleta</legend>
         <label>Tempo 10 km in piano (mm:ss)
           <span class="mini" style="opacity:0.65; font-weight:400;">
-            — usato sia per il calcolo pacing sia per la stima personalizzata
+            — usato per pacing e stima tempo personalizzata
           </span>
         </label>
         <input id="t10k" type="text" value="50:00" placeholder="es. 52:00"/>
@@ -292,7 +283,7 @@
       <div id="feedbackBtn" style="display:none; margin-top:16px; text-align:center;">
         <button class="btn secondary"
           onclick="var m=document.getElementById('feedbackModal');m.style.display='flex';document.getElementById('feedbackOverlay').onclick=function(){m.style.display='none';};">
-          🏁 Hai corso questa gara? Dai il tuo feedback
+          Hai un tempo reale per questa gara? Aiuta a calibrare il modello
         </button>
       </div>
 
@@ -490,10 +481,10 @@
       deltaEl.textContent = sign + deltaPct + '%';
       deltaEl.className   = 'feedback-delta ' + (deltaPct > 0 ? 'over' : deltaPct < 0 ? 'under' : '');
       msgEl.textContent   = deltaPct > 5
-        ? 'Più lento del previsto — il modello tende a sottostimare su questo tipo di percorso.'
+        ? `Più lento del previsto (${sign}${deltaPct}%). Il tuo feedback contribuisce alla calibrazione del modello.`
         : deltaPct < -5
-          ? 'Più veloce del previsto — il modello tende a sovrastimare su questo tipo di percorso.'
-          : 'La stima era molto accurata. ✓';
+          ? `Più veloce del previsto (${sign}${deltaPct}%). Il tuo feedback contribuisce alla calibrazione del modello.`
+          : 'Stima accurata (delta < 5%). ✓';
 
       resultEl.classList.add('visible');
 

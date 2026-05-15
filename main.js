@@ -24,7 +24,6 @@
   window.currentWDI        = null;   // WDI grezzo — usato da map.js e discipline-classifier
   window.currentWDI_norm   = null;   // WDI normalizzato 0–10 per categoria — solo display
   window.lastRS            = null;
-  window.currentSurfaceLevel = 3;
   window.lastOsmResult       = null;
 
   /* ------------------------------------------------------------------
@@ -391,14 +390,13 @@
         gain:        manualGain,
         loss:        manualGain,
         terrainCat:  window.currentTerrainCat  || 'EE',
-        surfaceLevel: window.currentSurfaceLevel || 3,
         altMedia:    m.altMedia || 800,
       });
     } else {
       rs = WizTrail.computeFromGpx(
         window.gpxPts,
         m,
-        window.currentSurfaceLevel,
+        null,
         window.lastOsmResult
       );
     }
@@ -562,24 +560,6 @@
      ------------------------------------------------------------------ */
   document.addEventListener('DOMContentLoaded', () => {
     WizUI.initTipsToggle();
-  });
-
-  /* ------------------------------------------------------------------
-     SLIDER SUPERFICIE
-     ------------------------------------------------------------------ */
-  document.getElementById('surfaceSlider')?.addEventListener('input', function () {
-    window.currentSurfaceLevel = parseInt(this.value) || 3;
-    if (window.gpxPts && window.gpxPts.length && window.metrics) {
-      const rs = WizTrail.computeFromGpx(
-        window.gpxPts, window.metrics,
-        window.currentSurfaceLevel, window.lastOsmResult
-      );
-      window.currentWDI      = rs.WDI;
-      window.currentWDI_norm = rs.WDI_norm;
-      window.lastRS     = rs;
-      WizUI.showWDI(rs);
-      WizUI.showTechScore(rs);
-    }
   });
 
   // wiztrail-osm.js disabilitato: OSM Enhanced rimosso (0% copertura Overpass API).
