@@ -36,7 +36,7 @@
      COLORE TRACCIA in base al WDI
      ------------------------------------------------------------------ */
   function getColorWDI(wdi) {
-    // Soglie v3 — sincronizzate con WDI_THRESHOLDS in wiztrail-engine.js (05/05/2026)
+    // Soglie v5.1 — sincronizzate con WDI_THRESHOLDS in wiztrail-engine.js (05/05/2026)
     if (!wdi || wdi <  22) return '#2BB7DA';  // Sport
     if (wdi <  40)         return '#34A853';  // Pro
     if (wdi <  70)         return '#F4C20D';  // Advanced
