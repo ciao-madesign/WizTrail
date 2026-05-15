@@ -11,17 +11,20 @@ import { checkRateLimit, getIP } from '../lib/ratelimit.js';
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-// Blocca hostname privati/locali
+// Blocca hostname privati/locali e metadata endpoint cloud
 function isPrivateHost(hostname) {
   return (
     hostname === 'localhost' ||
+    hostname === '0.0.0.0' ||
     hostname.endsWith('.local') ||
     /^127\./.test(hostname) ||
     /^10\./.test(hostname) ||
     /^192\.168\./.test(hostname) ||
     /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+    /^169\.254\./.test(hostname) ||   // link-local: AWS/Azure/GCP metadata
     /^::1$/.test(hostname) ||
-    /^fd/.test(hostname)
+    /^fe80:/i.test(hostname) ||       // IPv6 link-local
+    /^fd/i.test(hostname)             // IPv6 ULA
   );
 }
 

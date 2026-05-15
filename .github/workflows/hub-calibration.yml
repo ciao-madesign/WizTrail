@@ -77,7 +77,7 @@ jobs:
           cp wiztrail-calibration/output/4_wiztrail_patch.js .
           git add wiztrail-engine.js wiztrail-timing.js 4_wiztrail_patch.js
           git diff --cached --quiet || git commit -m "chore: calibrazione modello $(date +'%Y-%m-%d %H:%M') [bot]"
-          git push origin model-update --force
+          git push origin model-update --force-with-lease
 
       - name: Notifica completamento
         if: always()
