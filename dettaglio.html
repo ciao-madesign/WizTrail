@@ -192,106 +192,6 @@
     ctx.strokeStyle='#4fd1c5';ctx.lineWidth=2;ctx.stroke();
   }
 
-  function wdiColor(rawWdi){
-    if(rawWdi< 22) return '#2BB7DA';
-    if(rawWdi< 40) return '#34A853';
-    if(rawWdi< 70) return '#F4C20D';
-    if(rawWdi<120) return '#F79617';
-    if(rawWdi<200) return '#E91E63';
-    return '#8E24AA';
-  }
-
-  function wdiClassName(rawWdi){
-    if(rawWdi< 22) return 'Sport';
-    if(rawWdi< 40) return 'Pro';
-    if(rawWdi< 70) return 'Advanced';
-    if(rawWdi<120) return 'Extreme';
-    if(rawWdi<200) return 'Elite';
-    return 'Legend';
-  }
-
-  function safeText(s){
-    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  async function loadCertifiedRace(id){
-    document.getElementById('raceName').textContent='Caricamento...';
-    var mapEl=document.getElementById('mapLeaflet');
-    if(mapEl) mapEl.style.display='none';
-
-    try{
-      var fetchRes=await fetch('/api/cert/get?id='+encodeURIComponent(id));
-      var json=await fetchRes.json();
-      if(!json.ok||!json.race){
-        document.getElementById('raceName').textContent='Gara non trovata o non certificata.';
-        return;
-      }
-      var race=json.race;
-
-      // Rendi la pagina indicizzabile
-      document.querySelectorAll('meta[name="robots"]').forEach(function(m){m.remove();});
-
-      document.title='WizTrail — '+race.race+(race.edition?' '+race.edition:'');
-      document.getElementById('raceName').textContent=race.race+(race.edition?' · '+race.edition:'');
-
-      if(race.km)    document.getElementById('metaDist').textContent=parseFloat(race.km).toFixed(1)+' km';
-      if(race.dplus) document.getElementById('metaDplus').textContent=Math.round(race.dplus)+' m D+';
-      if(race.wdicat) document.getElementById('metaDiscipline').textContent=race.wdicat;
-
-      // WDI
-      if(race.wdi!=null && race.km && window.WizTrail){
-        var normR=WizTrail.normalizeWDI(race.wdi,race.km);
-        var color=wdiColor(race.wdi);
-        var wdiEl=document.getElementById('wdiScore');
-        var clsEl=document.getElementById('wdiClass');
-        var rawEl=document.getElementById('wdiRaw');
-        wdiEl.textContent=normR.isLegendPlus?'10+':normR.norm.toFixed(1);
-        wdiEl.style.color=color;
-        clsEl.textContent=normR.isLegendPlus?'🏆 Legend ∞':wdiClassName(race.wdi);
-        clsEl.style.background=color;
-        if(rawEl) rawEl.textContent='WDI '+normR.category+' · grezzo '+parseFloat(race.wdi).toFixed(1);
-      }
-
-      // TechScore
-      if(race.tech!=null){
-        var tw=document.getElementById('techWrap');
-        var tv=document.getElementById('techScoreVal');
-        var tb=document.getElementById('techScoreBar');
-        var tc=document.getElementById('techScoreClass');
-        var techPct=Math.min(parseFloat(race.tech)*10,100);
-        if(tw) tw.style.display='block';
-        if(tv){tv.textContent=parseFloat(race.tech).toFixed(1);tv.style.color='#4fd1c5';}
-        if(tb){tb.style.width=techPct+'%';tb.style.background='#4fd1c5';}
-        if(tc){tc.textContent=race.wdicat||'';}
-      }
-
-      // Metriche disponibili
-      if(race.km)    document.getElementById('distVal').textContent=parseFloat(race.km).toFixed(2)+' km';
-      if(race.dplus) document.getElementById('dplusVal').textContent=Math.round(race.dplus)+' m';
-
-      // Nascondi profilo altimetrico (nessun GPX)
-      var elevCard=document.getElementById('elevCanvas');
-      if(elevCard) elevCard.closest('.card').style.display='none';
-
-      // Card organizzatore / note
-      if(race.organizer||race.notes){
-        var infoCard=document.createElement('div');
-        infoCard.className='card';
-        infoCard.style.marginBottom='20px';
-        var inner='<h2>Organizzatore</h2>';
-        if(race.organizer) inner+='<p style="color:var(--muted);font-size:0.9rem;">'+safeText(race.organizer)+'</p>';
-        if(race.notes)     inner+='<p style="color:var(--muted);font-size:0.85rem;margin-top:8px;">'+safeText(race.notes)+'</p>';
-        infoCard.innerHTML=inner;
-        var footer=document.querySelector('.footer');
-        if(footer) footer.parentNode.insertBefore(infoCard,footer);
-      }
-
-    }catch(e){
-      document.getElementById('raceName').textContent='Errore nel caricamento della gara.';
-      console.error('Cert load error:',e);
-    }
-  }
-
   function fillMetrics(metrics,rs){
     document.getElementById('distVal').textContent=metrics.km.toFixed(2)+' km';
     document.getElementById('dplusVal').textContent=Math.round(metrics.gain)+' m';
@@ -325,9 +225,6 @@
   }
 
   function render(){
-    var certMatch=location.search.match(/[?&]cert=([^&]*)/);
-    if(certMatch){ loadCertifiedRace(decodeURIComponent(certMatch[1])); return; }
-
     var gpx=sessionStorage.getItem('currentRaceGPX');
     var meta=JSON.parse(sessionStorage.getItem('currentRaceMeta')||'null');
     var urlMatch=location.search.match(/[?&]race=([^&]*)/);
