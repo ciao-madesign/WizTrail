@@ -6,6 +6,10 @@
  *  La stima del tempo totale è delegata a wiztrail-timing.js
  *  (WizTrailTiming.computeTime). Il calcolatore passa T_target_sec
  *  a generatePacingPlan, che lo distribuisce sui segmenti.
+ *
+ *  PORT SERVER-SIDE: api/lib/pacing-node.js — ogni modifica alle funzioni
+ *  di costo (pc_segmentCost) o distribuzione chunk va replicata anche lì.
+ *  Le funzioni DOM (pc_renderTable, drawPacingMap, ecc.) NON hanno port.
  ***************************************************************/
 
 /***************************************************************

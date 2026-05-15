@@ -35,19 +35,21 @@ Browser (client-side calculation)
 ├── ui.js                   — DOM updates, KPI rendering
 └── main.js                 — orchestration, event handling
 
-Vercel serverless (OAuth + hub only)
+Vercel serverless (7/12 functions)
+├── api/v1/
+│   ├── analyze.js          — POST: GPX → WDI + time estimate + pacing plan  [PUBLIC API]
+│   └── wdi.js              — POST: manual inputs → WDI estimate              [PUBLIC API]
 ├── api/strava/
 │   ├── callback.js         — OAuth2 token exchange
 │   ├── activities.js       — fetch activity list
 │   └── activity.js         — fetch + analyze single activity
-├── api/hub/
-│   ├── auth.js             — hub admin authentication
-│   ├── upload.js           — GPX + metadata upload
-│   ├── activities.js       — list hub activities
-│   ├── run.js              — trigger calibration pipeline
-│   └── patch.js            — retrieve calibration results
+├── api/hub.js              — unified hub handler (?action=auth|upload|activities|run|patch|feedback)
 └── api/lib/
-    └── ratelimit.js        — Upstash Redis sliding window (30 req/min/IP)
+    ├── ratelimit.js        — Upstash Redis sliding window (30 req/min/IP)
+    ├── engine-node.js      — WDI engine port for Node.js  ⚠ keep in sync with wiztrail-engine.js
+    ├── gpx-node.js         — GPX parser port for Node.js  ⚠ keep in sync with gpx-parser.js
+    ├── timing-node.js      — timing model port            ⚠ keep in sync with wiztrail-timing.js
+    └── pacing-node.js      — pacing logic port (no DOM)   ⚠ keep in sync with wiztrail-pacing.js
 
 Calibration pipeline (GitHub Actions + Python 3.11)
 wiztrail-calibration/
@@ -143,6 +145,31 @@ Documentation: [docs/hub-guide.md](docs/hub-guide.md)
 
 ---
 
+## Public API v1
+
+Two REST endpoints for third-party integrations. Authentication via `x-api-key` header.
+
+| Endpoint | Input | Output |
+|---|---|---|
+| `POST /api/v1/analyze` | GPX file (base64) + params | WDI, discipline, time estimate, pacing plan |
+| `POST /api/v1/wdi` | distance_km, dplus | WDI estimate (`estimate: true`) |
+
+```bash
+GPX=$(base64 -w 0 race.gpx)
+curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
+  -H "x-api-key: YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"gpx_base64\":\"$GPX\",\"target_time\":\"05:00:00\",\"terrain_class\":\"EE\"}"
+```
+
+Full reference: [docs/api-public.md](docs/api-public.md)
+
+**Engine drift warning:** `api/lib/*-node.js` are manual ports of the browser engines. If you modify `wiztrail-engine.js`, `wiztrail-timing.js`, `wiztrail-pacing.js` or `gpx-parser.js`, update the corresponding `api/lib/*-node.js` file.
+
+**Env var required:** `API_KEYS=key1,key2,...` (comma-separated, set in Vercel dashboard)
+
+---
+
 ## Roadmap
 
 | Status | Milestone |
@@ -151,7 +178,7 @@ Documentation: [docs/hub-guide.md](docs/hub-guide.md)
 | ✅ | M1 — Codebase refactor (modular JS) |
 | ✅ | M2 — Rate limiting (Upstash Redis) |
 | 🟡 | M3 — Algorithm + UX (WDI v5.1 ✅, hub ✅, UX in progress) |
-| 🔵 | M5 — Public API (`/api/v1/wdi`, `/api/v1/pacing`) |
+| ✅ | M5 — Public API (`/api/v1/analyze`, `/api/v1/wdi`) |
 | 🔵 | M6 — Android (Capacitor) |
 | ⏸️ | M4 — Auth (HTTP-only cookies, deferred) |
 
