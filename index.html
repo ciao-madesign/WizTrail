@@ -258,7 +258,7 @@
             <h3>Tempo stimato</h3>
             <div class="val" id="outFinal" style="font-size:2.2rem; font-weight:900;">—:—</div>
             <div id="outFinalSub" style="font-size:0.75rem; line-height:1.5; opacity:0.8; margin-top:4px;">
-              <span class="kpi-placeholder">Inserisci t10km e premi Calcola</span>
+              <span class="kpi-placeholder">Inserisci il tempo su 10 km e premi Calcola</span>
             </div>
           </div>
         </div>
@@ -330,7 +330,7 @@
           <button class="btn" id="pc_generate">Genera pacing →</button>
         </div>
         <div id="pc_warning" class="pc-warning" style="display:none;">
-          📂 Carica prima una traccia GPX per generare il pacing.
+          Carica una traccia GPX per generare il pacing.
         </div>
         <div id="pc_results" style="display:none; margin-top:20px;">
           <div id="pc_summary" class="pc-summary"></div>
@@ -363,7 +363,7 @@
             <input id="fb_stimato" type="text" placeholder="02:45:00" autocomplete="off">
           </div>
           <div>
-            <label>Tempo reale effettivo</label>
+            <label>Tempo reale</label>
             <input id="fb_reale" type="text" placeholder="03:12:00" autocomplete="off">
           </div>
         </div>
@@ -393,7 +393,7 @@
     <p class="mini" style="opacity:0.5; margin-bottom:6px;">Foto di <a href="https://unsplash.com/@brian_erickson" target="_blank" rel="noopener" style="color:inherit;">Brian Erickson</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a></p>
     <p>
       <a href="https://www.youtube.com/@WizTrail" target="_blank" rel="noopener"
-         style="color:var(--accent); font-weight:600;">📺 Visita il mio canale YouTube</a>
+         style="color:var(--accent); font-weight:600;">📺 Canale YouTube</a>
     </p>
   </div>
 </div><!-- /wrap -->
@@ -503,10 +503,10 @@
         const data = await resp.json();
         statusEl.textContent = data.ok
           ? '✓ Grazie! Il tuo feedback contribuisce a migliorare il modello.'
-          : '⚠ Feedback non inviato (problema di connessione) — i dati non vengono persi.';
+          : '⚠ Feedback non registrato — problema di connessione.';
       } catch {
         /* Fallback silenzioso: l'utente ha già visto il risultato locale */
-        statusEl.textContent = '⚠ Connessione assente — feedback salvato solo localmente.';
+        statusEl.textContent = '⚠ Connessione assente — il feedback non è stato inviato.';
       }
     });
   })();
