@@ -17,8 +17,7 @@
 
 window.WizTrail = (function () {
 
-  const kT    = 0.50;  // calibrato 20/04/2026 (era 0.35)
-  const REF42 = Math.pow(42, 0.55);
+  const kT = 0.50;  // calibrato 20/04/2026 (era 0.35)
 
   /* ---------------------------------------------------------------
      NORMALIZZAZIONE WDI PER CATEGORIA DI DISTANZA
