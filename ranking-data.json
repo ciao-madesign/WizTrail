@@ -183,7 +183,7 @@
     "class": "Advanced",
     "color": "#F4C20D",
     "gpx": "gpx/lut_cortina_skyrace.gpx",
-    "discipline": "trail",
+    "discipline": "sky",
     "country": "🇮🇹",
     "techScore": 67.8,
     "max_altitude": 2110
@@ -196,7 +196,7 @@
     "class": "Extreme",
     "color": "#F79617",
     "gpx": "gpx/dolomiti_brenta_trail.gpx",
-    "discipline": "mountain",
+    "discipline": "sky",
     "country": "🇮🇹",
     "techScore": 83.6,
     "max_altitude": 2591
@@ -287,7 +287,7 @@
     "class": "Advanced",
     "color": "#F4C20D",
     "gpx": "gpx/dolomyths_skyrun.gpx",
-    "discipline": "mountain",
+    "discipline": "sky",
     "country": "🇮🇹",
     "techScore": 69.1,
     "max_altitude": 3150
@@ -378,7 +378,7 @@
     "class": "Advanced",
     "color": "#F4C20D",
     "gpx": "gpx/transpelmo_skyrace.gpx",
-    "discipline": "mountain",
+    "discipline": "sky",
     "country": "🇮🇹",
     "techScore": 88.9,
     "max_altitude": 2490
@@ -395,5 +395,41 @@
     "country": "🇮🇹",
     "techScore": 64.8,
     "max_altitude": 1652
+  },
+  {
+    "name": "Skyrace Comapedrosa 24K",
+    "distance": 23.8,
+    "dplus": 2471,
+    "wdi": 76.1,
+    "class": "Extreme",
+    "color": "#F79617",
+    "discipline": "sky",
+    "country": "🇦🇩",
+    "techScore": 80.4,
+    "max_altitude": 2933
+  },
+  {
+    "name": "Speedgoat 30K",
+    "distance": 31.0,
+    "dplus": 2296,
+    "wdi": 67.2,
+    "class": "Advanced",
+    "color": "#F4C20D",
+    "discipline": "sky",
+    "country": "🇺🇸",
+    "techScore": 72.1,
+    "max_altitude": 3344
+  },
+  {
+    "name": "Gran Trail Orobie 70K",
+    "distance": 71.2,
+    "dplus": 6351,
+    "wdi": 148.3,
+    "class": "Elite",
+    "color": "#E91E63",
+    "discipline": "mountain",
+    "country": "🇮🇹",
+    "techScore": 75.8,
+    "max_altitude": 2141
   }
 ]
