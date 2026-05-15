@@ -120,6 +120,68 @@
 </div>
 </div>
 
+<!-- COME LEGGERE IL RANKING -->
+<details class="card" id="legendGuide" style="margin-bottom:20px;">
+  <summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:700;font-size:0.95rem;-webkit-user-select:none;user-select:none;">
+    <span>Come leggere il ranking</span>
+    <span style="font-size:0.72rem;opacity:0.45;flex-shrink:0;">mostra ▼</span>
+  </summary>
+
+  <div style="margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;">
+
+    <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">WDI</div>
+      <div style="font-size:1.35rem;font-weight:900;color:#F4C20D;line-height:1;">87.3</div>
+      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">Punteggio di difficoltà assoluto. Combina distanza, dislivello e tecnicità del terreno. Comparabile tra tutte le gare senza limiti di scala.</div>
+    </div>
+
+    <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">Tech</div>
+      <div style="font-size:1.35rem;font-weight:900;color:#4fd1c5;line-height:1;">6.8<span style="font-size:0.75rem;opacity:0.5;font-weight:400;">/10</span></div>
+      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">TechScore: difficoltà tecnica del terreno su scala 0–10. Misura rocce, irregolarità e variazioni di pendenza, indipendentemente dalla lunghezza.</div>
+    </div>
+
+    <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">WDI norm.</div>
+      <div style="font-size:1.35rem;font-weight:900;color:#F4C20D;line-height:1;">7.2<span style="font-size:0.75rem;opacity:0.5;font-weight:400;">/10</span></div>
+      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">WDI normalizzato nella propria categoria di distanza (Short ≤25 km · Medium ≤50 · Long ≤95 · Ultra >95). Utile per confrontare gare di lunghezza diversa.</div>
+    </div>
+
+    <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">Classe</div>
+      <div style="margin-top:4px;"><span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.8rem;font-weight:700;background:#F4C20D;color:#021;">Advanced</span></div>
+      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">Fascia WDI assoluta della gara: indica il livello richiesto all'atleta per affrontarla.</div>
+    </div>
+
+    <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">Disciplina</div>
+      <div style="font-size:1.1rem;margin-top:4px;">🌲 🏔️ ⛰️ 🔥</div>
+      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">Classificazione automatica dal profilo GPX: Trail · Mountain · Sky · Ultra. Filtrabile dal menù in alto.</div>
+    </div>
+
+    <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">Clicca una gara</div>
+      <div style="font-size:1.1rem;margin-top:4px;">→</div>
+      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">Apre la scheda completa con mappa interattiva, profilo altimetrico, piano di pacing e confronto col tuo GPX.</div>
+    </div>
+
+  </div>
+
+  <!-- scale WDI -->
+  <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.4;margin-bottom:10px;">Classi WDI</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;">
+      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#2BB7DA;color:#021;">Sport &lt;22</span>
+      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#34A853;color:#021;">Pro 22–40</span>
+      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#F4C20D;color:#021;">Advanced 40–70</span>
+      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#F79617;color:#021;">Extreme 70–120</span>
+      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#E91E63;color:#fff;">Elite 120–200</span>
+      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#8E24AA;color:#fff;">Legend ≥200</span>
+      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:linear-gradient(90deg,#8E24AA,#E91E63);color:#fff;">Legend ∞ &gt;300</span>
+    </div>
+  </div>
+</details>
+
 <div class="card">
 <h2>Ranking complessivo WDI</h2>
 <div class="responsive-table">
@@ -530,6 +592,17 @@ function openCertContact() {
   );
   window.location.href = 'mailto:ciao.madesign@gmail.com?subject=' + subject + '&body=' + body;
 }
+</script>
+<script>
+// Toggle label "mostra/nascondi" su #legendGuide
+(function() {
+  const d = document.getElementById('legendGuide');
+  if (!d) return;
+  const lbl = d.querySelector('summary span:last-child');
+  d.addEventListener('toggle', () => {
+    if (lbl) lbl.textContent = d.open ? 'nascondi ▲' : 'mostra ▼';
+  });
+})();
 </script>
 <script>
 // Hero image loader
