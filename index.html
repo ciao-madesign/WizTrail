@@ -447,7 +447,7 @@
 
 
   <script>
-  /* Feedback anonimo post-gara — invia solo delta% a /api/hub/feedback
+  /* Feedback anonimo post-gara — invia solo delta% a /api/hub?action=feedback
      Nessun dato personale. km e dplus vengono letti dai campi già compilati. */
   (function() {
     function parseHMS(s) {
@@ -492,10 +492,10 @@
       const km    = parseFloat(document.getElementById('dist')?.value)  || null;
       const dplus = parseFloat(document.getElementById('dplus')?.value) || null;
 
-      /* Invia a /api/hub/feedback — solo dati aggregati, nessun dato personale */
+      /* Invia a /api/hub?action=feedback — solo dati aggregati, nessun dato personale */
       statusEl.textContent = 'Invio feedback...';
       try {
-        const resp = await fetch('/api/hub/feedback', {
+        const resp = await fetch('/api/hub?action=feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ delta_pct: deltaPct, km, dplus, ts: Date.now() })
