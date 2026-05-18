@@ -272,15 +272,29 @@
     }
 
     const d = [0];
-    let dist = 0, gain = 0;
+    let dist = 0;
 
     for (let i = 1; i < pts.length; i++) {
       const dd = hav(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
-      if (dd < 300) dist += dd;   // scarta salti GPS anomali
+      if (dd < 300) dist += dd;
       d[i] = dist;
-      const de = elevS[i] - elevS[i - 1];
-      if (de > 1.5) gain += de;  // soglia 1.5 m su dato già smoothato
     }
+
+    // D+ con isteresi: corretto per tracce dense e piatte (range <20 m)
+    // dove il per-step threshold annullava salite reali post-smoothing.
+    // Soglia 3 m continui dal minimo locale — equivalente a Garmin Connect.
+    let gain = 0, gainLow = elevS[0], gainHigh = elevS[0];
+    for (let i = 1; i < elevS.length; i++) {
+      const e = elevS[i];
+      if (e > gainHigh) {
+        gainHigh = e;
+      } else if (gainHigh - e >= 3) {
+        if (gainHigh - gainLow >= 3) gain += gainHigh - gainLow;
+        gainLow = e; gainHigh = e;
+      }
+      if (e < gainLow) { gainLow = e; gainHigh = e; }
+    }
+    if (gainHigh - gainLow >= 3) gain += gainHigh - gainLow;
 
     // -Infinity come seed per gestire correttamente tracce sotto il livello del mare
     const maxAltRaw = elev.reduce(function (m, v) {
