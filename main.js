@@ -393,20 +393,22 @@
     // WDI — se GPX senza elevazione usa computeManual per TechScore realistico
     // (computeFromGpx con e=[0,0,...] darebbe frip=slopeVar=roughness=0 → WDI bassissimo)
     const hasRealElevation = mGpx.gain > 0;
+    const surfaceLvl = parseInt(document.getElementById('surfaceLvl')?.value || '3', 10);
     let rs;
     if (!hasRealElevation && manualGain > 0) {
       rs = WizTrail.computeManual({
-        km:          m.km,
-        gain:        manualGain,
-        loss:        manualGain,
-        terrainCat:  window.currentTerrainCat  || 'EE',
-        altMedia:    m.altMedia || 800,
+        km:           m.km,
+        gain:         manualGain,
+        loss:         manualGain,
+        terrainCat:   window.currentTerrainCat  || 'EE',
+        altMedia:     m.altMedia || 800,
+        surfaceLevel: surfaceLvl,
       });
     } else {
       rs = WizTrail.computeFromGpx(
         window.gpxPts,
         m,
-        null,
+        surfaceLvl,
         window.lastOsmResult
       );
     }
