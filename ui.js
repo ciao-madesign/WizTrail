@@ -7,13 +7,16 @@
 (function () {
   'use strict';
 
-  /* Ritorna '#fff' o '#021' in base alla luminosità percepita del colore
-     di sfondo (formula W3C perceived brightness). Usato per badge WDI/Tech. */
+  /* Ritorna '#fff' o '#021' scegliendo il testo col contrasto WCAG maggiore.
+     Usa luminanza relativa (IEC 61966-2-1) invece di perceived-brightness:
+     la formula precedente sbagliava su Pro #34A853 → #fff = 3.1:1 (sotto AA). */
   function badgeTextColor(hex) {
+    function rl(c) { const s = c / 255; return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); }
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
-    return (r * 299 + g * 587 + b * 114) / 1000 > 128 ? '#021' : '#fff';
+    const L = 0.2126 * rl(r) + 0.7152 * rl(g) + 0.0722 * rl(b);
+    return 1.05 / (L + 0.05) >= (L + 0.05) / 0.065 ? '#fff' : '#021';
   }
 
   /* ------------------------------------------------------------------
