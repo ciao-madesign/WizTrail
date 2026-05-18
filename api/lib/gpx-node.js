@@ -219,8 +219,28 @@ export function compute(pts) {
     const dd = hav(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
     if (dd < 300) dist += dd;
     d[i] = dist;
-    const de = elevS[i] - elevS[i - 1];
-    if (de > 1.5) gain += de;
+  }
+
+  // Sincronizzato con gpx-parser.js — isteresi solo su tracce piatte (range < 30 m)
+  const elevRange = Math.max(...elevS) - Math.min(...elevS);
+  if (elevRange < 30) {
+    let gainLow = elevS[0], gainHigh = elevS[0];
+    for (let i = 1; i < elevS.length; i++) {
+      const e = elevS[i];
+      if (e > gainHigh) {
+        gainHigh = e;
+      } else if (gainHigh - e >= 3) {
+        if (gainHigh - gainLow >= 3) gain += gainHigh - gainLow;
+        gainLow = e; gainHigh = e;
+      }
+      if (e < gainLow) { gainLow = e; gainHigh = e; }
+    }
+    if (gainHigh - gainLow >= 3) gain += gainHigh - gainLow;
+  } else {
+    for (let i = 1; i < elevS.length; i++) {
+      const de = elevS[i] - elevS[i - 1];
+      if (de > 1.5) gain += de;
+    }
   }
 
   const maxAltRaw = elev.reduce((m, v) => Number.isFinite(v) && v > m ? v : m, -Infinity);

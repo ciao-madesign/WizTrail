@@ -278,8 +278,31 @@
       const dd = hav(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
       if (dd < 300) dist += dd;   // scarta salti GPS anomali
       d[i] = dist;
-      const de = elevS[i] - elevS[i - 1];
-      if (de > 1.5) gain += de;  // soglia 1.5 m su dato già smoothato
+    }
+
+    // D+ con isteresi solo su tracce piatte (range quota < 30 m post-smoothing):
+    // il per-step threshold annulla salite reali quando lo smoothing le spalma
+    // sotto 1.5 m/step. Su tracce mountain (range >= 30 m) l'algoritmo originale
+    // è invariato — la calibrazione su 96 gare resta valida.
+    const elevRange = Math.max(...elevS) - Math.min(...elevS);
+    if (elevRange < 30) {
+      let gainLow = elevS[0], gainHigh = elevS[0];
+      for (let i = 1; i < elevS.length; i++) {
+        const e = elevS[i];
+        if (e > gainHigh) {
+          gainHigh = e;
+        } else if (gainHigh - e >= 3) {
+          if (gainHigh - gainLow >= 3) gain += gainHigh - gainLow;
+          gainLow = e; gainHigh = e;
+        }
+        if (e < gainLow) { gainLow = e; gainHigh = e; }
+      }
+      if (gainHigh - gainLow >= 3) gain += gainHigh - gainLow;
+    } else {
+      for (let i = 1; i < elevS.length; i++) {
+        const de = elevS[i] - elevS[i - 1];
+        if (de > 1.5) gain += de;
+      }
     }
 
     // -Infinity come seed per gestire correttamente tracce sotto il livello del mare
