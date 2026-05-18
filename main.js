@@ -321,11 +321,6 @@
       return;
     }
 
-    if (!window.gpxPts || !window.gpxPts.length) {
-      WizUI.showError('Carica un GPX per usare il modello v2.0');
-      return;
-    }
-
     const [min10, sec10] = t10.split(':').map(Number);
     const m10     = min10 + sec10 / 60;
     const velBase = 60 / (m10 / 10); // km/h — m10 è minuti su 10km (es. 50:00 = 5min/km)
@@ -343,6 +338,13 @@
     // Leggi distanza e D+ dai campi form — l'utente può averli corretti manualmente
     const manualKm   = readNum('dist');
     const manualGain = readNum('dplus');
+    const noGpx      = !window.gpxPts || !window.gpxPts.length;
+
+    // Senza GPX, distanza e D+ sono obbligatori
+    if (noGpx && (manualKm <= 0 || manualGain <= 0)) {
+      WizUI.showError('Senza GPX inserisci distanza e D+ per stimare');
+      return;
+    }
 
     // Valida bounds distanza e D+ (HTML min/max bypassabili via JS/DevTools)
     if (manualKm > 0 && (manualKm < 0.1 || manualKm > 500)) {
@@ -363,26 +365,28 @@
       loss: manualGain > 0 ? manualGain : mGpx.gain, // stima loss = gain se non disponibile
     };
 
-    const elev_s  = GPXParser.smoothElevation(m.e);
-    const segments = GPXParser.computeSegments(window.gpxPts, m.d, elev_s);
-
     let T = 0;
-    segments.forEach(seg => {
-      const velLocal  = velocityFromSlope(seg.slope, S, velBaseEff);
-      const tech      = technicalPenalty(seg.slope, terrainClass);
-      const velTech   = velLocal / (1 + tech);
-      const t_raw     = seg.dist / (velTech * 1000 / 3600);
-      const fat       = fatigueFactor(T / 3600);
-      T += t_raw * fat;
-    });
-
-    // Se il GPX non ha elevazione, stima il tempo dal D+ manuale
-    // (segments avranno tutti slope=0, quindi T sarà solo da velocità base)
-    // Aggiungiamo una correzione proporzionale al D+ manuale
-    if (mGpx.gain === 0 && manualGain > 0) {
-      // Stima tempo aggiuntivo per il dislivello: ~1 min ogni 8m D+
-      const extraSec = (manualGain / 8) * 60;
-      T += extraSec;
+    if (noGpx) {
+      // Stima Naismith adattata: 100m D+ ≈ 1 km piano, scalata per livello atleta.
+      // S=0 (principiante): fattore 1.2 → più km equivalenti (salita più lenta)
+      // S=1 (elite):        fattore 1.0 → Naismith standard
+      const gainKmEquiv = (manualGain / 100) * (1.2 - 0.2 * S);
+      T = ((manualKm + gainKmEquiv) / velBaseEff) * 3600;
+    } else {
+      const elev_s   = GPXParser.smoothElevation(m.e);
+      const segments = GPXParser.computeSegments(window.gpxPts, m.d, elev_s);
+      segments.forEach(seg => {
+        const velLocal = velocityFromSlope(seg.slope, S, velBaseEff);
+        const tech     = technicalPenalty(seg.slope, terrainClass);
+        const velTech  = velLocal / (1 + tech);
+        const t_raw    = seg.dist / (velTech * 1000 / 3600);
+        const fat      = fatigueFactor(T / 3600);
+        T += t_raw * fat;
+      });
+      // GPX senza elevazione: aggiunge correzione per D+ manuale
+      if (mGpx.gain === 0 && manualGain > 0) {
+        T += (manualGain / 8) * 60;
+      }
     }
 
     // Fattori meteo / altitudine
@@ -400,7 +404,7 @@
         km:           m.km,
         gain:         manualGain,
         loss:         manualGain,
-        terrainCat:   window.currentTerrainCat  || 'EE',
+        terrainCat:   terrainClass,
         altMedia:     m.altMedia || 800,
         surfaceLevel: surfaceLvl,
       });
@@ -427,11 +431,17 @@
 
     const subEl = document.getElementById('outFinalSub');
     if (subEl) {
-      subEl.innerHTML =
-        pace_trail.toFixed(1) + ' min/km medi sul percorso' +
-        ' &nbsp;·&nbsp; ' + livello +
-        (isSkyrace ? ' &nbsp;·&nbsp; skyrace' : '') +
-        '<br><span style="opacity:0.5; font-size:0.72rem;">modello segmenti v2.0</span>';
+      if (noGpx) {
+        subEl.innerHTML =
+          pace_trail.toFixed(1) + ' min/km medi &nbsp;·&nbsp; ' + livello +
+          '<br><span style="color:var(--accent); font-size:0.72rem;">⚠ stima approssimativa — carica il GPX per risultati precisi</span>';
+      } else {
+        subEl.innerHTML =
+          pace_trail.toFixed(1) + ' min/km medi sul percorso' +
+          ' &nbsp;·&nbsp; ' + livello +
+          (isSkyrace ? ' &nbsp;·&nbsp; skyrace' : '') +
+          '<br><span style="opacity:0.5; font-size:0.72rem;">modello segmenti v2.0</span>';
+      }
     }
 
     // Mostra riga intervallo con percentuale margine
@@ -442,13 +452,15 @@
     document.querySelectorAll('.kpi-placeholder').forEach(el => el.remove());
     WizUI.showError('OK');
 
-    /* Mostra sezioni fisse post-calcolo */
+    /* Mostra sezioni post-calcolo — mappa/pacing solo con GPX */
     const elevSec   = document.getElementById('elevSection');
     const pacingSec = document.getElementById('pacingSection');
     const fbBtn     = document.getElementById('feedbackBtn');
-    if (elevSec)   elevSec.style.display   = 'block';
-    if (pacingSec) pacingSec.style.display = 'block';
-    if (fbBtn)     fbBtn.style.display     = 'block';
+    if (!noGpx) {
+      if (elevSec)   elevSec.style.display   = 'block';
+      if (pacingSec) pacingSec.style.display = 'block';
+    }
+    if (fbBtn) fbBtn.style.display = 'block';
 
     /* Leaflet non renderizza su container hidden — invalidateSize forza il re-render
        dopo che #pacingSection diventa visibile (display:none → block).
