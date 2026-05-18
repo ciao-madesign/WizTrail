@@ -214,26 +214,14 @@ export function compute(pts) {
   }
 
   const d = [0];
-  let dist = 0;
+  let dist = 0, gain = 0;
   for (let i = 1; i < pts.length; i++) {
     const dd = hav(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
     if (dd < 300) dist += dd;
     d[i] = dist;
+    const de = elevS[i] - elevS[i - 1];
+    if (de > 1.5) gain += de;
   }
-
-  // D+ con isteresi — sincronizzato con gpx-parser.js
-  let gain = 0, gainLow = elevS[0], gainHigh = elevS[0];
-  for (let i = 1; i < elevS.length; i++) {
-    const e = elevS[i];
-    if (e > gainHigh) {
-      gainHigh = e;
-    } else if (gainHigh - e >= 3) {
-      if (gainHigh - gainLow >= 3) gain += gainHigh - gainLow;
-      gainLow = e; gainHigh = e;
-    }
-    if (e < gainLow) { gainLow = e; gainHigh = e; }
-  }
-  if (gainHigh - gainLow >= 3) gain += gainHigh - gainLow;
 
   const maxAltRaw = elev.reduce((m, v) => Number.isFinite(v) && v > m ? v : m, -Infinity);
   const max_altitude = Number.isFinite(maxAltRaw) ? maxAltRaw : 0;
