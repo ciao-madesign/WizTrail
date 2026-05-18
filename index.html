@@ -329,6 +329,7 @@
           </div>
           <button class="btn" id="pc_generate">Genera pacing →</button>
         </div>
+        <div id="pc_msg" class="mini" style="color:var(--accent);margin-top:6px;min-height:1em;"></div>
         <div id="pc_warning" class="pc-warning" style="display:none;">
           Carica una traccia GPX per generare il pacing.
         </div>
@@ -476,7 +477,7 @@
       const statusEl = document.getElementById('feedbackStatus');
 
       if (!stimSec || !realSec || stimSec <= 0) {
-        alert('Inserisci entrambi i tempi nel formato hh:mm:ss');
+        if (msgEl) msgEl.textContent = 'Inserisci entrambi i tempi nel formato hh:mm:ss';
         return;
       }
 
