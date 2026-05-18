@@ -9,6 +9,9 @@ Allow: /about.html
 Allow: /training-analyzer.html
 Allow: /install.html
 
+# Privacy — accessibile ma non indicizzare (noindex nel meta)
+Allow: /privacy.html
+
 # Pagine tecniche/dinamiche — non indicizzare
 Disallow: /hub.html
 Disallow: /auth_strava.html

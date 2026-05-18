@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WizTrail — Privacy & Dati</title>
+  <meta name="description" content="Informativa sulla privacy di WizTrail: cosa viene trattato, da chi e per quanto tempo.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#002b2b">
+  <link rel="apple-touch-icon" href="/icons/logo.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="wiztrail.css">
+</head>
+<body data-theme="dark">
+
+<header class="app-header">
+  <a href="landing.html" class="app-brand-link">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </a>
+  <nav class="app-nav">
+    <a href="index.html">Calcolatore</a>
+    <a href="training-analyzer.html">Training</a>
+    <a href="ranking.html">Ranking</a>
+    <a href="about.html">Il Metodo</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <nav class="about-toc">
+    <a href="#cosa-non-raccogliamo">Cosa non raccogliamo</a>
+    <a href="#cosa-raccogliamo">Cosa raccogliamo</a>
+    <a href="#strava">Strava</a>
+    <a href="#terze-parti">Terze parti</a>
+    <a href="#diritti">I tuoi diritti</a>
+    <a href="#contatti">Contatti</a>
+  </nav>
+
+  <!-- INTRO -->
+  <section class="about-section" style="margin-bottom: 8px;">
+    <div class="about-label">Informativa privacy</div>
+    <h1>Privacy & Dati</h1>
+    <div class="card">
+      <p>WizTrail è progettato attorno a un principio semplice: <b>il tuo GPX non lascia mai il browser</b>. Tutto il calcolo — WDI, TechScore, stima tempi, pacing — avviene interamente in locale. Questa pagina documenta onestamente i pochi dati che <em>effettivamente</em> escono dal tuo browser e perché.</p>
+      <p class="mini" style="margin-top:10px; opacity:0.6;">Ultimo aggiornamento: maggio 2026 · Titolare: WizTrail (ciao.madesign@gmail.com)</p>
+    </div>
+  </section>
+
+  <!-- COSA NON RACCOGLIAMO -->
+  <section id="cosa-non-raccogliamo" class="about-section">
+    <h2>Cosa non raccogliamo</h2>
+    <div class="card">
+      <ul>
+        <li><b>GPX e tracce GPS</b> — il file caricato viene elaborato interamente nel browser. Non viene mai trasmesso a server.</li>
+        <li><b>Calcoli WDI, TechScore, pacing</b> — avvengono localmente. Nessun risultato viene salvato fuori dal tuo dispositivo.</li>
+        <li><b>Account e dati di registrazione</b> — WizTrail non richiede nome, email o password.</li>
+        <li><b>Cookie di profilazione o di tracciamento</b> — nessuno. Zero.</li>
+        <li><b>Analytics di terze parti</b> — nessun Google Analytics, nessun Hotjar, nessun pixel di tracciamento.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- COSA RACCOGLIAMO -->
+  <section id="cosa-raccogliamo" class="about-section">
+    <h2>Cosa viene effettivamente trattato</h2>
+
+    <details class="card" open>
+      <summary><b>Log di hosting — automatici, non evitabili</b></summary>
+      <div style="margin-top:12px">
+        <p>Ogni richiesta HTTP al sito genera un log standard nell'infrastruttura di hosting (Vercel). Questi log contengono:</p>
+        <ul>
+          <li>Indirizzo IP del visitatore</li>
+          <li>URL richiesto e metodo HTTP</li>
+          <li>User agent (browser e sistema operativo)</li>
+          <li>Timestamp della richiesta</li>
+        </ul>
+        <p>Questo è il comportamento standard di qualsiasi server web. Non è controllato da WizTrail ma da Vercel Inc. come sub-responsabile del trattamento.</p>
+        <p class="mini" style="margin-top:8px; opacity:0.6;">Base giuridica: legittimo interesse (sicurezza e stabilità del servizio) · Conservazione: secondo policy Vercel</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Feedback di calibrazione — opt-in esplicito</b></summary>
+      <div style="margin-top:12px">
+        <p>Se utilizzi la funzione "Invia feedback" dopo aver inserito il tuo tempo reale, vengono trasmessi:</p>
+        <ul>
+          <li>Scarto percentuale tra tempo stimato e tempo reale (es. +8%)</li>
+          <li>Distanza del percorso (km)</li>
+          <li>Dislivello positivo (D+)</li>
+          <li>Timestamp della segnalazione</li>
+        </ul>
+        <p><b>Nessun dato identificativo</b> — nessun nome, nessun account, nessun GPX, nessuna posizione GPS. Il dato è strutturalmente anonimo.</p>
+        <p>Questi dati vengono usati esclusivamente per migliorare l'accuratezza del modello di stima tempi WizTrail.</p>
+        <p class="mini" style="margin-top:8px; opacity:0.6;">Base giuridica: consenso esplicito (opt-in) · Conservazione: 90 giorni, poi cancellazione automatica · Storage: Upstash Redis</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Preferenze locali — solo nel tuo browser</b></summary>
+      <div style="margin-top:12px">
+        <p>WizTrail salva alcune preferenze in <code>localStorage</code> del tuo browser. Questi dati non vengono mai trasmessi:</p>
+        <table class="about-table">
+          <thead><tr><th>Chiave</th><th>Contenuto</th><th>Scopo</th></tr></thead>
+          <tbody>
+            <tr><td><code>wiztrail_theme</code></td><td>'dark' o 'light'</td><td>Ricordare il tema scelto</td></tr>
+            <tr><td><code>ta_level</code></td><td>Livello atleta</td><td>Pre-compilare Training Analyzer</td></tr>
+            <tr><td><code>wt-install-ios-dismissed</code></td><td>Flag '1'</td><td>Non mostrare più il banner installazione iOS</td></tr>
+          </tbody>
+        </table>
+        <p class="mini" style="margin-top:8px; opacity:0.6;">Questi dati esistono solo nel tuo browser. Puoi cancellarli in qualsiasi momento dalle impostazioni del browser.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- STRAVA -->
+  <section id="strava" class="about-section">
+    <h2>Integrazione Strava</h2>
+    <div class="card">
+      <p>L'integrazione con Strava è <b>completamente opzionale</b> e richiede il tuo consenso esplicito tramite OAuth 2.0 (il flusso di autorizzazione standard di Strava).</p>
+      <p>Se scegli di collegare Strava:</p>
+      <ul>
+        <li>Il <b>token di accesso</b> viene salvato in <code>sessionStorage</code> — scompare alla chiusura della finestra del browser. WizTrail non lo salva su alcun server.</li>
+        <li>I <b>dati delle attività</b> (GPS stream, metriche) vengono recuperati da Strava e usati nel browser. WizTrail non salva copie delle tue attività Strava sui propri server.</li>
+        <li>Puoi revocare l'autorizzazione in qualsiasi momento da <a href="https://www.strava.com/settings/apps" target="_blank" rel="noopener" style="color:var(--accent);">Strava → Impostazioni → App</a>.</li>
+      </ul>
+      <p class="mini" style="margin-top:8px; opacity:0.6;">Per la privacy policy di Strava: <a href="https://www.strava.com/legal/privacy" target="_blank" rel="noopener" style="color:inherit;">strava.com/legal/privacy</a></p>
+    </div>
+  </section>
+
+  <!-- TERZE PARTI -->
+  <section id="terze-parti" class="about-section">
+    <h2>Terze parti coinvolte</h2>
+    <div class="card">
+      <table class="about-table">
+        <thead>
+          <tr><th>Soggetto</th><th>Ruolo</th><th>Dati</th><th>Sede</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener" style="color:var(--accent);">Vercel Inc.</a></td>
+            <td>Hosting e CDN</td>
+            <td>Log HTTP standard (IP, URL, user agent)</td>
+            <td>USA — Standard Contractual Clauses</td>
+          </tr>
+          <tr>
+            <td><a href="https://upstash.com/trust/privacy.pdf" target="_blank" rel="noopener" style="color:var(--accent);">Upstash</a></td>
+            <td>Database (Redis)</td>
+            <td>Feedback anonimi (90gg TTL)</td>
+            <td>USA/UE — Standard Contractual Clauses</td>
+          </tr>
+          <tr>
+            <td><a href="https://www.strava.com/legal/privacy" target="_blank" rel="noopener" style="color:var(--accent);">Strava Inc.</a></td>
+            <td>Fonte dati attività (opt-in)</td>
+            <td>Nessun dato salvato da WizTrail</td>
+            <td>USA</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="mini" style="margin-top:10px; opacity:0.6;">I trasferimenti di dati verso paesi extra-UE avvengono nel rispetto delle garanzie previste dall'art. 46 GDPR (Standard Contractual Clauses).</p>
+    </div>
+  </section>
+
+  <!-- DIRITTI -->
+  <section id="diritti" class="about-section">
+    <h2>I tuoi diritti (GDPR artt. 15–22)</h2>
+    <div class="card">
+      <p>Hai il diritto di:</p>
+      <ul>
+        <li><b>Accedere</b> ai tuoi dati personali eventualmente trattati</li>
+        <li><b>Chiederne la cancellazione</b> ("diritto all'oblio")</li>
+        <li><b>Richiedere la portabilità</b> in formato leggibile</li>
+        <li><b>Opporti</b> al trattamento basato su legittimo interesse</li>
+        <li><b>Proporre reclamo</b> al <a href="https://www.garanteprivacy.it" target="_blank" rel="noopener" style="color:var(--accent);">Garante per la Protezione dei Dati Personali</a></li>
+      </ul>
+      <p class="mini" style="margin-top:10px; opacity:0.6;">Data la natura prevalentemente anonima dei dati trattati, alcuni diritti potrebbero non essere esercitabili per mancanza di dati identificativi.</p>
+    </div>
+  </section>
+
+  <!-- CONTATTI -->
+  <section id="contatti" class="about-section">
+    <h2>Contatti</h2>
+    <div class="card">
+      <p><b>Titolare del trattamento:</b> WizTrail</p>
+      <p><b>Email:</b> <a href="mailto:ciao.madesign@gmail.com" style="color:var(--accent);">ciao.madesign@gmail.com</a></p>
+      <p class="mini" style="margin-top:10px; opacity:0.6;">Per richieste relative ai dati personali, risposta entro 30 giorni come previsto dal GDPR.</p>
+    </div>
+  </section>
+
+  <div class="footer">WizTrail © 2026
+    <p>
+      <a href="about.html" style="color:var(--muted);">Il Metodo</a> &nbsp;·&nbsp;
+      <a href="privacy.html" style="color:var(--accent);">Privacy</a>
+    </p>
+  </div>
+
+</div><!-- /wrap -->
+
+<style>
+  .about-section { margin-bottom: 40px; }
+  .about-section h1 { font-size: 1.8rem; margin: 8px 0 18px; }
+  .about-section h2 { font-size: 1.1rem; margin: 0 0 14px; color: var(--muted); font-weight: 600; }
+  .about-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 4px;
+  }
+  .about-toc {
+    position: sticky;
+    top: 64px;
+    z-index: 10;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    padding: 10px 0;
+    margin-bottom: 40px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .about-toc a {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .about-toc a:hover { color: var(--ink); background: var(--border); }
+  .about-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    margin-top: 8px;
+  }
+  .about-table th {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .about-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .about-table tr:last-child td { border-bottom: none; }
+  details.card > summary { cursor: pointer; }
+  details.card > summary::-webkit-details-marker { color: var(--accent); }
+</style>
+
+</body>
+</html>
