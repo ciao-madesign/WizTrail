@@ -344,6 +344,16 @@
     const manualKm   = readNum('dist');
     const manualGain = readNum('dplus');
 
+    // Valida bounds distanza e D+ (HTML min/max bypassabili via JS/DevTools)
+    if (manualKm > 0 && (manualKm < 0.1 || manualKm > 500)) {
+      WizUI.showError('Distanza non valida (0.1 – 500 km)');
+      return;
+    }
+    if (manualGain > 30000) {
+      WizUI.showError('D+ non valido (max 30.000 m)');
+      return;
+    }
+
     // Costruisce metrics ibrido: coordinate dal GPX, valori numerici dal form
     // Questo permette di usare un GPX senza elevazione correggendo D+ a mano
     const m = {
