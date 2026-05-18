@@ -188,6 +188,7 @@ overflow: hidden;
   width:100%;
 ">
 <button id="btnStories" class="btn-main" style="width:100%;">📲 Stories</button>
+<div id="shareMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>
     </div>
 
   </div>
@@ -566,7 +567,8 @@ btnStories.addEventListener("click", async () => {
 
     // 🔥 BLOCCA se la mappa non è pronta
     if (!mapReady) {
-        alert("Attendi il caricamento della mappa...");
+        const shareMsg = document.getElementById('shareMsg');
+        if (shareMsg) shareMsg.textContent = 'Attendi il caricamento della mappa...';
         return;
     }
 

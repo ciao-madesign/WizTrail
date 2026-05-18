@@ -166,6 +166,7 @@
 </div>
 
 <button class="btn" id="btnAnalyze">Analizza</button>
+<div id="taMsg" class="mini" style="color:var(--accent);margin-top:6px;min-height:1em;"></div>
 </div>
 
 <!-- RISULTATI -->
@@ -230,6 +231,11 @@ const activityId = params.get("id");
 themeSel.addEventListener("change", e => document.body.setAttribute("data-theme", e.target.value));
 
 /* FORMAT TIME */
+function showTaError(msg) {
+  const el = document.getElementById('taMsg');
+  if (el) el.textContent = msg;
+}
+
 function fmtSec(sec){
  const h=Math.floor(sec/3600);
  const m=Math.floor((sec%3600)/60);
@@ -600,12 +606,12 @@ btnAnalyze.addEventListener("click", async () => {
 
   // 👉 CASO GPX
   const file = gpxFile.files[0];
-  if (!file) return alert("Carica un GPX");
+  if (!file) { showTaError("Carica un GPX"); return; }
 
   const text = await file.text();
   const g = parseGPX(text);
 
-  if (!g.pts.length) return alert("GPX non valido");
+  if (!g.pts.length) { showTaError("GPX non valido"); return; }
 
   let realTime = timeRealInput.value;
 
@@ -633,7 +639,7 @@ async function loadFromStrava(activityId) {
   const token = sessionStorage.getItem("strava_token");
 
   if (!token) {
-    alert("Non autenticato con Strava");
+    showTaError("Non autenticato con Strava");
     return;
   }
 
@@ -647,7 +653,7 @@ async function loadFromStrava(activityId) {
 const data = await res.json();
 
 if (!res.ok || data.error) {
-  alert(data.error || "Errore analisi");
+  showTaError(data.error || "Errore analisi");
   return;
 }
 
@@ -664,7 +670,7 @@ renderAnalysis(pts, mt, realTimeStr);
 
     
   } catch (err) {
-    alert("Errore caricamento attività");
+    showTaError("Errore caricamento attività");
   }
 }
 // AUTO LOAD STRAVA

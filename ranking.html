@@ -73,6 +73,7 @@
   <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
   <div class="gpx-alt-row" style="margin-top:8px;">
     <button class="btn" id="btnUserCompute">Analizza →</button>
+    <div id="userComputeMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>
     <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
     <button type="button" class="gpx-alt-link" id="rkLinkBtn" style="background:none;border:none;cursor:pointer;padding:0;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -184,6 +185,7 @@
 
 <div class="card">
 <h2>Ranking complessivo WDI</h2>
+<div id="rankMsg" class="mini" style="color:var(--accent);margin-bottom:6px;min-height:1em;"></div>
 <div class="responsive-table">
 <table id="raceTable">
 <thead>
@@ -212,6 +214,7 @@
 <label>Nome gara</label>
 <input type="text" id="adminName" placeholder="Es: Gran Trail XYZ"/>
 <button class="btn" id="btnAdminCompute">Calcola</button>
+<div id="adminMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>
 <pre id="adminOutput" style="margin-top:10px;padding:8px;background:#111;border-radius:6px;"></pre>
 </div>
 
@@ -264,6 +267,15 @@ async function backgroundComputeTech() {
 
 //---------------------------------------- rendering tabella
 
+function showRankMsg(msg) {
+  const el = document.getElementById('rankMsg');
+  if (el) el.textContent = msg;
+}
+function showAdminMsg(msg) {
+  const el = document.getElementById('adminMsg');
+  if (el) el.textContent = msg;
+}
+
 function wdiLabel(cls, legendPlus){
   if (legendPlus) return '🏆 Legend ∞';
   const map = { Sport:'Sport', Pro:'Pro', Advanced:'Advanced',
@@ -295,7 +307,7 @@ function renderTable() {
       tr.style.cssText = `cursor:pointer; border-left:4px solid ${r.color}; background:${r.color}18; transition:background 0.2s;`;
 
       tr.addEventListener('click', () => {
-        if (!r.gpx) { alert('GPX non disponibile per questa gara.'); return; }
+        if (!r.gpx) { showRankMsg('GPX non disponibile per questa gara.'); return; }
         fetch(r.gpx)
           .then(res => res.text())
           .then(gpxText => {
@@ -311,7 +323,7 @@ function renderTable() {
             }));
             window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
           })
-          .catch(() => alert('Errore nel caricamento GPX.'));
+          .catch(() => showRankMsg('Errore nel caricamento GPX.'));
       });
 
       tr.addEventListener('mouseenter', () => tr.style.background = r.color + '2e');
@@ -398,9 +410,9 @@ document.getElementById('filterClass')?.addEventListener('change', renderTable);
 //---------------------------------------- admin compute
 btnAdminCompute?.addEventListener("click", async () => {
  const gp = gpxAdmin.files[0];
- if (!gp) return alert("Carica un GPX");
+ if (!gp) { showAdminMsg("Carica un GPX"); return; }
  const raceName = adminName.value.trim();
- if (!raceName) return alert("Inserisci il nome gara");
+ if (!raceName) { showAdminMsg("Inserisci il nome gara"); return; }
  const text = await gp.text();
  const xml = new DOMParser().parseFromString(text, "application/xml");
 const pts = GPXParser.parseTrack(xml);
@@ -469,7 +481,7 @@ document.getElementById('btnBatchCompute')?.addEventListener('click', async () =
 //---------------------------------------- user compute
 btnUserCompute?.addEventListener("click", async () => {
  const gp = gpxUser.files[0];
- if (!gp) return alert("Carica un GPX");
+ if (!gp) { const m = document.getElementById('userComputeMsg'); if (m) m.textContent = 'Carica un GPX'; return; }
  const text = await gp.text();
  const xml = new DOMParser().parseFromString(text, "application/xml");
 const pts = GPXParser.parseTrack(xml);

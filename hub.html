@@ -370,6 +370,7 @@
         <div class="form-group">
           <label>Il tuo alias (nome con cui appariranno i tuoi dati)</label>
           <input id="aliasInput" type="text" placeholder="es. marco_trail" maxlength="30"/>
+          <div id="aliasMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>
         </div>
         <div style="margin-top:12px; text-align:right;">
           <button class="btn btn-primary" onclick="confirmAlias()">Continua</button>
@@ -692,8 +693,10 @@ async function checkAccess() {
 /* ── Alias ──────────────────────────────────────────────────────────────── */
 function confirmAlias() {
   const val = document.getElementById('aliasInput').value.trim();
-  if (!val || val.length < 2) return alert('Alias troppo corto (min 2 caratteri)');
-  if (!/^[a-z0-9_]+$/i.test(val)) return alert('Solo lettere, numeri e underscore');
+  const aliasMsg = document.getElementById('aliasMsg');
+  if (!val || val.length < 2) { if (aliasMsg) aliasMsg.textContent = 'Alias troppo corto (min 2 caratteri)'; return; }
+  if (!/^[a-z0-9_]+$/i.test(val)) { if (aliasMsg) aliasMsg.textContent = 'Solo lettere, numeri e underscore'; return; }
+  if (aliasMsg) aliasMsg.textContent = '';
   STATE.alias = val.toLowerCase();
   localStorage.setItem('hub_alias', STATE.alias);
   showAlias(STATE.alias);

@@ -285,7 +285,7 @@
      EXPORT KML
      ------------------------------------------------------------------ */
   document.getElementById('btnKml')?.addEventListener('click', () => {
-    if (!window.gpxPts.length) { alert('Carica prima un GPX'); return; }
+    if (!window.gpxPts.length) { WizUI.showError('Carica prima un GPX'); return; }
 
     const coords = window.gpxPts.map(p => `${p[1]},${p[0]},${p[2]}`).join(' ');
     const kml    = `<?xml version="1.0"?>

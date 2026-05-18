@@ -542,6 +542,11 @@ function pc_renderSummary(avgPaceSec, T_target_sec, distKm) {
  ***************************************************************/
 let PC_PLAN = null;
 
+function showPcError(msg) {
+  const el = document.getElementById('pc_msg');
+  if (el) el.textContent = msg;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
   /* initPacingMap() viene ora chiamata da main.js DOPO che #pacingSection
@@ -551,7 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("pc_generate")?.addEventListener("click", () => {
 
     if (!gpxPts || gpxPts.length < 2) {
-      alert("Carica prima una traccia GPX.");
+      showPcError("Carica prima una traccia GPX.");
       return;
     }
 
@@ -562,7 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const p = str.split(":");
       T_target_sec = (+p[0])*3600 + (+p[1])*60 + (+p[2]);
     } else {
-      alert("Inserisci un tempo obiettivo valido (hh:mm:ss).");
+      showPcError("Inserisci un tempo obiettivo valido (hh:mm:ss).");
       return;
     }
 
@@ -584,9 +589,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (PC_PLAN.error) {
-      alert(PC_PLAN.error);
+      showPcError(PC_PLAN.error);
       return;
     }
+    showPcError('');
 
     const distTotal_km = metrics.km;
     const avgPaceSec = T_target_sec / Math.max(1e-6, distTotal_km);
