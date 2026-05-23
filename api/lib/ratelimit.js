@@ -5,7 +5,7 @@
  * compatibilità con Vercel Edge e Node runtime.
  *
  * Strategia: sliding window, 30 richieste/minuto per IP.
- * Key naming: ratelimit:ip:{ip}
+ * Key naming: wiztrail:ratelimit:ip:{ip}
  *
  * Env vars richieste:
  *   UPSTASH_REDIS_REST_URL
@@ -14,6 +14,7 @@
 
 const WINDOW_SECONDS = 60;
 const MAX_REQUESTS   = 30;
+const REDIS_NS       = 'wiztrail:'; // namespace per isolare da altri progetti sullo stesso DB
 
 /**
  * Controlla il rate limit per un dato IP.
@@ -31,7 +32,7 @@ export async function checkRateLimit(ip) {
     return { allowed: true, remaining: MAX_REQUESTS };
   }
 
-  const key = 'ratelimit:ip:' + ip;
+  const key = REDIS_NS + 'ratelimit:ip:' + ip;
 
   try {
     // Pipeline: INCR + EXPIRE in una sola chiamata HTTP

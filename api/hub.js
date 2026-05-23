@@ -26,8 +26,10 @@ const SECRET        = process.env.HUB_SECRET_TOKEN;
 const ADMIN         = process.env.HUB_ADMIN_TOKEN;
 
 /* ── Redis helpers ────────────────────────────────────────────── */
+const REDIS_NS = 'wiztrail:'; // namespace per isolare da altri progetti sullo stesso DB
+
 async function redisGet(key) {
-  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
+  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(REDIS_NS + key)}`, {
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
   });
   const json = await res.json();
@@ -38,8 +40,8 @@ async function redisGet(key) {
 
 async function redisSet(key, value, ttlSeconds = null) {
   const cmd = ttlSeconds
-    ? ['SET', key, JSON.stringify(value), 'EX', ttlSeconds]
-    : ['SET', key, JSON.stringify(value)];
+    ? ['SET', REDIS_NS + key, JSON.stringify(value), 'EX', ttlSeconds]
+    : ['SET', REDIS_NS + key, JSON.stringify(value)];
   const res = await fetch(`${UPSTASH_URL}/pipeline`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
@@ -55,13 +57,14 @@ async function redisScan(pattern, maxKeys = 1000) {
   let cursor = '0';
   do {
     const res = await fetch(
-      `${UPSTASH_URL}/scan/${cursor}?match=${encodeURIComponent(pattern)}&count=100`,
+      `${UPSTASH_URL}/scan/${cursor}?match=${encodeURIComponent(REDIS_NS + pattern)}&count=100`,
       { headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` } }
     );
     const json = await res.json();
     if (json.error) throw new Error(`Redis SCAN: ${json.error}`);
     cursor = json.result[0];
-    keys.push(...json.result[1]);
+    // Strip REDIS_NS prefix so callers get bare keys (consistent with redisGet/redisSet)
+    keys.push(...json.result[1].map(k => k.startsWith(REDIS_NS) ? k.slice(REDIS_NS.length) : k));
   } while (cursor !== '0' && keys.length < maxKeys);
   return keys;
 }
@@ -403,23 +406,13 @@ async function handleFeedback(req, res) {
   if (errors.length > 0) return res.status(400).json({ error: 'Dati non validi', details: errors });
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const TTL_SECONDS = 90 * 24 * 60 * 60;
-  const feedbackData = JSON.stringify({
+  await redisSet(`hub:feedback:${id}`, {
     id,
     delta_pct: body.delta_pct,
     km:        body.km   ?? null,
     dplus:     body.dplus ?? null,
     ts:        new Date().toISOString(),
-  });
-  const ttlRes = await fetch(`${UPSTASH_URL}/pipeline`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify([
-      ['SET', `hub:feedback:${id}`, feedbackData],
-      ['EXPIRE', `hub:feedback:${id}`, TTL_SECONDS],
-    ]),
-  });
-  const ttlJson = await ttlRes.json();
-  if (ttlJson[0]?.error) throw new Error(`Redis SET feedback: ${ttlJson[0].error}`);
+  }, TTL_SECONDS);
   const stats = (await redisGet('hub:feedback:stats')) || { n: 0, sum_delta: 0, last: null };
   await redisSet('hub:feedback:stats', {
     n:         (stats.n         || 0) + 1,
