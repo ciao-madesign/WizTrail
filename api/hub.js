@@ -26,8 +26,10 @@ const SECRET        = process.env.HUB_SECRET_TOKEN;
 const ADMIN         = process.env.HUB_ADMIN_TOKEN;
 
 /* ── Redis helpers ────────────────────────────────────────────── */
+const REDIS_NS = 'wiztrail:'; // namespace per isolare da altri progetti sullo stesso DB
+
 async function redisGet(key) {
-  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(key)}`, {
+  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(REDIS_NS + key)}`, {
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
   });
   const json = await res.json();
@@ -38,8 +40,8 @@ async function redisGet(key) {
 
 async function redisSet(key, value, ttlSeconds = null) {
   const cmd = ttlSeconds
-    ? ['SET', key, JSON.stringify(value), 'EX', ttlSeconds]
-    : ['SET', key, JSON.stringify(value)];
+    ? ['SET', REDIS_NS + key, JSON.stringify(value), 'EX', ttlSeconds]
+    : ['SET', REDIS_NS + key, JSON.stringify(value)];
   const res = await fetch(`${UPSTASH_URL}/pipeline`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
@@ -55,7 +57,7 @@ async function redisScan(pattern, maxKeys = 1000) {
   let cursor = '0';
   do {
     const res = await fetch(
-      `${UPSTASH_URL}/scan/${cursor}?match=${encodeURIComponent(pattern)}&count=100`,
+      `${UPSTASH_URL}/scan/${cursor}?match=${encodeURIComponent(REDIS_NS + pattern)}&count=100`,
       { headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` } }
     );
     const json = await res.json();
