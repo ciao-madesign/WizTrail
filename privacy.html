@@ -10,8 +10,6 @@
   <meta name="theme-color" content="#002b2b">
   <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="wiztrail.css">
 </head>
 <body data-theme="dark">
@@ -46,7 +44,7 @@
     <h1>Privacy & Dati</h1>
     <div class="card">
       <p>WizTrail è progettato attorno a un principio semplice: <b>il tuo GPX non lascia mai il browser</b>. Tutto il calcolo — WDI, TechScore, stima tempi, pacing — avviene interamente in locale. Questa pagina documenta onestamente i pochi dati che <em>effettivamente</em> escono dal tuo browser e perché.</p>
-      <p class="mini" style="margin-top:10px; opacity:0.6;">Ultimo aggiornamento: maggio 2026 · Titolare: WizTrail (ciao.madesign@gmail.com)</p>
+      <p class="mini" style="margin-top:10px; opacity:0.6;">Ultimo aggiornamento: maggio 2026 · Titolare: Michele Aldeni (ciao.madesign@gmail.com)</p>
     </div>
   </section>
 
@@ -80,6 +78,20 @@
         </ul>
         <p>Questo è il comportamento standard di qualsiasi server web. Non è controllato da WizTrail ma da Vercel Inc. come sub-responsabile del trattamento.</p>
         <p class="mini" style="margin-top:8px; opacity:0.6;">Base giuridica: legittimo interesse (sicurezza e stabilità del servizio) · Conservazione: secondo policy Vercel</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Rate limiting anti-abuso — IP temporaneo</b></summary>
+      <div style="margin-top:12px">
+        <p>Per proteggere il servizio da utilizzi abusivi, l'indirizzo IP viene memorizzato temporaneamente sul database Redis per contare le richieste all'API.</p>
+        <ul>
+          <li>Dato trattato: indirizzo IP</li>
+          <li>Scopo: limitare a 30 richieste/minuto per IP (anti-abuso)</li>
+          <li>Conservazione: <b>60 secondi</b>, poi cancellazione automatica</li>
+        </ul>
+        <p>Nessun IP viene mai associato a un'identità o conservato a lungo termine.</p>
+        <p class="mini" style="margin-top:8px; opacity:0.6;">Base giuridica: legittimo interesse (sicurezza del servizio) · Storage: Upstash Redis (TTL 60s)</p>
       </div>
     </details>
 
@@ -158,9 +170,21 @@
             <td>Nessun dato salvato da WizTrail</td>
             <td>USA</td>
           </tr>
+          <tr>
+            <td><a href="https://carto.com/privacy" target="_blank" rel="noopener" style="color:var(--accent);">CARTO</a> / <a href="https://www.openstreetmap.org/privacy" target="_blank" rel="noopener" style="color:var(--accent);">OpenStreetMap</a></td>
+            <td>Tile server mappe (solo quando viene visualizzata una mappa)</td>
+            <td>IP del visitatore per le richieste di tile</td>
+            <td>USA/UE</td>
+          </tr>
+          <tr>
+            <td><a href="https://opentopomap.org/about" target="_blank" rel="noopener" style="color:var(--accent);">OpenTopoMap</a></td>
+            <td>Tile topografici (Training Analyzer, opzionale)</td>
+            <td>IP del visitatore per le richieste di tile</td>
+            <td>UE</td>
+          </tr>
         </tbody>
       </table>
-      <p class="mini" style="margin-top:10px; opacity:0.6;">I trasferimenti di dati verso paesi extra-UE avvengono nel rispetto delle garanzie previste dall'art. 46 GDPR (Standard Contractual Clauses).</p>
+      <p class="mini" style="margin-top:10px; opacity:0.6;">I trasferimenti di dati verso paesi extra-UE avvengono nel rispetto delle garanzie previste dall'art. 46 GDPR (Standard Contractual Clauses). Le mappe vengono caricate solo quando l'utente visualizza una pagina con mappa attiva.</p>
     </div>
   </section>
 
@@ -184,7 +208,7 @@
   <section id="contatti" class="about-section">
     <h2>Contatti</h2>
     <div class="card">
-      <p><b>Titolare del trattamento:</b> WizTrail</p>
+      <p><b>Titolare del trattamento:</b> Michele Aldeni</p>
       <p><b>Email:</b> <a href="mailto:ciao.madesign@gmail.com" style="color:var(--accent);">ciao.madesign@gmail.com</a></p>
       <p class="mini" style="margin-top:10px; opacity:0.6;">Per richieste relative ai dati personali, risposta entro 30 giorni come previsto dal GDPR.</p>
     </div>
