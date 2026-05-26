@@ -2,7 +2,7 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-05-25a";
+const CACHE_VERSION = "wiztrail-v2026-05-26a";
 const CORE_CACHE = [
   "/",
   "/landing.html",
@@ -138,10 +138,8 @@ self.addEventListener("fetch", (event) => {
         .then(res => {
           if (!res || !res.ok) return res;
           // Clona PRIMA di consumare — evita "body already used"
-          if (!url.includes("html2canvas")) {
-            const resClone = res.clone();
-            caches.open(CACHE_VERSION).then(c => c.put(req, resClone));
-          }
+          const resClone = res.clone();
+          caches.open(CACHE_VERSION).then(c => c.put(req, resClone));
           return res;
         })
         .catch(() => caches.match(req)) // offline fallback

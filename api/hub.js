@@ -343,7 +343,7 @@ async function handlePatch(req, res) {
   const model = {
     wdi_calibration: body.wdi_calibration || null,
     timing:          body.timing          || null,
-    pacing:          body.timing          || body.pacing || null,
+    pacing:          body.pacing          || null,
     stats:           body.stats           || null,
     timestamp:       ts,
     patch_js:        body.patch_js        || null,
