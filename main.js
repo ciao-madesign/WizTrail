@@ -462,14 +462,15 @@
     }
     if (fbBtn) fbBtn.style.display = 'block';
 
-    /* Leaflet non renderizza su container hidden — invalidateSize forza il re-render
-       dopo che #pacingSection diventa visibile (display:none → block).
-       setTimeout garantisce che il browser aggiorni il layout prima della chiamata. */
-    /* map.js.init() ora è una vera init — crea la mappa su #pacingMap che è
-       SEMPRE visibile (dentro #elevSection, non dentro display:none).
-       Nessuna race condition: WizMap.init() chiamato qui garantisce la mappa pronta. */
-    WizMap.init();
-    setTimeout(() => { WizMap.drawTrack(); }, 80);
+    /* Mappa: init + drawTrack solo se il GPX è caricato.
+       In modalità noGpx #elevSection rimane nascosto: inizializzare Leaflet
+       su un container display:none crea una mappa 0×0; il successivo caricamento
+       del GPX troverebbe init() già chiamato (guard "if (map) return") e la mappa
+       non si ridimensionerebbe correttamente. */
+    if (!noGpx) {
+      WizMap.init();
+      setTimeout(() => { WizMap.drawTrack(); }, 80);
+    }
 
     /* Badge disciplina — solo se GPX caricato (max_altitude disponibile).
        In modalità manuale gpxPts è vuoto → badge nascosto. */
