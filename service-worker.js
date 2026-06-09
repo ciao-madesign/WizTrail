@@ -28,7 +28,10 @@ const CORE_CACHE = [
   "/img/hero-ranking.jpg",
   "/fonts/fonts.css",
   "/lib/leaflet/leaflet.css",
-  "/lib/leaflet/leaflet.js"
+  "/lib/leaflet/leaflet.js",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/icon-maskable.svg"
 ];
 
 // Pagine statiche extra da mettere in cache
@@ -142,7 +145,6 @@ self.addEventListener("fetch", (event) => {
           if (!res || !res.ok) return res;
           // Clona PRIMA di consumare — evita "body already used"
           const resClone = res.clone();
-          caches.open(CACHE_VERSION).then(c => c.put(req, resClone));
           return res;
         })
         .catch(() => caches.match(req)) // offline fallback
