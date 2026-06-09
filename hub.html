@@ -337,6 +337,14 @@
       Verifica accesso in corso...
     </div>
     <div id="lockSpinner" class="spinner"></div>
+    <!-- Form token: visibile solo quando STATE.key è assente all'avvio -->
+    <div id="lockTokenForm" style="display:none; margin-top:8px;">
+      <input id="lockTokenInput" type="password" placeholder="Token di accesso"
+             onkeydown="if(event.key==='Enter')submitToken()"
+             style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.85rem; box-sizing:border-box; margin-bottom:10px;">
+      <button onclick="submitToken()"
+              style="width:100%; padding:8px; border-radius:6px; border:none; background:var(--accent); color:#000; font-weight:700; cursor:pointer; font-size:0.85rem;">Accedi</button>
+    </div>
   </div>
 </div>
 
@@ -648,11 +656,26 @@ function hideMsg(id) {
   if (el) el.className = 'msg';
 }
 
+/* ── Submit token da form lock screen ──────────────────────────────────── */
+function submitToken() {
+  const val = document.getElementById('lockTokenInput').value.trim();
+  if (!val) return;
+  STATE.key = val;
+  // Resetta l'UI e ritenta la verifica
+  document.getElementById('lockTokenForm').style.display = 'none';
+  document.getElementById('lockSpinner').style.display = '';
+  document.getElementById('lockMsg').textContent = 'Verifica accesso in corso...';
+  checkAccess();
+}
+
 /* ── Verifica accesso ───────────────────────────────────────────────────── */
 async function checkAccess() {
   if (!STATE.key) {
-    document.getElementById('lockMsg').textContent = 'Token mancante nell\'URL.';
+    // Nessun token nell'URL: mostra form di inserimento invece del messaggio di errore
+    document.getElementById('lockMsg').textContent = 'Inserisci il token di accesso.';
     document.getElementById('lockSpinner').style.display = 'none';
+    document.getElementById('lockTokenForm').style.display = 'block';
+    setTimeout(() => document.getElementById('lockTokenInput').focus(), 50);
     return;
   }
   try {
