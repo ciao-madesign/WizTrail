@@ -343,10 +343,16 @@ function drawPacingMap(pacingChunks, avgPaceSec) {
       const idx = s.index;
       return [gpxPts[idx][0], gpxPts[idx][1]];
     });
+    // Aggiunge il punto finale dell'ultimo segmento per eliminare il gap visivo
+    // tra chunk adiacenti (ogni segmento copre [index → index+1])
+    const lastIdx = chunk.segs[chunk.segs.length - 1].index;
+    if (lastIdx + 1 < gpxPts.length) {
+      segPts.push([gpxPts[lastIdx + 1][0], gpxPts[lastIdx + 1][1]]);
+    }
 
     const poly = L.polyline(segPts, {
       color,
-      weight: 6,
+      weight: 4,
       opacity: 0.95
     }).addTo(pacingMap);
 
