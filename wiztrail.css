@@ -1457,6 +1457,11 @@ table {
   color: var(--ink);
   font-weight: 600;
 }
+/* Label testuale nella riga meta-header (es. "Distanza", "D+") */
+.tc-meta-label {
+  color: var(--muted);
+  margin-right: 3px;
+}
 
 /* Bottone "Carta del percorso" — appare accanto al feedbackBtn in index.html */
 .btn-trail-card {
