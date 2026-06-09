@@ -88,7 +88,7 @@
 
     poly = L.polyline(
       window.gpxPts.map(p => [p[0], p[1]]),
-      { color: getColorWDI(window.currentWDI), weight: 4 }
+      { color: getColorWDI(window.currentWDI), weight: 3 }
     ).addTo(map);
 
     map.fitBounds(poly.getBounds());
