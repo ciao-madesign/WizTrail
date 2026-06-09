@@ -86,8 +86,9 @@
     if (!f) return;
     const txt = await f.text();
     const xml = new DOMParser().parseFromString(txt, 'application/xml');
-    window.gpxPts  = GPXParser.parseTrack(xml);
-    window.metrics = GPXParser.compute(window.gpxPts);
+    window.gpxPts      = GPXParser.parseTrack(xml);
+    window.metrics     = GPXParser.compute(window.gpxPts);
+    window._gpxFileName = f.name.replace(/\.(gpx|tcx|xml)$/i, ''); // usato dalla trail-card
     WizUI.updateGpxInfo(window.gpxPts, window.metrics);
     /* Mostra elevSection PRIMA di init mappa: #pacingMap deve avere dimensioni
        reali (clientWidth/Height > 0) quando Leaflet si inizializza.
@@ -420,6 +421,37 @@
     window.currentWDI_norm = rs.WDI_norm;   // normalizzato — per display futuro
     window.lastRS          = rs;
 
+    /* Carta del percorso — salva dati in sessionStorage per trail-card.html.
+       Solo con GPX reale: noGpx non ha pts con coordinate vere.
+       Guard typeof: trail-stats.js potrebbe non essere caricato in future versioni slim. */
+    if (!noGpx && typeof TrailStats !== 'undefined') {
+      const trailStats = TrailStats.compute(window.gpxPts, m, rs);
+      if (trailStats) {
+        try {
+          sessionStorage.setItem('wiztrail_trail_card', JSON.stringify({
+            trackName:    window._gpxFileName || 'Percorso analizzato',
+            from:         'index.html',
+            stats:        trailStats,
+            engine: {
+              WDI:           rs.WDI,
+              WDI_norm:      rs.WDI_norm,
+              WDI_category:  rs.WDI_category,
+              WDI_legendPlus: rs.WDI_legendPlus,
+              class:         rs.class,
+              color:         rs.color,
+              TechScore:     rs.TechScore,
+              techClass:     rs.techClass,
+              techColor:     rs.techColor,
+              factors:       rs.factors,
+            },
+            metricsChart: { e: m.e, d: m.d, km: m.km },
+          }));
+        } catch (e) {
+          // sessionStorage pieno o disabilitato — non blocca il flusso principale
+        }
+      }
+    }
+
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
 
@@ -461,6 +493,12 @@
       if (pacingSec) pacingSec.style.display = 'block';
     }
     if (fbBtn) fbBtn.style.display = 'block';
+
+    /* Bottone Carta del percorso — solo con GPX caricato */
+    if (!noGpx) {
+      const tcBtn = document.getElementById('trailCardBtn');
+      if (tcBtn) tcBtn.style.display = 'inline-flex';
+    }
 
     /* Mappa: init + drawTrack solo se il GPX è caricato.
        In modalità noGpx #elevSection rimane nascosto: inizializzare Leaflet
