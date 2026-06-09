@@ -283,6 +283,14 @@
         </div>
       </div>
 
+      <!-- Azioni post-calcolo: feedback + carta del percorso -->
+      <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:16px;">
+        <!-- Carta del percorso — visibile solo dopo calcolo con GPX -->
+        <a id="trailCardBtn" href="trail-card.html" class="btn-trail-card" style="display:none;">
+          &#9783; Carta del percorso
+        </a>
+      </div>
+
       <!-- Button modale feedback — appare dopo il primo calcolo WDI -->
       <div id="feedbackBtn" style="display:none; margin-top:16px; text-align:center;">
         <button class="btn secondary"
@@ -448,6 +456,7 @@
 
 <!-- Nuovi moduli Fase 1 -->
 <script src="gpx-parser.js?v=20260415"></script>
+<script src="trail-stats.js?v=20260609"></script>
 <script src="discipline-classifier.js?v=20260424"></script>
 <script src="map.js?v=20260415"></script>
 <script src="ui.js?v=20260415"></script>
