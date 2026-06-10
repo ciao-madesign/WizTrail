@@ -19,14 +19,15 @@ const VELOCITY_PARAMS = {
 
 const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 1.00, 'EE': 0.85, 'EA': 0.75 };
 
-/* KF_TERRAIN_PARAMS — Fase 12. Sincronizzato con wiztrail-timing.js. */
+/* KF_TERRAIN_PARAMS — Fase 12. Sincronizzato con wiztrail-timing.js.
+   Usa TechScore (non WDI): WDI include distanza/dislivello già nel timing engine. */
 const KF_TERRAIN_PARAMS = {
-  wdi_scale:          500,
+  tech_scale:         400,
   specificity_weight: 0.4,
 };
 
-export function terrainFactor(wdi, S) {
-  return 1 + (wdi / KF_TERRAIN_PARAMS.wdi_scale) * (1 - S * KF_TERRAIN_PARAMS.specificity_weight);
+export function terrainFactor(techScore, S) {
+  return 1 + (techScore / KF_TERRAIN_PARAMS.tech_scale) * (1 - S * KF_TERRAIN_PARAMS.specificity_weight);
 }
 
 function velocityFromSlope(p, S, velBase) {
