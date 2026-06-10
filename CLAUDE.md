@@ -257,9 +257,9 @@ index.html (calcolo GPX)
 
 I `pts` originali (fino a 5000 `[lat,lon,ele]`) non vengono salvati per limitare la dimensione del payload. Solo `metricsChart.e[]` e `metricsChart.d[]` vengono salvati (sufficienti per il profilo altimetrico).
 
-### Bottone "Carta del percorso"
+### Bottone "Scheda dettagliata"
 
-Appare in `index.html` solo dopo calcolo con GPX reale (non in modalità noGpx). Elemento: `<a id="trailCardBtn">`, mostrato in `main.js` con `style.display = 'inline-flex'`.
+Appare in `index.html` solo dopo calcolo con GPX reale (non in modalità noGpx). Elemento: `<a id="trailCardBtn">`, mostrato in `main.js` con `style.display = 'flex'`.
 
 ---
 
@@ -321,7 +321,7 @@ Tutte le chiavi Redis usano il prefisso `wiztrail:` per isolare da altri progett
 - I nuovi file statici vanno aggiunti a `CORE_CACHE` o `PAGE_CACHE`
 - `PAGE_CACHE` include pagine secondarie; `CORE_CACHE` include dipendenze critiche per offline
 
-**Attuale CACHE_VERSION:** `wiztrail-v2026-06-10i`
+**Attuale CACHE_VERSION:** `wiztrail-v2026-06-10k`
 
 ---
 
@@ -417,7 +417,7 @@ Classifica automaticamente il tipo di gara in base a km, D+, max_altitude, WDI:
 .btn.secondary — bottone secondario
 .kpi           — blocco KPI con label + valore grande
 .profile-wrap  — container canvas profilo altimetrico
-.btn-trail-card — bottone "Carta del percorso"
+.btn-trail-card — bottone "Scheda dettagliata"
 .tc-*          — classi trail-card (sezioni, righe, bar, insights)
 ```
 

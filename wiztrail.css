@@ -1463,25 +1463,33 @@ table {
   margin-right: 3px;
 }
 
-/* Bottone "Carta del percorso" — appare accanto al feedbackBtn in index.html */
+/* Bottone "Scheda dettagliata" — CTA primaria post-calcolo in index.html */
 .btn-trail-card {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: linear-gradient(135deg, rgba(79,209,197,0.18), rgba(14,165,233,0.12));
-  border: 1px solid rgba(79,209,197,0.35);
-  border-radius: 8px;
-  color: var(--accent);
-  font-size: 0.88rem;
-  font-weight: 600;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 22px;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  color: #062827;
+  font-size: 1rem;
+  font-weight: 800;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.15s, border-color 0.15s;
+  box-shadow: 0 4px 20px color-mix(in oklab, var(--accent) 35%, transparent);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  margin-top: 24px;
 }
 .btn-trail-card:hover {
-  background: linear-gradient(135deg, rgba(79,209,197,0.28), rgba(14,165,233,0.20));
-  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 85%, white);
+  box-shadow: 0 6px 28px color-mix(in oklab, var(--accent) 50%, transparent);
+  transform: translateY(-1px);
+}
+.btn-trail-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px color-mix(in oklab, var(--accent) 25%, transparent);
 }
 
 /* ── Griglia 2 colonne per le sezioni tematiche ── */

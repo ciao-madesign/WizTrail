@@ -275,16 +275,14 @@
         </div>
       </div>
 
-      <!-- Azioni post-calcolo: feedback + carta del percorso -->
-      <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:16px;">
-        <!-- Carta del percorso — visibile solo dopo calcolo con GPX -->
-        <a id="trailCardBtn" href="trail-card.html" class="btn-trail-card" style="display:none;">
-          &#9783; Carta del percorso
-        </a>
-      </div>
+      <!-- CTA primaria post-calcolo: Scheda dettagliata — solo con GPX caricato -->
+      <a id="trailCardBtn" href="trail-card.html" class="btn-trail-card" style="display:none;">
+        <span>&#9783;&nbsp; Scopri la Scheda dettagliata</span>
+        <span style="font-size:1.2em; opacity:0.75;">→</span>
+      </a>
 
-      <!-- Button modale feedback — appare dopo il primo calcolo WDI -->
-      <div id="feedbackBtn" style="display:none; margin-top:16px; text-align:center;">
+      <!-- Feedback secondario — appare dopo il primo calcolo WDI -->
+      <div id="feedbackBtn" style="display:none; margin-top:12px; text-align:center;">
         <button class="btn secondary"
           onclick="var m=document.getElementById('feedbackModal');m.style.display='flex';document.getElementById('feedbackOverlay').onclick=function(){m.style.display='none';};">
           Hai un tempo reale per questa gara? Aiuta a calibrare il modello
@@ -456,7 +454,7 @@
 <script src="wiztrail-timing.js?v=20260610c"></script>
 
 <!-- Entry point -->
-<script src="main.js?v=20260610b"></script>
+<script src="main.js?v=20260610c"></script>
 
 
 
