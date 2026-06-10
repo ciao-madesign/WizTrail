@@ -8,10 +8,13 @@
 
 const kT = 0.50;
 
+/* WDI_NORM_CATEGORIES v4 — ricalibrate 10/06/2026: scale v3 avevano massimi
+   irraggiungibili in pratica (Short max=65 mai raggiunto da 25km reali → max=50).
+   Sincronizzato con wiztrail-engine.js. */
 const WDI_NORM_CATEGORIES = [
-  { distMax:  25, wdiMin: 15, wdiMax:  65, label: 'Short'  },
-  { distMax:  50, wdiMin: 20, wdiMax: 120, label: 'Medium' },
-  { distMax:  95, wdiMin: 50, wdiMax: 175, label: 'Long'   },
+  { distMax:  25, wdiMin: 10, wdiMax:  50, label: 'Short'  },
+  { distMax:  50, wdiMin: 15, wdiMax:  90, label: 'Medium' },
+  { distMax:  95, wdiMin: 30, wdiMax: 130, label: 'Long'   },
   { distMax: Infinity, wdiMin: 80, wdiMax: 300, label: 'Ultra' },
 ];
 
