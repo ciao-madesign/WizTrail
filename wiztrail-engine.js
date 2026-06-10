@@ -31,29 +31,39 @@ window.WizTrail = (function () {
      Le soglie grezze sono fisse e documentate — non cambiano
      con l'aggiunta di nuove gare al ranking.
 
-     Categorie e scale grezze (v4 — ricalibrate 10/06/2026):
-       Le scale v3 avevano WDI massimi irraggiungibili in pratica
-       (Short max=65 → un 25km reale arriva max a ~50).
-       Tutto veniva compresso verso 0, risultando in display "ridicolo"
-       (es. trail competitivo 12km → 0.6/10 con v3).
+     Categorie e scale grezze (v5 — ricalibrate 10/06/2026):
+       v4 alzava i massimi a valori realistici (Short→50), ma in presenza di gare
+       competitive che superano il wdiMax il display tornava a 10/10.
+       v5 alza i massimi al 95° percentile osservato su dataset gare (wdiMax = valore
+       che solo le gare estreme raggiungono), e introduce curva power (γ=0.65) per
+       sollevare i valori bassi senza schiacciare i medi-alti.
 
-       Principio v4: wdiMax = WDI realisticamente raggiungibile
-       dalle gare più dure della categoria (non valore teorico).
-       wdiMin = WDI di una gara "banale/piatta" della categoria (0/10).
+       Principio v5:
+         wdiMax = 95° percentile WDI osservato per categoria (esclude outlier assoluti).
+         wdiMin = WDI di una gara "banale/piatta" della categoria (display 0/10).
+         Curva power: norm = x^NORM_GAMMA × 10, dove x = (wdi−wdiMin)/(wdiMax−wdiMin).
+         γ < 1 → la curva è sub-lineare: alza i valori nella fascia bassa,
+         quasi invariata per i valori medi-alti.
 
-       Short  ≤25km  : grezzo 10→ 50  → norm 0–10
-       Medium 26–50km: grezzo 15→ 90  → norm 0–10
-       Long   51–95km: grezzo 30→130  → norm 0–10
+       Short  ≤25km  : grezzo 10→ 80  → norm 0–10
+       Medium 26–50km: grezzo 15→100  → norm 0–10
+       Long   51–95km: grezzo 30→160  → norm 0–10
        Ultra  >95km  : grezzo 80→300  → norm 0–10 (Legend ∞ oltre 300)
 
      TechScore: scala assoluta 0–100, non categorizzata per distanza.
      --------------------------------------------------------------- */
   const WDI_NORM_CATEGORIES = [
-    { distMax:  25, wdiMin: 10, wdiMax:  50, label: 'Short'  },
-    { distMax:  50, wdiMin: 15, wdiMax:  90, label: 'Medium' },
-    { distMax:  95, wdiMin: 30, wdiMax: 130, label: 'Long'   },
+    { distMax:  25, wdiMin: 10, wdiMax:  80, label: 'Short'  },
+    { distMax:  50, wdiMin: 15, wdiMax: 100, label: 'Medium' },
+    { distMax:  95, wdiMin: 30, wdiMax: 160, label: 'Long'   },
     { distMax: Infinity, wdiMin: 80, wdiMax: 300, label: 'Ultra' },
   ];
+
+  /* Gamma per curva power nella normalizzazione WDI (v5 — 10/06/2026).
+     γ < 1 → curva sub-lineare: alza i valori bassi, quasi invariata per gli alti.
+     γ=0.65: x=0.10 → +150%, x=0.50 → +28%, x=0.85 → +6%.
+     Garantisce spread significativo senza schiacciare i valori medi-alti. */
+  const NORM_GAMMA = 0.65;
 
   /* ---------------------------------------------------------------
      SOGLIE — v3 calibrate su 95 gare (v5.1 engine, 05/05/2026)
@@ -125,7 +135,8 @@ window.WizTrail = (function () {
    */
   function normalizeWDI(wdi, km) {
     const cat  = getWdiCategory(km);
-    const norm = (wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin) * 10;
+    const x    = clamp((wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin), 0, 1);
+    const norm = Math.pow(x, NORM_GAMMA) * 10;
     const isLegendPlus = (cat.label === 'Ultra' && wdi > cat.wdiMax);
     return {
       norm:          Math.round(clamp(norm, 0, 10) * 10) / 10,
