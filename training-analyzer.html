@@ -190,11 +190,6 @@
 </div>
 
 <div class="card ta-score-card" id="trainingScoreCard">
-  <!-- Toggle livello atleta — persiste in localStorage -->
-  <div class="ta-level-toggle" id="levelToggle">
-    <button class="ta-level-btn active" id="btnAmatore" onclick="setLevel('amatore')">Amatore</button>
-    <button class="ta-level-btn" id="btnPro" onclick="setLevel('pro')">Pro</button>
-  </div>
   <!-- WDI numerico normalizzato per categoria -->
   <div class="ta-score-wdi-row">
     <span class="ta-score-label" id="trainingWdiLabel">WDI</span>
@@ -330,8 +325,7 @@ function drawElevation(c, e){
    TRAINING SCORE LAYER — layer post-WDI specifico per allenamenti.
 
    Usa il WDI NORMALIZZATO per categoria (0–10) invece del grezzo.
-   Soglie separate per Amatore e Pro — selezionabili dall'utente.
-   Il livello persiste in localStorage ('ta_level').
+   Soglie fisse per livello amatore (unico livello attivo).
 
    Soglie calibrate su WDI norm 0–10 per categoria:
      AMATORE: < 1.3 Riscaldamento · < 2.5 Uscita media ·
@@ -382,24 +376,8 @@ const TRAINING_LEVELS = {
   ],
 };
 
-/* Livello corrente — caricato da localStorage, default 'amatore' */
-let currentLevel = localStorage.getItem('ta_level') || 'amatore';
-
-/* Aggiorna i bottoni toggle al caricamento della pagina */
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('btnAmatore')?.classList.toggle('active', currentLevel === 'amatore');
-  document.getElementById('btnPro')?.classList.toggle('active', currentLevel === 'pro');
-});
-
-function setLevel(level) {
-  currentLevel = level;
-  localStorage.setItem('ta_level', level);
-  /* Aggiorna UI toggle */
-  document.getElementById('btnAmatore').classList.toggle('active', level === 'amatore');
-  document.getElementById('btnPro').classList.toggle('active', level === 'pro');
-  /* Ricalcola display se c'è un risultato attivo */
-  if (window.currentTrainingResult) updateTrainingDisplay(window.currentTrainingResult, window.currentMetrics);
-}
+/* Livello fisso — soglie amatore usate come default unico */
+const currentLevel = 'amatore';
 
 function getTrainingLabel(wdiNorm) {
   /* Usa soglie per il livello corrente. Input: WDI normalizzato 0–10. */
