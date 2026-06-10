@@ -8,15 +8,21 @@
 
 const kT = 0.50;
 
-/* WDI_NORM_CATEGORIES v4 — ricalibrate 10/06/2026: scale v3 avevano massimi
-   irraggiungibili in pratica (Short max=65 mai raggiunto da 25km reali → max=50).
+/* WDI_NORM_CATEGORIES v5 — ricalibrate 10/06/2026:
+   v4 aveva wdiMax troppo basso (Short=50) → 5 gare al 10/10 nel ranking.
+   v5 alza i massimi al 95° percentile osservato e introduce curva power (NORM_GAMMA).
    Sincronizzato con wiztrail-engine.js. */
 const WDI_NORM_CATEGORIES = [
-  { distMax:  25, wdiMin: 10, wdiMax:  50, label: 'Short'  },
-  { distMax:  50, wdiMin: 15, wdiMax:  90, label: 'Medium' },
-  { distMax:  95, wdiMin: 30, wdiMax: 130, label: 'Long'   },
+  { distMax:  25, wdiMin: 10, wdiMax:  80, label: 'Short'  },
+  { distMax:  50, wdiMin: 15, wdiMax: 100, label: 'Medium' },
+  { distMax:  95, wdiMin: 30, wdiMax: 160, label: 'Long'   },
   { distMax: Infinity, wdiMin: 80, wdiMax: 300, label: 'Ultra' },
 ];
+
+/* Gamma per curva power nella normalizzazione WDI (v5 — 10/06/2026).
+   γ < 1 → curva sub-lineare: alza i valori bassi, quasi invariata per gli alti.
+   Sincronizzato con wiztrail-engine.js. */
+const NORM_GAMMA = 0.65;
 
 const WDI_THRESHOLDS = [
   { max:  22,      level: 'Sport',    color: '#2BB7DA' },
@@ -147,7 +153,8 @@ function normalizeWDI(wdi, km) {
   for (const c of WDI_NORM_CATEGORIES) {
     if (km <= c.distMax) { cat = c; break; }
   }
-  const norm = (wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin) * 10;
+  const x    = clamp((wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin), 0, 1);
+  const norm = Math.pow(x, NORM_GAMMA) * 10;
   const isLegendPlus = (cat.label === 'Ultra' && wdi > cat.wdiMax);
   return {
     norm:          Math.round(clamp(norm, 0, 10) * 10) / 10,
