@@ -429,6 +429,14 @@
     window.currentWDI_norm = rs.WDI_norm;   // normalizzato — per display futuro
     window.lastRS          = rs;
 
+    /* Fase 12 — Athlete Profile: correzione WDI terrain.
+       Il modello a segmenti calcola T dal passo su strada + pendenze + fatica,
+       ma non tiene conto che percorsi con WDI alto frenano proporzionalmente
+       di più (tecnicità diffusa, irregolarità, esposizione). KF ≥ 1 corregge
+       questa sistematica sottostima sulle gare tecniche. */
+    const KF_terrain = WizTrailTiming.terrainFactor(rs.WDI, S);
+    T *= KF_terrain;
+
     /* Carta del percorso — salva dati in sessionStorage per trail-card.html.
        Solo con GPX reale: noGpx non ha pts con coordinate vere.
        Guard typeof: trail-stats.js potrebbe non essere caricato in future versioni slim. */
@@ -469,17 +477,23 @@
     const pace_trail = (T / 60) / m.km;
     const isSkyrace  = (m.gain / Math.max(m.km, 1)) > 60;
 
+    // Nota WDI terrain: mostrata solo se la correzione è ≥3% (impatto percettibile)
+    const kfPct   = Math.round((KF_terrain - 1) * 100);
+    const kfNote  = kfPct >= 3
+      ? ' &nbsp;·&nbsp; <span style="opacity:0.55; font-size:0.72rem;">+' + kfPct + '% terreno WDI ' + Math.round(rs.WDI) + '</span>'
+      : '';
+
     const subEl = document.getElementById('outFinalSub');
     if (subEl) {
       if (noGpx) {
         subEl.innerHTML =
-          pace_trail.toFixed(1) + ' min/km medi &nbsp;·&nbsp; ' + livello +
+          pace_trail.toFixed(1) + ' min/km medi &nbsp;·&nbsp; ' + livello + kfNote +
           '<br><span style="color:var(--accent); font-size:0.72rem;">⚠ stima approssimativa — carica il GPX per risultati precisi</span>';
       } else {
         subEl.innerHTML =
           pace_trail.toFixed(1) + ' min/km medi sul percorso' +
           ' &nbsp;·&nbsp; ' + livello +
-          (isSkyrace ? ' &nbsp;·&nbsp; skyrace' : '') +
+          (isSkyrace ? ' &nbsp;·&nbsp; skyrace' : '') + kfNote +
           '<br><span style="opacity:0.5; font-size:0.72rem;">modello segmenti v2.0</span>';
       }
     }
