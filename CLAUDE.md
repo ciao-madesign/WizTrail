@@ -403,6 +403,7 @@ Classifica automaticamente il tipo di gara in base a km, D+, max_altitude, WDI:
 | 28/04/2026 | TERRAIN_DEFAULTS | v1 | v2 (per contesto gara) |
 | 11/05/2026 | WDI_NORM_CATEGORIES | v2 | v3 (calibrate su 31 gare) |
 | 05/05/2026 | WDI_THRESHOLDS | v2 | v3 (calibrate su 95 gare) |
+| 10/06/2026 | TERRAIN_DEFAULTS | v2 | v3: fix saturazione normSVar — tutti i valori slopeVar (0.38/0.55/0.70) saturavano a 1.0 dopo il cambio ref normSVar 0.55→0.180 (non documentato). Nuovi valori: E{frip:0.25,sV:0.08,rough:0.10}, EE{0.48,0.13,0.20}, EA{0.72,0.17,0.32} |
 
 ### Pipeline di calibrazione
 

@@ -36,10 +36,11 @@ const TECH_THRESHOLDS = [
 
 const SURFACE_MULT = { 1: 0.92, 2: 0.97, 3: 1.00, 4: 1.04, 5: 1.08 };
 
+/* TERRAIN_DEFAULTS v3 — ricalibrati 10/06/2026 (vedi wiztrail-engine.js per dettagli) */
 const TERRAIN_DEFAULTS = {
-  'E':  { frip: 0.22, slopeVar: 0.38, roughness: 0.18 },
-  'EE': { frip: 0.38, slopeVar: 0.55, roughness: 0.28 },
-  'EA': { frip: 0.55, slopeVar: 0.70, roughness: 0.40 },
+  'E':  { frip: 0.25, slopeVar: 0.08, roughness: 0.10 },
+  'EE': { frip: 0.48, slopeVar: 0.13, roughness: 0.20 },
+  'EA': { frip: 0.72, slopeVar: 0.17, roughness: 0.32 },
 };
 
 const DISCIPLINE_BADGES = {
