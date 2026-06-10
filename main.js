@@ -437,7 +437,7 @@
     const KF_terrain = WizTrailTiming.terrainFactor(rs.TechScore, S);
     T *= KF_terrain;
 
-    /* Carta del percorso — salva dati in sessionStorage per trail-card.html.
+    /* Scheda dettagliata — salva dati in sessionStorage per trail-card.html.
        Solo con GPX reale: noGpx non ha pts con coordinate vere.
        Guard typeof: trail-stats.js potrebbe non essere caricato in future versioni slim. */
     if (!noGpx && typeof TrailStats !== 'undefined') {
@@ -516,7 +516,7 @@
     }
     if (fbBtn) fbBtn.style.display = 'block';
 
-    /* Bottone Carta del percorso — solo con GPX caricato */
+    /* Bottone Scheda dettagliata — solo con GPX caricato */
     if (!noGpx) {
       const tcBtn = document.getElementById('trailCardBtn');
       if (tcBtn) tcBtn.style.display = 'flex';
