@@ -253,10 +253,51 @@
 
   /* ------------------------------------------------------------------
      3) COMPUTE METRICS
-     Calcola { km, gain, e[], d[], max_altitude } dai punti GPS
+     Calcola { km, gain, e[], eSmooth[], d[], max_altitude, elevQuality } dai punti GPS
+     elevQuality: 'clean' | 'dem' | 'noisy'
+     ------------------------------------------------------------------ */
+
+  /* Rileva la qualità dei dati di elevazione per warning selettivi:
+     'dem'   — elevazione DEM-corretta: molti step consecutivi identici anche con D+ significativo
+               (firma tipica di Komoot, Garmin Connect con correzione DEM attiva).
+               La tecnicità computata sarà sottostimata perché la texture fine è persa.
+     'noisy' — GPS senza barometro: RMS residuo elev-elevS > 8 m.
+               Lo smoothing adattivo riduce l'impatto, ma il dato è intrinsecamente rumoroso.
+     'clean' — barometrico o dati di buona qualità. */
+  function detectElevQuality(elev, elevS, d, gain) {
+    if (!elev || elev.length < 30) return 'clean';
+
+    // DEM: frazione di step orizzontali > 3 m con |ΔElev| < 0.15 m.
+    // Solo se il D+ è > 100 m (evita falsi positivi su trail genuinamente piatti).
+    if (gain > 100) {
+      var flatCount = 0, spacedCount = 0;
+      for (var i = 1; i < elev.length; i++) {
+        var dd = d[i] - d[i - 1];
+        if (dd > 3) {
+          spacedCount++;
+          if (Math.abs(elev[i] - elev[i - 1]) < 0.15) flatCount++;
+        }
+      }
+      if (spacedCount > 20 && (flatCount / spacedCount) > 0.65) return 'dem';
+    }
+
+    // Noisy GPS: RMS del residuo (elev − elevS) > 8 m.
+    var noiseSum = 0;
+    for (var k = 0; k < elev.length; k++) {
+      var res = elev[k] - elevS[k];
+      noiseSum += res * res;
+    }
+    if (Math.sqrt(noiseSum / elev.length) > 8) return 'noisy';
+
+    return 'clean';
+  }
+
+  /* ------------------------------------------------------------------
+     3) COMPUTE METRICS
+     Calcola { km, gain, e[], eSmooth[], d[], max_altitude, elevQuality } dai punti GPS
      ------------------------------------------------------------------ */
   function compute(pts) {
-    if (pts.length < 2) return { km: 0, gain: 0, e: [], d: [], max_altitude: 0 };
+    if (pts.length < 2) return { km: 0, gain: 0, e: [], eSmooth: [], d: [], max_altitude: 0, elevQuality: 'clean' };
 
     const elev = pts.map(function (p) { return p[2]; });
 
@@ -311,7 +352,17 @@
     }, -Infinity);
     const max_altitude = Number.isFinite(maxAltRaw) ? maxAltRaw : 0;
 
-    return { km: dist / 1000, gain: gain, e: elev, d: d, max_altitude: max_altitude };
+    const elevQuality = detectElevQuality(elev, elevS, d, gain);
+
+    return {
+      km:           dist / 1000,
+      gain:         gain,
+      e:            elev,    // raw — per display profilo e statistiche altimetriche
+      eSmooth:      elevS,   // smoothed — usato dal motore per FRIP/SlopeVar/Roughness
+      d:            d,
+      max_altitude: max_altitude,
+      elevQuality:  elevQuality,
+    };
   }
 
   /* ------------------------------------------------------------------

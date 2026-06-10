@@ -198,8 +198,10 @@ export function computeFromGpx(metrics, surfaceLevel = 3, osmResult = null) {
   const loss     = metrics.loss     !== undefined ? metrics.loss     : computeLoss(e);
   const altMedia = metrics.altMedia !== undefined ? metrics.altMedia : computeAltMedia(e);
 
-  const slopes    = computeSlopes(d, e);
-  const frip      = computeFRIP(d, e);
+  // Usa eSmooth se disponibile — sincronizzato con wiztrail-engine.js
+  const eForTech  = metrics.eSmooth || e;
+  const slopes    = computeSlopes(d, eForTech);
+  const frip      = computeFRIP(d, eForTech);
   const slopeVar  = computeSlopeVar(slopes);
   const roughness = computeRoughness(slopes);
 
