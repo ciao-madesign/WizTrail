@@ -301,8 +301,8 @@
       { label: 'D+/km',           val: clamp01(gainPerKm / 120) },               // max ref: 120m/km
       { label: 'Tecnicità',       val: clamp01(engine.TechScore / 100) },
       { label: 'Pend. salita',    val: clamp01((stats.slope_up_avg || 0) / 50) },// max ref: 50%
-      { label: 'Roughness',       val: clamp01((stats.roughness || 0)) },
-      { label: 'FRIP',            val: clamp01((stats.frip || 0)) },
+      { label: 'Roughness',       val: clamp01((stats.roughness || 0) / 0.500) }, // scala engine: normRough /= 0.500
+      { label: 'FRIP',            val: clamp01((stats.frip || 0) / 0.924) },         // scala engine: normFRIP /= 0.924
     ];
 
     var n    = axes.length;
