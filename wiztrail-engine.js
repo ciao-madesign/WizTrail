@@ -11,7 +11,8 @@
        o formule qui va replicata anche lì (engine drift rischio regressione API)
    kT = 0.50 → calibrato 20/04/2026 (era 0.35)
    normRough 0.500 → recalibrato 28/04/2026 (era 0.051, saturava su GPX reali)
-   TERRAIN_DEFAULTS v2 → recalibrato 28/04/2026 per contesto gara
+   TERRAIN_DEFAULTS v3 → recalibrato 10/06/2026: fix saturazione normSVar
+     (dopo cambio ref normSVar 0.55→0.180, tutti i valori slopeVar saturavano a 1.0)
    WDI_THRESHOLDS v3 → ricalibrate 05/05/2026 su 95 gare (v5.1 engine)
    =============================================================== */
 
@@ -21,29 +22,48 @@ window.WizTrail = (function () {
 
   /* ---------------------------------------------------------------
      NORMALIZZAZIONE WDI PER CATEGORIA DI DISTANZA
-     
+
      Il WDI grezzo è usato internamente per tutti i calcoli
      (map.js, discipline-classifier, pacing, hub).
      Il WDI normalizzato (0–10 per categoria) è solo per display.
-     
+
      Principio: stessa dignità a tutte le fasce di distanza.
      Le soglie grezze sono fisse e documentate — non cambiano
      con l'aggiunta di nuove gare al ranking.
-     
-     Categorie e scale grezze (v3 — ricalibrate 11/05/2026 su 31 gare):
-       Short  ≤25km  : grezzo 15→ 65  → norm 0–10
-       Medium 26–50km: grezzo 20→120  → norm 0–10
-       Long   51–95km: grezzo 50→175  → norm 0–10
+
+     Categorie e scale grezze (v5 — ricalibrate 10/06/2026):
+       v4 alzava i massimi a valori realistici (Short→50), ma in presenza di gare
+       competitive che superano il wdiMax il display tornava a 10/10.
+       v5 alza i massimi al 95° percentile osservato su dataset gare (wdiMax = valore
+       che solo le gare estreme raggiungono), e introduce curva power (γ=0.65) per
+       sollevare i valori bassi senza schiacciare i medi-alti.
+
+       Principio v5:
+         wdiMax = 95° percentile WDI osservato per categoria (esclude outlier assoluti).
+         wdiMin = WDI di una gara "banale/piatta" della categoria (display 0/10).
+         Curva power: norm = x^NORM_GAMMA × 10, dove x = (wdi−wdiMin)/(wdiMax−wdiMin).
+         γ < 1 → la curva è sub-lineare: alza i valori nella fascia bassa,
+         quasi invariata per i valori medi-alti.
+
+       Short  ≤25km  : grezzo 10→ 80  → norm 0–10
+       Medium 26–50km: grezzo 15→100  → norm 0–10
+       Long   51–95km: grezzo 30→160  → norm 0–10
        Ultra  >95km  : grezzo 80→300  → norm 0–10 (Legend ∞ oltre 300)
 
      TechScore: scala assoluta 0–100, non categorizzata per distanza.
      --------------------------------------------------------------- */
   const WDI_NORM_CATEGORIES = [
-    { distMax:  25, wdiMin: 15, wdiMax:  65, label: 'Short'  },
-    { distMax:  50, wdiMin: 20, wdiMax: 120, label: 'Medium' },
-    { distMax:  95, wdiMin: 50, wdiMax: 175, label: 'Long'   },
+    { distMax:  25, wdiMin: 10, wdiMax:  80, label: 'Short'  },
+    { distMax:  50, wdiMin: 15, wdiMax: 100, label: 'Medium' },
+    { distMax:  95, wdiMin: 30, wdiMax: 160, label: 'Long'   },
     { distMax: Infinity, wdiMin: 80, wdiMax: 300, label: 'Ultra' },
   ];
+
+  /* Gamma per curva power nella normalizzazione WDI (v5 — 10/06/2026).
+     γ < 1 → curva sub-lineare: alza i valori bassi, quasi invariata per gli alti.
+     γ=0.65: x=0.10 → +150%, x=0.50 → +28%, x=0.85 → +6%.
+     Garantisce spread significativo senza schiacciare i valori medi-alti. */
+  const NORM_GAMMA = 0.65;
 
   /* ---------------------------------------------------------------
      SOGLIE — v3 calibrate su 95 gare (v5.1 engine, 05/05/2026)
@@ -74,17 +94,19 @@ window.WizTrail = (function () {
 
   const SURFACE_MULT = { 1: 0.92, 2: 0.97, 3: 1.00, 4: 1.04, 5: 1.08 };
 
-  /* TERRAIN_DEFAULTS — usati in computeManual (senza GPX reale).
-     Valori v2 — calibrati per riflettere la realtà dei trail in contesto gara,
-     non una passeggiata. La modalità manuale avrà sempre una leggera sottostima
-     rispetto al GPX reale su gare brevi (strutturale, accettabile).
+  /* TERRAIN_DEFAULTS v3 — usati in computeManual (senza GPX reale).
+     Ricalibrati 10/06/2026: i precedenti valori slopeVar (0.38/0.55/0.70) saturavano
+     tutti normSVar a 1.0 dopo il cambio del riferimento da 0.55 → 0.180, gonfiando
+     il TechScore manuale di ~10 punti rispetto a GPX reali equivalenti.
+     I nuovi valori coprono proporzionalmente l'intervallo naturale 0…0.180:
+     E ≈ 45° percentile, EE ≈ 72° percentile, EA ≈ 94° percentile.
      E  = sentiero segnato con tratti tecnici, pendenze moderate
      EE = sentiero tecnico, pietraie, radici, pendenze sostenute
      EA = terreno alpinistico, roccia, creste, esposizione */
   const TERRAIN_DEFAULTS = {
-    'E':  { frip: 0.22, slopeVar: 0.38, roughness: 0.18 },
-    'EE': { frip: 0.38, slopeVar: 0.55, roughness: 0.28 },
-    'EA': { frip: 0.55, slopeVar: 0.70, roughness: 0.40 }
+    'E':  { frip: 0.25, slopeVar: 0.08, roughness: 0.10 },  // TechScore ~36 (Scorrevole)
+    'EE': { frip: 0.48, slopeVar: 0.13, roughness: 0.20 },  // TechScore ~57 (Tecnico)
+    'EA': { frip: 0.72, slopeVar: 0.17, roughness: 0.32 }   // TechScore ~76 (Molto tecnico)
   };
 
   /* ---------------------------------------------------------------
@@ -113,7 +135,8 @@ window.WizTrail = (function () {
    */
   function normalizeWDI(wdi, km) {
     const cat  = getWdiCategory(km);
-    const norm = (wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin) * 10;
+    const x    = clamp((wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin), 0, 1);
+    const norm = Math.pow(x, NORM_GAMMA) * 10;
     const isLegendPlus = (cat.label === 'Ultra' && wdi > cat.wdiMax);
     return {
       norm:          Math.round(clamp(norm, 0, 10) * 10) / 10,
@@ -266,8 +289,12 @@ window.WizTrail = (function () {
       const loss     = metrics.loss     !== undefined ? metrics.loss     : computeLoss(e);
       const altMedia = metrics.altMedia !== undefined ? metrics.altMedia : computeAltMedia(e);
 
-      const slopes    = computeSlopes(d, e);
-      const frip      = computeFRIP(d, e);
+      // Usa l'elevazione smoothed per FRIP/SlopeVar/Roughness: rimuove rumore GPS
+      // mantenendo le feature reali del terreno (fenomeni multi-punto).
+      // L'elevazione raw metrics.e è preservata per il profilo altimetrico e le stats.
+      const eForTech  = metrics.eSmooth || e;
+      const slopes    = computeSlopes(d, eForTech);
+      const frip      = computeFRIP(d, eForTech);
       const slopeVar  = computeSlopeVar(slopes);
       const roughness = computeRoughness(slopes);
 

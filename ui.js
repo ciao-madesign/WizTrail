@@ -164,8 +164,18 @@
       (metrics.e && metrics.e.some(v => v !== 0));
 
     if (hasElevation) {
-      el.textContent =
-        `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km, D+: ${Math.round(metrics.gain)} m`;
+      const baseInfo = `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km, D+: ${Math.round(metrics.gain)} m`;
+      if (metrics.elevQuality === 'dem') {
+        el.innerHTML = baseInfo +
+          ` &nbsp;<span style="color:#F79617; font-weight:600;">` +
+          `⚠ elevazione DEM — tecnicità potrebbe essere sottostimata</span>`;
+      } else if (metrics.elevQuality === 'noisy') {
+        el.innerHTML = baseInfo +
+          ` &nbsp;<span style="color:var(--muted); font-size:0.85em;">` +
+          `(GPS impreciso)</span>`;
+      } else {
+        el.textContent = baseInfo;
+      }
     } else {
       el.innerHTML =
         `Punti: ${gpxPts.length}, ${metrics.km.toFixed(2)} km &nbsp;` +

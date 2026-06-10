@@ -19,6 +19,16 @@ const VELOCITY_PARAMS = {
 
 const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 1.00, 'EE': 0.85, 'EA': 0.75 };
 
+/* KF_TERRAIN_PARAMS — Fase 12. Sincronizzato con wiztrail-timing.js. */
+const KF_TERRAIN_PARAMS = {
+  wdi_scale:          500,
+  specificity_weight: 0.4,
+};
+
+export function terrainFactor(wdi, S) {
+  return 1 + (wdi / KF_TERRAIN_PARAMS.wdi_scale) * (1 - S * KF_TERRAIN_PARAMS.specificity_weight);
+}
+
 function velocityFromSlope(p, S, velBase) {
   const vp = VELOCITY_PARAMS;
   if (Math.abs(p) < 0.015) return velBase;
@@ -95,4 +105,4 @@ export function levelFromS(S) {
   return 'Principiante';
 }
 
-export { VELOCITY_PARAMS, TRAIL_BASE_FACTOR };
+export { VELOCITY_PARAMS, TRAIL_BASE_FACTOR, KF_TERRAIN_PARAMS };

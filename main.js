@@ -86,8 +86,9 @@
     if (!f) return;
     const txt = await f.text();
     const xml = new DOMParser().parseFromString(txt, 'application/xml');
-    window.gpxPts  = GPXParser.parseTrack(xml);
-    window.metrics = GPXParser.compute(window.gpxPts);
+    window.gpxPts      = GPXParser.parseTrack(xml);
+    window.metrics     = GPXParser.compute(window.gpxPts);
+    window._gpxFileName = f.name.replace(/\.(gpx|tcx|xml)$/i, ''); // usato dalla trail-card
     WizUI.updateGpxInfo(window.gpxPts, window.metrics);
     /* Mostra elevSection PRIMA di init mappa: #pacingMap deve avere dimensioni
        reali (clientWidth/Height > 0) quando Leaflet si inizializza.
@@ -387,6 +388,14 @@
       if (mGpx.gain === 0 && manualGain > 0) {
         T += (manualGain / 8) * 60;
       }
+      // Correzione D+ per file GPX con elevazione DEM (es. route Strava/Komoot):
+      // il D+ dal file è spesso sottostimato rispetto alla realtà.
+      // Se l'utente ha aumentato il D+ manualmente (>5% sopra il valore GPX),
+      // aggiunge il tempo per il dislivello extra con stima Naismith (7.5 sec/m).
+      // Non copre tutta la sottostima (le pendenze DEM restano piatte), ma è meglio di niente.
+      if (mGpx.gain > 0 && manualGain > mGpx.gain * 1.05) {
+        T += ((manualGain - mGpx.gain) / 8) * 60;
+      }
     }
 
     // Fattori meteo / altitudine
@@ -420,6 +429,45 @@
     window.currentWDI_norm = rs.WDI_norm;   // normalizzato — per display futuro
     window.lastRS          = rs;
 
+    /* Fase 12 — Athlete Profile: correzione WDI terrain.
+       Il modello a segmenti calcola T dal passo su strada + pendenze + fatica,
+       ma non tiene conto che percorsi con WDI alto frenano proporzionalmente
+       di più (tecnicità diffusa, irregolarità, esposizione). KF ≥ 1 corregge
+       questa sistematica sottostima sulle gare tecniche. */
+    const KF_terrain = WizTrailTiming.terrainFactor(rs.WDI, S);
+    T *= KF_terrain;
+
+    /* Carta del percorso — salva dati in sessionStorage per trail-card.html.
+       Solo con GPX reale: noGpx non ha pts con coordinate vere.
+       Guard typeof: trail-stats.js potrebbe non essere caricato in future versioni slim. */
+    if (!noGpx && typeof TrailStats !== 'undefined') {
+      const trailStats = TrailStats.compute(window.gpxPts, m, rs);
+      if (trailStats) {
+        try {
+          sessionStorage.setItem('wiztrail_trail_card', JSON.stringify({
+            trackName:    window._gpxFileName || 'Percorso analizzato',
+            from:         'index.html',
+            stats:        trailStats,
+            engine: {
+              WDI:           rs.WDI,
+              WDI_norm:      rs.WDI_norm,
+              WDI_category:  rs.WDI_category,
+              WDI_legendPlus: rs.WDI_legendPlus,
+              class:         rs.class,
+              color:         rs.color,
+              TechScore:     rs.TechScore,
+              techClass:     rs.techClass,
+              techColor:     rs.techColor,
+              factors:       rs.factors,
+            },
+            metricsChart: { e: m.e, d: m.d, km: m.km },
+          }));
+        } catch (e) {
+          // sessionStorage pieno o disabilitato — non blocca il flusso principale
+        }
+      }
+    }
+
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
 
@@ -429,17 +477,23 @@
     const pace_trail = (T / 60) / m.km;
     const isSkyrace  = (m.gain / Math.max(m.km, 1)) > 60;
 
+    // Nota WDI terrain: mostrata solo se la correzione è ≥3% (impatto percettibile)
+    const kfPct   = Math.round((KF_terrain - 1) * 100);
+    const kfNote  = kfPct >= 3
+      ? ' &nbsp;·&nbsp; <span style="opacity:0.55; font-size:0.72rem;">+' + kfPct + '% terreno WDI ' + Math.round(rs.WDI) + '</span>'
+      : '';
+
     const subEl = document.getElementById('outFinalSub');
     if (subEl) {
       if (noGpx) {
         subEl.innerHTML =
-          pace_trail.toFixed(1) + ' min/km medi &nbsp;·&nbsp; ' + livello +
+          pace_trail.toFixed(1) + ' min/km medi &nbsp;·&nbsp; ' + livello + kfNote +
           '<br><span style="color:var(--accent); font-size:0.72rem;">⚠ stima approssimativa — carica il GPX per risultati precisi</span>';
       } else {
         subEl.innerHTML =
           pace_trail.toFixed(1) + ' min/km medi sul percorso' +
           ' &nbsp;·&nbsp; ' + livello +
-          (isSkyrace ? ' &nbsp;·&nbsp; skyrace' : '') +
+          (isSkyrace ? ' &nbsp;·&nbsp; skyrace' : '') + kfNote +
           '<br><span style="opacity:0.5; font-size:0.72rem;">modello segmenti v2.0</span>';
       }
     }
@@ -461,6 +515,12 @@
       if (pacingSec) pacingSec.style.display = 'block';
     }
     if (fbBtn) fbBtn.style.display = 'block';
+
+    /* Bottone Carta del percorso — solo con GPX caricato */
+    if (!noGpx) {
+      const tcBtn = document.getElementById('trailCardBtn');
+      if (tcBtn) tcBtn.style.display = 'inline-flex';
+    }
 
     /* Mappa: init + drawTrack solo se il GPX è caricato.
        In modalità noGpx #elevSection rimane nascosto: inizializzare Leaflet
@@ -516,7 +576,6 @@
       condizioni: {
         meteo:  v('meteo'),
         alt:    v('alt'),
-        fatica: v('fatica'),
         spec:   v('spec'),
         margin: v('margin'),
       },

@@ -8,12 +8,21 @@
 
 const kT = 0.50;
 
+/* WDI_NORM_CATEGORIES v5 — ricalibrate 10/06/2026:
+   v4 aveva wdiMax troppo basso (Short=50) → 5 gare al 10/10 nel ranking.
+   v5 alza i massimi al 95° percentile osservato e introduce curva power (NORM_GAMMA).
+   Sincronizzato con wiztrail-engine.js. */
 const WDI_NORM_CATEGORIES = [
-  { distMax:  25, wdiMin: 15, wdiMax:  65, label: 'Short'  },
-  { distMax:  50, wdiMin: 20, wdiMax: 120, label: 'Medium' },
-  { distMax:  95, wdiMin: 50, wdiMax: 175, label: 'Long'   },
+  { distMax:  25, wdiMin: 10, wdiMax:  80, label: 'Short'  },
+  { distMax:  50, wdiMin: 15, wdiMax: 100, label: 'Medium' },
+  { distMax:  95, wdiMin: 30, wdiMax: 160, label: 'Long'   },
   { distMax: Infinity, wdiMin: 80, wdiMax: 300, label: 'Ultra' },
 ];
+
+/* Gamma per curva power nella normalizzazione WDI (v5 — 10/06/2026).
+   γ < 1 → curva sub-lineare: alza i valori bassi, quasi invariata per gli alti.
+   Sincronizzato con wiztrail-engine.js. */
+const NORM_GAMMA = 0.65;
 
 const WDI_THRESHOLDS = [
   { max:  22,      level: 'Sport',    color: '#2BB7DA' },
@@ -36,10 +45,11 @@ const TECH_THRESHOLDS = [
 
 const SURFACE_MULT = { 1: 0.92, 2: 0.97, 3: 1.00, 4: 1.04, 5: 1.08 };
 
+/* TERRAIN_DEFAULTS v3 — ricalibrati 10/06/2026 (vedi wiztrail-engine.js per dettagli) */
 const TERRAIN_DEFAULTS = {
-  'E':  { frip: 0.22, slopeVar: 0.38, roughness: 0.18 },
-  'EE': { frip: 0.38, slopeVar: 0.55, roughness: 0.28 },
-  'EA': { frip: 0.55, slopeVar: 0.70, roughness: 0.40 },
+  'E':  { frip: 0.25, slopeVar: 0.08, roughness: 0.10 },
+  'EE': { frip: 0.48, slopeVar: 0.13, roughness: 0.20 },
+  'EA': { frip: 0.72, slopeVar: 0.17, roughness: 0.32 },
 };
 
 const DISCIPLINE_BADGES = {
@@ -143,7 +153,8 @@ function normalizeWDI(wdi, km) {
   for (const c of WDI_NORM_CATEGORIES) {
     if (km <= c.distMax) { cat = c; break; }
   }
-  const norm = (wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin) * 10;
+  const x    = clamp((wdi - cat.wdiMin) / (cat.wdiMax - cat.wdiMin), 0, 1);
+  const norm = Math.pow(x, NORM_GAMMA) * 10;
   const isLegendPlus = (cat.label === 'Ultra' && wdi > cat.wdiMax);
   return {
     norm:          Math.round(clamp(norm, 0, 10) * 10) / 10,
@@ -197,8 +208,10 @@ export function computeFromGpx(metrics, surfaceLevel = 3, osmResult = null) {
   const loss     = metrics.loss     !== undefined ? metrics.loss     : computeLoss(e);
   const altMedia = metrics.altMedia !== undefined ? metrics.altMedia : computeAltMedia(e);
 
-  const slopes    = computeSlopes(d, e);
-  const frip      = computeFRIP(d, e);
+  // Usa eSmooth se disponibile — sincronizzato con wiztrail-engine.js
+  const eForTech  = metrics.eSmooth || e;
+  const slopes    = computeSlopes(d, eForTech);
+  const frip      = computeFRIP(d, eForTech);
   const slopeVar  = computeSlopeVar(slopes);
   const roughness = computeRoughness(slopes);
 

@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex">
+  <title>Carta del Percorso — WizTrail</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#002b2b">
+
+  <link rel="stylesheet" href="wiztrail.css">
+</head>
+
+<body data-theme="dark">
+
+<header class="app-header">
+  <a href="landing.html" class="app-brand-link">
+    <img src="img/logo.svg" alt="WizTrail" class="brand-img">
+    <span class="brand-name">WizTrail</span>
+  </a>
+  <nav class="app-nav">
+    <a href="index.html">Calcolatore</a>
+    <a href="training-analyzer.html">Training</a>
+    <a href="ranking.html">Ranking</a>
+    <a href="about.html">Il Metodo</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <!-- Blocco mostrato quando mancano i dati in sessionStorage -->
+  <div id="tcNoData" class="tc-no-data" style="display:none;">
+    <h2>Nessun percorso analizzato</h2>
+    <p>Carica un GPX nel <a href="index.html">Calcolatore</a> per generare la carta del percorso.</p>
+  </div>
+
+  <!-- Contenuto principale — popolato via JS -->
+  <div id="tcContent" style="display:none;">
+
+    <a href="#" id="tcBackLink" class="tc-back">← Torna ai risultati</a>
+
+    <!-- Header: nome percorso + metriche chiave -->
+    <div class="tc-header">
+      <h1 id="tcTitle">Percorso</h1>
+      <div class="tc-meta">
+        <span><span class="tc-meta-label">Distanza</span> <strong id="tcKm">—</strong></span>
+        <span><span class="tc-meta-label">D+</span> <strong id="tcGain">—</strong></span>
+        <span><span class="tc-meta-label">D-</span> <strong id="tcLoss">—</strong></span>
+        <span><span class="tc-meta-label">WDI</span> <strong id="tcWDI">—</strong></span>
+        <span><span class="tc-meta-label">Classe</span> <strong id="tcClass">—</strong></span>
+        <span><span class="tc-meta-label">TechScore</span> <strong id="tcTech">—</strong></span>
+      </div>
+    </div>
+
+    <!-- Radar chart — visualizza il profilo caratteristico della traccia -->
+    <div class="card" style="margin-bottom:16px;">
+      <h2 style="margin-bottom:16px;">Profilo del Percorso</h2>
+      <div class="tc-radar-wrap" id="tcRadarWrap">
+        <!-- SVG generato da renderRadar() -->
+      </div>
+    </div>
+
+    <!-- Griglia sezioni tematiche (2 col desktop, 1 col mobile) -->
+    <div class="tc-grid">
+
+      <!-- ALTIMETRIA — include grafico altimetrico (riusa map.js) -->
+      <div class="tc-section full-width">
+        <h3>Altimetria</h3>
+        <!-- Grafico altimetrico — gestito da WizMap.drawProfile() in map.js -->
+        <div class="profile-wrap" style="margin-bottom:14px;">
+          <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
+        </div>
+        <!-- Dati numerici sotto il grafico -->
+        <div class="grid grid-2" style="gap:8px;">
+          <div>
+            <div class="tc-row"><span class="tc-row-label">Quota minima</span><span class="tc-row-val" id="tcAltMin">—</span></div>
+            <div class="tc-row"><span class="tc-row-label">Quota media</span><span class="tc-row-val" id="tcAltMean">—</span></div>
+            <div class="tc-row"><span class="tc-row-label">Quota massima</span><span class="tc-row-val" id="tcAltMax">—</span></div>
+          </div>
+          <div>
+            <div class="tc-row"><span class="tc-row-label">Quota di partenza</span><span class="tc-row-val" id="tcAltStart">—</span></div>
+            <div class="tc-row"><span class="tc-row-label">Quota di arrivo</span><span class="tc-row-val" id="tcAltEnd">—</span></div>
+            <div class="tc-row"><span class="tc-row-label">Dislivello totale</span><span class="tc-row-val" id="tcDTotal">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PENDENZE -->
+      <div class="tc-section">
+        <h3>Pendenze</h3>
+        <div class="tc-row"><span class="tc-row-label">Pendenza media salita</span><span class="tc-row-val" id="tcSlopeUpAvg">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">Pendenza max salita</span><span class="tc-row-val" id="tcSlopeUpMax">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">Pendenza media discesa</span><span class="tc-row-val" id="tcSlopeDownAvg">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">Pendenza max discesa</span><span class="tc-row-val" id="tcSlopeDownMax">—</span></div>
+        <!-- Barra distribuzione salita/piano/discesa -->
+        <div class="tc-bar-wrap">
+          <div class="tc-bar-label">Distribuzione distanza</div>
+          <div class="tc-bar">
+            <div class="tc-bar-up"   id="tcBarUp"   style="width:0%"></div>
+            <div class="tc-bar-flat" id="tcBarFlat" style="width:0%"></div>
+            <div class="tc-bar-down" id="tcBarDown" style="width:0%"></div>
+          </div>
+          <div class="tc-bar-legend">
+            <span class="leg-up">Salita <span id="tcPctUp">—</span></span>
+            <span class="leg-flat">Piano <span id="tcPctFlat">—</span></span>
+            <span class="leg-down">Discesa <span id="tcPctDown">—</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STRUTTURA -->
+      <div class="tc-section">
+        <h3>Struttura</h3>
+        <div class="tc-row"><span class="tc-row-label">Salite significative</span><span class="tc-row-val" id="tcClimbs">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">Discese significative</span><span class="tc-row-val" id="tcDescents">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">Salita più lunga</span><span class="tc-row-val" id="tcBestClimb">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">D+ salita più lunga</span><span class="tc-row-val" id="tcBestGain">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">Trail efficiency</span><span class="tc-row-val" id="tcEfficiency">—</span></div>
+      </div>
+
+      <!-- TECNICO -->
+      <div class="tc-section">
+        <h3>Tecnico</h3>
+        <div class="tc-row"><span class="tc-row-label">Roughness</span><span class="tc-row-val" id="tcRoughness">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">Variabilità pendenza</span><span class="tc-row-val" id="tcSlopeVar">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">FRIP</span><span class="tc-row-val" id="tcFrip">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">Densità tecnica</span><span class="tc-row-val" id="tcTechDensity">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">WDI grezzo</span><span class="tc-row-val" id="tcWDIraw">—</span></div>
+        <div class="tc-row"><span class="tc-row-label">WDI norm. (categoria)</span><span class="tc-row-val" id="tcWDInorm">—</span></div>
+      </div>
+
+    </div><!-- /tc-grid -->
+
+    <!-- INSIGHTS — generati da trail-insights.js ad ogni caricamento -->
+    <div class="tc-insights">
+      <h2>Insights del Percorso</h2>
+      <div class="tc-insights-cols">
+        <div class="tc-insights-col race">
+          <h3>Strategia di gara</h3>
+          <div id="tcInsightsRace"></div>
+        </div>
+        <div class="tc-insights-col training">
+          <h3>Allenamento specifico</h3>
+          <div id="tcInsightsTraining"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tcContent -->
+
+</div><!-- /wrap -->
+
+<!-- Dipendenze: map.js per drawProfile(), trail-insights.js per insights -->
+<script src="map.js?v=20260609"></script>
+<script src="trail-insights.js?v=20260609"></script>
+
+<script>
+/* ================================================================
+   trail-card.html — script di inizializzazione
+   Legge i dati da sessionStorage (salvati da main.js dopo il calcolo)
+   e popola la pagina senza richiedere un server o ricalcoli.
+   ================================================================ */
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+     Lettura dati da sessionStorage
+     ------------------------------------------------------------------ */
+  var raw  = sessionStorage.getItem('wiztrail_trail_card');
+  var data = null;
+  try { data = raw ? JSON.parse(raw) : null; } catch (e) { data = null; }
+
+  if (!data || !data.stats || !data.engine) {
+    document.getElementById('tcNoData').style.display  = 'block';
+    document.getElementById('tcContent').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('tcContent').style.display = 'block';
+
+  var stats  = data.stats;
+  var engine = data.engine;
+  var name   = data.trackName || 'Percorso analizzato';
+
+  /* Link "torna" dinamico — se vengo da index usa index.html, altrimenti ranking */
+  var from = data.from || 'index.html';
+  document.getElementById('tcBackLink').href = from;
+
+  /* ------------------------------------------------------------------
+     Helper
+     ------------------------------------------------------------------ */
+  function set(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+  function fmt(n, decimals, unit) {
+    if (n === null || n === undefined || !Number.isFinite(n)) return '—';
+    var s = decimals === 0 ? Math.round(n).toString() : n.toFixed(decimals);
+    return unit ? s + ' ' + unit : s;
+  }
+
+  /* ------------------------------------------------------------------
+     Header
+     ------------------------------------------------------------------ */
+  document.title = name + ' — WizTrail';
+  set('tcTitle',  name);
+  set('tcKm',     fmt(engine.factors.km,   1, 'km'));
+  set('tcGain',   fmt(stats.gain,          0, 'm'));
+  set('tcLoss',   fmt(stats.loss,          0, 'm'));
+  set('tcWDI',    fmt(engine.WDI_norm,     1) + '/10 (' + (engine.WDI_category || '') + ')');
+  set('tcClass',  engine.class || '—');
+  set('tcTech',   fmt(engine.TechScore,    1));
+
+  /* ------------------------------------------------------------------
+     Altimetria
+     ------------------------------------------------------------------ */
+  set('tcAltMin',   fmt(stats.alt_min,  0, 'm s.l.m.'));
+  set('tcAltMean',  fmt(stats.alt_mean, 0, 'm s.l.m.'));
+  set('tcAltMax',   fmt(stats.alt_max,  0, 'm s.l.m.'));
+  set('tcAltStart', fmt(stats.alt_start,0, 'm s.l.m.'));
+  set('tcAltEnd',   fmt(stats.alt_end,  0, 'm s.l.m.'));
+  set('tcDTotal',   '↑ ' + fmt(stats.gain, 0, 'm') + '  ↓ ' + fmt(stats.loss, 0, 'm'));
+
+  /* ------------------------------------------------------------------
+     Pendenze
+     ------------------------------------------------------------------ */
+  set('tcSlopeUpAvg',   fmt(stats.slope_up_avg,   1, '%'));
+  set('tcSlopeUpMax',   fmt(stats.slope_up_max,   1, '%'));
+  set('tcSlopeDownAvg', fmt(stats.slope_down_avg, 1, '%'));
+  set('tcSlopeDownMax', fmt(stats.slope_down_max, 1, '%'));
+
+  var up   = stats.pct_uphill   || 0;
+  var flat = stats.pct_flat     || 0;
+  var down = stats.pct_downhill || 0;
+  // Normalizza al 100% per coprire eventuali arrotondamenti
+  var tot  = up + flat + down || 1;
+  document.getElementById('tcBarUp').style.width   = (up   / tot * 100).toFixed(1) + '%';
+  document.getElementById('tcBarFlat').style.width = (flat / tot * 100).toFixed(1) + '%';
+  document.getElementById('tcBarDown').style.width = (down / tot * 100).toFixed(1) + '%';
+  set('tcPctUp',   up   + '%');
+  set('tcPctFlat', flat + '%');
+  set('tcPctDown', down + '%');
+
+  /* ------------------------------------------------------------------
+     Struttura
+     ------------------------------------------------------------------ */
+  set('tcClimbs',   stats.climbs_count   + ' salite');
+  set('tcDescents', stats.descents_count + ' discese');
+  set('tcBestClimb', stats.longest_climb_km > 0
+    ? fmt(stats.longest_climb_km, 1, 'km') : '—');
+  set('tcBestGain', stats.longest_climb_gain > 0
+    ? fmt(stats.longest_climb_gain, 0, 'm') : '—');
+  set('tcEfficiency', fmt(stats.trail_efficiency, 2));
+
+  /* ------------------------------------------------------------------
+     Tecnico
+     ------------------------------------------------------------------ */
+  set('tcRoughness',   fmt(stats.roughness  * 100, 1));
+  set('tcSlopeVar',    fmt(stats.slope_var  * 100, 1));
+  set('tcFrip',        fmt(stats.frip       * 100, 1));
+  set('tcTechDensity', fmt(stats.tech_density, 1, '/km'));
+  set('tcWDIraw',      fmt(engine.WDI, 1));
+  set('tcWDInorm',     fmt(engine.WDI_norm, 1) + '/10 (' + (engine.WDI_category || '') + ')');
+
+  /* ------------------------------------------------------------------
+     Grafico altimetrico
+     Ripristina i globali che WizMap.drawProfile() si aspetta.
+     window.gpxPts serve solo come guardia (length check):
+     il tooltip usa window.metrics.e[], non le coordinate GPS.
+     Usare uno stub della lunghezza corretta evita il messaggio
+     "Carica una traccia GPX" senza memorizzare l'intero array di pts.
+     ------------------------------------------------------------------ */
+  if (data.metricsChart && data.metricsChart.e && data.metricsChart.e.length >= 2) {
+    window.metrics = {
+      e:            data.metricsChart.e,
+      d:            data.metricsChart.d,
+      km:           data.metricsChart.km,
+      max_altitude: stats.alt_max,
+    };
+    // Stub gpxPts: solo lunghezza corretta, lat/lon a zero (nessuna mappa qui)
+    window.gpxPts = data.metricsChart.e.map(function () { return [0, 0, 0]; });
+    // drawProfile() è in map.js — attendere che il DOM sia visibile
+    setTimeout(function () { WizMap.drawProfile(); }, 60);
+  }
+
+  /* ------------------------------------------------------------------
+     Radar chart SVG
+     6 assi: Lunghezza · D+/km · Tecnicità · Pendenza salita · Roughness · FRIP
+     Tutti i valori normalizzati 0-1 per la visualizzazione radiale.
+     ------------------------------------------------------------------ */
+  (function renderRadar() {
+    var km       = engine.factors.km || 0;
+    var gainPerKm = km > 0 ? (stats.gain || 0) / km : 0;
+
+    // Normalizzazione per asse (clamp a 1 per evitare fuoriuscita dal grafico)
+    function clamp01(v) { return Math.min(1, Math.max(0, v)); }
+    var axes = [
+      { label: 'Lunghezza',       val: clamp01(km / 100) },                      // max ref: 100km
+      { label: 'D+/km',           val: clamp01(gainPerKm / 120) },               // max ref: 120m/km
+      { label: 'Tecnicità',       val: clamp01(engine.TechScore / 100) },
+      { label: 'Pend. salita',    val: clamp01((stats.slope_up_avg || 0) / 50) },// max ref: 50%
+      { label: 'Roughness',       val: clamp01((stats.roughness || 0) / 0.500) }, // scala engine: normRough /= 0.500
+      { label: 'FRIP',            val: clamp01((stats.frip || 0) / 0.924) },         // scala engine: normFRIP /= 0.924
+    ];
+
+    var n    = axes.length;
+    var cx   = 160, cy = 155, R = 100; // centro e raggio massimo
+    var TAU  = Math.PI * 2;
+
+    function polarPt(i, r) {
+      var a = (i / n) * TAU - Math.PI / 2; // parte dall'alto
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    }
+
+    var lines = '';
+    // Griglie concentriche (20% 40% 60% 80% 100%)
+    [0.2, 0.4, 0.6, 0.8, 1].forEach(function (scale) {
+      var pts = axes.map(function (_, i) { return polarPt(i, R * scale); });
+      var d   = pts.map(function (p, i) { return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ') + ' Z';
+      lines += '<path d="' + d + '" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+    });
+
+    // Assi radiali
+    axes.forEach(function (_, i) {
+      var p = polarPt(i, R);
+      lines += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>';
+    });
+
+    // Poligono dati
+    var dataPts = axes.map(function (ax, i) { return polarPt(i, R * ax.val); });
+    var dataPath = dataPts.map(function (p, i) { return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ') + ' Z';
+    lines += '<path d="' + dataPath + '" fill="rgba(79,209,197,0.18)" stroke="#4fd1c5" stroke-width="2"/>';
+
+    // Punti dati
+    dataPts.forEach(function (p) {
+      lines += '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4" fill="#4fd1c5"/>';
+    });
+
+    // Label assi — posizionate leggermente oltre il raggio massimo
+    var labelR = R + 22;
+    axes.forEach(function (ax, i) {
+      var p  = polarPt(i, labelR);
+      var a  = (i / n) * TAU - Math.PI / 2;
+      var anchor = Math.abs(Math.cos(a)) < 0.1 ? 'middle'
+                 : Math.cos(a) < 0 ? 'end' : 'start';
+      lines += '<text x="' + p[0].toFixed(1) + '" y="' + p[1].toFixed(1) + '"'
+            + ' text-anchor="' + anchor + '"'
+            + ' dominant-baseline="middle"'
+            + ' font-size="11" fill="rgba(232,242,255,0.7)">'
+            + ax.label + '</text>';
+    });
+
+    document.getElementById('tcRadarWrap').innerHTML =
+      '<svg viewBox="0 0 320 310" xmlns="http://www.w3.org/2000/svg">' + lines + '</svg>';
+  })();
+
+  /* ------------------------------------------------------------------
+     Insights — rigenerati ad ogni caricamento per variabilità
+     ------------------------------------------------------------------ */
+  if (typeof TrailInsights !== 'undefined') {
+    var ins = TrailInsights.generate(stats, engine);
+
+    function renderInsights(containerId, items) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      el.innerHTML = items.map(function (text) {
+        return '<div class="tc-insight-item">' + text + '</div>';
+      }).join('');
+    }
+
+    renderInsights('tcInsightsRace',     ins.race);
+    renderInsights('tcInsightsTraining', ins.training);
+  }
+
+})();
+</script>
+
+<script src="/cookie-notice.js" defer></script>
+</body>
+</html>

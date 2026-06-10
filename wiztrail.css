@@ -1421,3 +1421,233 @@ table {
   margin: 8px 0 0;
   font-style: italic;
 }
+
+/* ================================================================
+   TRAIL CARD — trail-card.html
+   ================================================================ */
+
+/* Header pagina */
+.tc-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: color 0.15s;
+}
+.tc-back:hover { color: var(--accent); }
+
+.tc-header {
+  margin-bottom: 24px;
+}
+.tc-header h1 {
+  font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+  margin: 0 0 10px;
+}
+.tc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.tc-meta strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+/* Label testuale nella riga meta-header (es. "Distanza", "D+") */
+.tc-meta-label {
+  color: var(--muted);
+  margin-right: 3px;
+}
+
+/* Bottone "Carta del percorso" — appare accanto al feedbackBtn in index.html */
+.btn-trail-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, rgba(79,209,197,0.18), rgba(14,165,233,0.12));
+  border: 1px solid rgba(79,209,197,0.35);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-trail-card:hover {
+  background: linear-gradient(135deg, rgba(79,209,197,0.28), rgba(14,165,233,0.20));
+  border-color: var(--accent);
+}
+
+/* ── Griglia 2 colonne per le sezioni tematiche ── */
+.tc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 640px) {
+  .tc-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sezioni tematiche ── */
+.tc-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.tc-section h3 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 14px;
+}
+
+/* ── Righe dati ── */
+.tc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.85rem;
+}
+.tc-row:last-child { border-bottom: none; }
+.tc-row-label {
+  color: var(--muted);
+  flex: 1;
+  min-width: 0;
+}
+.tc-row-val {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Barra percentuale (uphill/flat/downhill) ── */
+.tc-bar-wrap {
+  margin-top: 10px;
+}
+.tc-bar-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.tc-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--border);
+}
+.tc-bar-up   { background: var(--error);  }
+.tc-bar-flat { background: var(--muted);  }
+.tc-bar-down { background: var(--accent); }
+.tc-bar-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+  font-size: 0.73rem;
+  color: var(--muted);
+}
+.tc-bar-legend span::before {
+  content: '●';
+  margin-right: 4px;
+}
+.tc-bar-legend .leg-up   { color: var(--error);  }
+.tc-bar-legend .leg-flat { color: var(--muted);  }
+.tc-bar-legend .leg-down { color: var(--accent); }
+
+/* ── Radar chart container ── */
+.tc-radar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 4px;
+}
+.tc-radar-wrap svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+}
+
+/* ── Sezione Insights ── */
+.tc-insights {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.tc-insights h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 18px;
+  color: var(--ink);
+}
+.tc-insights-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 640px) {
+  .tc-insights-cols { grid-template-columns: 1fr; }
+}
+.tc-insights-col h3 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 12px;
+}
+.tc-insight-item {
+  position: relative;
+  padding: 10px 12px 10px 28px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border-left: 2px solid var(--accent);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.tc-insight-item::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 13px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+/* Colonna training: accent diverso per distinguere visivamente */
+.tc-insights-col.training .tc-insight-item {
+  border-left-color: var(--warn);
+}
+.tc-insights-col.training .tc-insight-item::before {
+  background: var(--warn);
+}
+
+/* ── Profilo altimetrico in trail-card ── */
+.tc-section.full-width {
+  grid-column: 1 / -1;
+}
+
+/* No-data fallback */
+.tc-no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.tc-no-data p { margin: 8px 0 0; font-size: 0.9rem; }

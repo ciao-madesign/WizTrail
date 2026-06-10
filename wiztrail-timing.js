@@ -7,9 +7,10 @@
  *
  * I parametri in VELOCITY_PARAMS vengono aggiornati dalla pipeline di calibrazione
  * (wiztrail-calibration/scripts/03_calibrate.py Parte B → patch via 04_insights.py).
+ * I parametri in KF_TERRAIN_PARAMS (Fase 12) sono calibrabili via PATCH hub?action=patch.
  *
  * PORT SERVER-SIDE: api/lib/timing-node.js — ogni modifica a VELOCITY_PARAMS,
- * TRAIL_BASE_FACTOR o alle formule va replicata anche lì (engine drift).
+ * KF_TERRAIN_PARAMS, TRAIL_BASE_FACTOR o alle formule va replicata anche lì (engine drift).
  */
 (function () {
   'use strict';
@@ -33,6 +34,33 @@
      Su terreno E l'atleta corre sostanzialmente al passo su strada;
      su EE/EA la superficie tecnica rallenta anche in piano. */
   const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 1.00, 'EE': 0.85, 'EA': 0.75 };
+
+  /* ------------------------------------------------------------------
+     KF_TERRAIN_PARAMS — fattore di correzione WDI per stima personalizzata (Fase 12)
+     Tengono conto che percorsi più tecnici (WDI alto) frenano l'atleta
+     proporzionalmente di più rispetto a quanto il solo passo su strada suggerisce.
+
+     Aggiornabili manualmente via PATCH /api/hub?action=patch con payload
+     { timing: { kf_terrain: { wdi_scale: X, specificity_weight: Y } } }
+     (calibrazione automatica via pipeline Python pianificata come step successivo).
+
+     wdi_scale          — divisore WDI: aumentare riduce l'impatto del fattore
+     specificity_weight — quanto S riduce il fattore [0=nessuna differenza, 1=elite immune]
+     ------------------------------------------------------------------ */
+  const KF_TERRAIN_PARAMS = {
+    wdi_scale:          500,  // calibrare vs tempi reali gara (valore iniziale)
+    specificity_weight: 0.4,  // calibrare vs tempi reali gara (valore iniziale)
+  };
+
+  /* terrainFactor(wdi, S)
+     Restituisce il fattore moltiplicativo sul tempo base (sempre ≥ 1).
+     WDI basso (trail facile): KF ≈ 1 → nessun impatto rilevante.
+     WDI alto + S basso (amatore su skyrace): KF elevato → stima più conservativa.
+     WDI alto + S alto (elite su skyrace): penalità ridotta perché la tecnicità frena meno. */
+  function terrainFactor(wdi, S) {
+    const p = KF_TERRAIN_PARAMS;
+    return 1 + (wdi / p.wdi_scale) * (1 - S * p.specificity_weight);
+  }
 
   /* ------------------------------------------------------------------
      velocityFromSlope(p, S, velBase)
@@ -143,10 +171,12 @@
   window.WizTrailTiming = {
     VELOCITY_PARAMS:    VELOCITY_PARAMS,
     TRAIL_BASE_FACTOR:  TRAIL_BASE_FACTOR,
+    KF_TERRAIN_PARAMS:  KF_TERRAIN_PARAMS,
     velocityFromSlope:  velocityFromSlope,
     technicalPenalty:   technicalPenalty,
     fatigueFactor:      fatigueFactor,
     computeTime:        computeTime,
+    terrainFactor:      terrainFactor,
     levelFromS:         levelFromS,
   };
 

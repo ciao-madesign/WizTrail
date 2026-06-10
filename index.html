@@ -205,14 +205,6 @@
             </select>
           </fieldset>
           <fieldset>
-            <legend>Accumulo fatica</legend>
-            <select id="fatica">
-              <option value="1.00">Basso</option>
-              <option value="1.02">Medio</option>
-              <option value="1.03" selected>Alto</option>
-            </select>
-          </fieldset>
-          <fieldset>
             <legend>Margine ±%</legend>
             <input id="margin" type="number" value="10"/>
           </fieldset>
@@ -281,6 +273,14 @@
           <!-- Microcopy TechScore -->
           <p class="kpi-microcopy">Tecnicità assoluta del terreno, indipendente dalla distanza.</p>
         </div>
+      </div>
+
+      <!-- Azioni post-calcolo: feedback + carta del percorso -->
+      <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:16px;">
+        <!-- Carta del percorso — visibile solo dopo calcolo con GPX -->
+        <a id="trailCardBtn" href="trail-card.html" class="btn-trail-card" style="display:none;">
+          &#9783; Carta del percorso
+        </a>
       </div>
 
       <!-- Button modale feedback — appare dopo il primo calcolo WDI -->
@@ -406,6 +406,7 @@
       <span style="display:inline-block;padding:1px 7px;border-radius:10px;background:rgba(247,150,23,0.15);color:#F79617;font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;">BETA</span>
       &nbsp;·&nbsp;<a href="mailto:ciao.madesign@gmail.com?subject=WizTrail%20beta%20feedback" style="color:var(--muted);">Invia feedback</a>
       &nbsp;·&nbsp;<a href="privacy.html" style="color:var(--muted);">Privacy</a>
+      &nbsp;·&nbsp;<a href="hub.html" style="color:var(--muted);">hub</a>
     </p>
   </div>
 </div><!-- /wrap -->
@@ -441,20 +442,21 @@
 =========================== -->
 
 <!-- Engine esistenti (invariati) -->
-<script src="wiztrail-engine.js?v=20260417"></script>
+<script src="wiztrail-engine.js?v=20260610b"></script>
 <!-- wiztrail-osm.js disabilitato: Enhanced Mode rimosso temporaneamente -->
-<script src="wiztrail-pacing.js?v=20260421"></script>
+<script src="wiztrail-pacing.js?v=20260609"></script>
 
 
 <!-- Nuovi moduli Fase 1 -->
-<script src="gpx-parser.js?v=20260415"></script>
+<script src="gpx-parser.js?v=20260610"></script>
+<script src="trail-stats.js?v=20260609"></script>
 <script src="discipline-classifier.js?v=20260424"></script>
-<script src="map.js?v=20260415"></script>
-<script src="ui.js?v=20260415"></script>
-<script src="wiztrail-timing.js?v=20260505"></script>
+<script src="map.js?v=20260609"></script>
+<script src="ui.js?v=20260610"></script>
+<script src="wiztrail-timing.js?v=20260610c"></script>
 
 <!-- Entry point -->
-<script src="main.js?v=20260415c"></script>
+<script src="main.js?v=20260610b"></script>
 
 
 
