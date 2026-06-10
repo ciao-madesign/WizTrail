@@ -105,9 +105,9 @@ Il WDI grezzo non è confrontabile tra distanze diverse. `WDI_norm` porta tutto 
 
 | Categoria | km | WDI grezzo 0-10 |
 |---|---|---|
-| Short | ≤ 25 | 15 → 65 |
-| Medium | 26-50 | 20 → 120 |
-| Long | 51-95 | 50 → 175 |
+| Short | ≤ 25 | 10 → 50 |
+| Medium | 26-50 | 15 → 90 |
+| Long | 51-95 | 30 → 130 |
 | Ultra | > 95 | 80 → 300 (Legend∞ oltre 300) |
 
 **Regola:** Usa sempre `WDI` grezzo per calcoli interni (pacing, classificazione, comparazione tra gare). Usa `WDI_norm` solo per display all'utente.
@@ -406,6 +406,7 @@ Classifica automaticamente il tipo di gara in base a km, D+, max_altitude, WDI:
 | 11/05/2026 | WDI_NORM_CATEGORIES | v2 | v3 (calibrate su 31 gare) |
 | 05/05/2026 | WDI_THRESHOLDS | v2 | v3 (calibrate su 95 gare) |
 | 10/06/2026 | TERRAIN_DEFAULTS | v2 | v3: fix saturazione normSVar — tutti i valori slopeVar (0.38/0.55/0.70) saturavano a 1.0 dopo il cambio ref normSVar 0.55→0.180 (non documentato). Nuovi valori: E{frip:0.25,sV:0.08,rough:0.10}, EE{0.48,0.13,0.20}, EA{0.72,0.17,0.32} |
+| 10/06/2026 | WDI_NORM_CATEGORIES | v3 | v4: massimi v3 irraggiungibili in pratica (Short max=65, realistico ~50; Long max=175, realistico ~130). Tutto si comprimeva verso 0 (trail 12km competitivo → 0.6/10). Nuove scale basate su WDI massimo osservabile per categoria: Short 10→50, Medium 15→90, Long 30→130, Ultra invariata. |
 
 ### Pipeline di calibrazione
 

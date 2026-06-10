@@ -22,27 +22,36 @@ window.WizTrail = (function () {
 
   /* ---------------------------------------------------------------
      NORMALIZZAZIONE WDI PER CATEGORIA DI DISTANZA
-     
+
      Il WDI grezzo è usato internamente per tutti i calcoli
      (map.js, discipline-classifier, pacing, hub).
      Il WDI normalizzato (0–10 per categoria) è solo per display.
-     
+
      Principio: stessa dignità a tutte le fasce di distanza.
      Le soglie grezze sono fisse e documentate — non cambiano
      con l'aggiunta di nuove gare al ranking.
-     
-     Categorie e scale grezze (v3 — ricalibrate 11/05/2026 su 31 gare):
-       Short  ≤25km  : grezzo 15→ 65  → norm 0–10
-       Medium 26–50km: grezzo 20→120  → norm 0–10
-       Long   51–95km: grezzo 50→175  → norm 0–10
+
+     Categorie e scale grezze (v4 — ricalibrate 10/06/2026):
+       Le scale v3 avevano WDI massimi irraggiungibili in pratica
+       (Short max=65 → un 25km reale arriva max a ~50).
+       Tutto veniva compresso verso 0, risultando in display "ridicolo"
+       (es. trail competitivo 12km → 0.6/10 con v3).
+
+       Principio v4: wdiMax = WDI realisticamente raggiungibile
+       dalle gare più dure della categoria (non valore teorico).
+       wdiMin = WDI di una gara "banale/piatta" della categoria (0/10).
+
+       Short  ≤25km  : grezzo 10→ 50  → norm 0–10
+       Medium 26–50km: grezzo 15→ 90  → norm 0–10
+       Long   51–95km: grezzo 30→130  → norm 0–10
        Ultra  >95km  : grezzo 80→300  → norm 0–10 (Legend ∞ oltre 300)
 
      TechScore: scala assoluta 0–100, non categorizzata per distanza.
      --------------------------------------------------------------- */
   const WDI_NORM_CATEGORIES = [
-    { distMax:  25, wdiMin: 15, wdiMax:  65, label: 'Short'  },
-    { distMax:  50, wdiMin: 20, wdiMax: 120, label: 'Medium' },
-    { distMax:  95, wdiMin: 50, wdiMax: 175, label: 'Long'   },
+    { distMax:  25, wdiMin: 10, wdiMax:  50, label: 'Short'  },
+    { distMax:  50, wdiMin: 15, wdiMax:  90, label: 'Medium' },
+    { distMax:  95, wdiMin: 30, wdiMax: 130, label: 'Long'   },
     { distMax: Infinity, wdiMin: 80, wdiMax: 300, label: 'Ultra' },
   ];
 
