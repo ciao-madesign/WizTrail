@@ -158,7 +158,7 @@ WizTrail.getClass(wdi)           // → 'Sport'|'Pro'|...|'Legend'
 ```js
 GPXParser.parseTrack(xmlDoc)       // → [[lat,lon,ele], ...]
 GPXParser.parseTrackFull(xmlDoc)   // → { pts, times }
-GPXParser.compute(pts)             // → { km, gain, e[], d[], max_altitude }
+GPXParser.compute(pts)             // → { km, gain, e[], eSmooth[], d[], max_altitude, elevQuality }
 GPXParser.computeSegments(pts, dist, elev, segLength=80)
                                    // → [{ dist, dh, slope, idxStart, idxEnd }]
 GPXParser.hav(lat1, lon1, lat2, lon2)  // → distanza in METRI (haversine)
@@ -168,7 +168,9 @@ GPXParser.clampSlope(dh, dd, maxSlope=0.35)
 
 ### Note importanti su GPXParser.compute()
 
-- Restituisce `e[]` (quote raw non smooth) e `d[]` (distanze cumulative in METRI)
+- Restituisce `e[]` (quote raw, per display profilo e statistiche altimetriche) e `d[]` (distanze cumulative in METRI)
+- Restituisce `eSmooth[]` (media mobile adattiva 3/5/9 punti) — usata dal motore per FRIP/SlopeVar/Roughness al posto di `e[]` raw
+- Restituisce `elevQuality`: `'clean'` (barometrico/buono) | `'dem'` (DEM-corretta, tecnicità sottostimata) | `'noisy'` (GPS rumoroso)
 - **Non restituisce D-** (loss): calcolato internamente nell'engine, disponibile in `engineResult.factors.loss`
 - **Non restituisce altitudine minima o media**: calcolate in trail-stats.js
 - Smoothing adattivo: window 3/5/9 punti in base alla densità della traccia

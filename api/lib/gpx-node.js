@@ -194,13 +194,36 @@ export function parseTrack(xmlStr) {
   return parseTrackFull(xmlStr).pts;
 }
 
+/* Rileva qualità dati elevazione — sincronizzato con gpx-parser.js */
+function detectElevQuality(elev, elevS, d, gain) {
+  if (!elev || elev.length < 30) return 'clean';
+  if (gain > 100) {
+    let flatCount = 0, spacedCount = 0;
+    for (let i = 1; i < elev.length; i++) {
+      const dd = d[i] - d[i - 1];
+      if (dd > 3) {
+        spacedCount++;
+        if (Math.abs(elev[i] - elev[i - 1]) < 0.15) flatCount++;
+      }
+    }
+    if (spacedCount > 20 && (flatCount / spacedCount) > 0.65) return 'dem';
+  }
+  let noiseSum = 0;
+  for (let k = 0; k < elev.length; k++) {
+    const res = elev[k] - elevS[k];
+    noiseSum += res * res;
+  }
+  if (Math.sqrt(noiseSum / elev.length) > 8) return 'noisy';
+  return 'clean';
+}
+
 /**
  * Computes metrics from track points.
  * @param {[number,number,number][]} pts
- * @returns {{ km, gain, e, d, max_altitude }}
+ * @returns {{ km, gain, e, eSmooth, d, max_altitude, elevQuality }}
  */
 export function compute(pts) {
-  if (pts.length < 2) return { km: 0, gain: 0, e: [], d: [], max_altitude: 0 };
+  if (pts.length < 2) return { km: 0, gain: 0, e: [], eSmooth: [], d: [], max_altitude: 0, elevQuality: 'clean' };
 
   const elev = pts.map(p => p[2]);
   const wSize = pts.length > 10000 ? 9 : pts.length > 3000 ? 5 : 3;
@@ -246,7 +269,17 @@ export function compute(pts) {
   const maxAltRaw = elev.reduce((m, v) => Number.isFinite(v) && v > m ? v : m, -Infinity);
   const max_altitude = Number.isFinite(maxAltRaw) ? maxAltRaw : 0;
 
-  return { km: dist / 1000, gain, e: elev, d, max_altitude };
+  const elevQuality = detectElevQuality(elev, elevS, d, gain);
+
+  return {
+    km:           dist / 1000,
+    gain,
+    e:            elev,
+    eSmooth:      elevS,
+    d,
+    max_altitude,
+    elevQuality,
+  };
 }
 
 export function smoothElevation(elev, windowSize = 5) {
