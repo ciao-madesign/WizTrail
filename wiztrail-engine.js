@@ -10,6 +10,12 @@
      - api/lib/engine-node.js → PORT SERVER-SIDE: ogni modifica a soglie, kT, EXP
        o formule qui va replicata anche lì (engine drift rischio regressione API)
    kT = 0.50 → calibrato 20/04/2026 (era 0.35)
+
+   ATTENZIONE — WDI ≠ tecnicità del terreno:
+   WDI = (VolumeScore + TechScore×kT) × DistFactor × AltFactor
+   Include distanza e dislivello oltre alla tecnicità. Per un proxy della sola
+   difficoltà tecnica del terreno usa TechScore (in rs.TechScore, scala 0-100).
+   Confonderli nel modello di timing causa double-counting (verificato 10/06/2026).
    normRough 0.500 → recalibrato 28/04/2026 (era 0.051, saturava su GPX reali)
    TERRAIN_DEFAULTS v3 → recalibrato 10/06/2026: fix saturazione normSVar
      (dopo cambio ref normSVar 0.55→0.180, tutti i valori slopeVar saturavano a 1.0)

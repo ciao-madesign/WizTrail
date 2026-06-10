@@ -118,6 +118,8 @@ norm = x^0.65 × 10,  dove x = clamp((WDI − wdiMin) / (wdiMax − wdiMin), 0, 
 
 **Regola:** Usa sempre `WDI` grezzo per calcoli interni (pacing, classificazione, comparazione tra gare). Usa `WDI_norm` solo per display all'utente.
 
+**ATTENZIONE — WDI non è sinonimo di tecnicità del terreno.** WDI include VolumeScore (dislivello) e DistFactor (distanza) oltre a TechScore. Se hai bisogno di un proxy per la sola difficoltà tecnica del terreno (irregolarità, rocce, esposizione), usa `TechScore` (0-100, già in `rs.TechScore`). Confonderli causa double-counting nel modello di timing. Vedi sezione "Pacing e timing" per dettagli.
+
 ### Classi WDI (v3, calibrate su 95 gare, 05/05/2026)
 
 ```
@@ -319,7 +321,7 @@ Tutte le chiavi Redis usano il prefisso `wiztrail:` per isolare da altri progett
 - I nuovi file statici vanno aggiunti a `CORE_CACHE` o `PAGE_CACHE`
 - `PAGE_CACHE` include pagine secondarie; `CORE_CACHE` include dipendenze critiche per offline
 
-**Attuale CACHE_VERSION:** `wiztrail-v2026-06-09a`
+**Attuale CACHE_VERSION:** `wiztrail-v2026-06-10i`
 
 ---
 
@@ -334,6 +336,27 @@ Calcola i tempi di gara per segmento. La funzione principale viene chiamata da `
 ### wiztrail-timing.js
 
 Modello di pacing su segmenti v2.0. Calcola il tempo stimato T dal passo base (da T10k) applicando fattori di terreno, pendenza, tecnicità. Espone `WizTrailTiming`.
+
+**Fase 12 — Athlete Profile (10/06/2026):** aggiunto `KF_TERRAIN_PARAMS` e `terrainFactor(techScore, S)`.
+
+```
+T_finale = T_segmenti × KF_terrain
+KF_terrain = 1 + (TechScore / tech_scale) × (1 - S × specificity_weight)
+```
+
+Parametri iniziali: `tech_scale=400`, `specificity_weight=0.4`.
+Calibrabili via `PATCH /api/hub?action=patch` con `{ timing: { kf_terrain: { tech_scale: X, specificity_weight: Y } } }`.
+
+**IMPORTANTE — perché TechScore e non WDI:**
+WDI = `(VolumeScore + TechScore×kT) × DistFactor × AltFactor` — contiene distanza e dislivello
+già modellati dal timing engine (pendenze, fatica). Usare WDI come fattore causerebbe
+double-counting e gonfia la penalità sulle ultra proporzionalmente alla loro lunghezza
+(LUT120 WDI=178 → +31%, CDF 12K WDI=32 → +6% — paradossale).
+TechScore è `f(FRIP, SlopeVar, Roughness, surfaceLevel)` — l'unico componente genuinamente
+assente dal modello a segmenti. Con TechScore le correzioni sono coerenti (11-18%)
+indipendentemente dalla distanza: LUT120 TS=65 → +14%, Comapedrosa TS=80 → +18%.
+
+**Non usare mai WDI come proxy di tecnicità del terreno nel modello di timing.**
 
 ---
 
@@ -469,7 +492,7 @@ GitHub Actions: `POST /api/hub?action=run` → trigger workflow → risultati `P
 - Trail Identity Card (trail-card.html) — statistiche dettagliate + radar chart + insights
 
 ### Pianificato (beta)
-- Fase 12 — Athlete Profile: tempo personalizzato `T = T_naismith × KF_terrain(WDI) × KF_athlete(MAS, ES)`
+- ~~Fase 12 — Athlete Profile~~ **IN PRODUZIONE (10/06/2026):** `T_finale = T_segmenti × terrainFactor(TechScore, S)`. KF usa TechScore (non WDI — vedi nota in sezione timing). Parametri `KF_TERRAIN_PARAMS` calibrabili via hub patch senza deploy.
 - API Suunto: import route GPX + SuuntoPlus Guides (push pacing su orologio). Contatto: janne.kallio@suunto.com. Variabili: `SUUNTO_CLIENT_ID`, `SUUNTO_CLIENT_SECRET`. Implementare in singolo `api/suunto.js` (pattern hub).
 - Terrain 3D Viewer (webGL, bassa priorità)
 
