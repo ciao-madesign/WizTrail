@@ -56,17 +56,25 @@ overflow: hidden;
 /* GRIGLIA */
 
 
-.left-col, .right-col {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+.left-col {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 90px;
+}
+.right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 /* TIPOGRAFIA */
-.wdi-big { font-size:3rem; font-weight:900; line-height:1.1; }
-.wdit-comment { font-size:1.25rem; opacity:0.9; }
-.perf-comment { font-size:1rem; font-weight:600; }
+.wdi-label  { font-size:0.65rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; opacity:0.55; margin-bottom:2px; }
+.wdi-big    { font-size:1.9rem; font-weight:900; line-height:1; }
+.tech-score { font-size:1.1rem; font-weight:700; margin-top:10px; }
+.tech-class { font-size:0.78rem; opacity:0.65; margin-top:2px; }
 
 .share-data {
   font-size:0.85rem;
@@ -153,10 +161,10 @@ overflow: hidden;
       <div class="bottom-row">
 
         <div class="left-col">
+          <div class="wdi-label">WDI</div>
           <div id="shareWDI" class="wdi-big"></div>
-          <div id="shareComment" class="wdit-comment"></div>
-          <div id="shareTechScore" class="share-data" style="margin-top:4px;opacity:0.8;"></div>
-          <div id="sharePerf" class="perf-comment"></div>
+          <div id="shareTechScore" class="tech-score"></div>
+          <div id="shareTechClass" class="tech-class"></div>
         </div>
 
         <!-- DATI + ALTIMETRIA -->
@@ -242,19 +250,18 @@ if(data.time_real && data.distance){
   sPaceAvg.textContent = `Pace medio: ${Math.floor(pace/60)}:${String(Math.round(pace%60)).padStart(2,"0")}/km`;
 }
 
+// WDI: solo il valore numerico, senza categoria distanza
 const wdiVal = data.WDI_legendPlus ? '10+' : (data.WDI || '—');
-shareWDI.textContent = 'WDI ' + wdiVal
-  + (data.WDI_category ? ' · ' + data.WDI_category : '');
+shareWDI.textContent = wdiVal;
 shareWDI.style.color = data.WDI_color || data.wdiColor || '#34A853';
-shareComment.textContent = data.comment || "";
+
+// TechScore: numero su una riga, classe su quella sotto
 if (data.TechScore) {
   const ts = (parseFloat(data.TechScore) / 10).toFixed(1);
-  shareTechScore.textContent = 'Tech ' + ts + '/10'
-    + (data.techClass ? ' · ' + data.techClass : '');
-}
-if(data.includeCompare && data.perfComment){
-  sharePerf.textContent = data.perfComment;
-  sharePerf.style.color = data.WDI_color || data.wdiColor || '#34A853';
+  shareTechScore.textContent = 'Tech ' + ts + '/10';
+  shareTechScore.style.color = data.WDI_color || data.wdiColor || '#34A853';
+  const tcEl = document.getElementById('shareTechClass');
+  if (tcEl && data.techClass) tcEl.textContent = data.techClass;
 }
 
 // TITOLO
