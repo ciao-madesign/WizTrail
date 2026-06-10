@@ -36,30 +36,34 @@
   const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 1.00, 'EE': 0.85, 'EA': 0.75 };
 
   /* ------------------------------------------------------------------
-     KF_TERRAIN_PARAMS — fattore di correzione WDI per stima personalizzata (Fase 12)
-     Tengono conto che percorsi più tecnici (WDI alto) frenano l'atleta
-     proporzionalmente di più rispetto a quanto il solo passo su strada suggerisce.
+     KF_TERRAIN_PARAMS — fattore di correzione tecnicità per stima personalizzata (Fase 12)
+     Corregge la sottostima sistematica del modello a segmenti su percorsi tecnici.
+     Il modello cattura pendenza e fatica, ma non la tecnicità continua del terreno
+     (irregolarità, rocce, radici, esposizione) misurata dal TechScore.
 
-     Aggiornabili manualmente via PATCH /api/hub?action=patch con payload
-     { timing: { kf_terrain: { wdi_scale: X, specificity_weight: Y } } }
-     (calibrazione automatica via pipeline Python pianificata come step successivo).
+     USA TechScore (non WDI): WDI include distanza e dislivello già modellati
+     dal timing engine — usarlo causerebbe double-counting. TechScore è puramente
+     f(FRIP, SlopeVar, Roughness, surfaceLevel): il componente genuinamente mancante.
 
-     wdi_scale          — divisore WDI: aumentare riduce l'impatto del fattore
+     Aggiornabili via PATCH /api/hub?action=patch:
+     { timing: { kf_terrain: { tech_scale: X, specificity_weight: Y } } }
+
+     tech_scale         — divisore TechScore (0–100): aumentare riduce l'impatto
      specificity_weight — quanto S riduce il fattore [0=nessuna differenza, 1=elite immune]
      ------------------------------------------------------------------ */
   const KF_TERRAIN_PARAMS = {
-    wdi_scale:          500,  // calibrare vs tempi reali gara (valore iniziale)
+    tech_scale:         400,  // calibrare vs tempi reali gara (valore iniziale)
     specificity_weight: 0.4,  // calibrare vs tempi reali gara (valore iniziale)
   };
 
-  /* terrainFactor(wdi, S)
+  /* terrainFactor(techScore, S)
      Restituisce il fattore moltiplicativo sul tempo base (sempre ≥ 1).
-     WDI basso (trail facile): KF ≈ 1 → nessun impatto rilevante.
-     WDI alto + S basso (amatore su skyrace): KF elevato → stima più conservativa.
-     WDI alto + S alto (elite su skyrace): penalità ridotta perché la tecnicità frena meno. */
-  function terrainFactor(wdi, S) {
+     TechScore basso (trail scorrevole): KF ≈ 1 → quasi nessun impatto.
+     TechScore alto (skyrace, pietraia) + S basso: KF più elevato → stima conservativa.
+     S alto (trail specialist) riduce il fattore: la tecnicità frena meno chi è specializzato. */
+  function terrainFactor(techScore, S) {
     const p = KF_TERRAIN_PARAMS;
-    return 1 + (wdi / p.wdi_scale) * (1 - S * p.specificity_weight);
+    return 1 + (techScore / p.tech_scale) * (1 - S * p.specificity_weight);
   }
 
   /* ------------------------------------------------------------------

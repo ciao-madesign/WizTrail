@@ -429,12 +429,12 @@
     window.currentWDI_norm = rs.WDI_norm;   // normalizzato — per display futuro
     window.lastRS          = rs;
 
-    /* Fase 12 — Athlete Profile: correzione WDI terrain.
-       Il modello a segmenti calcola T dal passo su strada + pendenze + fatica,
-       ma non tiene conto che percorsi con WDI alto frenano proporzionalmente
-       di più (tecnicità diffusa, irregolarità, esposizione). KF ≥ 1 corregge
-       questa sistematica sottostima sulle gare tecniche. */
-    const KF_terrain = WizTrailTiming.terrainFactor(rs.WDI, S);
+    /* Fase 12 — Athlete Profile: correzione TechScore terrain.
+       Il modello a segmenti cattura pendenza e fatica ma non la tecnicità
+       continua del terreno (FRIP, SlopeVar, Roughness) misurata da TechScore.
+       Si usa TechScore — non WDI: WDI include distanza e dislivello già
+       modellati dal timing engine, usarlo causerebbe double-counting. */
+    const KF_terrain = WizTrailTiming.terrainFactor(rs.TechScore, S);
     T *= KF_terrain;
 
     /* Carta del percorso — salva dati in sessionStorage per trail-card.html.
@@ -477,10 +477,10 @@
     const pace_trail = (T / 60) / m.km;
     const isSkyrace  = (m.gain / Math.max(m.km, 1)) > 60;
 
-    // Nota WDI terrain: mostrata solo se la correzione è ≥3% (impatto percettibile)
+    // Nota tecnicità: mostrata solo se la correzione è ≥3% (impatto percettibile)
     const kfPct   = Math.round((KF_terrain - 1) * 100);
     const kfNote  = kfPct >= 3
-      ? ' &nbsp;·&nbsp; <span style="opacity:0.55; font-size:0.72rem;">+' + kfPct + '% terreno WDI ' + Math.round(rs.WDI) + '</span>'
+      ? ' &nbsp;·&nbsp; <span style="opacity:0.55; font-size:0.72rem;">+' + kfPct + '% tecnicità</span>'
       : '';
 
     const subEl = document.getElementById('outFinalSub');
