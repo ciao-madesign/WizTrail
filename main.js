@@ -519,7 +519,7 @@
     /* Bottone Carta del percorso — solo con GPX caricato */
     if (!noGpx) {
       const tcBtn = document.getElementById('trailCardBtn');
-      if (tcBtn) tcBtn.style.display = 'inline-flex';
+      if (tcBtn) tcBtn.style.display = 'flex';
     }
 
     /* Mappa: init + drawTrack solo se il GPX è caricato.
