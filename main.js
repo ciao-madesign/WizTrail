@@ -554,7 +554,6 @@
       condizioni: {
         meteo:  v('meteo'),
         alt:    v('alt'),
-        fatica: v('fatica'),
         spec:   v('spec'),
         margin: v('margin'),
       },

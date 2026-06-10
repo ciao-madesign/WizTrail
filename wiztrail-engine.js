@@ -11,7 +11,8 @@
        o formule qui va replicata anche lì (engine drift rischio regressione API)
    kT = 0.50 → calibrato 20/04/2026 (era 0.35)
    normRough 0.500 → recalibrato 28/04/2026 (era 0.051, saturava su GPX reali)
-   TERRAIN_DEFAULTS v2 → recalibrato 28/04/2026 per contesto gara
+   TERRAIN_DEFAULTS v3 → recalibrato 10/06/2026: fix saturazione normSVar
+     (dopo cambio ref normSVar 0.55→0.180, tutti i valori slopeVar saturavano a 1.0)
    WDI_THRESHOLDS v3 → ricalibrate 05/05/2026 su 95 gare (v5.1 engine)
    =============================================================== */
 
@@ -74,17 +75,19 @@ window.WizTrail = (function () {
 
   const SURFACE_MULT = { 1: 0.92, 2: 0.97, 3: 1.00, 4: 1.04, 5: 1.08 };
 
-  /* TERRAIN_DEFAULTS — usati in computeManual (senza GPX reale).
-     Valori v2 — calibrati per riflettere la realtà dei trail in contesto gara,
-     non una passeggiata. La modalità manuale avrà sempre una leggera sottostima
-     rispetto al GPX reale su gare brevi (strutturale, accettabile).
+  /* TERRAIN_DEFAULTS v3 — usati in computeManual (senza GPX reale).
+     Ricalibrati 10/06/2026: i precedenti valori slopeVar (0.38/0.55/0.70) saturavano
+     tutti normSVar a 1.0 dopo il cambio del riferimento da 0.55 → 0.180, gonfiando
+     il TechScore manuale di ~10 punti rispetto a GPX reali equivalenti.
+     I nuovi valori coprono proporzionalmente l'intervallo naturale 0…0.180:
+     E ≈ 45° percentile, EE ≈ 72° percentile, EA ≈ 94° percentile.
      E  = sentiero segnato con tratti tecnici, pendenze moderate
      EE = sentiero tecnico, pietraie, radici, pendenze sostenute
      EA = terreno alpinistico, roccia, creste, esposizione */
   const TERRAIN_DEFAULTS = {
-    'E':  { frip: 0.22, slopeVar: 0.38, roughness: 0.18 },
-    'EE': { frip: 0.38, slopeVar: 0.55, roughness: 0.28 },
-    'EA': { frip: 0.55, slopeVar: 0.70, roughness: 0.40 }
+    'E':  { frip: 0.25, slopeVar: 0.08, roughness: 0.10 },  // TechScore ~36 (Scorrevole)
+    'EE': { frip: 0.48, slopeVar: 0.13, roughness: 0.20 },  // TechScore ~57 (Tecnico)
+    'EA': { frip: 0.72, slopeVar: 0.17, roughness: 0.32 }   // TechScore ~76 (Molto tecnico)
   };
 
   /* ---------------------------------------------------------------
