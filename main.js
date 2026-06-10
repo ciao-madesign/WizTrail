@@ -388,6 +388,14 @@
       if (mGpx.gain === 0 && manualGain > 0) {
         T += (manualGain / 8) * 60;
       }
+      // Correzione D+ per file GPX con elevazione DEM (es. route Strava/Komoot):
+      // il D+ dal file è spesso sottostimato rispetto alla realtà.
+      // Se l'utente ha aumentato il D+ manualmente (>5% sopra il valore GPX),
+      // aggiunge il tempo per il dislivello extra con stima Naismith (7.5 sec/m).
+      // Non copre tutta la sottostima (le pendenze DEM restano piatte), ma è meglio di niente.
+      if (mGpx.gain > 0 && manualGain > mGpx.gain * 1.05) {
+        T += ((manualGain - mGpx.gain) / 8) * 60;
+      }
     }
 
     // Fattori meteo / altitudine
