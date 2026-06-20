@@ -527,11 +527,21 @@
           body: JSON.stringify({ delta_pct: deltaPct, km, dplus, ts: Date.now() })
         });
         const data = await resp.json();
-        statusEl.textContent = data.ok
-          ? '✓ Grazie! Il tuo feedback contribuisce a migliorare il modello.'
-          : '⚠ Feedback non registrato — problema di connessione.';
+        if (data.ok) {
+          /* Conferma visiva + chiusura automatica dopo 2.5s */
+          statusEl.textContent = '✓ Grazie! Il tuo contributo aiuterà il modello a diventare più preciso.';
+          setTimeout(() => {
+            const m = document.getElementById('feedbackModal');
+            if (m) m.style.display = 'none';
+            /* Reset campo tempo reale per riaperture successive */
+            const fbR = document.getElementById('fb_reale');
+            if (fbR) fbR.value = '';
+            resultEl.classList.remove('visible');
+          }, 2500);
+        } else {
+          statusEl.textContent = '⚠ Feedback non registrato — problema di connessione.';
+        }
       } catch {
-        /* Fallback silenzioso: l'utente ha già visto il risultato locale */
         statusEl.textContent = '⚠ Connessione assente — il feedback non è stato inviato.';
       }
     });
