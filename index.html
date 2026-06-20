@@ -283,8 +283,7 @@
 
       <!-- Feedback secondario — appare dopo il primo calcolo WDI -->
       <div id="feedbackBtn" style="display:none; margin-top:12px; text-align:center;">
-        <button class="btn secondary"
-          onclick="var m=document.getElementById('feedbackModal');m.style.display='flex';document.getElementById('feedbackOverlay').onclick=function(){m.style.display='none';};">
+        <button class="btn secondary" onclick="openFeedbackModal();">
           Hai un tempo reale per questa gara? Aiuta a calibrare il modello
         </button>
       </div>
@@ -472,6 +471,18 @@
       return null;
     }
 
+    /* Apre il modale e pre-popola fb_stimato con il tempo calcolato da WizTrail.
+       outFinal usa il formato h:mm:ss da WizUI.formatTime(), compatibile con parseHMS. */
+    window.openFeedbackModal = function() {
+      const m = document.getElementById('feedbackModal');
+      if (!m) return;
+      const outFinal = document.getElementById('outFinal')?.textContent;
+      const fbStim   = document.getElementById('fb_stimato');
+      if (fbStim && outFinal && outFinal !== '—') fbStim.value = outFinal;
+      m.style.display = 'flex';
+      document.getElementById('feedbackOverlay').onclick = function() { m.style.display = 'none'; };
+    };
+
     document.getElementById('btnFeedback')?.addEventListener('click', async function() {
       const stimSec  = parseHMS(document.getElementById('fb_stimato')?.value);
       const realSec  = parseHMS(document.getElementById('fb_reale')?.value);
@@ -481,7 +492,10 @@
       const statusEl = document.getElementById('feedbackStatus');
 
       if (!stimSec || !realSec || stimSec <= 0) {
-        if (msgEl) msgEl.textContent = 'Inserisci entrambi i tempi nel formato hh:mm:ss';
+        /* Rendi visibile il blocco risultato per mostrare il messaggio d'errore */
+        if (resultEl) resultEl.classList.add('visible');
+        if (deltaEl)  deltaEl.textContent = '';
+        if (msgEl)    msgEl.textContent = 'Inserisci entrambi i tempi nel formato h:mm:ss (es. 3:14:00)';
         return;
       }
 
