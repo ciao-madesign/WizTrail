@@ -1,0 +1,19 @@
+{
+  "tech_score_weights": {
+    "w_frip": 0.244,
+    "w_svar": 0.421,
+    "w_rough": 0.208,
+    "w_vert": 0.127,
+    "shape_w": 0.873
+  },
+  "norm_refs": {
+    "frip": 0.924,
+    "slope_var": 0.18,
+    "roughness": 0.051,
+    "vert": 74.1
+  },
+  "rmse_before": 18.957,
+  "rmse_after": 13.513,
+  "improvement_pct": 28.7,
+  "n_races_gpx": 47
+}

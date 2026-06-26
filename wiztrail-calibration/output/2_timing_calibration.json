@@ -1,0 +1,158 @@
+{
+  "velocity_params": {
+    "k_base": 3.5,
+    "k_spread": 5.0,
+    "cap_base": 2.3633,
+    "cap_spread": 1.7499,
+    "boost_base": 1.0,
+    "boost_S": 0.0,
+    "fatigue_coeff": 0.6471
+  },
+  "rmse_before": 7.013,
+  "rmse_after": 3.969,
+  "improvement_pct": 43.4,
+  "n_races_gpx": 47,
+  "n_pairs": 117,
+  "athlete_profiles": {
+    "top100_men": {
+      "S": 0.85,
+      "vel_base": 15.0
+    },
+    "avg_finish": {
+      "S": 0.4,
+      "vel_base": 10.0
+    },
+    "top100_women": {
+      "S": 0.8,
+      "vel_base": 12.0
+    }
+  },
+  "sanity_checks": [
+    [
+      "UTMB",
+      "top100_men",
+      26.44,
+      27.5
+    ],
+    [
+      "UTMB",
+      "avg_finish",
+      50.14,
+      38.0
+    ],
+    [
+      "UTMB",
+      "top100_women",
+      35.98,
+      31.5
+    ],
+    [
+      "CCC",
+      "top100_men",
+      11.36,
+      13.5
+    ],
+    [
+      "CCC",
+      "avg_finish",
+      24.22,
+      20.0
+    ],
+    [
+      "CCC",
+      "top100_women",
+      16.19,
+      15.5
+    ],
+    [
+      "Zegama-Aizkorri",
+      "top100_men",
+      3.97,
+      5.5
+    ],
+    [
+      "Zegama-Aizkorri",
+      "avg_finish",
+      7.31,
+      8.0
+    ],
+    [
+      "Zegama-Aizkorri",
+      "top100_women",
+      5.22,
+      6.5
+    ],
+    [
+      "Western States 100",
+      "top100_men",
+      20.68,
+      18.0
+    ],
+    [
+      "Western States 100",
+      "avg_finish",
+      38.64,
+      25.0
+    ],
+    [
+      "Western States 100",
+      "top100_women",
+      28.53,
+      20.5
+    ],
+    [
+      "Sierre-Zinal",
+      "top100_men",
+      2.87,
+      3.0
+    ],
+    [
+      "Sierre-Zinal",
+      "avg_finish",
+      5.16,
+      5.0
+    ],
+    [
+      "Sierre-Zinal",
+      "top100_women",
+      3.73,
+      3.5
+    ],
+    [
+      "Speedgoat 50K",
+      "top100_men",
+      4.96,
+      8.0
+    ],
+    [
+      "Speedgoat 50K",
+      "avg_finish",
+      9.48,
+      13.5
+    ],
+    [
+      "Speedgoat 50K",
+      "top100_women",
+      6.6,
+      9.5
+    ],
+    [
+      "Hardrock 100",
+      "top100_men",
+      23.29,
+      28.0
+    ],
+    [
+      "Hardrock 100",
+      "avg_finish",
+      44.93,
+      40.0
+    ],
+    [
+      "Hardrock 100",
+      "top100_women",
+      32.01,
+      32.0
+    ]
+  ]
+}
