@@ -14,7 +14,7 @@ const VELOCITY_PARAMS = {
   cap_spread:    0.9,
   boost_base:    1.05,
   boost_S:       0.25,
-  fatigue_coeff: 0.6,
+  fatigue_coeff: 0.6471, // calibrato su 39 GPX reali (03_calibrate.py, 26/06/2026)
 };
 
 const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 1.00, 'EE': 0.85, 'EA': 0.75 };

@@ -27,7 +27,7 @@
     cap_spread:    0.9,   // spread del tetto tra elite e principiante
     boost_base:    1.05,  // boost discesa per principiante (S=0)
     boost_S:       0.25,  // quanto S amplifica il boost in discesa
-    fatigue_coeff: 0.6,   // intensità fatica progressiva
+    fatigue_coeff: 0.6471, // calibrato su 39 GPX reali (03_calibrate.py, 26/06/2026)
   };
 
   /* Riduzione velocità base per superficie del trail sui tratti pianeggianti.

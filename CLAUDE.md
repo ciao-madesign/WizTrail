@@ -444,7 +444,7 @@ Classifica automaticamente il tipo di gara in base a km, D+, max_altitude, WDI:
 | 26/06/2026 | FATIGUE_CAP | — (nessun cap) | 2.5 — introdotto cap alla funzione fatica per gare ultra. Analisi su 39 GPX: senza cap UTMB +39%, TOR +769%. RMSE 80%→35.5%. |
 | 26/06/2026 | KF_TERRAIN_PARAMS.tech_scale | 400 | 175 — calibrato su 39 GPX reali (proxy technicality×10). KF ora attivo (+14-40% gare tecniche, RMSE 27.8%→24.5%). |
 | 26/06/2026 | KF_TERRAIN_PARAMS.specificity_weight | 0.4 | 0.45 — calibrato insieme a tech_scale. |
-| 26/06/2026 | VELOCITY_PARAMS | da calibrazione precedente | ricalibrati su 39 GPX reali con 03_calibrate.py Parte B. Vedi output/2_timing_calibration.json. |
+| 26/06/2026 | fatigue_coeff | 0.600 | 0.6471 — unico param VELOCITY_PARAMS applicato: gli altri 6 erano ai bounds (k_base=3.5, k_spread=5.0, boost_S=0). Calibrato su 39 GPX reali, 03_calibrate.py Parte B. |
 | 26/06/2026 | MEDIAN_MODEL + PERCENTILE_SIGMA | — (non esistevano) | aggiunti da regressione power-law su 32.402 gare UTMB (Kaggle). Confronto storico + percentile atleta in UI. |
 
 ### Pipeline di calibrazione
@@ -520,7 +520,7 @@ poi: rieseguire 02c_calibrate_kf_terrain.py per aggiornare tech_scale
 Problemi identificati e fix:
 1. **FATIGUE_CAP=2.5** (26/06): cap funzione fatica per gare >18h. Fix in timing.js, timing-node.js, 03_calibrate.py.
 2. **tech_scale 400→175** (26/06): KF_TERRAIN ora attivo (+14-40% su gare tecniche). Fix in timing.js, timing-node.js.
-3. **VELOCITY_PARAMS ricalibrati** (26/06): da 03_calibrate.py Parte B su 39 GPX reali. Correzione principale per bias sistematico.
+3. **fatigue_coeff 0.600→0.6471** (26/06): unico parametro VELOCITY_PARAMS applicato dalla calibrazione su 39 GPX. Gli altri 6 parametri calibrati erano ai bordi del dominio (k_base=3.5 max, k_spread=5.0 max, boost_S=0.0 min) — artefatti di compensazione, non fisicamente sensati. Fix in timing.js e timing-node.js. Opzione C (velBase realistici da Kaggle) pianificata per prossima calibrazione.
 
 **Nota su TechScore proxy:** `02c_calibrate_kf_terrain.py` usa `technicality × 10` come proxy di TechScore. Per calibrazione precisa, usare TechScore reale da `computed.csv` (dopo `02_compute_wdi.py`).
 
