@@ -135,7 +135,7 @@ def segment_time(dists,eles_s,vel_base,S,vp):
             slope=max(-0.35,min(0.35,dh/d))
             v=_vel_from_slope(slope,S,vel_base,vp)
             t_raw=d/(v*1000/3600)
-            fat=1+fc*math.pow(T/3600/8,1.2)
+            fat=min(1+fc*math.pow(T/3600/8,1.2), 2.5)  # cap FATIGUE_CAP=2.5
             T+=t_raw*fat; last_i=i
     return T
 

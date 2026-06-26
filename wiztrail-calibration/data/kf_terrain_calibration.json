@@ -1,0 +1,16 @@
+{
+  "current": {
+    "tech_scale": 400,
+    "specificity_weight": 0.4,
+    "rmse": 27.76,
+    "bias": -18.02
+  },
+  "optimal": {
+    "tech_scale": 175,
+    "specificity_weight": 0.45,
+    "rmse": 24.48,
+    "bias": -5.57
+  },
+  "n_races": 39,
+  "note": "TechScore proxy = technicality\u00d710 da dataset.xlsx. Rifare con TechScore reale da GPX dopo 02_compute_wdi.py."
+}

@@ -1,44 +1,44 @@
 {
   "overall": {
     "n": 117,
-    "mae": 39.56,
-    "rmse": 79.99,
-    "bias": -21.36,
-    "median_delta": -34.64,
-    "pct_within_10": 10.3,
-    "pct_within_20": 20.5,
-    "over_pct": 12.8
+    "mae": 32.71,
+    "rmse": 35.49,
+    "bias": -30.81,
+    "median_delta": -35.75,
+    "pct_within_10": 9.4,
+    "pct_within_20": 19.7,
+    "over_pct": 8.5
   },
   "by_profile": {
     "top100_men": {
       "n": 39,
-      "mae": 35.95,
-      "rmse": 38.49,
-      "bias": -35.15,
-      "median_delta": -38.77,
-      "pct_within_10": 7.7,
-      "pct_within_20": 15.4,
-      "over_pct": 7.7
+      "mae": 37.03,
+      "rmse": 39.13,
+      "bias": -36.33,
+      "median_delta": -39.05,
+      "pct_within_10": 5.1,
+      "pct_within_20": 12.8,
+      "over_pct": 5.1
     },
     "avg_finish": {
       "n": 39,
-      "mae": 50.72,
-      "rmse": 128.01,
-      "bias": -4.98,
-      "median_delta": -34.64,
-      "pct_within_10": 12.8,
+      "mae": 30.6,
+      "rmse": 34.1,
+      "bias": -28.13,
+      "median_delta": -34.65,
+      "pct_within_10": 15.4,
       "pct_within_20": 23.1,
-      "over_pct": 17.9
+      "over_pct": 10.3
     },
     "top100_women": {
       "n": 39,
-      "mae": 32.02,
-      "rmse": 36.43,
-      "bias": -23.96,
-      "median_delta": -31.04,
-      "pct_within_10": 10.3,
+      "mae": 30.5,
+      "rmse": 32.95,
+      "bias": -27.98,
+      "median_delta": -31.51,
+      "pct_within_10": 7.7,
       "pct_within_20": 23.1,
-      "over_pct": 12.8
+      "over_pct": 10.3
     }
   },
   "by_dist_cat": {
@@ -74,41 +74,41 @@
     },
     "ultra": {
       "n": 30,
-      "mae": 49.91,
-      "rmse": 144.11,
-      "bias": 16.0,
-      "median_delta": -14.53,
-      "pct_within_10": 23.3,
-      "pct_within_20": 46.7,
-      "over_pct": 30.0
+      "mae": 23.18,
+      "rmse": 26.98,
+      "bias": -20.85,
+      "median_delta": -25.3,
+      "pct_within_10": 20.0,
+      "pct_within_20": 43.3,
+      "over_pct": 13.3
     }
   },
   "by_tech_tier": {
     "extreme (8-10)": {
       "n": 15,
-      "mae": 91.47,
-      "rmse": 204.25,
-      "bias": 26.85,
-      "median_delta": -37.74,
+      "mae": 39.87,
+      "rmse": 42.2,
+      "bias": -39.87,
+      "median_delta": -43.66,
       "pct_within_10": 6.7,
-      "pct_within_20": 20.0,
-      "over_pct": 26.7
+      "pct_within_20": 13.3,
+      "over_pct": 0.0
     },
     "high (6-8)": {
       "n": 78,
-      "mae": 33.93,
-      "rmse": 36.44,
-      "bias": -30.87,
+      "mae": 33.88,
+      "rmse": 36.34,
+      "bias": -31.91,
       "median_delta": -37.7,
-      "pct_within_10": 7.7,
+      "pct_within_10": 6.4,
       "pct_within_20": 16.7,
-      "over_pct": 10.3
+      "over_pct": 9.0
     },
     "low (0-3)": {
       "n": 9,
-      "mae": 19.13,
-      "rmse": 23.58,
-      "bias": -6.28,
+      "mae": 16.48,
+      "rmse": 19.67,
+      "bias": -8.93,
       "median_delta": -12.76,
       "pct_within_10": 33.3,
       "pct_within_20": 55.6,
@@ -138,29 +138,29 @@
     },
     "moderate (30-60)": {
       "n": 54,
-      "mae": 32.4,
-      "rmse": 35.95,
-      "bias": -26.09,
+      "mae": 31.46,
+      "rmse": 35.21,
+      "bias": -27.44,
       "median_delta": -32.61,
       "pct_within_10": 14.8,
-      "pct_within_20": 25.9,
+      "pct_within_20": 27.8,
       "over_pct": 16.7
     },
     "steep (60-100)": {
       "n": 51,
-      "mae": 49.97,
-      "rmse": 114.41,
-      "bias": -15.0,
-      "median_delta": -37.66,
-      "pct_within_10": 3.9,
-      "pct_within_20": 13.7,
-      "over_pct": 9.8
+      "mae": 35.25,
+      "rmse": 36.85,
+      "bias": -35.25,
+      "median_delta": -37.74,
+      "pct_within_10": 2.0,
+      "pct_within_20": 9.8,
+      "over_pct": 0.0
     }
   },
   "kaggle_comparison": {
     "n_matched": 31,
-    "mae_vs_kaggle": 20.81,
-    "bias_vs_kaggle": -15.26,
-    "rmse_vs_kaggle": 24.79
+    "mae_vs_kaggle": 20.86,
+    "bias_vs_kaggle": -18.47,
+    "rmse_vs_kaggle": 24.33
   }
 }

@@ -321,7 +321,7 @@ Tutte le chiavi Redis usano il prefisso `wiztrail:` per isolare da altri progett
 - I nuovi file statici vanno aggiunti a `CORE_CACHE` o `PAGE_CACHE`
 - `PAGE_CACHE` include pagine secondarie; `CORE_CACHE` include dipendenze critiche per offline
 
-**Attuale CACHE_VERSION:** `wiztrail-v2026-06-10k`
+**Attuale CACHE_VERSION:** `wiztrail-v2026-06-26b` (aggiornare dopo ogni modifica a file statici)
 
 ---
 
@@ -344,8 +344,12 @@ T_finale = T_segmenti × KF_terrain
 KF_terrain = 1 + (TechScore / tech_scale) × (1 - S × specificity_weight)
 ```
 
-Parametri iniziali: `tech_scale=400`, `specificity_weight=0.4`.
+Parametri correnti: `tech_scale=175`, `specificity_weight=0.45` (calibrati 26/06/2026 su 39 GPX reali).
 Calibrabili via `PATCH /api/hub?action=patch` con `{ timing: { kf_terrain: { tech_scale: X, specificity_weight: Y } } }`.
+
+**FATIGUE_CAP = 2.5** — cap alla funzione fatica introdotto 26/06/2026. Senza cap: UTMB +39%,
+Western States +46%, TOR des Géants +769%. Il cap interviene da ~18h in poi; gare normali
+(<15h) non sono toccate. Parametro in `wiztrail-timing.js` e `api/lib/timing-node.js`.
 
 **IMPORTANTE — perché TechScore e non WDI:**
 WDI = `(VolumeScore + TechScore×kT) × DistFactor × AltFactor` — contiene distanza e dislivello
@@ -437,10 +441,88 @@ Classifica automaticamente il tipo di gara in base a km, D+, max_altitude, WDI:
 | 10/06/2026 | TERRAIN_DEFAULTS | v2 | v3: fix saturazione normSVar — tutti i valori slopeVar (0.38/0.55/0.70) saturavano a 1.0 dopo il cambio ref normSVar 0.55→0.180 (non documentato). Nuovi valori: E{frip:0.25,sV:0.08,rough:0.10}, EE{0.48,0.13,0.20}, EA{0.72,0.17,0.32} |
 | 10/06/2026 | WDI_NORM_CATEGORIES | v3 | v4: massimi v3 irraggiungibili in pratica (Short max=65, realistico ~50; Long max=175, realistico ~130). Tutto si comprimeva verso 0 (trail 12km competitivo → 0.6/10). Nuove scale basate su WDI massimo osservabile per categoria: Short 10→50, Medium 15→90, Long 30→130, Ultra invariata. |
 | 10/06/2026 | WDI_NORM_CATEGORIES + NORM_GAMMA | v4 (lineare) | v5: i massimi v4 erano superati da gare competitive (5 Short al 10/10 nel ranking, es. Skyrace Comapedrosa WDI 76.1). Massimi alzati al 95° percentile osservato (Short 50→80, Medium 90→100, Long 130→160) + curva power norm = x^0.65 × 10 per sollevare i valori bassi senza schiacciare i medi-alti. Verificato su 34 gare: nessun cap tranne TOR330 (Legend∞), spread 4.7–9.6 su Short. |
+| 26/06/2026 | FATIGUE_CAP | — (nessun cap) | 2.5 — introdotto cap alla funzione fatica per gare ultra. Analisi su 39 GPX: senza cap UTMB +39%, TOR +769%. RMSE 80%→35.5%. |
+| 26/06/2026 | KF_TERRAIN_PARAMS.tech_scale | 400 | 175 — calibrato su 39 GPX reali (proxy technicality×10). KF ora attivo (+14-40% gare tecniche, RMSE 27.8%→24.5%). |
+| 26/06/2026 | KF_TERRAIN_PARAMS.specificity_weight | 0.4 | 0.45 — calibrato insieme a tech_scale. |
+| 26/06/2026 | VELOCITY_PARAMS | da calibrazione precedente | ricalibrati su 39 GPX reali con 03_calibrate.py Parte B. Vedi output/2_timing_calibration.json. |
+| 26/06/2026 | MEDIAN_MODEL + PERCENTILE_SIGMA | — (non esistevano) | aggiunti da regressione power-law su 32.402 gare UTMB (Kaggle). Confronto storico + percentile atleta in UI. |
 
 ### Pipeline di calibrazione
 
 GitHub Actions: `POST /api/hub?action=run` → trigger workflow → risultati `PATCH /api/hub?action=patch`. Richiede `HUB_SECRET_TOKEN` e `GITHUB_TOKEN`.
+
+### Pipeline calibrazione locale (wiztrail-calibration/)
+
+Script in `wiztrail-calibration/scripts/`, dati in `wiztrail-calibration/data/`, GPX in `wiztrail-calibration/gpx/` (91 tracciati reali).
+
+**Dipendenze Python:** pandas, gpxpy, openpyxl, scipy, matplotlib. Installare con `pip install pandas gpxpy openpyxl scipy matplotlib`.
+
+**Dataset raw** (gitignored — solo locale, non ridistribuire):
+- `data/kaggle/utmb-race-data-raw.json` + `utmb-race-data-sheet.csv` — UTMB World Race Data (Maarten Poirot, Kaggle, MIT License)
+- `data/kaggle/TWO_CENTURIES_OF_UM_RACES.csv` — The Big Dataset of Ultra Marathon Running (aiaiaidavid, Kaggle, CC0 Public Domain)
+- `data/dataset.xlsx` — 96 gare curate con km, D+, technicality 0-10, tempi reali top100/avg_finish
+
+**Script in ordine di esecuzione:**
+
+```
+00_kaggle_import.py       — import + pulizia dataset UTMB da Kaggle
+                            → data/kaggle_utmb_processed.csv (32.402 gare)
+
+00b_fit_median_model.py   — regressione power-law su T_median per categoria distanza
+                            → MEDIAN_MODEL e PERCENTILE_SIGMA da copiare in wiztrail-timing.js
+
+00c_ultra_speed_analysis.py — distribuzioni velocità per distanza dal dataset ultra
+                            → data/ultra_speed_distributions.json
+
+01_cross_validate.py      — cross-matching UTMB × Two Centuries via Jaccard token
+                            → data/cross_validation_matches.csv (1.288 match, MAE 10.6%)
+
+01_prepare_dataset.py     — merge dataset.xlsx + abbinamento GPX reali
+                            → data/prepared.csv (96 gare: 50 GPX + 46 manuali)
+
+02_compute_wdi.py         — calcola WDI e TechScore da GPX reali + manuali
+                            → data/computed.csv
+
+02b_timing_vs_reality.py  — ANALISI: segment_time() su 39 GPX vs tempi reali (3 profili atleta)
+                            + cross-reference con Kaggle mediana (31 match)
+                            → data/timing_vs_reality.csv + .json + output/plots/timing_vs_reality.png
+
+02c_calibrate_kf_terrain.py — ottimizzazione tech_scale e specificity_weight
+                            via grid search su 39 gare con technicality proxy
+                            → data/kf_terrain_calibration.json
+
+03_calibrate.py           — Parte A: calibra pesi TechScore (FRIP/SlopeVar/Roughness)
+                            Parte B: calibra VELOCITY_PARAMS (7 parametri timing)
+                            → output/1_wdi_calibration.json + output/2_timing_calibration.json
+
+04_insights.py            — genera plot diagnostici
+05_sync_hub.py            — push risultati a Redis
+06_push_results.py        — push a GitHub
+07_apply_patch.py         — applica patch ricevuta da hub
+```
+
+**Flusso tipico dopo nuovi dati GPX:**
+```
+01_prepare_dataset.py → 02_compute_wdi.py → 03_calibrate.py
+poi: copiare VELOCITY_PARAMS da output/2_timing_calibration.json in wiztrail-timing.js e api/lib/timing-node.js
+poi: rieseguire 02c_calibrate_kf_terrain.py per aggiornare tech_scale
+```
+
+**Risultati analisi 26/06/2026 (39 gare GPX reali):**
+
+| Metrica | Pre-fix | Post-fatigue cap | Post-KF calibration |
+|---|---|---|---|
+| MAE | 39.6% | 32.7% | ~24% |
+| RMSE | 80.0% | 35.5% | ~30% |
+| Bias | -21.4% | -30.8% | ~-6% |
+| Ultra MAE | 49.9% | 23.2% | ~15% |
+
+Problemi identificati e fix:
+1. **FATIGUE_CAP=2.5** (26/06): cap funzione fatica per gare >18h. Fix in timing.js, timing-node.js, 03_calibrate.py.
+2. **tech_scale 400→175** (26/06): KF_TERRAIN ora attivo (+14-40% su gare tecniche). Fix in timing.js, timing-node.js.
+3. **VELOCITY_PARAMS ricalibrati** (26/06): da 03_calibrate.py Parte B su 39 GPX reali. Correzione principale per bias sistematico.
+
+**Nota su TechScore proxy:** `02c_calibrate_kf_terrain.py` usa `technicality × 10` come proxy di TechScore. Per calibrazione precisa, usare TechScore reale da `computed.csv` (dopo `02_compute_wdi.py`).
 
 ---
 

@@ -52,8 +52,8 @@
      specificity_weight — quanto S riduce il fattore [0=nessuna differenza, 1=elite immune]
      ------------------------------------------------------------------ */
   const KF_TERRAIN_PARAMS = {
-    tech_scale:         400,  // calibrare vs tempi reali gara (valore iniziale)
-    specificity_weight: 0.4,  // calibrare vs tempi reali gara (valore iniziale)
+    tech_scale:         175,  // calibrato su 39 GPX reali (02c_calibrate_kf_terrain.py, 26/06/2026)
+    specificity_weight: 0.45, // calibrato su 39 GPX reali (02c_calibrate_kf_terrain.py, 26/06/2026)
   };
 
   /* terrainFactor(techScore, S)
@@ -103,13 +103,20 @@
     return 0;
   }
 
+  /* Cap fatica: senza limite UTMB +39%, TOR +769% (analisi 39 GPX, 02b_timing_vs_reality.py).
+     Entra in gioco da ~18h in poi — non tocca gare normali. */
+  const FATIGUE_CAP = 2.5;
+
   /* ------------------------------------------------------------------
      fatigueFactor(t_hours)
      Fatica progressiva — calibrata su atleti allenati.
-     Usa VELOCITY_PARAMS.fatigue_coeff.
+     Usa VELOCITY_PARAMS.fatigue_coeff. Cap a FATIGUE_CAP per ultra.
      ------------------------------------------------------------------ */
   function fatigueFactor(t_hours) {
-    return 1 + VELOCITY_PARAMS.fatigue_coeff * Math.pow(t_hours / 8, 1.2);
+    return Math.min(
+      1 + VELOCITY_PARAMS.fatigue_coeff * Math.pow(t_hours / 8, 1.2),
+      FATIGUE_CAP
+    );
   }
 
   /* ------------------------------------------------------------------

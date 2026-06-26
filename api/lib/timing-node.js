@@ -22,8 +22,8 @@ const TRAIL_BASE_FACTOR = { 'Strada': 1.00, 'E': 1.00, 'EE': 0.85, 'EA': 0.75 };
 /* KF_TERRAIN_PARAMS — Fase 12. Sincronizzato con wiztrail-timing.js.
    Usa TechScore (non WDI): WDI include distanza/dislivello già nel timing engine. */
 const KF_TERRAIN_PARAMS = {
-  tech_scale:         400,
-  specificity_weight: 0.4,
+  tech_scale:         175,  // calibrato su 39 GPX reali (02c, 26/06/2026)
+  specificity_weight: 0.45,
 };
 
 export function terrainFactor(techScore, S) {
@@ -53,8 +53,13 @@ function technicalPenalty(slope, terrainClass) {
   return 0;
 }
 
+const FATIGUE_CAP = 2.5; // cap per ultra >18h — vedi wiztrail-timing.js
+
 function fatigueFactor(t_hours) {
-  return 1 + VELOCITY_PARAMS.fatigue_coeff * Math.pow(t_hours / 8, 1.2);
+  return Math.min(
+    1 + VELOCITY_PARAMS.fatigue_coeff * Math.pow(t_hours / 8, 1.2),
+    FATIGUE_CAP
+  );
 }
 
 /**
