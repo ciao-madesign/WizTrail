@@ -321,7 +321,7 @@ Tutte le chiavi Redis usano il prefisso `wiztrail:` per isolare da altri progett
 - I nuovi file statici vanno aggiunti a `CORE_CACHE` o `PAGE_CACHE`
 - `PAGE_CACHE` include pagine secondarie; `CORE_CACHE` include dipendenze critiche per offline
 
-**Attuale CACHE_VERSION:** `wiztrail-v2026-06-26c` (aggiornare dopo ogni modifica a file statici)
+**Attuale CACHE_VERSION:** `wiztrail-v2026-06-26d` (aggiornare dopo ogni modifica a file statici)
 
 ---
 

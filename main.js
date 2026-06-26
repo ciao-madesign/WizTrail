@@ -471,6 +471,14 @@
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
 
+    // Banner percorso estremo: TechScore>60, km<80, D+/km>50 → stima può essere ottimistica 30-40%
+    const _dplus_per_km = m.gain / Math.max(m.km, 1);
+    const _extremeWarnEl = document.getElementById('extremeRouteWarning');
+    if (_extremeWarnEl) {
+      _extremeWarnEl.style.display =
+        (!noGpx && rs.TechScore > 60 && m.km < 80 && _dplus_per_km > 50) ? '' : 'none';
+    }
+
     // Confronto con campo storico (mediana UTMB 32.402 gare + percentile stimato)
     const altProxy = m.max_altitude ? m.max_altitude * 0.5 : 0;
     const medianSec = WizTrailTiming.estimateMedianTime(m.km, m.gain, altProxy);

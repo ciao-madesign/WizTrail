@@ -733,6 +733,18 @@ body[data-theme="light"] .wiz-banner {
   margin-bottom: 16px;
 }
 
+.extreme-route-warn {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--warn);
+  background: color-mix(in oklab, var(--warn) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--warn) 20%, transparent);
+  border-radius: 6px;
+  padding: 6px 10px;
+  text-align: center;
+  opacity: 0.9;
+}
+
 .pc-inputs {
   display: flex;
   gap: 12px;
