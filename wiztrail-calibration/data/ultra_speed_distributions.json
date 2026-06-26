@@ -1,0 +1,77 @@
+{
+  "source": "The Big Dataset of Ultra Marathon Running, aiaiaidavid (Kaggle)",
+  "license": "CC0 Public Domain",
+  "note": "Include gare road + trail \u2014 velocit\u00e0 NON comparabili direttamente con modello WizTrail (no D+)",
+  "speeds_kmh": {
+    "50km": {
+      "km_equivalent": 50.0,
+      "n": 68211,
+      "p10": 4.661,
+      "p25": 5.789,
+      "median": 7.574,
+      "p75": 9.133,
+      "p90": 10.554,
+      "mean": 7.6
+    },
+    "60km": {
+      "km_equivalent": 60.0,
+      "n": 8693,
+      "p10": 4.777,
+      "p25": 5.501,
+      "median": 6.481,
+      "p75": 7.695,
+      "p90": 8.984,
+      "mean": 6.718
+    },
+    "80km": {
+      "km_equivalent": 80.0,
+      "n": 7177,
+      "p10": 5.149,
+      "p25": 5.963,
+      "median": 6.788,
+      "p75": 7.737,
+      "p90": 8.682,
+      "mean": 6.898
+    },
+    "50mi": {
+      "km_equivalent": 80.467,
+      "n": 6070,
+      "p10": 5.287,
+      "p25": 6.109,
+      "median": 7.017,
+      "p75": 8.071,
+      "p90": 9.092,
+      "mean": 7.118
+    },
+    "90km": {
+      "km_equivalent": 90.0,
+      "n": 17030,
+      "p10": 7.581,
+      "p25": 7.827,
+      "median": 8.413,
+      "p75": 9.395,
+      "p90": 10.629,
+      "mean": 8.748
+    },
+    "100km": {
+      "km_equivalent": 100.0,
+      "n": 32700,
+      "p10": 3.767,
+      "p25": 4.756,
+      "median": 6.944,
+      "p75": 7.977,
+      "p90": 9.211,
+      "mean": 6.622
+    },
+    "100mi": {
+      "km_equivalent": 160.934,
+      "n": 3062,
+      "p10": 4.001,
+      "p25": 4.778,
+      "median": 5.851,
+      "p75": 6.924,
+      "p90": 8.007,
+      "mean": 5.957
+    }
+  }
+}
