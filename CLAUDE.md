@@ -321,7 +321,7 @@ Tutte le chiavi Redis usano il prefisso `wiztrail:` per isolare da altri progett
 - I nuovi file statici vanno aggiunti a `CORE_CACHE` o `PAGE_CACHE`
 - `PAGE_CACHE` include pagine secondarie; `CORE_CACHE` include dipendenze critiche per offline
 
-**Attuale CACHE_VERSION:** `wiztrail-v2026-06-26b` (aggiornare dopo ogni modifica a file statici)
+**Attuale CACHE_VERSION:** `wiztrail-v2026-06-26c` (aggiornare dopo ogni modifica a file statici)
 
 ---
 
@@ -523,6 +523,29 @@ Problemi identificati e fix:
 3. **fatigue_coeff 0.600→0.6471** (26/06): unico parametro VELOCITY_PARAMS applicato dalla calibrazione su 39 GPX. Gli altri 6 parametri calibrati erano ai bordi del dominio (k_base=3.5 max, k_spread=5.0 max, boost_S=0.0 min) — artefatti di compensazione, non fisicamente sensati. Fix in timing.js e timing-node.js. Opzione C (velBase realistici da Kaggle) pianificata per prossima calibrazione.
 
 **Nota su TechScore proxy:** `02c_calibrate_kf_terrain.py` usa `technicality × 10` come proxy di TechScore. Per calibrazione precisa, usare TechScore reale da `computed.csv` (dopo `02_compute_wdi.py`).
+
+**Stato del modello post-calibrazione (26/06/2026) — benchmark su 8 gare rappresentative:**
+
+| Gara | Categoria | AvgFin | Top100M | Top100W | Giudizio |
+|---|---|---|---|---|---|
+| Sierre-Zinal 31K | Short, bassa tech | -1% | -9% | +1% | ✅ buono |
+| Tromso Skyrace 32K | Short, alta tech | -37% | -41% | -35% | ❌ strutturale |
+| Zegama-Aizkorri 42K | Medium, media tech | -11% | -31% | -24% | ⚠️ misto |
+| Speedgoat 50K | Medium, estrema tech | -35% | -43% | -37% | ❌ strutturale |
+| Verbier UTMB 140K | Long, alta tech | +1% | -26% | -9% | ✅/⚠️ |
+| Eiger 101K | Long, alta tech | -12% | -35% | -24% | ⚠️ misto |
+| UTMB 174K | Ultra, media tech | +27% | -16% | +3% | ⚠️ misto |
+| Tor des Géants 336K | Ultra, alta tech | -6% | -31% | -22% | ✅/⚠️ |
+
+Metriche globali post-calibrazione: **RMSE 24.5%, Bias -9.0%** (39 gare, profilo avg_finish).
+
+Pattern identificati:
+- **AvgFin è il profilo meglio calibrato** — funziona bene per la maggioranza dei casi utente
+- **Top100M/W sistematicamente sottostimati** su terreno tecnico (-25÷-40%): il modello non cattura abbastanza il vantaggio elite in discesa
+- **Gare strutturalmente fuori dominio** (Tromso, Speedgoat): percorsi con sezioni non corribili, scrambling, neve — la sola pendenza GPX non cattura la difficoltà reale. Nessuna calibrazione parametrica risolve questi casi
+- **Double-counting KF_TERRAIN**: su gare già ben stimate dal modello a segmenti (UTMB AvgFin: -0.9% → +27.5% con KF), il TechScore applica una penalità già incorporata nelle variazioni di pendenza
+
+Decisione: **non procedere con Opzione C** (velBase realistici da Kaggle). Il rischio di peggiorare i casi già buoni supera il beneficio atteso sui casi strutturalmente irrisolvibili. Il modello è stabile e affidabile per il caso d'uso principale (runner medio, gare standard).
 
 ---
 

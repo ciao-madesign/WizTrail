@@ -14,7 +14,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="wiztrail.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Article","headline":"Il Metodo WizTrail — Formula WDI e modello tempi","description":"Come funziona WizTrail: WDI, TechScore, stima tempi personalizzata, pacing planner e hub di calibrazione.","url":"https://wiz-trail.vercel.app/about.html","inLanguage":"it","dateModified":"2026-05-11"}
+{"@context":"https://schema.org","@type":"Article","headline":"Il Metodo WizTrail — Formula WDI e modello tempi","description":"Come funziona WizTrail: WDI, TechScore, stima tempi personalizzata, pacing planner e hub di calibrazione.","url":"https://wiz-trail.vercel.app/about.html","inLanguage":"it","dateModified":"2026-06-26"}
 </script>
 </head>
 <body data-theme="dark">
@@ -92,7 +92,7 @@
   ══════════════════════════════════════════════════════════════ -->
   <section id="techscore" class="about-section">
     <div class="about-label">Tecnicità del terreno</div>
-    <h2>TechScore <span class="about-version">calibrato v1.0</span></h2>
+    <h2>TechScore <span class="about-version">calibrato 26/06/2026</span></h2>
 
     <div class="card">
       <p>Il TechScore misura la <b>tecnicità reale del terreno</b> a partire dai dati GPX, indipendentemente dalla distanza. Scala da 0 a 100: da <i>Facile</i> ad <i>Alpinistico / Estremo</i>.</p>
@@ -108,7 +108,7 @@
           <li><b>Rugosità del profilo</b> — le micro-variazioni di quota indicano rocce, radici e terreno accidentato</li>
         </ul>
         <p>A queste si aggiunge la <b>densità verticale</b> (dislivello per km), che contribuisce con un peso minore.</p>
-        <p class="mini" style="opacity:0.6; margin-top:12px;">Calibrato su <b>96 gare / 47 GPX reali</b> con ottimizzazione automatica dei pesi. RMSE ridotto del <b>59%</b> rispetto alla versione precedente.</p>
+        <p class="mini" style="opacity:0.6; margin-top:12px;">Calibrato su <b>96 gare / 47 GPX reali</b> con ottimizzazione automatica dei pesi (26/06/2026). RMSE ridotto del <b>28.7%</b> rispetto alla versione precedente.</p>
       </div>
     </details>
 
@@ -164,15 +164,30 @@
     </details>
 
     <details class="card">
-      <summary><b>Fatica e tecnicità</b></summary>
+      <summary><b>Fatica e tecnicità del terreno</b></summary>
       <div style="margin-top:12px">
         <p>Il modello applica una <b>fatica progressiva</b> che degrada il ritmo con il passare delle ore:</p>
         <ul>
           <li>Gare brevi (1–2h) → impatto quasi nullo</li>
           <li>Gare medie (4–6h) → +8–12% sul tempo totale</li>
           <li>Ultra 10–15h → +20–30%</li>
+          <li>Ultra estremi (&gt;18h) → la fatica è limitata a un cap massimo per evitare stime irrealistiche</li>
         </ul>
-        <p style="margin-top:12px;">La <b>penalità tecnica</b> si aggiunge sui tratti ripidi: terreno EE riduce la velocità di circa il 12%, terreno EA di circa il 28%.</p>
+        <p style="margin-top:12px;">La <b>penalità tecnica di superficie</b> si aggiunge sui tratti ripidi: terreno EE riduce la velocità di circa il 12%, terreno EA di circa il 28%.</p>
+        <p style="margin-top:12px;">La <b>correzione tecnicità continua</b> (KF<sub>terrain</sub>) moltiplica il tempo finale in base al TechScore del percorso e al livello dell'atleta: un percorso molto tecnico (TechScore alto) penalizza maggiormente i runner meno specializzati. Calibrata su 39 GPX reali (26/06/2026).</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><b>Confronto con il campo storico</b></summary>
+      <div style="margin-top:12px">
+        <p>Dopo la stima del tempo personale, WizTrail mostra un confronto con il <b>campo storico</b> di gare simili:</p>
+        <ul>
+          <li><b>Tempo mediano stimato</b> — il tempo del finisher mediano su un percorso con le stesse caratteristiche (km, D+, altitudine media)</li>
+          <li><b>Percentile atleta</b> — la percentuale di finisher storici che l'atleta supererebbe con la sua stima</li>
+        </ul>
+        <p style="margin-top:10px;">Il modello è calibrato su <b>32.402 risultati UTMB</b> tramite regressione power-law per categoria di distanza (short / medium / long / ultra).</p>
+        <p class="mini" style="margin-top:10px; opacity:0.6;">Il confronto è orientativo: si basa sulla distribuzione storica UTMB, non necessariamente sulla gara specifica caricata.</p>
       </div>
     </details>
   </section>
