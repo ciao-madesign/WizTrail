@@ -1,1 +1,4 @@
 node_modules/
+# Dati raw Kaggle — uso locale per calibrazione, non ridistribuire
+wiztrail-calibration/data/kaggle/
+wiztrail-calibration/data/kaggle_*_processed.csv

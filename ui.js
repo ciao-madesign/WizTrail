@@ -212,8 +212,28 @@
   }
 
   /* ------------------------------------------------------------------
+     SHOW MEDIAN REF — mostra mediana storica e percentile atleta
+     Dati da MEDIAN_MODEL calibrato su 32.402 gare UTMB (dataset Kaggle)
+     @param {number} medianSec   — tempo mediano stimato in secondi
+     @param {number|null} pct    — percentile atleta (es. 72 = top 72%)
+     ------------------------------------------------------------------ */
+  function showMedianRef(medianSec, pct) {
+    const box   = document.getElementById('medianRefBox');
+    const medEl = document.getElementById('outMedianTime');
+    const pctEl = document.getElementById('outPercentile');
+    if (!box || !medEl) return;
+    medEl.textContent = 'Campo storico: ~' + formatTime(medianSec);
+    if (pctEl && pct !== null) {
+      // pct = % di atleti più lenti dell'utente; topPct = posizione dall'alto
+      const topPct = Math.round((100 - pct) / 5) * 5;  // arrotonda a 5% per non dare falsa precisione
+      pctEl.textContent = 'Stima: top ~' + Math.max(1, Math.min(99, topPct)) + '%';
+    }
+    box.style.display = 'block';
+  }
+
+  /* ------------------------------------------------------------------
      Esposizione globale
      ------------------------------------------------------------------ */
-  window.WizUI = { showResults, showWDI, showTechScore, showDiscipline, showError, formatTime, updateGpxInfo, initTipsToggle };
+  window.WizUI = { showResults, showWDI, showTechScore, showDiscipline, showError, formatTime, updateGpxInfo, initTipsToggle, showMedianRef };
 
 })();

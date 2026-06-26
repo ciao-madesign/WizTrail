@@ -471,6 +471,14 @@
     WizUI.showWDI(rs);
     WizUI.showResults(T, margin);
 
+    // Confronto con campo storico (mediana UTMB 32.402 gare + percentile stimato)
+    const altProxy = m.max_altitude ? m.max_altitude * 0.5 : 0;
+    const medianSec = WizTrailTiming.estimateMedianTime(m.km, m.gain, altProxy);
+    if (medianSec) {
+      const pct = WizTrailTiming.estimatePercentile(T, medianSec, m.km);
+      WizUI.showMedianRef(medianSec, pct);
+    }
+
     const livello = WizTrailTiming.levelFromS(S);
 
     // Passo medio sul percorso trail (dal tempo segmenti, non dalla velocità base)

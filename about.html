@@ -330,6 +330,29 @@ curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
         <li><b>WizTrail WDI</b> — indice proprietario. <span class="mini">© WizTrail — all rights reserved</span></li>
       </ul>
     </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h3 style="margin-bottom:10px;">Dati storici — campo storico e percentile atleta</h3>
+      <p style="line-height:1.7;">
+        Il modello di confronto con il <b>campo storico</b> (tempo mediano stimato e percentile atleta) è
+        calibrato su dati di gare trail internazionali a carattere pubblico:
+      </p>
+      <ul style="margin-top:12px; line-height:2;">
+        <li>
+          <b>UTMB World Race Data</b> — dataset aggregato di risultati di gare trail UTMB World.<br>
+          <span class="mini">Fonte Kaggle: Maarten Poirot,
+            <a href="https://www.kaggle.com/datasets/mgpoirot/utmb-world-race-daa" target="_blank" rel="noopener">kaggle.com/datasets/mgpoirot/utmb-world-race-daa</a>
+          </span><br>
+          <span class="mini">Dati originali: <a href="https://utmb.world" target="_blank" rel="noopener">UTMB World</a> — risultati gare pubblici.</span>
+        </li>
+      </ul>
+      <p style="margin-top:12px; font-size:0.82rem; opacity:0.65; line-height:1.6;">
+        Il dataset raw non viene ridistribuito né incluso nel codice sorgente dell'applicazione.
+        Vengono utilizzati esclusivamente i <b>coefficienti del modello statistico derivato</b>
+        (formula power-law per tempo mediano per categoria di distanza), incorporati direttamente nel codice JavaScript.
+        L'utilizzo è limitato alla calibrazione offline del modello e alla presentazione di statistiche aggregate anonimizzate.
+      </p>
+    </div>
   </section>
 
   <div class="footer">WizTrail © 2026
