@@ -252,7 +252,7 @@ def main():
         print(f"     RMSE iniziale (valori di default): {rb:.3f}h")
         res=differential_evolution(timing_obj,bounds,
             args=(gpx_cache,df_gpx_t),
-            seed=42,maxiter=600,tol=1e-9,workers=1,polish=True)
+            seed=42,maxiter=150,tol=1e-6,popsize=8,workers=1,polish=True)
         xo_t=res.x; ra=res.fun
         timing_calib={
             "velocity_params":{
