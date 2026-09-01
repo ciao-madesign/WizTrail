@@ -25,6 +25,7 @@
   window.currentWDI_norm   = null;   // WDI normalizzato 0–10 per categoria — solo display
   window.lastRS            = null;
   window.lastOsmResult       = null;
+  window._gpxSourceUrl       = null;   // URL sorgente GPX (solo import da link) — per handoff Simule
 
   /* ------------------------------------------------------------------
      HELPERS — lettura input numerici
@@ -84,6 +85,7 @@
   // ── GPX handler condiviso (click + drag&drop) ────────────────────────
   async function handleGpxFile(f) {
     if (!f) return;
+    window._gpxSourceUrl = null; // file locale — nessun URL handoff verso Simule
     const txt = await f.text();
     const xml = new DOMParser().parseFromString(txt, 'application/xml');
     window.gpxPts      = GPXParser.parseTrack(xml);
@@ -174,6 +176,7 @@
         WizMap.drawTrack();
         requestAnimationFrame(() => WizMap.drawProfile());
 
+        window._gpxSourceUrl = raw;
         if (dz) dz.classList.add('loaded');
         if (mainTxt) mainTxt.textContent = '✓ Traccia caricata da link';
         row.style.display = 'none';
@@ -301,6 +304,18 @@
     a.download = 'wiztrail.kml';
     a.click();
   });
+
+  /* ------------------------------------------------------------------
+     SIMULE CTA — mostra bottone solo quando il GPX è stato caricato da URL
+     ------------------------------------------------------------------ */
+  function updateSimuleCta() {
+    const box = document.getElementById('simuleCta');
+    if (!box) return;
+    if (!window._gpxSourceUrl) { box.style.display = 'none'; return; }
+    const link = box.querySelector('#simuleCtaLink');
+    if (link) link.href = 'https://simule-run.vercel.app/app.html?gpx=' + encodeURIComponent(window._gpxSourceUrl);
+    box.style.display = 'block';
+  }
 
   /* ------------------------------------------------------------------
      ENGINE TIME ESTIMATOR v2.0 — funzioni delegate a wiztrail-timing.js
@@ -537,6 +552,8 @@
       const tcBtn = document.getElementById('trailCardBtn');
       if (tcBtn) tcBtn.style.display = 'flex';
     }
+
+    updateSimuleCta();
 
     /* Mappa: init + drawTrack solo se il GPX è caricato.
        In modalità noGpx #elevSection rimane nascosto: inizializzare Leaflet
