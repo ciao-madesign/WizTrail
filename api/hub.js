@@ -29,7 +29,7 @@ const GITHUB_REPO   = process.env.GITHUB_REPO;
 const SECRET        = process.env.HUB_SECRET_TOKEN;
 const ADMIN         = process.env.HUB_ADMIN_TOKEN;
 const RESEND_KEY    = process.env.RESEND_API_KEY;
-const RESEND_FROM   = process.env.RESEND_FROM || 'WizTrail <noreply@wiz-trail.vercel.app>';
+const RESEND_FROM   = process.env.RESEND_FROM || 'WizTrail <onboarding@resend.dev>';
 
 /* ── Redis helpers ────────────────────────────────────────────── */
 const REDIS_NS = 'wiztrail:'; // namespace per isolare da altri progetti sullo stesso DB
