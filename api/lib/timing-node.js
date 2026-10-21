@@ -102,6 +102,17 @@ export function computeTime(pts, metrics, velBase, S, terrainClass, meteo = 1, a
   return T;
 }
 
+/* computeTimeManual(km, dplus, S, terrainClass)
+   Stima il tempo senza GPX. Naismith adattato per specificità.
+   Stessa formula del calcolatore web in modalità noGpx (main.js).
+   Restituisce T in secondi. */
+export function computeTimeManual(km, dplus, S = 0.5, terrainClass = 'EE') {
+  const velRoad   = 6 + S * 6;  // 6 km/h (principiante) → 12 km/h (elite)
+  const velBase   = velRoad * (TRAIL_BASE_FACTOR[terrainClass] ?? 0.85);
+  const gainEquiv = (dplus / 100) * (1.2 - 0.2 * S);
+  return ((km + gainEquiv) / velBase) * 3600;
+}
+
 export function levelFromS(S) {
   if (S >= 0.9) return 'Élite';
   if (S >= 0.7) return 'Agonista';

@@ -17,6 +17,8 @@
  *   surface_level  {number}  — fondo [1-5]                      (default 3)
  *   avg_altitude   {number}  — quota media in metri             (default 800)
  *   max_altitude   {number}  — quota massima in metri           (default 0)
+ *   specificity    {number}  — livello atleta [0=principiante, 1=elite] (default 0.5)
+ *   terrain_class  {string}  — 'Strada'|'E'|'EE'|'EA' (default: terrain_cat)
  *
  * Response 200:
  *   {
@@ -24,12 +26,23 @@
  *     wdi, wdi_norm, wdi_category, class, color,
  *     tech_score, tech_class,
  *     discipline,
- *     distance_km, dplus
+ *     distance_km, dplus,
+ *     specificity, level,
+ *     time_estimate: { seconds, formatted },
+ *     median_comparison: { median_sec, median_formatted }
  *   }
  */
 
 import { checkRateLimit, getIP } from '../lib/ratelimit.js';
 import { computeManual, classifyDiscipline } from '../lib/engine-node.js';
+import { computeTimeManual, levelFromS, estimateMedianTime } from '../lib/timing-node.js';
+
+function secToHMS(s) {
+  const h   = Math.floor(s / 3600);
+  const m   = Math.floor((s % 3600) / 60);
+  const sec = Math.round(s % 60);
+  return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
 
 /* ── Auth ─────────────────────────────────────────────────────────── */
 
@@ -68,6 +81,8 @@ export default async function handler(req, res) {
     surface_level = 3,
     avg_altitude  = 800,
     max_altitude  = 0,
+    specificity   = 0.5,
+    terrain_class,
   } = req.body || {};
 
   if (!distance_km || !dplus) {
@@ -93,6 +108,12 @@ export default async function handler(req, res) {
 
   const discipline = classifyDiscipline({ distance_km: km, dplus: gain, max_altitude: Number(max_altitude) });
 
+  const S          = Math.max(0, Math.min(1, Number(specificity)));
+  const tClass     = terrain_class || terrain_cat || 'EE';
+  const tEst       = computeTimeManual(km, gain, S, tClass);
+  const altMedia   = Number(avg_altitude);
+  const tMedian    = estimateMedianTime(km, gain, altMedia);
+
   return res.status(200).json({
     estimate:     true,
     wdi:          result.WDI,
@@ -105,5 +126,15 @@ export default async function handler(req, res) {
     discipline,
     distance_km:  Math.round(km * 10) / 10,
     dplus:        Math.round(gain),
+    specificity:  S,
+    level:        levelFromS(S),
+    time_estimate: {
+      seconds:   Math.round(tEst),
+      formatted: secToHMS(tEst),
+    },
+    median_comparison: tMedian ? {
+      median_sec:       Math.round(tMedian),
+      median_formatted: secToHMS(tMedian),
+    } : null,
   });
 }

@@ -8,15 +8,16 @@
  *   x-api-key: <chiave API>
  *
  * Body JSON:
- *   gpx_base64    {string}  — file GPX/TCX/SML codificato in base64
- *   target_time   {string}  — tempo obiettivo "hh:mm:ss"
- *   specificity   {number}  — livello atleta [0=principiante, 1=elite] (default 0.5)
- *   terrain_class {string}  — 'Strada'|'E'|'EE'|'EA' (default 'EE')
- *   meteo         {number}  — fattore meteo [1=normale, 1.1=pioggia/vento] (default 1)
- *   altitude      {number}  — fattore altitudine [1=piano, 1.05=alta quota] (default 1)
- *   surface_level {number}  — fondo stradale [1-5] (default 3)
- *   granularity_km {number} — dimensione chunk pacing in km [1|2|5|10] (default 5)
- *   vel_base      {number}  — velocità di riferimento su piano km/h (default: derivata da specificity)
+ *   gpx_base64     {string}  — file GPX/TCX/SML codificato in base64
+ *   target_time    {string}  — tempo obiettivo "hh:mm:ss"
+ *   specificity    {number}  — livello atleta [0=principiante, 1=elite] (default 0.5)
+ *   terrain_class  {string}  — 'Strada'|'E'|'EE'|'EA' (default 'EE')
+ *   meteo          {number}  — fattore meteo [1=normale, 1.1=pioggia/vento] (default 1)
+ *   altitude       {number}  — fattore altitudine [1=piano, 1.05=alta quota] (default 1)
+ *   surface_level  {number}  — fondo stradale [1-5] (default 3)
+ *   granularity_km {number}  — dimensione chunk pacing in km [1|2|5|10] (default 5)
+ *   vel_base       {number}  — velocità di riferimento su piano km/h (default: derivata da specificity)
+ *   include_details {boolean} — se true, aggiunge stats, insights e median_comparison (default false)
  *
  * Response 200:
  *   {
@@ -27,15 +28,21 @@
  *     distance_km, dplus,
  *     time_estimate: { seconds, formatted },
  *     avg_pace: { sec_km, formatted },
- *     pacing_plan: [{ km_end, dist_km, pace_sec_km, pace_str, time_str, cumulative_sec, dplus, dminus, faster_than_avg }]
+ *     pacing_plan: [{ km_end, dist_km, pace_sec_km, pace_str, time_str, cumulative_sec, dplus, dminus, faster_than_avg }],
+ *     // se include_details: true
+ *     stats: { alt_min, alt_mean, ..., climbs_count, ... },
+ *     insights: { race: [string×5], training: [string×5] },
+ *     median_comparison: { median_sec, median_formatted, percentile_vs_field? }
  *   }
  */
 
 import { checkRateLimit, getIP } from '../lib/ratelimit.js';
 import { parseTrack, compute }   from '../lib/gpx-node.js';
 import { computeFromGpx, classifyDiscipline } from '../lib/engine-node.js';
-import { computeTime }           from '../lib/timing-node.js';
+import { computeTime, estimateMedianTime, estimatePercentile } from '../lib/timing-node.js';
 import { generatePacingPlan, serializeChunks, secToHMS } from '../lib/pacing-node.js';
+import { compute as computeStats }     from '../lib/trail-stats-node.js';
+import { generate as generateInsights } from '../lib/trail-insights-node.js';
 
 /* ── Auth ─────────────────────────────────────────────────────────── */
 
@@ -88,13 +95,14 @@ export default async function handler(req, res) {
   const {
     gpx_base64,
     target_time,
-    specificity    = 0.5,
-    terrain_class  = 'EE',
-    meteo          = 1,
-    altitude       = 1,
-    surface_level  = 3,
-    granularity_km = 5,
+    specificity      = 0.5,
+    terrain_class    = 'EE',
+    meteo            = 1,
+    altitude         = 1,
+    surface_level    = 3,
+    granularity_km   = 5,
     vel_base,
+    include_details  = false,
   } = req.body || {};
 
   if (!gpx_base64) {
@@ -166,6 +174,26 @@ export default async function handler(req, res) {
 
   const chunks = serializeChunks(pacingResult.pacingChunks, pacingResult.avg_pace_sec);
 
+  // ── Dettagli opzionali (include_details: true) ──
+  let details = {};
+  if (include_details) {
+    const stats    = computeStats(gpxPts, metrics, wdiResult);
+    const insights = generateInsights(stats, wdiResult);
+    const tMedian  = estimateMedianTime(metrics.km, metrics.gain, metrics.max_altitude);
+    const tPers    = parseDuration(target_time) ?? Math.round(tEst);
+    const pct      = (tMedian && tPers) ? estimatePercentile(tPers, tMedian, metrics.km) : null;
+
+    details = {
+      stats,
+      insights,
+      median_comparison: tMedian ? {
+        median_sec:         Math.round(tMedian),
+        median_formatted:   secToHMS(tMedian),
+        ...(pct !== null ? { percentile_vs_field: Math.round(pct * 10) / 10 } : {}),
+      } : null,
+    };
+  }
+
   // ── Risposta ──
   return res.status(200).json({
     wdi:          wdiResult.WDI,
@@ -188,5 +216,6 @@ export default async function handler(req, res) {
       formatted: `${Math.floor(pacingResult.avg_pace_sec / 60)}:${String(Math.round(pacingResult.avg_pace_sec % 60)).padStart(2,'0')}/km`,
     },
     pacing_plan: chunks,
+    ...details,
   });
 }

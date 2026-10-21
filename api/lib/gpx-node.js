@@ -10,7 +10,7 @@ import { DOMParser } from '@xmldom/xmldom';
 
 /* ── Haversine ────────────────────────────────────────────────────── */
 
-function hav(a, b, c, d) {
+export function hav(a, b, c, d) {
   const R = 6371000;
   const t = Math.PI / 180;
   const dLat = (c - a) * t;
