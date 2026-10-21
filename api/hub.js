@@ -13,6 +13,9 @@
  *   run         POST  — avvia pipeline calibrazione via GitHub Actions
  *   patch       POST  — riceve risultati calibrazione dalla pipeline (admin)
  *   feedback    POST  — feedback anonimo post-gara (pubblico, rate-limited)
+ *   register    POST  — crea nuova API key dinamica (admin)
+ *   listkeys    GET   — lista API key registrate (admin)
+ *   revokekey   POST  — revoca API key (admin)
  */
 
 import { checkRateLimit, getIP } from './lib/ratelimit.js';
@@ -422,6 +425,99 @@ async function handleFeedback(req, res) {
   return res.status(200).json({ ok: true, id });
 }
 
+/* ── Action: register / listkeys / revokekey ──────────────────── */
+
+function generateApiKey() {
+  // wt_ + 32 hex chars (UUID senza trattini = 128 bit di entropia)
+  return 'wt_' + crypto.randomUUID().replace(/-/g, '');
+}
+
+async function handleRegister(req, res) {
+  setCors(res, 'POST');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
+  const auth = checkAuth(req, res);
+  if (!auth.ok || !auth.isAdmin) {
+    if (auth.ok) res.status(403).json({ error: 'Richiede token admin' });
+    return;
+  }
+  const { description, email } = req.body || {};
+  if (!description?.trim()) return res.status(400).json({ error: 'Campo description obbligatorio.' });
+
+  const key        = generateApiKey();
+  const created_at = new Date().toISOString();
+  const entry      = { key, description: description.trim(), email: email?.trim() || null, created_at, active: true };
+
+  // Salva entry + aggiunge all'indice (pipeline atomica)
+  await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([
+      ['SET', `${REDIS_NS}apikeys:${key}`, JSON.stringify(entry)],
+      ['SADD', `${REDIS_NS}apikeys:_index`, key],
+    ]),
+  });
+
+  return res.status(200).json({ ok: true, key, description: entry.description, email: entry.email, created_at });
+}
+
+async function handleListKeys(req, res) {
+  setCors(res, 'GET');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET')     return res.status(405).json({ error: 'Method not allowed' });
+  const auth = checkAuth(req, res);
+  if (!auth.ok || !auth.isAdmin) {
+    if (auth.ok) res.status(403).json({ error: 'Richiede token admin' });
+    return;
+  }
+
+  // Leggi indice (SMEMBERS)
+  const idxRes  = await fetch(`${UPSTASH_URL}/smembers/${encodeURIComponent(`${REDIS_NS}apikeys:_index`)}`, {
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+  });
+  const idxJson = await idxRes.json();
+  const keyList = Array.isArray(idxJson.result) ? idxJson.result : [];
+
+  if (!keyList.length) return res.status(200).json({ ok: true, keys: [] });
+
+  // Leggi metadata di ogni key (pipeline MGET)
+  const mgetArgs = keyList.map(k => `${REDIS_NS}apikeys:${k}`);
+  const mgetRes  = await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([['MGET', ...mgetArgs]]),
+  });
+  const mgetJson = await mgetRes.json();
+  const values   = mgetJson[0]?.result || [];
+
+  const keys = values
+    .map(v => { try { return JSON.parse(v); } catch { return null; } })
+    .filter(Boolean)
+    .sort((a, b) => a.created_at < b.created_at ? 1 : -1);
+
+  return res.status(200).json({ ok: true, keys });
+}
+
+async function handleRevokeKey(req, res) {
+  setCors(res, 'POST');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
+  const auth = checkAuth(req, res);
+  if (!auth.ok || !auth.isAdmin) {
+    if (auth.ok) res.status(403).json({ error: 'Richiede token admin' });
+    return;
+  }
+  const { key } = req.body || {};
+  if (!key?.trim()) return res.status(400).json({ error: 'Campo key obbligatorio.' });
+
+  const existing = await redisGet(`apikeys:${key}`);
+  if (!existing)  return res.status(404).json({ error: 'Chiave non trovata.' });
+  if (!existing.active) return res.status(200).json({ ok: true, already_revoked: true });
+
+  await redisSet(`apikeys:${key}`, { ...existing, active: false, revoked_at: new Date().toISOString() });
+  return res.status(200).json({ ok: true });
+}
+
 /* ── Router principale ────────────────────────────────────────── */
 export default async function handler(req, res) {
   const action = req.query?.action;
@@ -433,6 +529,9 @@ export default async function handler(req, res) {
     case 'run':        return await handleRun(req, res);
     case 'patch':      return await handlePatch(req, res);
     case 'feedback':   return await handleFeedback(req, res);
+    case 'register':   return await handleRegister(req, res);
+    case 'listkeys':   return await handleListKeys(req, res);
+    case 'revokekey':  return await handleRevokeKey(req, res);
     default:
       res.setHeader('Access-Control-Allow-Origin', '*');
       return res.status(400).json({ error: 'Parametro action mancante o non valido' });

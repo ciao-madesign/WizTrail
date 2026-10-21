@@ -34,6 +34,7 @@
  */
 
 import { checkRateLimit, getIP } from '../lib/ratelimit.js';
+import { checkApiKey } from '../lib/auth.js';
 import { computeManual, classifyDiscipline } from '../lib/engine-node.js';
 import { computeTimeManual, levelFromS, estimateMedianTime } from '../lib/timing-node.js';
 
@@ -42,14 +43,6 @@ function secToHMS(s) {
   const m   = Math.floor((s % 3600) / 60);
   const sec = Math.round(s % 60);
   return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-}
-
-/* ── Auth ─────────────────────────────────────────────────────────── */
-
-function checkApiKey(req) {
-  const keys = (process.env.API_KEYS || '').split(',').map(k => k.trim()).filter(Boolean);
-  if (!keys.length) return false;
-  return keys.includes(req.headers['x-api-key'] || '');
 }
 
 /* ── Handler ──────────────────────────────────────────────────────── */
@@ -62,7 +55,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  if (!checkApiKey(req)) {
+  if (!(await checkApiKey(req))) {
     return res.status(401).json({ error: 'API key non valida o mancante.' });
   }
 

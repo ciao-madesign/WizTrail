@@ -37,21 +37,13 @@
  */
 
 import { checkRateLimit, getIP } from '../lib/ratelimit.js';
+import { checkApiKey } from '../lib/auth.js';
 import { parseTrack, compute }   from '../lib/gpx-node.js';
 import { computeFromGpx, classifyDiscipline } from '../lib/engine-node.js';
 import { computeTime, estimateMedianTime, estimatePercentile } from '../lib/timing-node.js';
 import { generatePacingPlan, serializeChunks, secToHMS } from '../lib/pacing-node.js';
 import { compute as computeStats }     from '../lib/trail-stats-node.js';
 import { generate as generateInsights } from '../lib/trail-insights-node.js';
-
-/* ── Auth ─────────────────────────────────────────────────────────── */
-
-function checkApiKey(req) {
-  const keys = (process.env.API_KEYS || '').split(',').map(k => k.trim()).filter(Boolean);
-  if (!keys.length) return false; // env var not configured → deny
-  const provided = req.headers['x-api-key'] || '';
-  return keys.includes(provided);
-}
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
 
@@ -79,7 +71,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   // ── Autenticazione ──
-  if (!checkApiKey(req)) {
+  if (!(await checkApiKey(req))) {
     return res.status(401).json({ error: 'API key non valida o mancante.' });
   }
 
