@@ -16,6 +16,7 @@
  *   register    POST  — crea nuova API key dinamica (admin)
  *   listkeys    GET   — lista API key registrate (admin)
  *   revokekey   POST  — revoca API key (admin)
+ *   requestkey  POST  — self-service: l'utente richiede una key, la riceve via email (pubblico)
  */
 
 import { checkRateLimit, getIP } from './lib/ratelimit.js';
@@ -27,6 +28,8 @@ const GITHUB_TOKEN  = process.env.GITHUB_TOKEN;
 const GITHUB_REPO   = process.env.GITHUB_REPO;
 const SECRET        = process.env.HUB_SECRET_TOKEN;
 const ADMIN         = process.env.HUB_ADMIN_TOKEN;
+const RESEND_KEY    = process.env.RESEND_API_KEY;
+const RESEND_FROM   = process.env.RESEND_FROM || 'WizTrail <noreply@wiz-trail.vercel.app>';
 
 /* ── Redis helpers ────────────────────────────────────────────── */
 const REDIS_NS = 'wiztrail:'; // namespace per isolare da altri progetti sullo stesso DB
@@ -518,6 +521,165 @@ async function handleRevokeKey(req, res) {
   return res.status(200).json({ ok: true });
 }
 
+/* ── Action: requestkey (self-service, pubblico) ──────────────── */
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+async function rlRequestKey(ip) {
+  // Rate limit dedicato: max 3 richieste/ora per IP
+  const key = REDIS_NS + 'rl:reqkey:' + ip;
+  const res = await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([['INCR', key], ['EXPIRE', key, 3600]]),
+  });
+  const json = await res.json();
+  const count = json[0]?.result ?? 1;
+  return { allowed: count <= 3, count };
+}
+
+function buildKeyEmail(key, description) {
+  return `
+<!DOCTYPE html>
+<html lang="it">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body { margin:0; padding:0; background:#0d1117; font-family:system-ui,sans-serif; }
+  .wrap { max-width:560px; margin:40px auto; background:#161b22; border-radius:12px;
+          border:1px solid #21262d; overflow:hidden; }
+  .head { background:#0d1117; padding:28px 32px 24px; border-bottom:1px solid #21262d; }
+  .head h1 { margin:0; font-size:1.1rem; color:#e6edf3; font-weight:600; }
+  .head p  { margin:6px 0 0; color:#7d8590; font-size:0.85rem; }
+  .body { padding:28px 32px; }
+  .label { font-size:0.72rem; letter-spacing:.06em; text-transform:uppercase;
+           color:#7d8590; margin-bottom:8px; }
+  .key-box { background:#0d1117; border:1px solid #21262d; border-radius:7px;
+             padding:14px 16px; font-family:'JetBrains Mono',monospace; font-size:0.95rem;
+             color:#4fd1c5; letter-spacing:.03em; word-break:break-all; margin-bottom:20px; }
+  .info { font-size:0.85rem; color:#7d8590; line-height:1.65; margin-bottom:20px; }
+  .info strong { color:#e6edf3; }
+  .ex-block { background:#0d1117; border-radius:7px; border:1px solid #21262d;
+              padding:14px 16px; font-family:monospace; font-size:0.78rem;
+              color:#a5d6ff; margin-bottom:24px; white-space:pre-wrap; line-height:1.65; }
+  .footer { padding:18px 32px; border-top:1px solid #21262d; font-size:0.78rem; color:#7d8590; }
+</style></head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>🏔 WizTrail — Chiave API</h1>
+    <p>La tua chiave è pronta. Conservala in un posto sicuro.</p>
+  </div>
+  <div class="body">
+    <div class="label">La tua chiave API</div>
+    <div class="key-box">${key}</div>
+    <div class="info">
+      <strong>Come si usa:</strong> aggiungi l'header <code style="background:#21262d;padding:1px 5px;border-radius:3px;color:#4fd1c5">x-api-key</code>
+      ad ogni richiesta alle API WizTrail.
+    </div>
+    <div class="ex-block">POST https://wiz-trail.vercel.app/api/v1/wdi
+x-api-key: ${key}
+Content-Type: application/json
+
+{ "distance_km": 42, "dplus": 2800 }</div>
+    <div class="info">
+      <strong>Limiti:</strong> 30 richieste/minuto per IP.<br>
+      <strong>Descrizione registrata:</strong> ${description || '—'}
+    </div>
+  </div>
+  <div class="footer">
+    Hai ricevuto questa email perché qualcuno ha richiesto una chiave API WizTrail con il tuo indirizzo.
+    Se non sei stato tu, ignora questa email — la chiave non è attiva finché non viene usata.
+  </div>
+</div>
+</body></html>`.trim();
+}
+
+async function sendKeyEmail(to, key, description) {
+  if (!RESEND_KEY) throw new Error('RESEND_API_KEY mancante');
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from:    RESEND_FROM,
+      to:      [to],
+      subject: 'La tua chiave API WizTrail',
+      html:    buildKeyEmail(key, description),
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Resend HTTP ${res.status}: ${body}`);
+  }
+  return await res.json();
+}
+
+async function handleRequestKey(req, res) {
+  setCors(res, 'POST');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
+
+  if (!RESEND_KEY) {
+    return res.status(503).json({ error: 'Servizio email non configurato. Contatta l\'amministratore.' });
+  }
+
+  const ip = getIP(req);
+  const rl = await rlRequestKey(ip);
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'Troppe richieste. Puoi richiedere al massimo 3 chiavi per ora.' });
+  }
+
+  const { email, description } = req.body || {};
+
+  if (!email?.trim() || !EMAIL_RE.test(email.trim())) {
+    return res.status(400).json({ error: 'Indirizzo email non valido.' });
+  }
+
+  const emailKey   = email.trim().toLowerCase();
+  const emailIndex = `apikeys:email:${emailKey}`;
+
+  // Controlla se esiste già una chiave per questa email
+  const existing = await redisGet(emailIndex);
+  if (existing?.key) {
+    const keyData = await redisGet(`apikeys:${existing.key}`);
+    if (keyData?.active) {
+      // Rimanda la chiave esistente senza crearne una nuova
+      try {
+        await sendKeyEmail(emailKey, existing.key, description || keyData.description);
+      } catch (e) {
+        console.error('requestkey: sendKeyEmail error (resend)', e.message);
+        return res.status(502).json({ error: 'Errore nell\'invio email. Riprova tra qualche minuto.' });
+      }
+      return res.status(200).json({ ok: true, resent: true });
+    }
+  }
+
+  // Crea chiave nuova
+  const key        = generateApiKey();
+  const created_at = new Date().toISOString();
+  const desc       = description?.trim() || 'Self-service via email';
+  const entry      = { key, description: desc, email: emailKey, created_at, active: true };
+
+  await fetch(`${UPSTASH_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([
+      ['SET', `${REDIS_NS}apikeys:${key}`,        JSON.stringify(entry)],
+      ['SADD', `${REDIS_NS}apikeys:_index`,        key],
+      ['SET', `${REDIS_NS}${emailIndex}`,          JSON.stringify({ key, created_at })],
+    ]),
+  });
+
+  try {
+    await sendKeyEmail(emailKey, key, desc);
+  } catch (e) {
+    console.error('requestkey: sendKeyEmail error', e.message);
+    // Chiave già scritta su Redis — logga l'errore ma non rollbackare
+    return res.status(502).json({ error: 'Chiave creata, ma l\'invio email è fallito. Contatta l\'amministratore citando il tuo indirizzo email.' });
+  }
+
+  return res.status(200).json({ ok: true });
+}
+
 /* ── Router principale ────────────────────────────────────────── */
 export default async function handler(req, res) {
   const action = req.query?.action;
@@ -531,7 +693,8 @@ export default async function handler(req, res) {
     case 'feedback':   return await handleFeedback(req, res);
     case 'register':   return await handleRegister(req, res);
     case 'listkeys':   return await handleListKeys(req, res);
-    case 'revokekey':  return await handleRevokeKey(req, res);
+    case 'revokekey':   return await handleRevokeKey(req, res);
+    case 'requestkey':  return await handleRequestKey(req, res);
     default:
       res.setHeader('Access-Control-Allow-Origin', '*');
       return res.status(400).json({ error: 'Parametro action mancante o non valido' });
