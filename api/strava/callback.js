@@ -8,7 +8,11 @@
  *   STRAVA_CLIENT_SECRET
  */
 
+import { rispondiSeStravaSpenta } from '../../server/features.js';
+
 export default async function handler(req, res) {
+  // Integrazione Strava non ancora disponibile (flag STRAVA_ENABLED): nessuna chiamata a Strava
+  if (rispondiSeStravaSpenta(res)) return;
   // Solo GET
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
