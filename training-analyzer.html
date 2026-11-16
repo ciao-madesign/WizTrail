@@ -16,7 +16,7 @@
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="wiztrail.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261116">
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
 <script src="/lib/leaflet/leaflet.js"></script>
 <script type="application/ld+json">
@@ -55,14 +55,22 @@
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
+  <nav class="app-nav" aria-label="Menu principale">
     <a href="index.html" class="">Calcolatore</a>
       <a href="training-analyzer.html" class="nav-active">Training</a>
       <a href="ranking.html" class="">Ranking</a>
       <a href="about.html" class="">Il Metodo</a>
   </nav>
 </header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+
 
 <!-- HERO -->
 <div class="hero-fullwidth">
@@ -210,10 +218,9 @@
 <div class="footer">WizTrail © 2026
     <p class="mini" style="opacity:0.5; margin-top:4px;">Foto di <a href="https://unsplash.com/@ventiviews" target="_blank" rel="noopener" style="color:inherit;">Venti Views</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a> (Unsplash License)</p>
     <p class="mini" style="margin-top:8px;">
-      <span style="display:inline-block;padding:1px 7px;border-radius:10px;background:rgba(247,150,23,0.15);color:#F79617;font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;">BETA</span>
+      <span class="badge badge--beta">Beta</span>
       &nbsp;·&nbsp;<a href="mailto:ciao.madesign@gmail.com?subject=WizTrail%20beta%20feedback" style="color:var(--muted);">Invia feedback</a>
       &nbsp;·&nbsp;<a href="privacy.html" style="color:var(--muted);">Privacy</a>
-      &nbsp;·&nbsp;<a href="hub.html" style="color:var(--muted);">hub</a>
     </p>
   </div>
 </div>
@@ -837,5 +844,6 @@ gpxFile?.addEventListener('change', () => {
 })();
 </script>
 <script src="/cookie-notice.js" defer></script>
+<script src="wiztrail-shell.js?v=20261116" defer></script>
 </body>
 </html>

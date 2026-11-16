@@ -17,7 +17,7 @@
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
-<link rel="stylesheet" href="wiztrail.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261116">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ItemList","name":"Ranking WDI — Gare Trail Running","description":"Classifica WDI delle gare trail più famose. Scopri quanto è difficile la tua prossima gara e confrontala con il tuo GPX.","url":"https://wiz-trail.vercel.app/ranking.html","numberOfItems":31,"itemListElement":[{"@type":"ListItem","position":1,"name":"TOR330 — Tor des Géants","description":"WDI 546 · Legend ∞ · 336 km · 29536 m D+"},{"@type":"ListItem","position":2,"name":"TOR130 tot dret","description":"WDI 233 · Legend · 136 km · 11468 m D+"},{"@type":"ListItem","position":3,"name":"Ortles Haute Route Trail","description":"WDI 198 · Elite · 122 km · 9066 m D+"},{"@type":"ListItem","position":4,"name":"TOR100","description":"WDI 182 · Elite · 106 km · 8508 m D+"},{"@type":"ListItem","position":5,"name":"LUT120","description":"WDI 178 · Elite · 120 km · 6311 m D+"},{"@type":"ListItem","position":6,"name":"VUT90","description":"WDI 153 · Elite · 89 km · 6808 m D+"}]}
 </script>
@@ -27,14 +27,22 @@
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
+  <nav class="app-nav" aria-label="Menu principale">
     <a href="index.html" class="">Calcolatore</a>
       <a href="training-analyzer.html" class="">Training</a>
       <a href="ranking.html" class="nav-active">Ranking</a>
       <a href="about.html" class="">Il Metodo</a>
   </nav>
 </header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+
 
 <!-- HERO -->
 <div class="hero-fullwidth">
@@ -229,10 +237,9 @@
 <div class="footer">WizTrail © 2026
     <p class="mini" style="opacity:0.5; margin-top:4px;">Foto di <a href="https://unsplash.com/@ryutaf" target="_blank" rel="noopener" style="color:inherit;">Ryuta F.</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a> (Unsplash License)</p>
     <p class="mini" style="margin-top:8px;">
-      <span style="display:inline-block;padding:1px 7px;border-radius:10px;background:rgba(247,150,23,0.15);color:#F79617;font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;">BETA</span>
+      <span class="badge badge--beta">Beta</span>
       &nbsp;·&nbsp;<a href="mailto:ciao.madesign@gmail.com?subject=WizTrail%20beta%20feedback" style="color:var(--muted);">Invia feedback</a>
       &nbsp;·&nbsp;<a href="privacy.html" style="color:var(--muted);">Privacy</a>
-      &nbsp;·&nbsp;<a href="hub.html" style="color:var(--muted);">hub</a>
     </p>
   </div>
 </div>
@@ -639,5 +646,6 @@ function openCertContact() {
 </script>
 
 <script src="/cookie-notice.js" defer></script>
+<script src="wiztrail-shell.js?v=20261116" defer></script>
 </body>
 </html>

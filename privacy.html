@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#002b2b">
   <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="stylesheet" href="wiztrail.css?v=20261116">
 </head>
 <body data-theme="dark">
 
@@ -18,14 +18,22 @@
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
+  <nav class="app-nav" aria-label="Menu principale">
     <a href="index.html">Calcolatore</a>
     <a href="training-analyzer.html">Training</a>
     <a href="ranking.html">Ranking</a>
     <a href="about.html">Il Metodo</a>
   </nav>
 </header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+
 
 <div class="wrap">
 
@@ -283,5 +291,6 @@
   details.card > summary::-webkit-details-marker { color: var(--accent); }
 </style>
 
+<script src="wiztrail-shell.js?v=20261116" defer></script>
 </body>
 </html>

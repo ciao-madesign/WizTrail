@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#002b2b">
   <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="stylesheet" href="wiztrail.css?v=20261116">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Article","headline":"Il Metodo WizTrail — Formula WDI e modello tempi","description":"Come funziona WizTrail: WDI, TechScore, stima tempi personalizzata, pacing planner e hub di calibrazione.","url":"https://wiz-trail.vercel.app/about.html","inLanguage":"it","dateModified":"2026-06-26"}
 </script>
@@ -23,14 +23,22 @@
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
+  <nav class="app-nav" aria-label="Menu principale">
     <a href="index.html">Calcolatore</a>
     <a href="training-analyzer.html">Training</a>
     <a href="ranking.html">Ranking</a>
     <a href="about.html" class="nav-active">Il Metodo</a>
   </nav>
-</header><div class="wrap">
+</header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+<div class="wrap">
 
   <!-- NAV INTERNA -->
   <nav class="about-toc">
@@ -383,10 +391,9 @@ curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
       <a href="privacy.html" style="color:var(--muted);">Privacy</a>
     </p>
     <p class="mini" style="margin-top:8px;">
-      <span style="display:inline-block;padding:1px 7px;border-radius:10px;background:rgba(247,150,23,0.15);color:#F79617;font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;">BETA</span>
+      <span class="badge badge--beta">Beta</span>
       &nbsp;·&nbsp;<a href="mailto:ciao.madesign@gmail.com?subject=WizTrail%20beta%20feedback" style="color:var(--muted);">Invia feedback</a>
       &nbsp;·&nbsp;<a href="privacy.html" style="color:var(--muted);">Privacy</a>
-      &nbsp;·&nbsp;<a href="hub.html" style="color:var(--muted);">hub</a>
     </p>
   </div>
 
@@ -491,5 +498,6 @@ curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
   h1 .about-version, h2 .about-version { font-size: 0.65rem; }
 </style>
 <script src="/cookie-notice.js" defer></script>
+<script src="wiztrail-shell.js?v=20261116" defer></script>
 </body>
 </html>
