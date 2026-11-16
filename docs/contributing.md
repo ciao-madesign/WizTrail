@@ -8,20 +8,24 @@ This document is intended for developers joining the project or taking over its 
 
 The project requires no build step. Open `index.html` in a browser or deploy to Vercel.
 
-For the serverless API (Strava OAuth + hub):
+For the serverless API (hub, GPX import, public API v1; Strava is switched off):
 
 ```bash
+npm ci            # installs @xmldom/xmldom (used by server/gpx-node.js)
+npm test          # node --test "tests/**/*.test.mjs" — mocks only, no network, no real Redis
 npm install -g vercel
 vercel dev        # local dev server with serverless functions
 ```
 
-Set the required environment variables in `.env.local` (see README for the full list).
+Set the required environment variables in `.env.local` (see `docs/api-internal.md` for the full list). Outside production the Redis keys are prefixed `wiztrail:<env>:` (`server/redis.js`) and `run`, `register`, `requestkey` answer `403 PREVIEW_DISABLED`.
+
+**Vercel function limit:** `api/` holds 7 files and Vercel counts every `.js` under `api/` as a function (Hobby plan limit: 12). Shared code goes in `server/` (not a function). `tests/guard-funzioni.test.mjs` fails above 10 files.
 
 ---
 
 ## How the scoring model works
 
-All calculation happens **client-side** in five files:
+All calculation happens **client-side** in five files (the API v1 uses server-side ports of the same code in `server/*-node.js`; parity is tested by `npm test`):
 
 ### `wiztrail-engine.js` — WDI v5.1
 The main engine. Call flow:
@@ -87,7 +91,9 @@ When new GPX data is available:
 
 ---
 
-## Strava OAuth flow
+## Strava OAuth flow (currently OFF — "Non ancora disponibile")
+
+> The Strava subscription is not active. The code is kept and switched off by two flags: `STRAVA_ENABLED` (server, default off → `503 FEATURE_UNAVAILABLE`) and `WizFeatures.stravaEnabled` in `features.js` (client, default `false`). Both must be turned on to re-enable it. The flow below describes the dormant code.
 
 ```
 User clicks "Connect Strava"
@@ -99,7 +105,7 @@ User clicks "Connect Strava"
   → import_strava.html / training-analyzer.html use token for API calls
 ```
 
-All Strava endpoints are rate-limited via `api/lib/ratelimit.js` (Upstash Redis, 30 req/min/IP sliding window).
+All Strava endpoints are rate-limited via `server/ratelimit.js` (Upstash Redis, fixed window, 30 req/min/IP, scope `strava`).
 
 ---
 
@@ -112,7 +118,9 @@ The architecture mirrors Strava exactly:
 3. Create `api/suunto/activity.js` — fetch single activity streams
 4. Create `import_suunto.html` — OAuth redirect + activity picker
 5. Add `SUUNTO_CLIENT_ID` and `SUUNTO_CLIENT_SECRET` to Vercel env vars
-6. Apply rate limiting via `ratelimit.js` on all endpoints
+6. Apply rate limiting via `server/ratelimit.js` on all endpoints
+7. Mind the function limit: prefer consolidating in a single `api/<provider>.js` (hub pattern); shared code goes in `server/`
+8. Follow the "Non ancora disponibile" pattern for anything not active (flag + visible note, no dates)
 
 ---
 
@@ -122,9 +130,10 @@ The architecture mirrors Strava exactly:
 # Deploy to Vercel (production)
 vercel --prod
 
-# Version bump (required after any HTML/CSS/JS change)
-# Edit service-worker.js → CACHE_VERSION string
+# Feature PRs: bump the ?v= of the JS/CSS you changed. Do NOT touch CACHE_VERSION.
+# Release commit only: edit service-worker.js → CACHE_VERSION string
 # e.g. "wiztrail-v2026-04-20b" → "wiztrail-v2026-04-21a"
+# and add new static files to the precache (pending: wiztrail-shell.js, features.js)
 ```
 
 The service worker uses **network-first** for HTML/CSS/JS and **cache-first** for images. Bumping `CACHE_VERSION` forces all clients to invalidate their cache on next visit.
@@ -135,10 +144,12 @@ The service worker uses **network-first** for HTML/CSS/JS and **cache-first** fo
 
 - **No framework, no build step** — plain HTML/CSS/JS. Keep it that way.
 - **No `console.log` in production** — use `// DEBUG:` comments for temporary logging
-- **Client-side only for scoring** — never move WDI/pacing calculation to serverless functions
+- **Scoring lives in the browser** — the server-side ports in `server/*-node.js` exist only for the public API and must stay in sync (see "Engine drift" in CLAUDE.md); never add a new scoring formula server-only
 - **Serverless functions** — ES Module format (`export default async function handler(req, res)`)
-- **Rate limiting** — apply `ratelimit.js` to every new serverless endpoint
+- **Rate limiting** — apply `server/ratelimit.js` (with a scope) to every new serverless endpoint
 - **Version tags** — all `<script src="...">` tags include `?v=YYYYMMDD` for cache busting
+- **Immutable assets** — `img/`, `icons/`, `fonts/*.woff2` are served `immutable` for a year: rename a file when you change it
+- **Tests** — run `npm test` before every PR; CI runs it on PRs to `backend`. No test may touch the network or a real Redis
 
 ---
 
@@ -151,6 +162,11 @@ The service worker uses **network-first** for HTML/CSS/JS and **cache-first** fo
 | `wiztrail-pacing.js` | Pacing planner (chunk-based) | Rarely |
 | `gpx-parser.js` | GPX parsing | Rarely |
 | `wiztrail.css` | All styles | UX iterations |
-| `service-worker.js` | PWA cache | Every deploy |
-| `api/lib/ratelimit.js` | Rate limiting | Rarely |
-| `ranking-data.json` | Race ranking data | Manual updates |
+| `service-worker.js` | PWA cache | Releases only |
+| `features.js` | Client feature flags and shared texts (`WizFeatures`) | When a feature is switched on/off |
+| `wiztrail-shell.js` | Shared UI shell (nav state, theme, accessible modal) | Rarely |
+| `server/ratelimit.js` | Rate limiting | Rarely |
+| `server/netguard.js` | SSRF protection for GPX import | Rarely |
+| `server/*-node.js` | Server-side ports of the browser engines | With every engine change |
+| `ranking-data.json` | Race ranking data (static JSON, 34 races) | Manual updates |
+| `tests/` | `node --test` suite | With every change |

@@ -35,17 +35,20 @@ Browser (client-side calculation)
 ├── ui.js                   — DOM updates, KPI rendering
 └── main.js                 — orchestration, event handling
 
-Vercel serverless (7/12 functions)
+Vercel serverless (7 files in api/, limit 12 — shared code lives in server/)
 ├── api/v1/
 │   ├── analyze.js          — POST: GPX → WDI + time estimate + pacing plan  [PUBLIC API]
 │   └── wdi.js              — POST: manual inputs → WDI estimate              [PUBLIC API]
-├── api/strava/
+├── api/import/url.js       — GPX download from a direct link (SSRF-protected)
+├── api/strava/             — currently OFF (STRAVA_ENABLED, 503 FEATURE_UNAVAILABLE)
 │   ├── callback.js         — OAuth2 token exchange
 │   ├── activities.js       — fetch activity list
 │   └── activity.js         — fetch + analyze single activity
-├── api/hub.js              — unified hub handler (?action=auth|upload|activities|run|patch|feedback)
-└── api/lib/
-    ├── ratelimit.js        — Upstash Redis sliding window (30 req/min/IP)
+├── api/hub.js              — unified hub handler (?action=auth|upload|activities|run|patch|feedback|register|listkeys|revokekey|requestkey)
+└── server/                 — shared libraries (not functions)
+    ├── ratelimit.js        — Upstash Redis fixed window, per-scope limits
+    ├── netguard.js         — SSRF protection / safe download
+    ├── redis.js, ambiente.js, features.js, auth.js — Redis namespace per env, env guards, server flags, API key check
     ├── engine-node.js      — WDI engine port for Node.js  ⚠ keep in sync with wiztrail-engine.js
     ├── gpx-node.js         — GPX parser port for Node.js  ⚠ keep in sync with gpx-parser.js
     ├── timing-node.js      — timing model port            ⚠ keep in sync with wiztrail-timing.js
@@ -164,7 +167,7 @@ curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
 
 Full reference: [docs/api-public.md](docs/api-public.md)
 
-**Engine drift warning:** `api/lib/*-node.js` are manual ports of the browser engines. If you modify `wiztrail-engine.js`, `wiztrail-timing.js`, `wiztrail-pacing.js` or `gpx-parser.js`, update the corresponding `api/lib/*-node.js` file.
+**Engine drift warning:** `server/*-node.js` are manual ports of the browser engines. If you modify `wiztrail-engine.js`, `wiztrail-timing.js`, `wiztrail-pacing.js` or `gpx-parser.js`, update the corresponding `server/*-node.js` file; `npm test` checks the parity.
 
 **Env var required:** `API_KEYS=key1,key2,...` (comma-separated, set in Vercel dashboard)
 

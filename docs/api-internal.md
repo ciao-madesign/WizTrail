@@ -1,9 +1,11 @@
 # WizTrail — Internal API Reference
 
-Documentazione degli endpoint serverless già deployati su Vercel.  
-Tutti gli endpoint sono in `api/` e usano il formato **ES Module** (`export default async function handler(req, res)`).
+Documentazione degli endpoint serverless.  
+Gli endpoint sono in `api/` (**7 file**: il piano Vercel Hobby consente 12 function e conta ogni `.js` sotto `api/`) e usano il formato **ES Module** (`export default async function handler(req, res)`). Le librerie condivise stanno in **`server/`** (fuori da `api/`, non sono function). L'API pubblica v1 (`/api/v1/analyze`, `/api/v1/wdi`) è documentata in `docs/api-public.md`.
 
-> Per la futura **public API v1** (`/api/v1/wdi`, `/api/v1/pacing`) vedi la milestone M5 su Notion.
+> **Hub:** tutte le azioni sono `GET|POST /api/hub?action=<azione>` (un solo file, `api/hub.js`). Nel resto del documento le intestazioni `/api/hub/<azione>` indicano la stessa azione, ad esempio `/api/hub/auth` = `/api/hub?action=auth`.
+>
+> **Ambienti:** in produzione le chiavi Redis hanno prefisso `wiztrail:`; in preview/sviluppo/locale `wiztrail:<ambiente>:` (`server/redis.js`). Le azioni `run`, `register` e `requestkey` rispondono `403 PREVIEW_DISABLED` fuori da production.
 
 ---
 
@@ -200,7 +202,7 @@ Riceve i risultati della pipeline di calibrazione da GitHub Actions (via `06_pus
 Raccoglie feedback anonimo post-gara (scarto % tra tempo stimato e reale).
 
 **Auth:** nessuna — endpoint pubblico  
-**Rate limit:** 10 req/min per IP (più restrittivo degli altri endpoint)
+**Rate limit:** 5 req/min per IP (scope `feedback`, più restrittivo degli altri endpoint)
 
 **Body JSON:**
 ```json
@@ -225,9 +227,33 @@ Raccoglie feedback anonimo post-gara (scarto % tra tempo stimato e reale).
 
 ---
 
-## Strava API
+### `register`, `listkeys`, `revokekey` (admin)
 
-Tutti gli endpoint Strava usano **rate limiting 30 req/min per IP** via Upstash Redis.  
+Gestione delle API key dinamiche (`POST ?action=register` crea, `GET ?action=listkeys` elenca, `POST ?action=revokekey` revoca). Richiedono il token admin. **Nessun client le usa** (solo chiamate dirette). `register` risponde `403 PREVIEW_DISABLED` fuori da production. Le chiavi sono salvate in `apikeys:{key}` (indice `apikeys:_index`) e verificate da `server/auth.js` insieme a `API_KEYS`.
+
+### `POST /api/hub?action=requestkey` (pubblica, SPENTA)
+
+Self-service: l'utente indica un'email e riceve la chiave via Resend. **Spenta fuori da production e senza form UI nel sito: non rilasciare senza un form e senza verificare il dominio mittente Resend.** Comportamento: risposta sempre neutra (`{ok:true, message}`, nessuna enumerazione delle email), limite 3 richieste/ora per IP e 1 ogni 10 minuti per indirizzo, `description` pulita (max 80 caratteri) ed escapata nell'HTML dell'email, errori `{ok:false, code}` (`INVALID_EMAIL`, `RATE_LIMITED`, `REQUESTKEY_FAILED`, `EMAIL_NOT_CONFIGURED`).
+
+---
+
+## Import GPX da URL
+
+### `GET /api/import/url?url=<URL>`
+
+Scarica un file GPX/TCX da un link diretto (il browser non può farlo per CORS). **Auth:** nessuna. **Rate limit:** 10 req/min per IP (scope `import`).
+
+Protezione SSRF in `server/netguard.js`: solo http/https su porte 80/443, niente credenziali nell'URL, IP privati/riservati v4/v6 bloccati (anche con parentesi e IPv4-mapped), DNS risolto e validato con pinning, redirect manuali (max 3), timeout 8 s, tetto 5 MB.
+
+**Response `200`:** il file (`application/gpx+xml`). **Errori:** JSON `{ ok:false, code, error }` con testo italiano: `MISSING_URL`/`INVALID_URL`/`UNSUPPORTED_SCHEME`/`BLOCKED_HOST`/`BLOCKED_PORT` (400), `HTML_PAGE`/`NOT_GPX` (422), `TOO_LARGE` (413), `RATE_LIMITED` (429), `UPSTREAM_ERROR`/`UPSTREAM_UNREACHABLE`/`TOO_MANY_REDIRECTS` (502), `UPSTREAM_TIMEOUT` (504).
+
+---
+
+## Strava API (SPENTA — "Non ancora disponibile")
+
+> Gli endpoint sono nel repo ma **spenti**: senza `STRAVA_ENABLED=true` rispondono `503 {ok:false, code:'FEATURE_UNAVAILABLE', feature:'strava', error:<italiano>}` prima di qualsiasi chiamata a Strava. Il client ha il flag corrispondente `WizFeatures.stravaEnabled` in `features.js`. Le descrizioni sotto valgono con il flag acceso.
+
+Tutti gli endpoint Strava usano **rate limiting 30 req/min per IP** (scope `strava`) via Upstash Redis.  
 L'autenticazione è tramite `Authorization: Bearer {strava_access_token}` nell'header.  
 Il token Strava viene ottenuto tramite OAuth2 e salvato in `sessionStorage` (mai `localStorage`).
 
@@ -296,17 +322,22 @@ La modalità `analyze` è usata da `training-analyzer.html` per passare i dati d
 
 ## Rate limiting
 
-Implementato in `api/lib/ratelimit.js` tramite Upstash Redis con sliding window.
+Implementato in `server/ratelimit.js` tramite Upstash Redis con **finestra fissa**: `INCR` + `EXPIRE ... NX` (il TTL di 60 s si imposta alla prima richiesta e non viene rinnovato; fallback senza `NX` per Redis < 7). Contatori separati per scope (`wiztrail:ratelimit:<scope>:<ip>` in production).
 
-| Endpoint | Limite |
-|---|---|
-| `/api/strava/*` | 30 req/min per IP |
-| `/api/hub/feedback` | 10 req/min per IP |
-| `/api/hub/*` (altri) | nessun rate limit esplicito (protetti da token) |
+| Endpoint | Scope | Limite |
+|---|---|---|
+| `/api/import/url` | `import` | 10 req/min per IP |
+| `/api/strava/*` | `strava` | 30 req/min per IP |
+| `/api/hub?action=feedback` | `feedback` | 5 req/min per IP |
+| `/api/v1/*` | `v1` | 30 req/min per IP, **prima** della verifica della chiave |
+| `requestkey` | dedicato | 3/ora per IP, 1/10 min per email |
+| `/api/hub` (altre azioni) | — | nessun rate limit esplicito (protette da token) |
+
+Risposta 429: `Retry-After` e `{ ok:false, code:'RATE_LIMITED', error }` (testo italiano).
 
 **Env vars richieste:** `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 
-**Security gap aperto (#7):** in caso di errore Redis, il rate limiting fallisce in modalità open (permette la richiesta). Aggiungere log/alert esplicito prima del lancio.
+**Fail-open:** se Redis non è configurato o non risponde il rate limiting lascia passare la richiesta (viene loggato l'errore): da monitorare.
 
 ---
 
@@ -314,14 +345,18 @@ Implementato in `api/lib/ratelimit.js` tramite Upstash Redis con sliding window.
 
 | Variabile | Usata da | Note |
 |---|---|---|
-| `STRAVA_CLIENT_ID` | `api/strava/callback.js` | App Strava |
+| `STRAVA_ENABLED` | `api/strava/*` (`server/features.js`) | `true` riattiva Strava; default spenta |
+| `STRAVA_CLIENT_ID` | `api/strava/callback.js` | App Strava (solo con Strava attiva) |
 | `STRAVA_CLIENT_SECRET` | `api/strava/callback.js` | Mai esposto al client |
-| `UPSTASH_REDIS_REST_URL` | Tutti gli endpoint hub + ratelimit | |
-| `UPSTASH_REDIS_REST_TOKEN` | Tutti gli endpoint hub + ratelimit | |
-| `HUB_SECRET_TOKEN` | `api/hub/auth.js` | Token accesso base hub |
-| `HUB_ADMIN_TOKEN` | `api/hub/auth.js` | Token admin hub |
-| `GITHUB_TOKEN` | `api/hub/run.js` | PAT con `repo` scope |
-| `GITHUB_REPO` | `api/hub/run.js` | Formato `owner/repo` |
+| `UPSTASH_REDIS_REST_URL` | `api/hub.js`, `server/ratelimit.js`, `server/auth.js` | |
+| `UPSTASH_REDIS_REST_TOKEN` | `api/hub.js`, `server/ratelimit.js`, `server/auth.js` | |
+| `HUB_SECRET_TOKEN` | `api/hub.js` | Token accesso base hub |
+| `HUB_ADMIN_TOKEN` | `api/hub.js` | Token admin hub |
+| `GITHUB_TOKEN` | `api/hub.js` (`run`) | PAT con `repo` scope |
+| `GITHUB_REPO` | `api/hub.js` (`run`) | Formato `owner/repo` |
+| `API_KEYS` | `server/auth.js` | Chiavi API v1 statiche (comma-separated) |
+| `RESEND_API_KEY` / `RESEND_FROM` | `api/hub.js` (`requestkey`) | Email della chiave; azione spenta fuori da production |
+| `VERCEL_ENV` | `server/redis.js`, `server/ambiente.js` | Impostata da Vercel: `production` / `preview` / `development` |
 
 ---
 
@@ -338,3 +373,5 @@ Implementato in `api/lib/ratelimit.js` tramite Upstash Redis con sliding window.
 | `hub:authorized_runners` | Array alias autorizzati ad avviare la pipeline |
 | `hub:feedback:{id}` | Feedback anonimo post-gara (TTL 90gg) |
 | `hub:feedback:stats` | Statistiche aggregate feedback |
+
+**Prefisso:** i pattern sopra valgono per l'ambiente production (prefisso `wiztrail:`). In preview/sviluppo/locale il prefisso è `wiztrail:<ambiente>:`. Altre chiavi: `apikeys:{key}`, `apikeys:_index`, `apikeys:email:{email}`, `ratelimit:{scope}:{ip}`, `rl:reqkey:*`.

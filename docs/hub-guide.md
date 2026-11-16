@@ -51,7 +51,7 @@ Il WizTrail Hub è un sistema di autotraining che migliora automaticamente i mod
 | Componente | Tecnologia | Ruolo |
 |---|---|---|
 | Frontend Hub | HTML/CSS/JS vanilla (`hub.html`) | Interfaccia utente |
-| API Backend | Vercel Serverless Functions (Node.js ES Module) | 5 endpoint REST |
+| API Backend | Vercel Serverless Functions (Node.js ES Module) | 1 function multi-azione (`api/hub.js`, `?action=...`) |
 | Persistenza | Upstash Redis (REST API) | Storage attività e modello |
 | Pipeline ML | GitHub Actions + Python 3.11 | Calibrazione su ogni run |
 | Protezione | Vercel Deployment Protection + bypass token | Accesso autenticato |
@@ -59,16 +59,16 @@ Il WizTrail Hub è un sistema di autotraining che migliora automaticamente i mod
 ### 2.2 Flusso dati
 
 **Upload utente:**
-1. Apre `hub.html?key=TOKEN` → autenticazione via `GET /api/hub/auth`
+1. Apre `hub.html?key=TOKEN` → autenticazione via `GET /api/hub?action=auth`
 2. Carica GPX → conversione base64 a chunk 8KB nel browser
-3. `POST /api/hub/upload` → salva su `hub:activities:{id}` + aggiorna `hub:stats`
+3. `POST /api/hub?action=upload` → salva su `hub:activities:{id}` + aggiorna `hub:stats`
 
 **Calibrazione:**
-1. Admin preme "Avvia" → `POST /api/hub/run` → triggera `repository_dispatch`
+1. Admin preme "Avvia" → `POST /api/hub?action=run` → triggera `repository_dispatch`
 2. GitHub Actions: `01→02→03→04→05→06_push_results.py`
-3. `06_push_results.py` invia a `POST /api/hub/patch` con header `x-vercel-protection-bypass`
-4. `patch.js` salva modello, 6 grafici PNG, report markdown su Redis
-5. `patch.js` resetta `pipeline_running: false` e crea branch `model-update` con patch JS
+3. `06_push_results.py` invia a `POST /api/hub?action=patch` con header `x-vercel-protection-bypass`
+4. L'azione `patch` salva modello, 6 grafici PNG, report markdown su Redis
+5. L'azione `patch` resetta `pipeline_running: false` e crea branch `model-update` con patch JS
 
 ### 2.3 Struttura Redis
 
@@ -82,17 +82,16 @@ Il WizTrail Hub è un sistema di autotraining che migliora automaticamente i mod
 | `hub:report:md` | Report Markdown dell'ultima calibrazione |
 | `hub:authorized_runners` | Array JSON di alias autorizzati ad avviare la pipeline |
 
+> **Prefisso per ambiente:** le chiavi sopra valgono in production (prefisso `wiztrail:`). In preview/sviluppo/locale il prefisso è `wiztrail:<ambiente>:` (`server/redis.js`), quindi una preview non tocca i dati reali; `run` e `register` rispondono `403 PREVIEW_DISABLED` fuori da production (la pipeline di calibrazione si avvia solo da production).
+
 > **IMPORTANTE:** Il client Redis corretto usa `/pipeline` per SET e `/get/{key}` per GET. La doppia serializzazione è il bug più comune — verifica che tutti gli endpoint usino questa versione.
 
 ### 2.4 Struttura file (branch: `backend`)
 
 ```
 hub.html                                          ← Frontend completo
-api/hub/auth.js                                   ← GET verifica token
-api/hub/upload.js                                 ← POST salva attività
-api/hub/activities.js                             ← GET restituisce dati dashboard
-api/hub/run.js                                    ← POST avvia GitHub Actions
-api/hub/patch.js                                  ← POST riceve risultati pipeline
+api/hub.js                                        ← handler unico: ?action=auth|upload|activities|run|patch|feedback|register|listkeys|revokekey|requestkey
+server/ratelimit.js, server/redis.js, server/ambiente.js ← librerie condivise (fuori da api/)
 .github/workflows/hub-calibration.yml             ← Workflow GitHub Actions
 wiztrail-calibration/scripts/01_prepare_dataset.py
 wiztrail-calibration/scripts/02_compute_wdi.py
@@ -101,7 +100,7 @@ wiztrail-calibration/scripts/04_insights.py
 wiztrail-calibration/scripts/05_sync_hub.py
 wiztrail-calibration/scripts/06_push_results.py
 wiztrail-calibration/data/dataset.xlsx            ← 96 gare con metadati
-wiztrail-calibration/gpx/                         ← GPX reali (47 file)
+wiztrail-calibration/gpx/                         ← GPX reali
 ```
 
 ---
