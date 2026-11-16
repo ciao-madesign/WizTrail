@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#002b2b">
   <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="wiztrail.css?v=20261117">
+  <link rel="stylesheet" href="wiztrail.css?v=20261118">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Article","headline":"Il Metodo WizTrail — Formula WDI e modello tempi","description":"Come funziona WizTrail: WDI, TechScore, stima tempi personalizzata, pacing planner e hub di calibrazione.","url":"https://wiz-trail.vercel.app/about.html","inLanguage":"it","dateModified":"2026-06-26"}
 </script>
@@ -47,6 +47,7 @@
     <a href="#techscore">TechScore</a>
     <a href="#tempi">Modello Tempi</a>
     <a href="#pacing">Pacing</a>
+    <a href="#stato">Stato funzioni</a>
     <a href="#hub">Hub</a>
     <a href="#api">API</a>
     <a href="#licenze">Licenze</a>
@@ -238,6 +239,43 @@
   </section>
 
   <!-- ══════════════════════════════════════════════════════════════
+       STATO DELLE FUNZIONI — unica fonte di verità (Attivo / Beta / Non ancora disponibile)
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="stato" class="about-section">
+    <div class="about-label">Versione beta</div>
+    <h2>Stato delle funzioni</h2>
+
+    <div class="card">
+      <p>WizTrail è in versione beta: alcune funzioni sono limitate e altre non sono ancora disponibili. Questa tabella è l'elenco di riferimento e viene aggiornata insieme al sito.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Tabella dello stato delle funzioni">
+        <table class="about-table">
+          <thead><tr><th>Funzione</th><th>Stato</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>Caricamento file GPX, TCX o XML</td><td><span class="badge badge--ok">Attivo</span></td><td>L'analisi avviene nel tuo browser.</td></tr>
+            <tr><td>WDI e TechScore</td><td><span class="badge badge--ok">Attivo</span></td><td></td></tr>
+            <tr><td>Stima del tempo e Pacing Planner</td><td><span class="badge badge--ok">Attivo</span></td><td>Il piano si consulta in tabella: non può essere inviato all'orologio.</td></tr>
+            <tr><td>Scheda dettagliata del percorso</td><td><span class="badge badge--ok">Attivo</span></td><td>Non viene salvata: si genera dal Calcolatore.</td></tr>
+            <tr><td>Importa da link diretto a un file GPX</td><td><span class="badge badge--ok">Attivo</span></td><td>Il link viene aperto dai nostri server per scaricare il file. Le pagine web (Strava, Komoot, Wikiloc) non sono file.</td></tr>
+            <tr><td>Riepilogo JSON</td><td><span class="badge badge--ok">Attivo</span></td><td>Scaricabile dal Calcolatore.</td></tr>
+            <tr><td>Ranking WDI delle gare</td><td><span class="badge badge--beta">Beta</span></td><td>Solo consultazione e filtri.</td></tr>
+            <tr><td>Condivisione di un GPX verso WizTrail da altre app</td><td><span class="badge badge--beta">Beta</span></td><td>Android, con WizTrail installata.</td></tr>
+            <tr><td>Training Analyzer (confronto stima/reale)</td><td><span class="badge badge--beta">Beta</span></td><td></td></tr>
+            <tr><td>API pubblica</td><td><span class="badge badge--beta">Beta</span></td><td>Richiede una chiave. Le stime di tempo possono differire da quelle del sito.</td></tr>
+            <tr><td>Strava (collegamento e importazione)</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Scarica il GPX da strava.com e caricalo nel Calcolatore.</td></tr>
+            <tr><td>Sincronizzazione con orologi e piattaforme (Garmin, Suunto, Coros, Polar e simili)</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Carica il file GPX o TCX esportato.</td></tr>
+            <tr><td>Invio del pacing all'orologio</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td></td></tr>
+            <tr><td>Schede di dettaglio delle gare del ranking</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Per vedere profilo e pacing, carica il GPX nel Calcolatore.</td></tr>
+            <tr><td>Invio di nuove gare al ranking</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Le gare sono selezionate dal team WizTrail.</td></tr>
+            <tr><td>Salvataggio e cronologia tra dispositivi</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Scarica il riepilogo JSON per conservare i risultati.</td></tr>
+            <tr><td>Richiesta automatica della chiave API</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Scrivi a ciao.madesign@gmail.com.</td></tr>
+            <tr><td>Esportazione KML</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
        5. HUB DI AUTOCALIBRAZIONE
   ══════════════════════════════════════════════════════════════ -->
   <section id="hub" class="about-section">
@@ -277,18 +315,19 @@
   ══════════════════════════════════════════════════════════════ -->
   <section id="api" class="about-section">
     <div class="about-label">Integrazioni & sviluppatori</div>
-    <h2>API Pubblica</h2>
+    <h2>API Pubblica <span class="badge badge--beta">Beta</span></h2>
 
     <div class="card">
       <p>WizTrail espone una REST API che restituisce gli stessi output del calcolatore web — WDI, stima tempo e piano pacing — pronti per essere integrati in app, siti o dispositivi di terze parti.</p>
-      <p style="margin-top:10px;">L'API è ospitata su Vercel ed è autenticata tramite API key (header <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">x-api-key</code>). Per richiedere una chiave, contattare il team WizTrail.</p>
+      <p style="margin-top:10px;">L'API è ospitata su Vercel ed è autenticata tramite API key (header <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">x-api-key</code>). L'API è attiva e richiede una chiave. La richiesta automatica della chiave non è ancora disponibile: scrivi a ciao.madesign@gmail.com indicando l'uso che ne farai.</p>
+      <p class="note note--warn" style="margin-top:10px;">Le stime di tempo dell'API possono differire da quelle del sito, che applica una correzione per il terreno tecnico.</p>
     </div>
 
     <details class="card" open>
       <summary><b>Endpoint disponibili</b></summary>
       <div style="margin-top:12px">
         <p style="margin-bottom:12px;"><b>Base URL:</b> <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">https://wiz-trail.vercel.app</code></p>
-        <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Tabella degli endpoint"><table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
           <thead>
             <tr style="border-bottom:1px solid var(--border);">
               <th style="text-align:left;padding:6px 8px;color:var(--muted);">Endpoint</th>
@@ -305,7 +344,7 @@
               <td style="padding:8px;">Stima WDI da input manuali (distanza, D+) senza GPX — risposta marcata <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:0.85em;">estimate:true</code></td>
             </tr>
           </tbody>
-        </table>
+        </table></div>
       </div>
     </details>
 
