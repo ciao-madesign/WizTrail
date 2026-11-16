@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Solo URL canoniche e indicizzabili. Le pagine noindex (ranking in beta, install, privacy, pagine di servizio) non sono incluse. -->
   <url>
-    <loc>https://wiz-trail.vercel.app/</loc>
+    <loc>https://wiz-trail.vercel.app/landing.html</loc>
     <lastmod>2026-11-16</lastmod>
   </url>
   <url>

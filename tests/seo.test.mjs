@@ -11,7 +11,7 @@ const BASE = 'https://wiz-trail.vercel.app';
 const leggi = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const vercel = JSON.parse(leggi('vercel.json'));
 
-const INDICIZZABILI = { 'landing.html': '/', 'index.html': '/index.html', 'about.html': '/about.html', 'training-analyzer.html': '/training-analyzer.html' };
+const INDICIZZABILI = { 'landing.html': '/landing.html', 'index.html': '/index.html', 'about.html': '/about.html', 'training-analyzer.html': '/training-analyzer.html' };
 const NOINDEX = ['ranking.html', 'install.html', 'privacy.html', 'dettaglio.html', 'share_card.html', 'trail-card.html', 'hub.html', 'import_strava.html', 'auth_strava.html'];
 const TUTTE = fs.readdirSync(ROOT).filter(f => f.endsWith('.html') && f !== 'google836f8dbd20d85c05.html');
 
@@ -28,12 +28,19 @@ const headersPer = (p) => Object.fromEntries((vercel.headers || []).filter(h => 
 const rewritePer = (p) => (vercel.rewrites || []).find(r => re(r.source).test(p))?.destination;
 const redirectPer = (p) => (vercel.redirects || []).find(r => re(r.source).test(p));
 
-test('vercel.json: "/" e un rewrite verso /landing.html, non un redirect', () => {
-  assert.equal(rewritePer('/'), '/landing.html');
-  assert.equal(redirectPer('/'), undefined);
-  assert.equal(redirectPer('/landing.html'), undefined, 'niente 308 /landing.html -> / (service worker)');
+test('vercel.json: "/" e un redirect temporaneo (307) verso /landing.html; nessun rewrite mascherato da file statici', () => {
+  const r = vercel.redirects.find(x => x.source === '/');
+  assert.deepEqual([r.destination, r.permanent], ['/landing.html', false]);
+  assert.equal(redirectPer('/landing.html'), undefined, 'niente redirect da /landing.html (service worker)');
+  assert.equal(redirectPer('/index.html'), undefined);
   assert.equal(redirectPer('/wdi.html')?.destination, '/about.html');
   assert.equal(redirectPer('/pacing.html')?.destination, '/about.html');
+  // Su Vercel i file statici battono le rewrites: una rewrite su "/" non scatta mai se esiste index.html.
+  for (const rw of vercel.rewrites || []) {
+    const lit = rw.source === '/' ? 'index.html' : rw.source.replace(/^\//, '');
+    assert.ok(!fs.existsSync(path.join(ROOT, lit)), `rewrite ${rw.source} mascherata dal file statico ${lit}`);
+  }
+  assert.ok(!('routes' in vercel), 'non mischiare routes legacy con redirects/headers');
 });
 
 test('vercel.json: X-Robots-Tag sulle pagine private, non su quelle indicizzabili', () => {
@@ -41,7 +48,7 @@ test('vercel.json: X-Robots-Tag sulle pagine private, non su quelle indicizzabil
     assert.equal(headersPer(`/${f}.html`)['x-robots-tag'], 'noindex, nofollow', f);
   for (const f of ['install', 'ranking'])
     assert.equal(headersPer(`/${f}.html`)['x-robots-tag'], 'noindex, follow', f);
-  for (const p of ['/', '/landing.html', '/index.html', '/about.html', '/training-analyzer.html', '/google836f8dbd20d85c05.html'])
+  for (const p of ['/landing.html', '/index.html', '/about.html', '/training-analyzer.html', '/google836f8dbd20d85c05.html'])
     assert.equal(headersPer(p)['x-robots-tag'], undefined, p);
 });
 
@@ -57,6 +64,14 @@ test('vercel.json: cache immutable solo per img, icons e font woff2; JS/CSS brev
   for (const p of ['/service-worker.js', '/fonts/fonts.css', '/landing.html', '/sitemap.xml', '/ranking-data.json'])
     assert.ok(!lungo.test(headersPer(p)['cache-control'] || ''), p);
   assert.equal(headersPer('/service-worker.js')['cache-control'], undefined);
+});
+
+test('JSON-LD: gli @id/url del sito puntano alla home canonica /landing.html', () => {
+  const ids = [];
+  for (const f of TUTTE) for (const m of leggi(f).matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) ids.push(...[...m[1].matchAll(/"(?:@id|url)":"([^"]+)"/g)].map(x => x[1]));
+  assert.ok(ids.length > 0);
+  assert.ok(!ids.includes(BASE + '/') && !ids.some(i => i.startsWith(BASE + '/#')), 'JSON-LD su / (redirect)');
+  assert.ok(ids.includes(BASE + '/landing.html#website'));
 });
 
 test('ogni pagina indicizzabile ha canonical assoluto autoreferenziale, title e description unici', () => {
@@ -112,7 +127,9 @@ test('sitemap: solo URL canoniche indicizzabili, tutte esistenti; nessuna pagina
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
   assert.deepEqual(locs.sort(), Object.values(INDICIZZABILI).map(u => BASE + u).sort());
   for (const f of NOINDEX) assert.ok(!xml.includes('/' + f), `${f} in sitemap`);
-  assert.ok(!xml.includes('landing.html'), 'landing.html: canonical = /');
+  assert.ok(!locs.some(l => redirectPer(new URL(l).pathname)), 'URL in sitemap che redirige');
+  assert.ok(!locs.includes(BASE + '/'), '/ redirige a /landing.html');
+  for (const [f, u] of Object.entries(INDICIZZABILI)) assert.equal(canonical(f), BASE + u, `${f}: sitemap = canonical`);
   for (const m of xml.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) assert.match(m[1], /^\d{4}-\d{2}-\d{2}$/);
   assert.ok(!/priority|changefreq/.test(xml));
 });
