@@ -112,6 +112,7 @@ b64 = base64.b64encode(open("mia_gara.gpx", "rb").read()).decode()
     "seconds": 14820,
     "formatted": "4:07:00"
   },
+  "terrain_factor": 1.18,
   "avg_pace": {
     "sec_km": 610,
     "formatted": "10:10/km"
@@ -149,6 +150,7 @@ b64 = base64.b64encode(open("mia_gara.gpx", "rb").read()).decode()
 | `dplus` | number | Dislivello positivo in metri |
 | `time_estimate.seconds` | number | Stima tempo totale in secondi |
 | `time_estimate.formatted` | string | Stima tempo in formato `h:mm:ss` |
+| `terrain_factor` | number | Correzione per la tecnicità del terreno già applicata a `time_estimate` (≥ 1; es. `1.18` = +18%). Dal 2026-11-16, vedi «Novità» |
 | `avg_pace.sec_km` | number | Passo medio in secondi/km |
 | `avg_pace.formatted` | string | Passo medio in formato `mm:ss/km` |
 | `pacing_plan` | array | Piano pacing segmentato (un oggetto per chunk) |
@@ -220,9 +222,16 @@ x-api-key: <chiave>
   "tech_class": "Tecnico",
   "discipline": "mountain",
   "distance_km": 42.0,
-  "dplus": 2800
+  "dplus": 2800,
+  "specificity": 0.5,
+  "level": "Amatore forte",
+  "terrain_factor": 1.17,
+  "time_estimate": { "seconds": 30120, "formatted": "8:22:00" },
+  "median_comparison": { "median_sec": 28800, "median_formatted": "8:00:00" }
 }
 ```
+
+`time_estimate` include la correzione terreno indicata in `terrain_factor` (≥ 1, calcolata dal TechScore stimato e dal livello `specificity`), come nel calcolatore del sito. `median_comparison` può essere `null`.
 
 ---
 
@@ -358,8 +367,21 @@ Superato il limite, ricevi `HTTP 429` — riprova dopo 60 secondi.
 
 ---
 
+## Novità e modifiche
+
+### 2026-11-16 — Correzione terreno (KF_terrain) nel tempo stimato
+
+- **Cosa cambia:** `time_estimate` di `POST /api/v1/analyze` e di `POST /api/v1/wdi` (e quindi `pacing_plan` e `avg_pace`, ricavati da quel tempo quando non indichi `target_time`) ora include la stessa correzione del calcolatore del sito: `T_finale = T_segmenti × terrain_factor`, con `terrain_factor = 1 + (TechScore / 175) × (1 − S × 0,45)` (S = `specificity`).
+- **Campo nuovo (additivo):** `terrain_factor` nella risposta di entrambi gli endpoint. Nessun altro cambio di schema.
+- **Effetto:** i tempi aumentano rispetto alle versioni precedenti, di più sui percorsi tecnici. Sui 6 casi verificati (GPX reali e manuali) il fattore va da 1,11 a 1,30, cioè +11% / +30%; la documentazione interna del modello indica +14–40% sulle gare tecniche. Su percorsi scorrevoli l'aumento è minimo.
+- **Verifica:** i tempi coincidono con quelli del sito (scarto 0,00% su 6 casi confrontati col calcolatore reale; test automatici con tolleranza 0,5%). Il sito calcola il ritmo base dal tuo tempo sui 10 km, l'API dalla `specificity` (o da `vel_base`), quindi a parità di input i due strumenti danno lo stesso risultato solo se i parametri sono equivalenti.
+- **Nota:** i valori predefiniti dei parametri dell'API (`terrain_class` = `EE`, `meteo` = 1, `altitude` = 1) non cambiano e differiscono da quelli preselezionati nel sito.
+
+---
+
 ## Changelog
 
 | Data | Versione | Note |
 |------|----------|------|
 | 2026-05-15 | v1.0 | Prima release pubblica: `/api/v1/analyze`, `/api/v1/wdi` |
+| 2026-11-16 | v1.0 | `time_estimate` con correzione terreno; nuovo campo `terrain_factor` (additivo) |
