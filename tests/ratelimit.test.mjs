@@ -29,7 +29,7 @@ function redisFinto({ supportaNX = true } = {}) {
 }
 
 test('rate limit: il TTL viene impostato una volta sola (non si rinnova ad ogni richiesta)', async () => {
-  const r = setEnv({ UPSTASH_REDIS_REST_URL: 'https://redis.finto', UPSTASH_REDIS_REST_TOKEN: 't' });
+  const r = setEnv({ UPSTASH_REDIS_REST_URL: 'https://redis.finto', UPSTASH_REDIS_REST_TOKEN: 't', VERCEL_ENV: 'production' });
   const redis = redisFinto(); const f = stubFetch(redis.risposta);
   try {
     for (let i = 0; i < 12; i++) await checkRateLimit('1.2.3.4', 'import');
@@ -56,7 +56,7 @@ test('rate limit: scope separati con limiti propri (import 10/min)', async () =>
 });
 
 test('rate limit: fallback se Redis non supporta EXPIRE NX (TTL solo alla prima richiesta)', async () => {
-  const r = setEnv({ UPSTASH_REDIS_REST_URL: 'https://redis.finto', UPSTASH_REDIS_REST_TOKEN: 't' });
+  const r = setEnv({ UPSTASH_REDIS_REST_URL: 'https://redis.finto', UPSTASH_REDIS_REST_TOKEN: 't', VERCEL_ENV: 'production' });
   const redis = redisFinto({ supportaNX: false }); const f = stubFetch(redis.risposta);
   try {
     for (let i = 0; i < 5; i++) await checkRateLimit('5.5.5.5', 'feedback');

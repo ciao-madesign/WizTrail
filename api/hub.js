@@ -21,6 +21,7 @@
 
 import { checkRateLimit, getIP } from '../server/ratelimit.js';
 import { bloccaSeNonProduzione } from '../server/ambiente.js';
+import { ns } from '../server/redis.js';
 
 /* ── Variabili d'ambiente ─────────────────────────────────────── */
 const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
@@ -33,10 +34,10 @@ const RESEND_KEY    = process.env.RESEND_API_KEY;
 const RESEND_FROM   = process.env.RESEND_FROM || 'WizTrail <onboarding@resend.dev>';
 
 /* ── Redis helpers ────────────────────────────────────────────── */
-const REDIS_NS = 'wiztrail:'; // namespace per isolare da altri progetti sullo stesso DB
+// Namespace Redis per ambiente: vedi server/redis.js (production = 'wiztrail:', altri = 'wiztrail:<env>:')
 
 async function redisGet(key) {
-  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(REDIS_NS + key)}`, {
+  const res = await fetch(`${UPSTASH_URL}/get/${encodeURIComponent(ns() + key)}`, {
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
   });
   const json = await res.json();
@@ -47,8 +48,8 @@ async function redisGet(key) {
 
 async function redisSet(key, value, ttlSeconds = null) {
   const cmd = ttlSeconds
-    ? ['SET', REDIS_NS + key, JSON.stringify(value), 'EX', ttlSeconds]
-    : ['SET', REDIS_NS + key, JSON.stringify(value)];
+    ? ['SET', ns() + key, JSON.stringify(value), 'EX', ttlSeconds]
+    : ['SET', ns() + key, JSON.stringify(value)];
   const res = await fetch(`${UPSTASH_URL}/pipeline`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
@@ -64,14 +65,14 @@ async function redisScan(pattern, maxKeys = 1000) {
   let cursor = '0';
   do {
     const res = await fetch(
-      `${UPSTASH_URL}/scan/${cursor}?match=${encodeURIComponent(REDIS_NS + pattern)}&count=100`,
+      `${UPSTASH_URL}/scan/${cursor}?match=${encodeURIComponent(ns() + pattern)}&count=100`,
       { headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` } }
     );
     const json = await res.json();
     if (json.error) throw new Error(`Redis SCAN: ${json.error}`);
     cursor = json.result[0];
-    // Strip REDIS_NS prefix so callers get bare keys (consistent with redisGet/redisSet)
-    keys.push(...json.result[1].map(k => k.startsWith(REDIS_NS) ? k.slice(REDIS_NS.length) : k));
+    // Strip del prefisso namespace so callers get bare keys (consistent with redisGet/redisSet)
+    keys.push(...json.result[1].map(k => k.startsWith(ns()) ? k.slice(ns().length) : k));
   } while (cursor !== '0' && keys.length < maxKeys);
   return keys;
 }
@@ -293,6 +294,8 @@ async function handleRun(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const auth = checkAuth(req, res);
   if (!auth.ok) return;
+  // Effetti esterni (dispatch GitHub Actions che aggiorna il modello): solo in production
+  if (bloccaSeNonProduzione(res, 'run')) return;
   const alias = req.body?.alias?.trim() || null;
   const canRun = await isAuthorizedRunner(alias, auth.isAdmin);
   if (!canRun) return res.status(403).json({ error: 'Non autorizzato ad avviare la pipeline' });
@@ -445,6 +448,8 @@ async function handleRegister(req, res) {
     if (auth.ok) res.status(403).json({ error: 'Richiede token admin' });
     return;
   }
+  // Crea chiavi API reali: solo in production
+  if (bloccaSeNonProduzione(res, 'register')) return;
   const { description, email } = req.body || {};
   if (!description?.trim()) return res.status(400).json({ error: 'Campo description obbligatorio.' });
 
@@ -457,8 +462,8 @@ async function handleRegister(req, res) {
     method: 'POST',
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify([
-      ['SET', `${REDIS_NS}apikeys:${key}`, JSON.stringify(entry)],
-      ['SADD', `${REDIS_NS}apikeys:_index`, key],
+      ['SET', `${ns()}apikeys:${key}`, JSON.stringify(entry)],
+      ['SADD', `${ns()}apikeys:_index`, key],
     ]),
   });
 
@@ -476,7 +481,7 @@ async function handleListKeys(req, res) {
   }
 
   // Leggi indice (SMEMBERS)
-  const idxRes  = await fetch(`${UPSTASH_URL}/smembers/${encodeURIComponent(`${REDIS_NS}apikeys:_index`)}`, {
+  const idxRes  = await fetch(`${UPSTASH_URL}/smembers/${encodeURIComponent(`${ns()}apikeys:_index`)}`, {
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
   });
   const idxJson = await idxRes.json();
@@ -485,7 +490,7 @@ async function handleListKeys(req, res) {
   if (!keyList.length) return res.status(200).json({ ok: true, keys: [] });
 
   // Leggi metadata di ogni key (pipeline MGET)
-  const mgetArgs = keyList.map(k => `${REDIS_NS}apikeys:${k}`);
+  const mgetArgs = keyList.map(k => `${ns()}apikeys:${k}`);
   const mgetRes  = await fetch(`${UPSTASH_URL}/pipeline`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
@@ -547,7 +552,7 @@ async function redisPipeline(cmds) {
 
 async function rlRequestKey(ip) {
   // Rate limit dedicato: max 3 richieste/ora per IP (TTL impostato solo alla prima richiesta)
-  const key  = REDIS_NS + 'rl:reqkey:' + ip;
+  const key  = ns() + 'rl:reqkey:' + ip;
   const json = await redisPipeline([['INCR', key], ['EXPIRE', key, 3600, 'NX']]);
   const count = json[0]?.result ?? 1;
   if (json[1]?.error && count === 1) await redisPipeline([['EXPIRE', key, 3600]]);
@@ -556,7 +561,7 @@ async function rlRequestKey(ip) {
 
 /** Limite per indirizzo email: 1 richiesta ogni 10 minuti (SET NX EX). true = puo' procedere. */
 async function emailLimitOk(emailKey) {
-  const key  = REDIS_NS + 'rl:reqkey:email:' + emailKey;
+  const key  = ns() + 'rl:reqkey:email:' + emailKey;
   const json = await redisPipeline([['SET', key, '1', 'EX', 600, 'NX']]);
   return json[0]?.result === 'OK';
 }
@@ -689,9 +694,9 @@ async function handleRequestKey(req, res) {
     const created_at = new Date().toISOString();
     const entry      = { key, description: desc, email: emailKey, created_at, active: true };
     await redisPipeline([
-      ['SET', `${REDIS_NS}apikeys:${key}`,   JSON.stringify(entry)],
-      ['SADD', `${REDIS_NS}apikeys:_index`,  key],
-      ['SET', `${REDIS_NS}${emailIndex}`,    JSON.stringify({ key, created_at })],
+      ['SET', `${ns()}apikeys:${key}`,   JSON.stringify(entry)],
+      ['SADD', `${ns()}apikeys:_index`,  key],
+      ['SET', `${ns()}${emailIndex}`,    JSON.stringify({ key, created_at })],
     ]);
     await sendKeyEmail(emailKey, key, desc);
     return res.status(200).json(RISPOSTA_NEUTRA);

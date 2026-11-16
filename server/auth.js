@@ -9,14 +9,14 @@
  */
 
 import { createHash, timingSafeEqual } from 'node:crypto';
+import { ns } from './redis.js';
 
-const REDIS_NS = 'wiztrail:';
 
 async function redisGetRaw(key) {
   const url   = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
-  const res  = await fetch(`${url}/get/${encodeURIComponent(REDIS_NS + key)}`, {
+  const res  = await fetch(`${url}/get/${encodeURIComponent(ns() + key)}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const json = await res.json();

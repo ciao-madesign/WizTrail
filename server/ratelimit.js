@@ -7,7 +7,7 @@
  * prima richiesta della finestra e NON viene rinnovato dalle successive (prima ogni
  * richiesta rinnovava il TTL e il blocco non scadeva mai finche' si continuava a chiamare).
  * Contatori separati per endpoint (scope) con limiti propri.
- * Key naming: wiztrail:ratelimit:<scope>:<ip>
+ * Key naming: <ns>ratelimit:<scope>:<ip>  (ns da server/redis.js: 'wiztrail:' solo in production)
  *
  * Fail-open: se Redis non e' configurato o non risponde non si blocca il servizio
  * (viene loggato l'errore).
@@ -17,10 +17,11 @@
 
 const WINDOW_SECONDS = 60;
 const MAX_REQUESTS   = 30;
-const REDIS_NS       = 'wiztrail:'; // namespace per isolare da altri progetti sullo stesso DB
 
 /** Limiti richieste/minuto per endpoint. */
 export const LIMITI = { default: 30, import: 10, strava: 30, v1: 30, feedback: 5 };
+
+import { ns } from './redis.js';
 
 /**
  * Controlla il rate limit per un dato IP e scope.
@@ -38,7 +39,7 @@ export async function checkRateLimit(ip, scope = 'default', max = LIMITI[scope] 
     return { allowed: true, remaining: max, retryAfter: 0 };
   }
 
-  const key = REDIS_NS + 'ratelimit:' + scope + ':' + ip;
+  const key = ns() + 'ratelimit:' + scope + ':' + ip;
   const hdr = { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' };
 
   try {
