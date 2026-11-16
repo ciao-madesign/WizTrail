@@ -20,6 +20,7 @@
  */
 
 import { checkRateLimit, getIP } from '../server/ratelimit.js';
+import { bloccaSeNonProduzione } from '../server/ambiente.js';
 
 /* ── Variabili d'ambiente ─────────────────────────────────────── */
 const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
@@ -525,20 +526,44 @@ async function handleRevokeKey(req, res) {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-async function rlRequestKey(ip) {
-  // Rate limit dedicato: max 3 richieste/ora per IP
-  const key = REDIS_NS + 'rl:reqkey:' + ip;
+/** Escape HTML per ogni valore inserito nelle email (evita injection nel corpo HTML). */
+export function escapeHtml(v) {
+  return String(v ?? '').replace(/[&<>"'`]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c]));
+}
+
+/** Descrizione libera: una riga, max 80 caratteri, senza caratteri di controllo. */
+export function pulisciDescrizione(v) {
+  return String(v ?? '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+}
+
+async function redisPipeline(cmds) {
   const res = await fetch(`${UPSTASH_URL}/pipeline`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify([['INCR', key], ['EXPIRE', key, 3600]]),
+    body: JSON.stringify(cmds),
   });
-  const json = await res.json();
+  return res.json();
+}
+
+async function rlRequestKey(ip) {
+  // Rate limit dedicato: max 3 richieste/ora per IP (TTL impostato solo alla prima richiesta)
+  const key  = REDIS_NS + 'rl:reqkey:' + ip;
+  const json = await redisPipeline([['INCR', key], ['EXPIRE', key, 3600, 'NX']]);
   const count = json[0]?.result ?? 1;
+  if (json[1]?.error && count === 1) await redisPipeline([['EXPIRE', key, 3600]]);
   return { allowed: count <= 3, count };
 }
 
-function buildKeyEmail(key, description) {
+/** Limite per indirizzo email: 1 richiesta ogni 10 minuti (SET NX EX). true = puo' procedere. */
+async function emailLimitOk(emailKey) {
+  const key  = REDIS_NS + 'rl:reqkey:email:' + emailKey;
+  const json = await redisPipeline([['SET', key, '1', 'EX', 600, 'NX']]);
+  return json[0]?.result === 'OK';
+}
+
+export function buildKeyEmail(key, description) {
+  const k = escapeHtml(key);
+  const d = escapeHtml(pulisciDescrizione(description)) || '—';
   return `
 <!DOCTYPE html>
 <html lang="it">
@@ -566,39 +591,41 @@ function buildKeyEmail(key, description) {
 <body>
 <div class="wrap">
   <div class="head">
-    <h1>🏔 WizTrail — Chiave API</h1>
+    <h1>WizTrail — Chiave API</h1>
     <p>La tua chiave è pronta. Conservala in un posto sicuro.</p>
   </div>
   <div class="body">
     <div class="label">La tua chiave API</div>
-    <div class="key-box">${key}</div>
+    <div class="key-box">${k}</div>
     <div class="info">
       <strong>Come si usa:</strong> aggiungi l'header <code style="background:#21262d;padding:1px 5px;border-radius:3px;color:#4fd1c5">x-api-key</code>
       ad ogni richiesta alle API WizTrail.
     </div>
     <div class="ex-block">POST https://wiz-trail.vercel.app/api/v1/wdi
-x-api-key: ${key}
+x-api-key: ${k}
 Content-Type: application/json
 
 { "distance_km": 42, "dplus": 2800 }</div>
     <div class="info">
       <strong>Limiti:</strong> 30 richieste/minuto per IP.<br>
-      <strong>Descrizione registrata:</strong> ${description || '—'}
+      <strong>Descrizione registrata:</strong> ${d}
     </div>
   </div>
   <div class="footer">
     Hai ricevuto questa email perché qualcuno ha richiesto una chiave API WizTrail con il tuo indirizzo.
-    Se non sei stato tu, ignora questa email — la chiave non è attiva finché non viene usata.
+    La chiave è già attiva. Se non sei stato tu, ignora questa email: nessun altro la riceverà e puoi
+    chiederne la revoca scrivendo al contatto indicato su wiz-trail.vercel.app.
   </div>
 </div>
 </body></html>`.trim();
 }
 
 async function sendKeyEmail(to, key, description) {
-  if (!RESEND_KEY) throw new Error('RESEND_API_KEY mancante');
+  const resendKey = process.env.RESEND_API_KEY || RESEND_KEY;
+  if (!resendKey) throw new Error('RESEND_API_KEY mancante');
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from:    RESEND_FROM,
       to:      [to],
@@ -613,71 +640,65 @@ async function sendKeyEmail(to, key, description) {
   return await res.json();
 }
 
+const RISPOSTA_NEUTRA = { ok: true, message: "Se l'indirizzo è valido riceverai a breve un'email con la chiave API." };
+
 async function handleRequestKey(req, res) {
   setCors(res, 'POST');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
-  if (!RESEND_KEY) {
-    return res.status(503).json({ error: 'Servizio email non configurato. Contatta l\'amministratore.' });
-  }
+  // Effetti esterni (email reali, nuove chiavi): solo in production
+  if (bloccaSeNonProduzione(res, 'requestkey')) return;
 
-  const ip = getIP(req);
-  const rl = await rlRequestKey(ip);
-  if (!rl.allowed) {
-    return res.status(429).json({ error: 'Troppe richieste. Puoi richiedere al massimo 3 chiavi per ora.' });
+  if (!(process.env.RESEND_API_KEY || RESEND_KEY)) {
+    return res.status(503).json({ ok: false, code: 'EMAIL_NOT_CONFIGURED', error: "Servizio email non configurato. Contatta l'amministratore." });
   }
 
   const { email, description } = req.body || {};
-
-  if (!email?.trim() || !EMAIL_RE.test(email.trim())) {
-    return res.status(400).json({ error: 'Indirizzo email non valido.' });
+  if (typeof email !== 'string' || !email.trim() || email.length > 254 || !EMAIL_RE.test(email.trim())) {
+    return res.status(400).json({ ok: false, code: 'INVALID_EMAIL', error: 'Indirizzo email non valido.' });
   }
 
-  const emailKey   = email.trim().toLowerCase();
-  const emailIndex = `apikeys:email:${emailKey}`;
-
-  // Controlla se esiste già una chiave per questa email
-  const existing = await redisGet(emailIndex);
-  if (existing?.key) {
-    const keyData = await redisGet(`apikeys:${existing.key}`);
-    if (keyData?.active) {
-      // Rimanda la chiave esistente senza crearne una nuova
-      try {
-        await sendKeyEmail(emailKey, existing.key, description || keyData.description);
-      } catch (e) {
-        console.error('requestkey: sendKeyEmail error (resend)', e.message);
-        return res.status(502).json({ error: 'Errore nell\'invio email. Riprova tra qualche minuto.' });
-      }
-      return res.status(200).json({ ok: true, resent: true });
-    }
-  }
-
-  // Crea chiave nuova
-  const key        = generateApiKey();
-  const created_at = new Date().toISOString();
-  const desc       = description?.trim() || 'Self-service via email';
-  const entry      = { key, description: desc, email: emailKey, created_at, active: true };
-
-  await fetch(`${UPSTASH_URL}/pipeline`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${UPSTASH_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify([
-      ['SET', `${REDIS_NS}apikeys:${key}`,        JSON.stringify(entry)],
-      ['SADD', `${REDIS_NS}apikeys:_index`,        key],
-      ['SET', `${REDIS_NS}${emailIndex}`,          JSON.stringify({ key, created_at })],
-    ]),
-  });
-
+  const ip = getIP(req);
   try {
-    await sendKeyEmail(emailKey, key, desc);
-  } catch (e) {
-    console.error('requestkey: sendKeyEmail error', e.message);
-    // Chiave già scritta su Redis — logga l'errore ma non rollbackare
-    return res.status(502).json({ error: 'Chiave creata, ma l\'invio email è fallito. Contatta l\'amministratore citando il tuo indirizzo email.' });
-  }
+    const rl = await rlRequestKey(ip);
+    if (!rl.allowed) {
+      res.setHeader('Retry-After', '3600');
+      return res.status(429).json({ ok: false, code: 'RATE_LIMITED', error: 'Troppe richieste. Puoi richiedere al massimo 3 chiavi per ora.' });
+    }
 
-  return res.status(200).json({ ok: true });
+    const emailKey   = email.trim().toLowerCase();
+    // Limite per indirizzo: se gia' richiesta da poco rispondiamo neutro senza inviare nulla
+    if (!(await emailLimitOk(emailKey))) return res.status(200).json(RISPOSTA_NEUTRA);
+
+    const emailIndex = `apikeys:email:${emailKey}`;
+    const desc       = pulisciDescrizione(description) || 'Self-service via email';
+
+    // Se esiste gia' una chiave attiva per questa email, la rimandiamo (risposta identica: nessuna enumerazione)
+    const existing = await redisGet(emailIndex);
+    if (existing?.key) {
+      const keyData = await redisGet(`apikeys:${existing.key}`);
+      if (keyData?.active) {
+        await sendKeyEmail(emailKey, existing.key, desc);
+        return res.status(200).json(RISPOSTA_NEUTRA);
+      }
+    }
+
+    // Crea chiave nuova
+    const key        = generateApiKey();
+    const created_at = new Date().toISOString();
+    const entry      = { key, description: desc, email: emailKey, created_at, active: true };
+    await redisPipeline([
+      ['SET', `${REDIS_NS}apikeys:${key}`,   JSON.stringify(entry)],
+      ['SADD', `${REDIS_NS}apikeys:_index`,  key],
+      ['SET', `${REDIS_NS}${emailIndex}`,    JSON.stringify({ key, created_at })],
+    ]);
+    await sendKeyEmail(emailKey, key, desc);
+    return res.status(200).json(RISPOSTA_NEUTRA);
+  } catch (e) {
+    console.error('requestkey: errore', e.message);
+    return res.status(502).json({ ok: false, code: 'REQUESTKEY_FAILED', error: 'Non è stato possibile completare la richiesta. Riprova tra qualche minuto.' });
+  }
 }
 
 /* ── Router principale ────────────────────────────────────────── */
