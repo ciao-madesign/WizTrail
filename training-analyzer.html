@@ -26,26 +26,18 @@
 <body data-theme="dark">
 <script>(function(){try{var t=localStorage.getItem('wiztrail_theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.body.setAttribute('data-theme',t);document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
 <!-- STRAVA MODAL -->
-<div id="stravaModal" style="
-  display:none;
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.85);
-  z-index:9999;
-  overflow:auto;
-">
+<div id="stravaModal" class="modal" aria-hidden="true">
 
-  <div style="max-width:700px;margin:40px auto;padding:20px;">
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="stravaModalTitle">
 
-    <h2 style="margin-bottom:10px;">Seleziona attività</h2>
+    <h2 id="stravaModalTitle" style="margin-bottom:10px;">Seleziona attività</h2>
     <p class="mini">Le tue ultime attività da Strava</p>
 
-    <div id="stravaLoading">Caricamento...</div>
+    <div id="stravaLoading" role="status" aria-live="polite">Caricamento...</div>
 
     <div id="stravaList" style="margin-top:20px;display:flex;flex-direction:column;gap:12px;"></div>
 
-    <button class="btn secondary" onclick="closeStravaModal()" style="margin-top:20px;">
+    <button type="button" class="btn secondary" onclick="closeStravaModal()" style="margin-top:20px;">
       Chiudi
     </button>
 
@@ -672,12 +664,15 @@ btnAnalyze.style.display = "none";
 }
 
 function openStravaModal() {
-  stravaModal.style.display = "block";
+  // Modale accessibile (focus trap, ESC, ripristino del focus) via WizShell; fallback senza shell
+  if (window.WizShell) WizShell.modal.open('stravaModal');
+  else { stravaModal.classList.add('is-open'); stravaModal.removeAttribute('aria-hidden'); }
   loadStravaActivities();
 }
 
 function closeStravaModal() {
-  stravaModal.style.display = "none";
+  if (window.WizShell) WizShell.modal.close();
+  else { stravaModal.classList.remove('is-open'); stravaModal.setAttribute('aria-hidden', 'true'); }
 }
 
 async function loadStravaActivities() {
