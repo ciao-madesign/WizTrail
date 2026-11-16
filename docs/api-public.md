@@ -213,21 +213,21 @@ x-api-key: <chiave>
 ```json
 {
   "estimate": true,
-  "wdi": 65.8,
-  "wdi_norm": 6.4,
+  "wdi": 60.1,
+  "wdi_norm": 6.6,
   "wdi_category": "Medium",
   "class": "Advanced",
   "color": "#F4C20D",
-  "tech_score": 63.2,
+  "tech_score": 56.3,
   "tech_class": "Tecnico",
-  "discipline": "mountain",
-  "distance_km": 42.0,
+  "discipline": "trail",
+  "distance_km": 42,
   "dplus": 2800,
   "specificity": 0.5,
   "level": "Amatore forte",
-  "terrain_factor": 1.17,
-  "time_estimate": { "seconds": 30120, "formatted": "8:22:00" },
-  "median_comparison": { "median_sec": 28800, "median_formatted": "8:00:00" }
+  "terrain_factor": 1.249,
+  "time_estimate": { "seconds": 42801, "formatted": "11:53:21" },
+  "median_comparison": { "median_sec": 28013, "median_formatted": "7:46:53" }
 }
 ```
 
