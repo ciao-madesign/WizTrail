@@ -335,15 +335,16 @@
             <div style="font-size:0.75rem; color:var(--muted,#a8b3c2);">Simule ti permette di "correre" virtualmente la traccia prima della gara.</div>
           </div>
           <a id="simuleCtaLink" href="#" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:7px; background:var(--accent,#4fd1c5); color:#0a0f14; font-size:0.84rem; font-weight:700; text-decoration:none; white-space:nowrap; flex-shrink:0;">
-            ▶ Simula su Simule
+            ▶ Apri in Simule <span class="badge badge--soon" style="margin-left:4px;">App esterna</span>
           </a>
+          <p class="hint" style="flex-basis:100%;margin:0;">Simule è un'app esterna a WizTrail e si apre in una nuova scheda. Per mostrare il percorso, a Simule viene passato il link al tuo file GPX.</p>
         </div>
       </div>
 
       <!-- Feedback secondario — appare dopo il primo calcolo WDI -->
       <div id="feedbackBtn" style="display:none; margin-top:12px; text-align:center;">
         <button class="btn secondary" onclick="openFeedbackModal();">
-          Hai un tempo reale per questa gara? Aiuta a calibrare il modello
+          Hai già corso questa gara? Aiutaci a migliorare il modello
         </button>
       </div>
 
@@ -389,6 +390,7 @@
           </div>
           <button class="btn" id="pc_generate">Genera pacing →</button>
         </div>
+        <p class="note" id="pcWatchNote"><span class="badge badge--soon">Non ancora disponibile</span> <strong>Invia all'orologio</strong> — Il piano non può ancora essere inviato all'orologio. Per ora consulta la tabella dei checkpoint o stampa la pagina.</p>
         <div id="pc_msg" class="mini" style="color:var(--accent);margin-top:6px;min-height:1em;"></div>
         <div id="pc_warning" class="pc-warning" style="display:none;">
           Carica una traccia GPX per generare il pacing.
@@ -412,6 +414,7 @@
     <div style="position:relative;z-index:1;max-width:480px;width:90%;max-height:90vh;overflow-y:auto;">
     <div class="card">
       <h2>Feedback tempo gara</h2>
+      <p class="hint" style="margin:0 0 8px;">Inserisci il tuo tempo reale a mano: WizTrail non legge i tempi da Strava o dall'orologio.</p>
       <p style="margin-bottom:16px; color:var(--muted); font-size:0.88rem;">
         Hai corso questa gara? Confronta la stima WizTrail con il tuo tempo reale.
         Il dato ci aiuta a migliorare il modello — <strong>nessun dato personale viene raccolto</strong>.
