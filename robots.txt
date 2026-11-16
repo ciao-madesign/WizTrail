@@ -1,33 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /api/
 
-# Pagine pubbliche indicizzabili
-Allow: /index.html
-Allow: /landing.html
-Allow: /ranking.html
-Allow: /about.html
-Allow: /training-analyzer.html
-Allow: /install.html
+# Le pagine private o di servizio (hub, dettaglio, share_card, trail-card, install, privacy,
+# pagine Strava, ranking in beta) sono escluse con noindex (meta robots + X-Robots-Tag),
+# non con Disallow, cosi' i crawler possono leggere la direttiva.
 
-# Privacy — accessibile ma non indicizzare (noindex nel meta)
-Allow: /privacy.html
-
-# Pagine tecniche/dinamiche — non indicizzare
-Disallow: /hub.html
-Disallow: /auth_strava.html
-Disallow: /import_strava.html
-Disallow: /share_card.html
-Disallow: /dettaglio.html
-
-# Risorse non navigabili
-Disallow: /manifest.webmanifest
-Disallow: /icons/
-Disallow: /img/icons/
-Disallow: /favicon.ico
-Disallow: /CNAME
-Disallow: /LICENSE
-Disallow: /README
-Disallow: /README.md
-
-# Sitemap ufficiale
 Sitemap: https://wiz-trail.vercel.app/sitemap.xml
