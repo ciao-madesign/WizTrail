@@ -4,86 +4,48 @@
  * GET /api/import/url?url=ENCODED_URL
  *
  * Necessario perché il browser non può fare fetch cross-origin arbitrari.
- * Blocca: IP privati, schemi non-http/https, file >5MB, content-type non GPX/XML.
+ * Protezione SSRF in server/netguard.js: host/IP v4+v6 non pubblici bloccati,
+ * DNS risolto e validato (anti rebinding), redirect manuali max 3, timeout 8 s,
+ * tetto di 5 MB in streaming. Errori sempre JSON { ok:false, code, error } in italiano.
  */
 
 import { checkRateLimit, getIP } from '../../server/ratelimit.js';
+import { scaricaSicuro, ErroreImport } from '../../server/netguard.js';
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-// Blocca hostname privati/locali e metadata endpoint cloud
-function isPrivateHost(hostname) {
-  return (
-    hostname === 'localhost' ||
-    hostname === '0.0.0.0' ||
-    hostname.endsWith('.local') ||
-    /^127\./.test(hostname) ||
-    /^10\./.test(hostname) ||
-    /^192\.168\./.test(hostname) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
-    /^169\.254\./.test(hostname) ||   // link-local: AWS/Azure/GCP metadata
-    /^::1$/.test(hostname) ||
-    /^fe80:/i.test(hostname) ||       // IPv6 link-local
-    /^fd/i.test(hostname)             // IPv6 ULA
-  );
+function errore(res, status, code, messaggio) {
+  return res.status(status).json({ ok: false, code, error: messaggio });
 }
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'GET') return errore(res, 405, 'METHOD_NOT_ALLOWED', 'Metodo non consentito.');
 
   const ip = getIP(req);
   const { allowed, remaining } = await checkRateLimit(ip);
   res.setHeader('X-RateLimit-Remaining', remaining);
-  if (!allowed) return res.status(429).json({ error: 'Too many requests' });
+  if (!allowed) {
+    res.setHeader('Retry-After', '60');
+    return errore(res, 429, 'RATE_LIMITED', 'Troppe richieste. Riprova tra un minuto.');
+  }
 
   const raw = req.query.url;
-  if (!raw) return res.status(400).json({ error: 'Parametro url mancante' });
+  if (!raw) return errore(res, 400, 'MISSING_URL', 'Parametro url mancante.');
 
-  let parsed;
+  let esito;
   try {
-    parsed = new URL(raw);
-  } catch {
-    return res.status(400).json({ error: 'URL non valido' });
+    esito = await scaricaSicuro(String(raw), { maxBytes: MAX_SIZE, timeoutMs: 8000, maxRedirect: 3 });
+  } catch (e) {
+    if (e instanceof ErroreImport) return errore(res, e.status, e.code, e.message);
+    console.error('import/url: errore inatteso', e && e.message);
+    return errore(res, 502, 'UPSTREAM_UNREACHABLE', "Impossibile raggiungere l'indirizzo indicato.");
   }
 
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    return res.status(400).json({ error: 'Solo URL http/https consentiti' });
-  }
-
-  if (isPrivateHost(parsed.hostname)) {
-    return res.status(400).json({ error: 'URL non raggiungibile' });
-  }
-
-  let upstream;
-  try {
-    upstream = await fetch(parsed.toString(), {
-      headers: { 'User-Agent': 'WizTrail/1.0' },
-      redirect: 'follow',
-    });
-  } catch {
-    return res.status(502).json({ error: 'Impossibile raggiungere l\'URL' });
-  }
-
-  if (!upstream.ok) {
-    return res.status(502).json({ error: 'Risposta non valida dall\'URL (' + upstream.status + ')' });
-  }
-
-  const ct = upstream.headers.get('content-type') || '';
-  const isXml = ct.includes('xml') || ct.includes('gpx') || ct.includes('octet-stream') || ct.includes('text/plain');
-  if (!isXml) {
-    return res.status(422).json({ error: 'Il file non sembra un GPX/XML (content-type: ' + ct + ')' });
-  }
-
-  const buf = await upstream.arrayBuffer();
-  if (buf.byteLength > MAX_SIZE) {
-    return res.status(413).json({ error: 'File troppo grande (max 5 MB)' });
-  }
-
-  const text = new TextDecoder().decode(buf);
+  const text = esito.buffer.toString('utf-8');
   if (!text.includes('<gpx') && !text.includes('<trk') && !text.includes('<rte') && !text.includes('<TrainingCenterDatabase')) {
-    return res.status(422).json({ error: 'Il file non contiene una traccia GPX/TCX valida' });
+    return errore(res, 422, 'NOT_GPX', 'Il file non contiene una traccia GPX/TCX valida.');
   }
 
   res.setHeader('Content-Type', 'application/gpx+xml; charset=utf-8');
