@@ -16,5 +16,25 @@
       "source": "/",
       "destination": "/landing.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(hub|dettaglio|share_card|trail-card|auth_strava|import_strava|privacy)\\.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/(install|ranking)\\.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
+    }
   ]
 }
