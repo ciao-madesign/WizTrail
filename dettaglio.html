@@ -11,7 +11,8 @@
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/icons/logo.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="wiztrail.css?v=20261117">
+<link rel="stylesheet" href="wiztrail.css?v=20261118">
+<script src="features.js?v=20261118"></script>
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
 <script src="/lib/leaflet/leaflet.js"></script>
 <style>
@@ -60,13 +61,21 @@
   <a href="ranking.html" data-i="ranking">Ranking</a>
   <a href="about.html" data-i="metodo">Il Metodo</a>
 </nav>
-<div id="mapLeaflet"></div>
+<div id="mapLeaflet" hidden></div>
 
 <div class="wrap">
   <div class="back-btn-container" style="margin-top:16px;">
     <a href="ranking.html" class="back-btn">← Ranking WDI</a>
   </div>
 
+  <!-- Schede di dettaglio gara non ancora disponibili (flag WizFeatures.raceDetailEnabled): avviso al posto di dati vuoti -->
+  <div class="card stato-box" id="raceUnavail" role="status" style="margin-top:16px;">
+    <h1 style="font-size:1.4rem;margin:0 0 8px;">Dettaglio gara non ancora disponibile</h1>
+    <p>Le schede di dettaglio delle gare del ranking non sono ancora disponibili. Puoi consultare la classifica oppure analizzare un percorso nel Calcolatore.</p>
+    <p><a class="btn" href="ranking.html">Torna al Ranking</a> <a class="btn secondary" href="index.html">Apri il Calcolatore</a></p>
+  </div>
+
+  <div id="raceContent" hidden>
   <div class="race-hero">
     <h1 id="raceName">—</h1>
     <div class="meta-row">
@@ -119,6 +128,8 @@
     </div>
   </div>
 
+  </div><!-- /raceContent -->
+
   <div class="footer">WizTrail © 2026</div>
 </div>
 
@@ -128,6 +139,11 @@
 <script>
 (function(){
   'use strict';
+  // Dettaglio gara spento: resta visibile solo l'avviso (nessun accesso a GPX o sessionStorage)
+  if(!window.WizFeatures||!WizFeatures.raceDetailEnabled) return;
+  document.getElementById('raceUnavail').hidden=true;
+  document.getElementById('raceContent').hidden=false;
+  document.getElementById('mapLeaflet').hidden=false;
   var map=null,poly=null;
 
   function badgeTextColor(hex){

@@ -17,7 +17,8 @@
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
-<link rel="stylesheet" href="wiztrail.css?v=20261117">
+<link rel="stylesheet" href="wiztrail.css?v=20261118">
+<script src="features.js?v=20261118"></script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ItemList","name":"Ranking WDI — Gare Trail Running","description":"Classifica WDI delle gare trail più famose. Scopri quanto è difficile la tua prossima gara e confrontala con il tuo GPX.","url":"https://wiz-trail.vercel.app/ranking.html","numberOfItems":31,"itemListElement":[{"@type":"ListItem","position":1,"name":"TOR330 — Tor des Géants","description":"WDI 546 · Legend ∞ · 336 km · 29536 m D+"},{"@type":"ListItem","position":2,"name":"TOR130 tot dret","description":"WDI 233 · Legend · 136 km · 11468 m D+"},{"@type":"ListItem","position":3,"name":"Ortles Haute Route Trail","description":"WDI 198 · Elite · 122 km · 9066 m D+"},{"@type":"ListItem","position":4,"name":"TOR100","description":"WDI 182 · Elite · 106 km · 8508 m D+"},{"@type":"ListItem","position":5,"name":"LUT120","description":"WDI 178 · Elite · 120 km · 6311 m D+"},{"@type":"ListItem","position":6,"name":"VUT90","description":"WDI 153 · Elite · 89 km · 6808 m D+"}]}
 </script>
@@ -52,7 +53,7 @@
   <div class="hero-inner">
     <div class="hero-eyebrow">WizTrail — Ranking WDI</div>
     <h1 class="hero-title">Quanto è difficile<br>il tuo percorso?</h1>
-    <p class="hero-desc">Carica il GPX e scopri WDI e TechScore. Poi confronta con le gare del ranking ufficiale.</p>
+    <p class="hero-desc">Carica il GPX e scopri WDI e TechScore. Consulta anche il WDI delle gare selezionate dal team WizTrail.</p>
     <div class="hero-actions">
       <a href="#analizza-gara" class="hero-btn-primary">Analizza il tuo GPX →</a>
       <a href="#ranking-table" class="hero-btn-ghost">Esplora il ranking</a>
@@ -76,7 +77,6 @@
   <h2>Analizza il tuo percorso</h2>
   <p class="mini" style="opacity:0.7; margin-bottom:16px;">
     Carica il GPX della tua gara per ottenere WDI, TechScore e disciplina.
-    Confronta subito con le gare del ranking ufficiale.
   </p>
   <label for="gpxUser">Carica GPX</label>
   <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
@@ -86,19 +86,25 @@
     <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
     <button type="button" class="gpx-alt-link" id="rkLinkBtn" aria-expanded="false" aria-controls="rkLinkRow" data-expands style="background:none;border:none;cursor:pointer;padding:0;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-      link
+      Importa da link
     </button>
   </div>
-  <div id="rkLinkRow" class="field-inline" style="display:none;">
-    <input id="rkLinkUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" placeholder="https://…"/>
+  <div id="rkLinkRow" class="field-inline field-inline--wrap" style="display:none;">
+    <input id="rkLinkUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" aria-describedby="rkLinkHelp" placeholder="Link diretto a un file .gpx"/>
     <button id="rkLinkGo" type="button" class="btn-inline">Carica</button>
+    <p class="hint" id="rkLinkHelp" style="flex-basis:100%;">Funziona con link che scaricano direttamente un file GPX. Il link viene aperto dai nostri server per scaricare il file.</p>
   </div>
   <div id="userResult" style="margin-top:16px;"></div>
 </div>
 
 <!-- SEZIONE 2 — Ranking ufficiale -->
 <div class="card" id="ranking-table">
-<h2>Ranking ufficiale WDI</h2>
+<h2>Ranking WDI delle gare trail <span class="badge badge--beta">Beta</span></h2>
+<p class="note note--warn" id="rankNote" style="margin-bottom:12px;">
+  <strong>Ranking WDI in beta.</strong> Le schede di dettaglio delle gare non sono ancora disponibili: per ora puoi consultare e filtrare la classifica. Per vedere profilo altimetrico, mappa e pacing di un percorso, caricalo nel Calcolatore.
+  <a href="index.html">Apri il Calcolatore</a>
+</p>
+<p class="hint" id="rankCount" style="margin:0 0 12px;">Le gare del ranking sono selezionate dal team WizTrail. L'invio di nuove gare da parte degli utenti non è ancora disponibile.</p>
 <div class="grid grid-2">
 <div>
 <label>Filtra per nome gara</label>
@@ -112,7 +118,6 @@
   <option value="sky">⛰️ Sky</option>
   <option value="mountain">🏔️ Mountain</option>
   <option value="ultra">🔥 Ultra</option>
-  <option value="xc">🏅 XC</option>
 </select>
 </div>
 <div>
@@ -170,9 +175,9 @@
     </div>
 
     <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
-      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">Clicca una gara</div>
-      <div style="font-size:1.1rem;margin-top:4px;">→</div>
-      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">Apre la scheda completa con mappa interattiva, profilo altimetrico, piano di pacing e confronto col tuo GPX.</div>
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">Dettaglio gara</div>
+      <div style="margin-top:4px;"><span class="badge badge--soon">Non ancora disponibile</span></div>
+      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">Le schede con mappa, profilo e pacing delle singole gare non sono ancora disponibili. Puoi analizzare qualsiasi percorso caricando il suo GPX nel Calcolatore.</div>
     </div>
 
   </div>
@@ -261,7 +266,12 @@ document.querySelectorAll(".admin-only").forEach(el => el.style.display = isAdmi
 let races = [];
 fetch("ranking-data.json")
  .then(r => r.json())
- .then(json => { races = json; renderTable(); backgroundComputeTech(); });
+ .then(json => {
+   races = json; renderTable();
+   const rc = document.getElementById('rankCount');
+   if (rc) rc.textContent = races.length + ' gare selezionate dal team WizTrail. L\'invio di nuove gare da parte degli utenti non è ancora disponibile.';
+   if (isAdmin) backgroundComputeTech();   // strumento admin: i GPX non sono pubblicati, nessuna richiesta nel flusso pubblico
+ });
 
 // Calcola TechScore da GPX in background, aggiorna le celle progressivamente
 async function backgroundComputeTech() {
@@ -318,30 +328,35 @@ function renderTable() {
     .forEach(r => {
 
       const tr = document.createElement('tr');
-      tr.style.cssText = `cursor:pointer; border-left:4px solid ${r.color}; background:${r.color}18; transition:background 0.2s;`;
+      tr.style.cssText = `border-left:4px solid ${r.color}; background:${r.color}18;`;
 
-      tr.addEventListener('click', () => {
-        if (!r.gpx) { showRankMsg('GPX non disponibile per questa gara.'); return; }
-        fetch(r.gpx)
-          .then(res => res.text())
-          .then(gpxText => {
-            sessionStorage.setItem('currentRaceGPX', gpxText);
-            sessionStorage.setItem('currentRaceMeta', JSON.stringify({
-              name:       r.name,
-              distance:   r.distance,
-              dplus:      r.dplus,
-              wdi:        r.wdi,
-              class:      r.class,
-              color:      r.color,
-              discipline: r.discipline || 'trail'
-            }));
-            window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
-          })
-          .catch(() => showRankMsg('Errore nel caricamento GPX.'));
-      });
-
-      tr.addEventListener('mouseenter', () => tr.style.background = r.color + '2e');
-      tr.addEventListener('mouseleave', () => tr.style.background = r.color + '18');
+      /* Dettaglio gara spento (WizFeatures.raceDetailEnabled=false): righe di sola lettura,
+         nessun click, nessun download di GPX, nessuna scrittura in sessionStorage. */
+      if (window.WizFeatures && WizFeatures.raceDetailEnabled) {
+        tr.style.cursor = 'pointer';
+        tr.style.transition = 'background 0.2s';
+        tr.addEventListener('click', () => {
+          if (!r.gpx) { showRankMsg('GPX non disponibile per questa gara.'); return; }
+          fetch(r.gpx)
+            .then(res => { if (!res.ok) throw new Error('GPX non disponibile'); return res.text(); })
+            .then(gpxText => {
+              sessionStorage.setItem('currentRaceGPX', gpxText);
+              sessionStorage.setItem('currentRaceMeta', JSON.stringify({
+                name:       r.name,
+                distance:   r.distance,
+                dplus:      r.dplus,
+                wdi:        r.wdi,
+                class:      r.class,
+                color:      r.color,
+                discipline: r.discipline || 'trail'
+              }));
+              window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
+            })
+            .catch(() => showRankMsg('La scheda di questa gara non è disponibile.'));
+        });
+        tr.addEventListener('mouseenter', () => tr.style.background = r.color + '2e');
+        tr.addEventListener('mouseleave', () => tr.style.background = r.color + '18');
+      }
 
       const disciplineBadge = r.discipline ? DisciplineClassifier.renderBadge(r.discipline) : '';
 
@@ -537,12 +552,12 @@ userResult.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
       const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Errore nel caricamento');
+        throw new Error(WizFeatures.testoErroreImport(err.code, res.status));
       }
       const text = await res.text();
       const xml  = new DOMParser().parseFromString(text, 'application/xml');
       const pts  = GPXParser.parseTrack(xml);
-      if (!pts.length) throw new Error('Nessuna traccia trovata nel file');
+      if (!pts.length) throw new Error('Il file non contiene una traccia GPX valida.');
 
       const metrics    = GPXParser.compute(pts);
       const rs         = WizTrail.computeFromGpx(pts, metrics);
@@ -557,7 +572,7 @@ userResult.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
       row.style.display = 'none';
       input.value = '';
     } catch (e) {
-      if (result) result.innerHTML = '<span style="color:var(--error,#f44);font-size:0.85rem;">✗ ' + e.message + '</span>';
+      if (result) result.innerHTML = '<span style="color:var(--error,#f44);font-size:0.85rem;">✗ ' + ((e && e.constructor === Error) ? e.message : WizFeatures.testoErroreImport(null, 0)) + '</span>';
     } finally {
       go.disabled = false;
     }
