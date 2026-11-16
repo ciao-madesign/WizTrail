@@ -105,12 +105,23 @@ window.WizShell = (function () {
     if (t) { e.preventDefault(); e.stopPropagation(); }
   }
 
+  /* aria-expanded dei pulsanti che mostrano/nascondono un riquadro (data-expands + aria-controls) */
+  function syncExpanded(e) {
+    var b = e.target.closest && e.target.closest('[data-expands][aria-controls]');
+    if (!b) return;
+    setTimeout(function () {
+      var t = d.getElementById(b.getAttribute('aria-controls'));
+      b.setAttribute('aria-expanded', t && getComputedStyle(t).display !== 'none' ? 'true' : 'false');
+    }, 0);
+  }
+
   function init() {
     root.classList.add('wt-shell');
     apply(d.body.getAttribute('data-theme') || preferred());
     markNav(); addToggle(); addSkip();
     d.addEventListener('click', blockUnavailable, true);
     d.addEventListener('click', backdrop);
+    d.addEventListener('click', syncExpanded);
     if (window.matchMedia) {
       var mq = matchMedia('(prefers-color-scheme: light)');
       var fn = function () { if (!saved()) apply(preferred()); };

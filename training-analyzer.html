@@ -16,7 +16,7 @@
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="wiztrail.css?v=20261116">
+<link rel="stylesheet" href="wiztrail.css?v=20261117">
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
 <script src="/lib/leaflet/leaflet.js"></script>
 <script type="application/ld+json">
@@ -82,7 +82,7 @@
 <div class="wrap">
 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
   <span class="theme-ctrl">
-    <label class="mini">Tema</label>
+    <label class="mini" for="themeSel">Tema</label>
     <select id="themeSel">
       <option value="dark" selected>Scuro</option>
       <option value="light">Chiaro</option>
@@ -107,9 +107,8 @@
     <span class="gpx-dropzone-main">Trascina il GPX qui o clicca per selezionare</span>
     <span class="gpx-dropzone-sub">GPX · TCX · XML — Garmin, Suunto, Wikiloc, Komoot</span>
   </div>
-  <input type="file" id="gpxFile"
-         accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"
-         style="display:none;"/>
+  <input type="file" id="gpxFile" class="sr-only"
+         accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
 </label>
 
 <!-- Alternativa Strava / link — stile uniforme con index.html -->
@@ -120,14 +119,14 @@
     Importa da Strava
   </button>
   <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
-  <button type="button" class="gpx-alt-link" id="taLinkBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+  <button type="button" class="gpx-alt-link" id="taLinkBtn" aria-expanded="false" aria-controls="taLinkRow" data-expands style="background:none;border:none;cursor:pointer;padding:0;">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
     link
   </button>
 </div>
-<div id="taLinkRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
-  <input id="taLinkUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
-  <button id="taLinkGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
+<div id="taLinkRow" class="field-inline" style="display:none;">
+  <input id="taLinkUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" placeholder="https://…"/>
+  <button id="taLinkGo" type="button" class="btn-inline">Carica</button>
 </div>
 <div style="margin-top:12px;">
 <label>Tempo di completamento</label>
@@ -840,6 +839,6 @@ gpxFile?.addEventListener('change', () => {
 })();
 </script>
 <script src="/cookie-notice.js?v=20261116" defer></script>
-<script src="wiztrail-shell.js?v=20261116" defer></script>
+<script src="wiztrail-shell.js?v=20261117" defer></script>
 </body>
 </html>

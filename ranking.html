@@ -17,7 +17,7 @@
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
-<link rel="stylesheet" href="wiztrail.css?v=20261116">
+<link rel="stylesheet" href="wiztrail.css?v=20261117">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ItemList","name":"Ranking WDI — Gare Trail Running","description":"Classifica WDI delle gare trail più famose. Scopri quanto è difficile la tua prossima gara e confrontala con il tuo GPX.","url":"https://wiz-trail.vercel.app/ranking.html","numberOfItems":31,"itemListElement":[{"@type":"ListItem","position":1,"name":"TOR330 — Tor des Géants","description":"WDI 546 · Legend ∞ · 336 km · 29536 m D+"},{"@type":"ListItem","position":2,"name":"TOR130 tot dret","description":"WDI 233 · Legend · 136 km · 11468 m D+"},{"@type":"ListItem","position":3,"name":"Ortles Haute Route Trail","description":"WDI 198 · Elite · 122 km · 9066 m D+"},{"@type":"ListItem","position":4,"name":"TOR100","description":"WDI 182 · Elite · 106 km · 8508 m D+"},{"@type":"ListItem","position":5,"name":"LUT120","description":"WDI 178 · Elite · 120 km · 6311 m D+"},{"@type":"ListItem","position":6,"name":"VUT90","description":"WDI 153 · Elite · 89 km · 6808 m D+"}]}
 </script>
@@ -63,7 +63,7 @@
 <div class="wrap">
 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
   <span class="theme-ctrl">
-    <label class="mini">Tema</label>
+    <label class="mini" for="themeSel">Tema</label>
     <select id="themeSel">
       <option value="dark" selected>Scuro</option>
       <option value="light">Chiaro</option>
@@ -78,20 +78,20 @@
     Carica il GPX della tua gara per ottenere WDI, TechScore e disciplina.
     Confronta subito con le gare del ranking ufficiale.
   </p>
-  <label>Carica GPX</label>
+  <label for="gpxUser">Carica GPX</label>
   <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
   <div class="gpx-alt-row" style="margin-top:8px;">
     <button class="btn" id="btnUserCompute">Analizza →</button>
     <div id="userComputeMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>
     <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
-    <button type="button" class="gpx-alt-link" id="rkLinkBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+    <button type="button" class="gpx-alt-link" id="rkLinkBtn" aria-expanded="false" aria-controls="rkLinkRow" data-expands style="background:none;border:none;cursor:pointer;padding:0;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
       link
     </button>
   </div>
-  <div id="rkLinkRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
-    <input id="rkLinkUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
-    <button id="rkLinkGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
+  <div id="rkLinkRow" class="field-inline" style="display:none;">
+    <input id="rkLinkUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" placeholder="https://…"/>
+    <button id="rkLinkGo" type="button" class="btn-inline">Carica</button>
   </div>
   <div id="userResult" style="margin-top:16px;"></div>
 </div>
@@ -647,6 +647,6 @@ function openCertContact() {
 </script>
 
 <script src="/cookie-notice.js?v=20261116" defer></script>
-<script src="wiztrail-shell.js?v=20261116" defer></script>
+<script src="wiztrail-shell.js?v=20261117" defer></script>
 </body>
 </html>

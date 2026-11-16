@@ -41,7 +41,7 @@
   <script src="/lib/leaflet/leaflet.js"></script>
 
   <!-- WizTrail CSS -->
-  <link rel="stylesheet" href="wiztrail.css?v=20261116">
+  <link rel="stylesheet" href="wiztrail.css?v=20261117">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"SoftwareApplication","name":"WizTrail — Calcolatore GPX Trail","url":"https://wiz-trail.vercel.app/index.html","applicationCategory":"SportsApplication","operatingSystem":"Web","description":"Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale, nessun dato personale inviato a server.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}
 </script>
@@ -89,7 +89,7 @@
   <!-- Toolbar Link WDI -->
 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
     <span class="theme-ctrl">
-      <label class="mini">Tema</label>
+      <label class="mini" for="themeSel">Tema</label>
       <select id="themeSel">
         <option value="dark" selected>Scuro</option>
         <option value="light">Chiaro</option>
@@ -117,7 +117,7 @@
             <span class="gpx-dropzone-main">Trascina il GPX qui o clicca per selezionare</span>
             <span class="gpx-dropzone-sub">GPX · TCX · XML — Garmin, Suunto, Wikiloc, Komoot</span>
           </div>
-          <input id="gpxfile" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml" style="display:none;"/>
+          <input id="gpxfile" class="sr-only" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
         </label>
 
         <!-- Alternativa Strava / link -->
@@ -128,18 +128,18 @@
             Importa da Strava
           </a>
           <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
-          <button type="button" class="gpx-alt-link" id="linkImportBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+          <button type="button" class="gpx-alt-link" id="linkImportBtn" aria-expanded="false" aria-controls="linkImportRow" data-expands style="background:none;border:none;cursor:pointer;padding:0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             link
           </button>
         </div>
-        <div id="linkImportRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
-          <input id="linkImportUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
-          <button id="linkImportGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
+        <div id="linkImportRow" class="field-inline" style="display:none;">
+          <input id="linkImportUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" placeholder="https://…"/>
+          <button id="linkImportGo" type="button" class="btn-inline">Carica</button>
         </div>
 
         <!-- Info dopo caricamento -->
-        <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
+        <div id="gpxInfo" class="mini" role="status" aria-live="polite" style="margin-top:6px;"></div>
         <div id="gpxEmpty" class="gpx-empty" style="display:none;">
           <span>Senza GPX: inserisci distanza e D+ manualmente</span>
         </div>
@@ -147,7 +147,7 @@
 
       <fieldset>
         <legend>Parametri atleta</legend>
-        <label>Tempo 10 km in piano (mm:ss)
+        <label for="t10k">Tempo 10 km in piano (mm:ss)
           <span class="mini" style="opacity:0.65; font-weight:400;">
             — usato per pacing e stima tempo personalizzata
           </span>
@@ -160,11 +160,11 @@
         <div class="grid grid-2" style="gap:12px; margin-top:8px;">
           <fieldset>
             <legend>Distanza (km)</legend>
-            <input id="dist" type="number" step="0.001" min="0.1" max="500" value="21.097"/>
+            <input id="dist" aria-label="Distanza in chilometri" type="number" step="0.001" min="0.1" max="500" value="21.097"/>
           </fieldset>
           <fieldset>
             <legend>D+ (m)</legend>
-            <input id="dplus" type="number" step="1" min="0" max="30000" value="0"/>
+            <input id="dplus" aria-label="Dislivello positivo in metri" type="number" step="1" min="0" max="30000" value="0"/>
           </fieldset>
         </div>
       </fieldset>
@@ -176,14 +176,14 @@
       <div class="accordion-body" id="advBody">
         <fieldset>
           <legend>Tecnica del percorso</legend>
-          <label>Livello tecnicità</label>
+          <label for="terrain">Livello tecnicità</label>
           <select id="terrain">
             <option value="Strada">Strada / molto semplice</option>
             <option value="E">E – Trail semplice</option>
             <option value="EE">EE – Impegnativo</option>
             <option value="EA">EA – Tecnico / Esposizione</option>
           </select>
-          <label style="margin-top:8px;">Fondo</label>
+          <label for="surfaceLvl" style="margin-top:8px;">Fondo</label>
           <select id="surfaceLvl">
             <option value="1">Asfalto / sterrato compatto</option>
             <option value="2">Sentiero battuto</option>
@@ -196,7 +196,7 @@
         <div class="grid grid-2" style="gap:12px;">
           <fieldset>
             <legend>Meteo</legend>
-            <select id="meteo">
+            <select id="meteo" aria-label="Condizioni meteo">
               <option value="1.00">Fresco</option>
               <option value="1.02">Mite</option>
               <option value="1.04" selected>Caldo</option>
@@ -205,7 +205,7 @@
           </fieldset>
           <fieldset>
             <legend>Altitudine media</legend>
-            <select id="alt">
+            <select id="alt" aria-label="Altitudine media">
               <option value="1.00">≤500 m</option>
               <option value="1.01">500–1000 m</option>
               <option value="1.02" selected>1000–1500 m</option>
@@ -215,12 +215,12 @@
           </fieldset>
           <fieldset>
             <legend>Margine ±%</legend>
-            <input id="margin" type="number" value="10"/>
+            <input id="margin" aria-label="Margine di errore in percentuale" type="number" value="10"/>
           </fieldset>
         </div>
         <fieldset>
           <legend>Livello</legend>
-          <input id="spec" type="range" min="0" max="1" step="0.1" value="0.2" style="width:100%; margin:6px 0;"/>
+          <input id="spec" aria-label="Livello di specificità" type="range" min="0" max="1" step="0.1" value="0.2" style="width:100%; margin:6px 0;"/>
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7;">
             <span>Principiante</span><span>Amatore</span><span>Avanzato</span><span>Agonista</span><span>Elite</span>
           </div>
@@ -243,10 +243,10 @@
         <div id="calc_tips_body" class="mini" style="display:none; margin-top:10px;"></div>
       </div>
 
-      <div id="msg" class="mini"></div>
+      <div id="msg" class="mini" role="status" aria-live="polite"></div>
 
       <!-- KPI primari: WDI + Tempo -->
-      <div id="kpiResults" style="margin-top:16px;">
+      <div id="kpiResults" aria-live="polite" style="margin-top:16px;">
         <div class="grid grid-2" style="gap:12px; margin-bottom:12px;">
           <div class="kpi kpi-primary">
             <h3>WDI</h3>
@@ -327,7 +327,7 @@
     <div class="card" id="elevSection" style="display:none;">
       <h2>Profilo altimetrico</h2>
       <div class="profile-wrap">
-        <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
+        <canvas id="elevCanvas" role="img" aria-label="Profilo altimetrico del percorso"></canvas>
       </div>
       <!-- Mappa percorso — inizializzata da map.js.init() al primo drawTrack().
            Il div è SEMPRE nel DOM (non dentro display:none) → Leaflet si inizializza con dimensioni reali. -->
@@ -579,6 +579,6 @@
   })();
   </script>
 <script src="/cookie-notice.js?v=20261116" defer></script>
-<script src="wiztrail-shell.js?v=20261116" defer></script>
+<script src="wiztrail-shell.js?v=20261117" defer></script>
 </body>
 </html>
