@@ -27,7 +27,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="WizTrail">
 
-  <link rel="stylesheet" href="wiztrail.css?v=20261117">
+  <link rel="stylesheet" href="wiztrail.css?v=20261118">
 
   <style>
     /* ── Landing-specific styles ─────────────────────────────────── */
@@ -523,10 +523,10 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"Cos'è il WDI e come si calcola?","acceptedAnswer":{"@type":"Answer","text":"Il WDI (WizTrail Difficulty Index) misura la difficoltà reale di un percorso trail. Combina distanza, dislivello, pendenza massima su finestra 40m (FRIP), variabilità del terreno (SlopeVar) e rugosità del profilo altimetrico (Roughness). Calibrato su 96 gare e 47 GPX reali."}},
-{"@type":"Question","name":"Che file posso caricare?","acceptedAnswer":{"@type":"Answer","text":"WizTrail supporta file GPX e TCX esportati da Garmin, Suunto, Wahoo, Coros, Polar o scaricati da Strava. Puoi anche importare un'attività direttamente da Strava nel Training Analyzer."}},
-{"@type":"Question","name":"WizTrail funziona offline?","acceptedAnswer":{"@type":"Answer","text":"Sì. WizTrail è una Progressive Web App (PWA): dopo il primo caricamento, tutto il codice e le risorse sono salvati localmente. Solo l'import da Strava richiede Internet. Installabile su iOS da Safari e su Android da Chrome."}},
+{"@type":"Question","name":"Che file posso caricare?","acceptedAnswer":{"@type":"Answer","text":"File GPX e TCX (anche XML con tracce compatibili) esportati da Garmin, Suunto, Wahoo, Coros, Polar, Strava o altre app. Il caricamento è manuale: la sincronizzazione diretta con orologi e piattaforme non è ancora disponibile."}},
+{"@type":"Question","name":"WizTrail funziona offline?","acceptedAnswer":{"@type":"Answer","text":"In parte. Dopo il primo caricamento il calcolo funziona anche senza connessione. Mappa, import da link e invio del feedback richiedono Internet. Installabile su iOS da Safari e su Android da Chrome."}},
 {"@type":"Question","name":"WizTrail funziona su mobile?","acceptedAnswer":{"@type":"Answer","text":"Sì, l'interfaccia è ottimizzata per smartphone. Puoi installarlo come app PWA: su iOS usa Safari → Aggiungi a schermo Home; su Android usa Chrome → Installa app."}},
-{"@type":"Question","name":"Posso importare da Strava?","acceptedAnswer":{"@type":"Answer","text":"Sì. Nel Training Analyzer puoi collegarti a Strava tramite OAuth e importare le attività recenti per analizzarle. L'accesso è opzionale e richiede il tuo consenso esplicito."}},
+{"@type":"Question","name":"Posso importare da Strava?","acceptedAnswer":{"@type":"Answer","text":"Non ancora. L'importazione da Strava non è al momento disponibile. Puoi scaricare il GPX dell'attività da strava.com e caricarlo in WizTrail: l'analisi è la stessa."}},
 {"@type":"Question","name":"Cos'è il TechScore?","acceptedAnswer":{"@type":"Answer","text":"Il TechScore misura la tecnicità pura di un percorso, indipendente dalla lunghezza. Analizza pendenza massima (FRIP), variabilità delle pendenze (SlopeVar) e rugosità del profilo altimetrico (Roughness). Scala 0–10: sopra 7 è terreno tecnico estremo."}},
 {"@type":"Question","name":"Come viene stimato il tempo di gara?","acceptedAnswer":{"@type":"Answer","text":"Il modello segment-based v3.0 calcola la velocità per ogni tratto del percorso in funzione di pendenza, tecnicità, meteo, quota e livello dell'atleta. La stima è personalizzata: due atleti con livelli diversi ottengono stime diverse sullo stesso percorso."}},
 {"@type":"Question","name":"Cos'è il pacing adattivo?","acceptedAnswer":{"@type":"Answer","text":"Il Pacing Planner divide il percorso in segmenti da 5 km e calcola il ritmo consigliato per ciascuno, considerando pendenza, tecnicità del terreno e fatica progressiva. L'obiettivo è distribuire lo sforzo per evitare cali di ritmo nella seconda metà di gara."}},
@@ -624,8 +624,7 @@
       <span class="feature-icon">🏃</span>
       <h3 class="feature-title">Analizza l'allenamento</h3>
       <p class="feature-desc">
-        Hai appena finito un'uscita? Carica il GPX o importa da Strava e scopri
-        quanto è stata impegnativa, calibrato sul tuo livello.
+        Hai appena finito un'uscita? Carica il GPX e scopri quanto era dura davvero.
       </p>
       <a href="training-analyzer.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Apri Training Analyzer →</a>
     </div>
@@ -673,10 +672,10 @@
       <span class="feature-icon">🏃</span>
       <h3 class="feature-title">Training Analyzer</h3>
       <p class="feature-desc">
-        Analizza le tue sessioni di allenamento importate da Strava.
+        Analizza le tue sessioni di allenamento caricando il GPX.
         Il TrainingScore adatta i giudizi al contesto di allenamento.
       </p>
-      <span class="feature-tag">Integrazione Strava</span>
+      <span class="feature-tag">Carica il tuo GPX</span>
     </div>
 
   </div>
@@ -787,11 +786,11 @@
       </details>
       <details class="faq-item">
         <summary>Che file posso caricare?</summary>
-        <p class="faq-answer">Supporta file GPX e TCX esportati da Garmin, Suunto, Wahoo, Coros, Polar o scaricati da Strava. Puoi anche importare un'attività direttamente da Strava nel Training Analyzer.</p>
+        <p class="faq-answer">File GPX e TCX (anche XML con tracce compatibili) esportati da Garmin, Suunto, Wahoo, Coros, Polar, Strava o altre app. Il caricamento è manuale: la sincronizzazione diretta con orologi e piattaforme non è ancora disponibile.</p>
       </details>
       <details class="faq-item">
         <summary>WizTrail funziona offline?</summary>
-        <p class="faq-answer">Sì. WizTrail è una PWA: dopo il primo caricamento tutto funziona senza connessione. Solo l'import da Strava richiede Internet. Installabile su iOS da Safari e su Android da Chrome.</p>
+        <p class="faq-answer">In parte. Dopo il primo caricamento il calcolo funziona anche senza connessione. Mappa, import da link e invio del feedback richiedono Internet. Installabile su iOS da Safari e su Android da Chrome.</p>
       </details>
       <details class="faq-item">
         <summary>WizTrail funziona su mobile?</summary>
@@ -799,7 +798,7 @@
       </details>
       <details class="faq-item">
         <summary>Posso importare da Strava?</summary>
-        <p class="faq-answer">Sì. Nel Training Analyzer puoi collegarti a Strava tramite OAuth e importare le attività recenti per analizzarle. L'accesso è opzionale e richiede il tuo consenso esplicito.</p>
+        <p class="faq-answer">Non ancora. L'importazione da Strava non è al momento disponibile. Puoi scaricare il GPX dell'attività da strava.com e caricarlo in WizTrail: l'analisi è la stessa.</p>
       </details>
     </div>
     <div>
