@@ -1,7 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "@xmldom/xmldom": "^0.8.10"
+    "@xmldom/xmldom": "^0.8.15"
   },
   "devDependencies": {
     "html2canvas": "^1.4.1",
