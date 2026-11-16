@@ -424,9 +424,22 @@
      AUTO-LOAD DA STRAVA (index.html?source=strava&id=...)
      Attivato quando l'utente torna da import_strava.html
      ------------------------------------------------------------------ */
+  /* Flag Strava: spento di default (WizFeatures.stravaEnabled). Il codice resta, riattivabile col flag. */
+  if (window.WizFeatures && WizFeatures.stravaEnabled) {
+    const live = document.getElementById('stravaLinkLive'), off = document.getElementById('stravaBtnOff');
+    if (live) live.hidden = false;
+    if (off) off.hidden = true;
+  }
+
   (async function loadFromStravaIfNeeded() {
     const sp = new URLSearchParams(location.search);
     if (sp.get('source') !== 'strava') return;
+    if (!(window.WizFeatures && WizFeatures.stravaEnabled)) {
+      // Link vecchio (?source=strava&id=...): messaggio in pagina invece del caricamento
+      WizUI.showError(WizFeatures.MSG_STRAVA_NON_DISPONIBILE);
+      history.replaceState(null, '', location.pathname);
+      return;
+    }
     const activityId = sp.get('id');
     if (!activityId || !/^\d{1,20}$/.test(activityId)) return;
 
@@ -443,6 +456,15 @@
       const res = await fetch('/api/strava/activity?mode=analyze&id=' + encodeURIComponent(activityId), {
         headers: { Authorization: 'Bearer ' + token }
       });
+      if (res.status === 503) {
+        // Funzione spenta lato server (FEATURE_UNAVAILABLE): non è un token scaduto, il token resta
+        const d503 = await res.json().catch(() => ({}));
+        if (WizFeatures.funzioneNonDisponibile(res, d503)) {
+          if (mainTxt) mainTxt.textContent = WizFeatures.MSG_STRAVA_NON_DISPONIBILE;
+          WizUI.showError(WizFeatures.MSG_STRAVA_NON_DISPONIBILE);
+          return;
+        }
+      }
       if (res.status === 401) {
         sessionStorage.removeItem('strava_token');
         sessionStorage.removeItem('strava_athlete_id');

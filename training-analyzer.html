@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WizTrail – Training Analyzer</title>
-<meta name="description" content="Analizza la difficoltà dei tuoi allenamenti trail. Carica il GPX o importa da Strava e ottieni il WDI del tuo allenamento.">
+<meta name="description" content="Analizza la difficoltà dei tuoi allenamenti trail: carica il GPX e ottieni WDI, TechScore e stima del tempo.">
 <meta property="og:title" content="WizTrail — Training Analyzer" />
-<meta property="og:description" content="Analizza la difficoltà dei tuoi allenamenti trail con il WDI. Importa da Strava o carica il GPX." />
+<meta property="og:description" content="Analizza la difficoltà dei tuoi allenamenti trail: carica il GPX e ottieni WDI, TechScore e stima del tempo." />
 <meta property="og:type" content="website" />
 <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-training.jpg" />
 <meta name="twitter:card" content="summary_large_image">
@@ -16,11 +16,12 @@
 <meta name="theme-color" content="#002b2b">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="wiztrail.css?v=20261117">
+<link rel="stylesheet" href="wiztrail.css?v=20261118">
+<script src="features.js?v=20261118"></script>
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
 <script src="/lib/leaflet/leaflet.js"></script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WizTrail Training Analyzer","url":"https://wiz-trail.vercel.app/training-analyzer.html","applicationCategory":"SportsApplication","operatingSystem":"Web","description":"Analizza la difficoltà dei tuoi allenamenti trail. Carica il GPX o importa da Strava e ottieni il WDI del tuo allenamento.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WizTrail Training Analyzer","url":"https://wiz-trail.vercel.app/training-analyzer.html","applicationCategory":"SportsApplication","operatingSystem":"Web","description":"Analizza la difficoltà dei tuoi allenamenti trail: carica il GPX e ottieni WDI, TechScore e stima del tempo.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}
 </script>
 </head>
 <body data-theme="dark">
@@ -72,7 +73,7 @@
   <div class="hero-inner">
     <div class="hero-eyebrow">WizTrail — Training Analyzer</div>
     <h1 class="hero-title">Analizza i tuoi<br>allenamenti</h1>
-    <p class="hero-desc">Importa da Strava o carica il GPX. WDI, TechScore e stima tempo calibrati sul tuo livello.</p>
+    <p class="hero-desc">Carica il GPX di un'uscita già fatta: WDI, TechScore e stima del tempo calibrati sul tuo livello.</p>
     <div class="hero-actions">
       <a href="#training-card" class="hero-btn-primary">Inizia l'analisi →</a>
     </div>
@@ -90,6 +91,13 @@
   </span>
 </div>
 
+<!-- Deep link ?source=strava con Strava spenta: messaggio al posto del caricamento -->
+<div class="note note--warn stato-box" id="stravaUnavail" role="status" hidden>
+  <strong>Strava non ancora disponibile.</strong>
+  L'importazione da Strava non è ancora disponibile. Carica il file GPX dell'attività.
+  <div><button type="button" class="btn" id="stravaUnavailBtn">Carica un GPX</button></div>
+</div>
+
 <!-- IMPORT -->
 <div class="card" id="training-card" style="margin-top:20px;">
 <h2>Carica la tua attività</h2>
@@ -105,28 +113,32 @@
   </div>
   <div class="gpx-dropzone-text">
     <span class="gpx-dropzone-main">Trascina il GPX qui o clicca per selezionare</span>
-    <span class="gpx-dropzone-sub">GPX · TCX · XML — Garmin, Suunto, Wikiloc, Komoot</span>
+    <span class="gpx-dropzone-sub">GPX · TCX · XML — file esportati da Garmin, Suunto, Wikiloc, Komoot e altre app</span>
   </div>
   <input type="file" id="gpxFile" class="sr-only"
          accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
 </label>
 
-<!-- Alternativa Strava / link — stile uniforme con index.html -->
+<!-- Altre sorgenti: link diretto a un file GPX. Strava: non ancora disponibile (flag WizFeatures.stravaEnabled) -->
 <div class="gpx-alt-row">
   <span class="gpx-alt-sep">oppure</span>
-  <button type="button" class="gpx-alt-link" onclick="openStravaModal()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-    Importa da Strava
-  </button>
-  <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
   <button type="button" class="gpx-alt-link" id="taLinkBtn" aria-expanded="false" aria-controls="taLinkRow" data-expands style="background:none;border:none;cursor:pointer;padding:0;">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-    link
+    Importa da link
   </button>
+  <span class="gpx-alt-sep" aria-hidden="true">·</span>
+  <button type="button" class="action--unavailable" id="stravaBtnOff" aria-disabled="true" aria-describedby="srcNote">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+    Strava <span class="badge badge--soon">Non ancora disponibile</span>
+  </button>
+  <!-- Percorso attivo (solo con flag acceso): resta nel codice, nascosto -->
+  <button type="button" class="gpx-alt-link" id="stravaBtnLive" hidden onclick="openStravaModal()">Importa da Strava</button>
 </div>
-<div id="taLinkRow" class="field-inline" style="display:none;">
-  <input id="taLinkUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" placeholder="https://…"/>
+<p class="note" id="srcNote">Strava e sincronizzazione con gli orologi: non ancora disponibili. Carica il file GPX esportato dalla tua app o dal tuo orologio (su strava.com: menu "…" dell'attività &gt; "Esporta GPX").</p>
+<div id="taLinkRow" class="field-inline field-inline--wrap" style="display:none;">
+  <input id="taLinkUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" aria-describedby="taLinkHelp" placeholder="Link diretto a un file .gpx"/>
   <button id="taLinkGo" type="button" class="btn-inline">Carica</button>
+  <p class="hint" id="taLinkHelp" style="flex-basis:100%;">Funziona con link che scaricano direttamente un file GPX. Le pagine di Strava, Komoot o Wikiloc non sono file: scarica il GPX e caricalo qui sopra. Il link viene aperto dai nostri server per scaricare il file.</p>
 </div>
 <div style="margin-top:12px;">
 <label>Tempo di completamento</label>
@@ -582,8 +594,8 @@ window.currentRealTime = realTimeStr;
 /* ANALISI */
 btnAnalyze.addEventListener("click", async () => {
 
-  // 👉 CASO STRAVA: NON fare nulla (già analizzato)
-  if (source === "strava") {
+  // 👉 CASO STRAVA: NON fare nulla (già analizzato) — solo con Strava attiva
+  if (source === "strava" && WizFeatures.stravaEnabled) {
     return;
   }
 
@@ -610,7 +622,25 @@ btnAnalyze.addEventListener("click", async () => {
 
 function parseTimeToSec(t){const p=t.split(":" ).map(Number);if(p.length!==3)return null;return p[0]*3600+p[1]*60+p[2];}
 
+/* Strava spenta (WizFeatures.stravaEnabled=false): nessun login, nessuna chiamata, messaggio in pagina */
+function mostraStravaNonDisponibile() {
+  const box = document.getElementById('stravaUnavail');
+  if (box) { box.hidden = false; box.scrollIntoView({ block: 'nearest' }); }
+}
+(function initStravaFlag() {
+  if (WizFeatures.stravaEnabled) {
+    const live = document.getElementById('stravaBtnLive'), off = document.getElementById('stravaBtnOff');
+    if (live) live.hidden = false;
+    if (off) off.hidden = true;
+  }
+  document.getElementById('stravaUnavailBtn')?.addEventListener('click', () => {
+    document.getElementById('gpxDropzone')?.scrollIntoView({ block: 'center' });
+    document.getElementById('gpxFile')?.focus({ preventScroll: true });
+  });
+})();
+
 function loginStrava() {
+  if (!WizFeatures.stravaEnabled) { mostraStravaNonDisponibile(); return; }
   const clientId   = "219532";
   const redirectUri = `${window.location.origin}/auth_strava.html`;
   const state      = crypto.randomUUID();
@@ -619,6 +649,7 @@ function loginStrava() {
   window.location.href = url;
 }
 async function loadFromStrava(activityId) {
+  if (!WizFeatures.stravaEnabled) { mostraStravaNonDisponibile(); return; }
   const token = sessionStorage.getItem("strava_token");
 
   if (!token) {
@@ -633,8 +664,12 @@ async function loadFromStrava(activityId) {
       }
     });
 
-const data = await res.json();
+const data = await res.json().catch(() => ({}));
 
+if (WizFeatures.funzioneNonDisponibile(res, data)) {   // 503: funzione spenta, il token non c'entra
+  mostraStravaNonDisponibile();
+  return;
+}
 if (!res.ok || data.error) {
   showTaError(data.error || "Errore analisi");
   return;
@@ -656,13 +691,18 @@ renderAnalysis(pts, mt, realTimeStr);
     showTaError("Errore caricamento attività");
   }
 }
-// AUTO LOAD STRAVA
+// AUTO LOAD STRAVA (con Strava spenta mostra il messaggio e lascia attivo il caricamento del GPX)
 if (source === "strava" && activityId) {
-  loadFromStrava(activityId);
-btnAnalyze.style.display = "none";
+  if (WizFeatures.stravaEnabled) {
+    loadFromStrava(activityId);
+    btnAnalyze.style.display = "none";
+  } else {
+    mostraStravaNonDisponibile();
+  }
 }
 
 function openStravaModal() {
+  if (!WizFeatures.stravaEnabled) { mostraStravaNonDisponibile(); return; }
   // Modale accessibile (focus trap, ESC, ripristino del focus) via WizShell; fallback senza shell
   if (window.WizShell) WizShell.modal.open('stravaModal');
   else { stravaModal.classList.add('is-open'); stravaModal.removeAttribute('aria-hidden'); }
@@ -675,6 +715,7 @@ function closeStravaModal() {
 }
 
 async function loadStravaActivities() {
+  if (!WizFeatures.stravaEnabled) { mostraStravaNonDisponibile(); return; }
 
   const token = sessionStorage.getItem("strava_token");
 
@@ -687,9 +728,19 @@ async function loadStravaActivities() {
   stravaList.innerHTML = "";
 
   try {
-const res = await fetch(`/api/strava/activities?token=${token}`);
+const res = await fetch('/api/strava/activities', { headers: { Authorization: 'Bearer ' + token } });
 
-    const acts = await res.json();
+    const acts = await res.json().catch(() => ({}));
+    if (WizFeatures.funzioneNonDisponibile(res, acts)) {   // 503: funzione spenta, il token resta
+      closeStravaModal();
+      mostraStravaNonDisponibile();
+      return;
+    }
+    if (!res.ok || !Array.isArray(acts)) {
+      stravaLoading.style.display = "block";
+      stravaLoading.textContent = "Non è stato possibile caricare le attività. Carica il file GPX dell'attività.";
+      return;
+    }
 
     stravaLoading.style.display = "none";
 
@@ -706,7 +757,7 @@ const res = await fetch(`/api/strava/activities?token=${token}`);
       `;
 
       card.innerHTML = `
-        <div style="font-weight:600;">${a.name}</div>
+        <div style="font-weight:600;">${String(a.name).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</div>
         <div class="mini">
           ${(a.distance/1000).toFixed(1)} km • ${Math.round(a.total_elevation_gain)} m
         </div>
@@ -756,11 +807,12 @@ if (sessionStorage.getItem("strava_token") && source !== "strava") {
       const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Errore nel caricamento');
+        const e = new Error(WizFeatures.testoErroreImport(err.code, res.status)); e.mostra = true;
+        throw e;
       }
       const text = await res.text();
       const g    = parseGPX(text);
-      if (!g.pts.length) throw new Error('Nessuna traccia trovata nel file');
+      if (!g.pts.length) { const e = new Error('Il file non contiene una traccia GPX valida.'); e.mostra = true; throw e; }
 
       const mt = computeMetrics(g.pts);
       renderAnalysis(g.pts, mt, '');
@@ -770,7 +822,7 @@ if (sessionStorage.getItem("strava_token") && source !== "strava") {
       row.style.display = 'none';
       input.value = '';
     } catch (e) {
-      if (mainTxt) mainTxt.textContent = '✗ ' + e.message;
+      if (mainTxt) mainTxt.textContent = '✗ ' + ((e && e.mostra) ? e.message : WizFeatures.testoErroreImport(null, 0));
       if (dz) dz.classList.remove('loaded');
     } finally {
       go.disabled = false;

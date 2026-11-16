@@ -1933,6 +1933,16 @@ body.is-modal{ overflow:hidden; }
 }
 .linklike:focus-visible{ outline:2px solid var(--focus-ring); outline-offset:2px; border-radius:3px; }
 
+/* Azioni non disponibili e note sempre visibili (Strava / orologi) */
+.field-inline--wrap{ flex-wrap:wrap; }
+.gpx-alt-row{ flex-wrap:wrap; }
+.gpx-alt-row .action--unavailable{ min-height:44px; padding:4px 12px; font-size:.875rem; }
+.action--unavailable[aria-disabled="true"]{ pointer-events:auto; }
+#srcNote{ margin:10px 0 0; }
+.gpx-alt-link[hidden], .action--unavailable[hidden]{ display:none; }
+.stato-box{ margin:0 0 16px; }
+.stato-box .btn{ margin:6px 8px 0 0; }
+
 /* ===== 9.F RIDUZIONE MOVIMENTO (deve restare l'ULTIMO blocco) ===== */
 @media (prefers-reduced-motion:reduce){
   *, *::before, *::after{

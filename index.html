@@ -128,22 +128,26 @@
           <input id="gpxfile" class="sr-only" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
         </label>
 
-        <!-- Alternativa Strava / link -->
+        <!-- Altre sorgenti: link diretto a un file GPX. Strava: non ancora disponibile (flag WizFeatures.stravaEnabled) -->
         <div class="gpx-alt-row">
           <span class="gpx-alt-sep">oppure</span>
-          <a href="import_strava.html?return=index" class="gpx-alt-link">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-            Importa da Strava
-          </a>
-          <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
           <button type="button" class="gpx-alt-link" id="linkImportBtn" aria-expanded="false" aria-controls="linkImportRow" data-expands style="background:none;border:none;cursor:pointer;padding:0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            link
+            Importa da link
           </button>
+          <span class="gpx-alt-sep" aria-hidden="true">·</span>
+          <button type="button" class="action--unavailable" id="stravaBtnOff" aria-disabled="true" aria-describedby="srcNote">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+            Strava <span class="badge badge--soon">Non ancora disponibile</span>
+          </button>
+          <!-- Percorso attivo (solo con flag acceso): resta nel codice, nascosto -->
+          <a href="import_strava.html?return=index" class="gpx-alt-link" id="stravaLinkLive" hidden>Importa da Strava</a>
         </div>
-        <div id="linkImportRow" class="field-inline" style="display:none;">
-          <input id="linkImportUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" placeholder="https://…"/>
+        <p class="note" id="srcNote">Strava e sincronizzazione con gli orologi: non ancora disponibili. Carica il file GPX esportato dalla tua app o dal tuo orologio (su strava.com: menu "…" dell'attività &gt; "Esporta GPX").</p>
+        <div id="linkImportRow" class="field-inline field-inline--wrap" style="display:none;">
+          <input id="linkImportUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" aria-describedby="linkHelp" placeholder="Link diretto a un file .gpx"/>
           <button id="linkImportGo" type="button" class="btn-inline">Carica</button>
+          <p class="hint" id="linkHelp" style="flex-basis:100%;">Funziona con link che scaricano direttamente un file GPX. Le pagine di Strava, Komoot o Wikiloc non sono file: scarica il GPX e caricalo qui sopra. Il link viene aperto dai nostri server per scaricare il file.</p>
         </div>
 
         <!-- Info dopo caricamento -->
