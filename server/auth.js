@@ -1,5 +1,5 @@
 /**
- * api/lib/auth.js — Autenticazione centralizzata per le API pubbliche v1.
+ * server/auth.js — Autenticazione centralizzata per le API pubbliche v1.
  *
  * Controlla x-api-key contro:
  *   1. Variabile d'ambiente API_KEYS (comma-separated) — chiavi statiche

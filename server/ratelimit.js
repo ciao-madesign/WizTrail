@@ -1,5 +1,5 @@
 /**
- * api/lib/ratelimit.js — Rate limiting condiviso via Upstash Redis
+ * server/ratelimit.js — Rate limiting condiviso via Upstash Redis
  *
  * Usa l'API REST di Upstash direttamente (no SDK) per massima
  * compatibilità con Vercel Edge e Node runtime.

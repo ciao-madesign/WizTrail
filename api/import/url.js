@@ -7,7 +7,7 @@
  * Blocca: IP privati, schemi non-http/https, file >5MB, content-type non GPX/XML.
  */
 
-import { checkRateLimit, getIP } from '../lib/ratelimit.js';
+import { checkRateLimit, getIP } from '../../server/ratelimit.js';
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 

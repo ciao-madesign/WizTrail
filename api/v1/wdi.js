@@ -33,10 +33,10 @@
  *   }
  */
 
-import { checkRateLimit, getIP } from '../lib/ratelimit.js';
-import { checkApiKey } from '../lib/auth.js';
-import { computeManual, classifyDiscipline } from '../lib/engine-node.js';
-import { computeTimeManual, levelFromS, estimateMedianTime } from '../lib/timing-node.js';
+import { checkRateLimit, getIP } from '../../server/ratelimit.js';
+import { checkApiKey } from '../../server/auth.js';
+import { computeManual, classifyDiscipline } from '../../server/engine-node.js';
+import { computeTimeManual, levelFromS, estimateMedianTime } from '../../server/timing-node.js';
 
 function secToHMS(s) {
   const h   = Math.floor(s / 3600);

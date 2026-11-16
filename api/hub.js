@@ -19,7 +19,7 @@
  *   requestkey  POST  — self-service: l'utente richiede una key, la riceve via email (pubblico)
  */
 
-import { checkRateLimit, getIP } from './lib/ratelimit.js';
+import { checkRateLimit, getIP } from '../server/ratelimit.js';
 
 /* ── Variabili d'ambiente ─────────────────────────────────────── */
 const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;

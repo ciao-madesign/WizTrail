@@ -12,7 +12,7 @@
  * Rate limit: 30 req/min per IP (Upstash)
  */
 
-import { checkRateLimit, getIP } from '../lib/ratelimit.js';
+import { checkRateLimit, getIP } from '../../server/ratelimit.js';
 
 export default async function handler(req, res) {
 

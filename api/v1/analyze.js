@@ -36,14 +36,14 @@
  *   }
  */
 
-import { checkRateLimit, getIP } from '../lib/ratelimit.js';
-import { checkApiKey } from '../lib/auth.js';
-import { parseTrack, compute }   from '../lib/gpx-node.js';
-import { computeFromGpx, classifyDiscipline } from '../lib/engine-node.js';
-import { computeTime, estimateMedianTime, estimatePercentile } from '../lib/timing-node.js';
-import { generatePacingPlan, serializeChunks, secToHMS } from '../lib/pacing-node.js';
-import { compute as computeStats }     from '../lib/trail-stats-node.js';
-import { generate as generateInsights } from '../lib/trail-insights-node.js';
+import { checkRateLimit, getIP } from '../../server/ratelimit.js';
+import { checkApiKey } from '../../server/auth.js';
+import { parseTrack, compute }   from '../../server/gpx-node.js';
+import { computeFromGpx, classifyDiscipline } from '../../server/engine-node.js';
+import { computeTime, estimateMedianTime, estimatePercentile } from '../../server/timing-node.js';
+import { generatePacingPlan, serializeChunks, secToHMS } from '../../server/pacing-node.js';
+import { compute as computeStats }     from '../../server/trail-stats-node.js';
+import { generate as generateInsights } from '../../server/trail-insights-node.js';
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
 
