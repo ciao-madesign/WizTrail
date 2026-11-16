@@ -3,21 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WizTrail — Analizza la difficoltà del tuo trail</title>
-  <link rel="canonical" href="https://wiz-trail.vercel.app/">
-  <meta name="description" content="WizTrail calcola il WDI del tuo percorso trail, stima il tempo di gara personalizzato e genera il pacing adattivo. Carica il GPX, tutto in locale.">
-  <meta name="keywords" content="WizTrail, trail running, difficoltà trail, WDI, analisi GPX, pacing trail, TechScore">
+<title>WizTrail — Difficoltà e tempo di gara per il trail running</title>
+<meta name="description" content="Carica il GPX del tuo trail: WizTrail calcola l'indice di difficoltà WDI, stima il tempo di gara e prepara il pacing. Gratuito, versione Beta.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://wiz-trail.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WizTrail">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="WizTrail — Difficoltà e tempo di gara per il trail running">
+<meta property="og:description" content="Calcola il WDI del tuo trail da un file GPX, stima il tempo di gara e prepara il pacing.">
+<meta property="og:url" content="https://wiz-trail.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WizTrail — Difficoltà e tempo di gara per il trail running">
+<meta name="twitter:description" content="Calcola il WDI del tuo trail da un file GPX, stima il tempo di gara e prepara il pacing.">
   <meta name="author" content="madesign">
-  <meta name="robots" content="index, follow">
-  <meta property="og:title" content="WizTrail — Analizza la difficoltà del tuo trail" />
-  <meta property="og:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale." />
-  <meta property="og:url" content="https://ciao-madesign.github.io/WizTrail/" />
-  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-landing.jpg" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="WizTrail — Analizza la difficoltà del tuo trail">
-  <meta name="twitter:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara.">
-  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-landing.jpg">
   <meta name="photo-credit" content="Hero photo by Alessio Soggetti on Unsplash (unsplash.com/photos/GYr9A2CPMhY) — Unsplash License">
 
   <!-- PWA -->
@@ -557,14 +556,14 @@
   <div class="lnd-hero-bg" id="heroBg"></div>
   <div class="lnd-hero-gradient"></div>
   <div class="lnd-hero-content">
-    <p class="lnd-eyebrow">WizTrail — Trail Intelligence</p>
+    <p class="lnd-eyebrow">WizTrail · Analisi della difficoltà nel trail running</p>
     <h1 class="lnd-hero-title">
       Analizza il percorso.<br>
       Stabilisci il tuo obiettivo.<br>
       <em>Imposta il passo giusto.</em>
     </h1>
     <p class="lnd-hero-desc">
-      Dal GPX al piano di gara in pochi secondi. L'analisi avviene sul tuo dispositivo, senza account.
+      Dal file GPX al piano di gara: indice di difficoltà WDI, tempo stimato e pacing per segmento. Il file GPX viene analizzato nel tuo browser.
     </p>
     <div class="lnd-hero-actions">
       <a href="index.html" class="btn-primary-lnd">
@@ -595,8 +594,8 @@
     <div class="lnd-stat-label">GPX reali</div>
   </div>
   <div class="lnd-stat">
-    <div class="lnd-stat-val">−59%</div>
-    <div class="lnd-stat-label">Precisione TechScore</div>
+    <div class="lnd-stat-val">6</div>
+    <div class="lnd-stat-label">Classi di difficoltà</div>
   </div>
   <div class="lnd-stat">
     <div class="lnd-stat-val">0</div>
@@ -745,7 +744,7 @@
   <div>
     <p class="lnd-section-label">Privacy by design</p>
     <h2 class="lnd-section-title" style="margin-bottom:0;">
-      Il tuo GPX viene analizzato<br><em>sul tuo dispositivo</em>.
+      Il tuo GPX viene analizzato<br><em>nel tuo browser</em>.
     </h2>
   </div>
   <div class="privacy-points">
@@ -794,6 +793,10 @@
       <details class="faq-item">
         <summary>Che file posso caricare?</summary>
         <p class="faq-answer">File GPX e TCX (anche XML con tracce compatibili) esportati da Garmin, Suunto, Wahoo, Coros, Polar, Strava o altre app. Il caricamento è manuale: la sincronizzazione diretta con orologi e piattaforme non è ancora disponibile.</p>
+      </details>
+      <details class="faq-item">
+        <summary>I miei dati vengono inviati a un server?</summary>
+        <p class="faq-answer">Il calcolo su un GPX caricato avviene nel tuo browser. Dati escono dal dispositivo solo con funzioni facoltative: l'importazione da link (il nostro server scarica il file dal link che indichi) e l'invio del feedback sul tempo reale (scarto percentuale, km e D+, senza tracce GPS).</p>
       </details>
       <details class="faq-item">
         <summary>WizTrail funziona offline?</summary>
