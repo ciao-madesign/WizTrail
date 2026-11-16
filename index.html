@@ -102,8 +102,16 @@
     <div class="card">
 
       <fieldset>
-        <legend>Traccia GPX — consigliata per calcolo completo</legend>
+        <legend>Percorso</legend>
 
+        <!-- Modalità: GPX (consigliata, calcolo completo) oppure inserimento manuale di km e D+ -->
+        <div class="seg" role="radiogroup" aria-label="Come vuoi indicare il percorso">
+          <label class="seg__opt"><input type="radio" name="srcMode" value="gpx" checked><span>Ho un GPX</span></label>
+          <label class="seg__opt"><input type="radio" name="srcMode" value="manual"><span>Inserisco km e D+</span></label>
+        </div>
+        <p class="hint" id="modeHint">Con il GPX il calcolo è completo (profilo, mappa, pacing). Senza GPX la stima è approssimativa.</p>
+
+        <div id="modeGpx">
         <!-- Drop zone visiva -->
         <label for="gpxfile" class="gpx-dropzone" id="gpxDropzone">
           <div class="gpx-dropzone-icon">
@@ -115,7 +123,7 @@
           </div>
           <div class="gpx-dropzone-text">
             <span class="gpx-dropzone-main">Trascina il GPX qui o clicca per selezionare</span>
-            <span class="gpx-dropzone-sub">GPX · TCX · XML — Garmin, Suunto, Wikiloc, Komoot</span>
+            <span class="gpx-dropzone-sub">GPX · TCX · XML — file esportati da Garmin, Suunto, Wikiloc, Komoot e altre app</span>
           </div>
           <input id="gpxfile" class="sr-only" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
         </label>
@@ -140,9 +148,15 @@
 
         <!-- Info dopo caricamento -->
         <div id="gpxInfo" class="mini" role="status" aria-live="polite" style="margin-top:6px;"></div>
+        <p id="gpxFacts" class="gpx-facts" hidden>
+          <strong id="gpxFactsText"></strong>
+          <span class="hint" style="display:inline;margin:0;">letti dal file</span>
+          <button type="button" class="linklike" id="gpxCorrectBtn" aria-expanded="false" aria-controls="paramGara">Correggi manualmente</button>
+        </p>
         <div id="gpxEmpty" class="gpx-empty" style="display:none;">
-          <span>Senza GPX: inserisci distanza e D+ manualmente</span>
+          <span>Carica un file GPX oppure scegli «Inserisco km e D+».</span>
         </div>
+        </div><!-- /modeGpx -->
       </fieldset>
 
       <fieldset>
@@ -152,21 +166,28 @@
             — usato per pacing e stima tempo personalizzata
           </span>
         </label>
-        <input id="t10k" type="text" value="50:00" placeholder="es. 52:00"/>
+        <input id="t10k" type="text" value="50:00" placeholder="es. 52:00" aria-describedby="t10kHint"/>
+        <p class="hint" id="t10kHint">50:00 è un valore d'esempio: inserisci il tuo tempo su 10 km per una stima personale.</p>
+        <label for="spec" style="margin-top:12px;">Livello</label>
+        <input id="spec" aria-label="Livello di specificità" type="range" min="0" max="1" step="0.1" value="0.2" style="width:100%; margin:6px 0;"/>
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted);">
+          <span>Principiante</span><span>Amatore</span><span>Avanzato</span><span>Agonista</span><span>Elite</span>
+        </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Parametri gara</legend>
+      <fieldset id="paramGara" hidden>
+        <legend id="paramGaraLegend">Parametri gara</legend>
         <div class="grid grid-2" style="gap:12px; margin-top:8px;">
           <fieldset>
             <legend>Distanza (km)</legend>
-            <input id="dist" aria-label="Distanza in chilometri" type="number" step="0.001" min="0.1" max="500" value="21.097"/>
+            <input id="dist" aria-label="Distanza in chilometri" type="number" step="0.001" min="0.1" max="500" placeholder="es. 42"/>
           </fieldset>
           <fieldset>
             <legend>D+ (m)</legend>
-            <input id="dplus" aria-label="Dislivello positivo in metri" type="number" step="1" min="0" max="30000" value="0"/>
+            <input id="dplus" aria-label="Dislivello positivo in metri" type="number" step="1" min="0" max="30000" placeholder="es. 2500"/>
           </fieldset>
         </div>
+        <p class="hint" id="paramGaraHint"></p>
       </fieldset>
 
       <!-- ACCORDION PARAMETRI AVANZATI -->
@@ -218,22 +239,17 @@
             <input id="margin" aria-label="Margine di errore in percentuale" type="number" value="10"/>
           </fieldset>
         </div>
-        <fieldset>
-          <legend>Livello</legend>
-          <input id="spec" aria-label="Livello di specificità" type="range" min="0" max="1" step="0.1" value="0.2" style="width:100%; margin:6px 0;"/>
-          <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7;">
-            <span>Principiante</span><span>Amatore</span><span>Avanzato</span><span>Agonista</span><span>Elite</span>
-          </div>
-        </fieldset>
       </div><!-- /accordion-body -->
 
       <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px; gap:12px; flex-wrap:wrap;">
         <div style="display:flex; gap:10px;">
           <button class="btn" id="calcBtn">Calcola</button>
-          <button class="btn secondary" id="resetBtn">Reset</button>
+          <button class="btn secondary" id="resetBtn" type="button">Nuova analisi</button>
         </div>
         <button id="btnFotoJson" style="background:none; border:none; cursor:pointer; font-size:0.82rem; color:var(--muted); text-decoration:underline; text-underline-offset:3px; font-family:inherit; padding:0;">scarica riepilogo JSON</button>
       </div>
+
+      <p class="hint">WizTrail non salva i tuoi risultati: chiudendo la scheda vengono persi. Scarica il riepilogo JSON per conservarli.</p>
 
       <div id="calc_tips" class="card" style="display:none; margin-top:8px;">
         <div id="calc_tips_header" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
@@ -246,7 +262,9 @@
       <div id="msg" class="mini" role="status" aria-live="polite"></div>
 
       <!-- KPI primari: WDI + Tempo -->
-      <div id="kpiResults" aria-live="polite" style="margin-top:16px;">
+      <div id="kpiResults" style="margin-top:16px;">
+        <h2 id="resultsTitle" tabindex="-1" style="font-size:1.1rem; margin:0 0 10px;">Risultati</h2>
+        <span id="resultsLive" class="sr-only" role="status" aria-live="polite"></span>
         <div class="grid grid-2" style="gap:12px; margin-bottom:12px;">
           <div class="kpi kpi-primary">
             <h3>WDI</h3>
@@ -267,6 +285,11 @@
             </div>
           </div>
         </div>
+        <!-- Assunzioni: default dichiarati, modificabili -->
+        <p id="assumptions" class="assumptions" hidden>
+          <strong>Assunzioni:</strong> <span id="assumptionsText"></span>
+          <button type="button" class="linklike" id="assumptionsEdit">Modifica</button>
+        </p>
         <!-- KPI secondari: range -->
         <div class="kpi-secondary-row" id="intervalRow" style="display:none;">
           <span class="kpi-sec-label">Intervallo ±<span id="marginPct">10</span>%</span>
@@ -484,7 +507,8 @@
 <script src="wiztrail-timing.js?v=20260626"></script>
 
 <!-- Entry point -->
-<script src="main.js?v=20261118a"></script>
+<script src="features.js?v=20261118"></script>
+<script src="main.js?v=20261118b"></script>
 
 
 

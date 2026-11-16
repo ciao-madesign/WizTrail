@@ -1912,6 +1912,27 @@ body.is-modal{ overflow:hidden; }
 /* Ancore sotto l'header fisso (56px) */
 #calc, #resultsTitle, #kpiResults{ scroll-margin-top:72px; }
 
+/* Selettore modalità percorso (GPX / manuale): radio accessibili con aspetto a segmenti */
+.seg{ display:inline-flex; max-width:100%; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:6px 0 2px; }
+.seg__opt{ position:relative; display:block; margin:0; cursor:pointer; }
+.seg__opt input{ position:absolute; opacity:0; inset:0; width:100%; height:100%; margin:0; cursor:pointer; }
+.seg__opt span{ display:flex; align-items:center; justify-content:center; min-height:44px; padding:8px 16px; font-weight:600; color:var(--muted); }
+.seg__opt + .seg__opt span{ border-left:1px solid var(--border); }
+.seg__opt input:checked + span{ background:var(--accent); color:var(--on-accent); }
+.seg__opt input:focus-visible + span{ outline:2px solid var(--focus-ring); outline-offset:-3px; }
+@media (max-width:420px){ .seg{ display:flex; } .seg__opt{ flex:1; } .seg__opt span{ padding:8px 6px; font-size:.875rem; text-align:center; } }
+
+/* Dati letti dal GPX (sola lettura) e assunzioni dichiarate */
+.gpx-facts, .assumptions{ margin:8px 0 0; font-size:.9rem; line-height:1.6; color:var(--ink); }
+.assumptions{ color:var(--muted); font-size:.8125rem; margin:6px 0 12px; }
+.assumptions strong{ color:var(--ink); }
+.gpx-facts[hidden], .assumptions[hidden], #paramGara[hidden]{ display:none; }
+.linklike{
+  appearance:none; background:none; border:0; padding:0 2px; margin:0 0 0 6px; min-height:24px;
+  font:inherit; color:var(--accent-ink); text-decoration:underline; text-underline-offset:3px; cursor:pointer;
+}
+.linklike:focus-visible{ outline:2px solid var(--focus-ring); outline-offset:2px; border-radius:3px; }
+
 /* ===== 9.F RIDUZIONE MOVIMENTO (deve restare l'ULTIMO blocco) ===== */
 @media (prefers-reduced-motion:reduce){
   *, *::before, *::after{
