@@ -695,12 +695,17 @@
     heroImg.src = 'img/hero-index.jpg';
   }
 
+  /* CTA "Inizia l'analisi": porta al calcolatore (#calc). Prima dipendeva da .tabs, che non esiste più. */
   document.getElementById('heroCtaBtn')?.addEventListener('click', (e) => {
+    const target = document.getElementById('calc');
+    if (!target) return;           // senza #calc resta il comportamento nativo del link
     e.preventDefault();
-    document.querySelector('.tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // Attiva il tab calcolatore
-    const calcBtn = document.querySelector('[data-tab="calc"]');
-    if (calcBtn) calcBtn.click();
+    const ridotto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: ridotto ? 'auto' : 'smooth', block: 'start' });
+    if (history.replaceState) history.replaceState(null, '', '#calc');
+    // Focus sul primo controllo del calcolatore, senza ulteriore scroll
+    const primo = document.getElementById('gpxfile') || target.querySelector('input, button, select');
+    if (primo) primo.focus({ preventScroll: true });
   });
 
   /* ------------------------------------------------------------------

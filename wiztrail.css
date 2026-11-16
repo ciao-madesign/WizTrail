@@ -1908,6 +1908,10 @@ body.is-modal{ overflow:hidden; }
 }
 .field-inline input[type="url"]::placeholder{ color:var(--muted); opacity:1; }
 
+/* ===== 9.G M2 — stati Beta, flusso calcolatore, ranking disattivato ===== */
+/* Ancore sotto l'header fisso (56px) */
+#calc, #resultsTitle, #kpiResults{ scroll-margin-top:72px; }
+
 /* ===== 9.F RIDUZIONE MOVIMENTO (deve restare l'ULTIMO blocco) ===== */
 @media (prefers-reduced-motion:reduce){
   *, *::before, *::after{
