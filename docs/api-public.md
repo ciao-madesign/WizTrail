@@ -19,7 +19,7 @@ Ogni richiesta deve includere una chiave API nell'header HTTP:
 x-api-key: <la-tua-chiave>
 ```
 
-Le chiavi API sono distribuite manualmente. Per richiederne una, contattare il team WizTrail.
+Le chiavi API sono distribuite manualmente. Per richiederne una, scrivere a ciao.madesign@gmail.com indicando l'uso previsto: la richiesta automatica via email non è ancora disponibile.
 
 ---
 
@@ -30,6 +30,8 @@ Tutti gli errori restituiscono un oggetto JSON con campo `error`:
 ```json
 { "error": "Messaggio descrittivo." }
 ```
+
+Alcuni errori (ad esempio `401` per chiave non valida e `429`) includono anche `ok: false` e un `code` (`INVALID_API_KEY`, `RATE_LIMITED`); i client devono basarsi sullo status HTTP e ignorare i campi che non conoscono.
 
 | Status | Significato |
 |--------|-------------|
@@ -362,8 +364,8 @@ Il WDI viene normalizzato in base alla distanza per confrontare gare di lunghezz
 |-------|--------|------|
 | Standard | 30 req/min per IP | Header `X-RateLimit-Remaining` nella risposta |
 
-Il limite è condiviso tra tutti gli endpoint (`/api/v1/analyze` e `/api/v1/wdi`).
-Superato il limite, ricevi `HTTP 429` — riprova dopo 60 secondi.
+Il limite è condiviso tra tutti gli endpoint (`/api/v1/analyze` e `/api/v1/wdi`) ed è calcolato su una finestra fissa di 60 secondi per indirizzo IP, prima della verifica della chiave.
+Superato il limite, ricevi `HTTP 429` con l'header `Retry-After` — riprova dopo 60 secondi.
 
 ---
 
