@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return errore(res, 405, 'METHOD_NOT_ALLOWED', 'Metodo non consentito.');
 
   const ip = getIP(req);
-  const { allowed, remaining } = await checkRateLimit(ip);
+  const { allowed, remaining } = await checkRateLimit(ip, 'import');
   res.setHeader('X-RateLimit-Remaining', remaining);
   if (!allowed) {
     res.setHeader('Retry-After', '60');

@@ -8,6 +8,8 @@
  * Fail-open su errore Redis (non blocca il servizio per infra down).
  */
 
+import { createHash, timingSafeEqual } from 'node:crypto';
+
 const REDIS_NS = 'wiztrail:';
 
 async function redisGetRaw(key) {
@@ -22,6 +24,13 @@ async function redisGetRaw(key) {
   try { return JSON.parse(json.result); } catch { return json.result; }
 }
 
+/** Confronto a tempo costante (hash SHA-256 di lunghezza fissa + timingSafeEqual). */
+export function uguali(a, b) {
+  const ha = createHash('sha256').update(String(a)).digest();
+  const hb = createHash('sha256').update(String(b)).digest();
+  return timingSafeEqual(ha, hb);
+}
+
 /**
  * Verifica se la richiesta porta una x-api-key valida.
  * @param {import('@vercel/node').VercelRequest} req
@@ -33,7 +42,7 @@ export async function checkApiKey(req) {
 
   // 1. Chiavi statiche da env var (non richiede Redis)
   const envKeys = (process.env.API_KEYS || '').split(',').map(k => k.trim()).filter(Boolean);
-  if (envKeys.includes(provided)) return true;
+  if (envKeys.some(k => uguali(k, provided))) return true;
 
   // 2. Chiavi dinamiche registrate su Redis
   try {

@@ -400,7 +400,7 @@ async function handleFeedback(req, res) {
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
   if (origin && !isAllowedOrigin(origin)) return res.status(403).json({ error: 'Origine non autorizzata' });
   const ip = getIP(req);
-  const { allowed, remaining } = await checkRateLimit(ip);
+  const { allowed, remaining } = await checkRateLimit(ip, 'feedback');
   if (!allowed) {
     res.setHeader('X-RateLimit-Remaining', '0');
     return res.status(429).json({ error: 'Troppe richieste. Riprova tra un minuto.' });

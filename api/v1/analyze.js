@@ -70,18 +70,20 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // ── Autenticazione ──
-  if (!(await checkApiKey(req))) {
-    return res.status(401).json({ error: 'API key non valida o mancante.' });
-  }
-
-  // ── Rate limiting ──
+  // Rate limit per IP PRIMA della verifica chiave: limita anche i tentativi con chiavi errate
   const ip = getIP(req);
-  const rl = await checkRateLimit(ip);
+  const rl = await checkRateLimit(ip, 'v1');
   res.setHeader('X-RateLimit-Remaining', rl.remaining);
   if (!rl.allowed) {
-    return res.status(429).json({ error: 'Troppe richieste. Riprova tra un minuto.' });
+    res.setHeader('Retry-After', String(rl.retryAfter || 60));
+    return res.status(429).json({ ok: false, code: 'RATE_LIMITED', error: 'Troppe richieste. Riprova tra un minuto.' });
   }
+
+  // Autenticazione (dopo il rate limit)
+  if (!(await checkApiKey(req))) {
+    return res.status(401).json({ ok: false, code: 'INVALID_API_KEY', error: 'API key non valida o mancante.' });
+  }
+
 
   // ── Parsing body ──
   const {
