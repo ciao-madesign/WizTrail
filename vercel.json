@@ -1,11 +1,6 @@
 {
   "redirects": [
     {
-      "source": "/",
-      "destination": "/landing.html",
-      "permanent": false
-    },
-    {
       "source": "/wdi.html",
       "destination": "/about.html",
       "permanent": true
@@ -14,6 +9,12 @@
       "source": "/pacing.html",
       "destination": "/about.html",
       "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/landing.html"
     }
   ]
 }
