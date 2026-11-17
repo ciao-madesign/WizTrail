@@ -232,3 +232,11 @@ test('compatibilita.html: pagina di stato funzioni, un solo H1, linkata da about
     assert.ok(leggi(f).includes('href="compatibilita.html"'), `${f}: link a compatibilita.html`);
   for (const f of ['index.html', 'compatibilita.html']) assert.equal((leggi(f).match(/<nav class="tabbar"[\s\S]*?<\/nav>/)[0].match(/<a /g) || []).length, 4, `${f}: la tab bar resta a 4 voci`);
 });
+
+test('copy veritiero sul ranking: niente "ufficiale", "certificato" o richieste di certificazione nelle pagine del sito', () => {
+  for (const f of TUTTE) {
+    const s = leggi(f);
+    assert.ok(!/ranking\s+(ufficiale|certificato)|badge\s+ufficiale|certificare\s+questa\s+gara/i.test(s), `${f}: formulazione non veritiera sul ranking`);
+  }
+  assert.ok(!/openCertContact/.test(leggi('ranking.html')));
+});

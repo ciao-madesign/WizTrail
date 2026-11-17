@@ -108,7 +108,7 @@
   <div id="userResult" style="margin-top:16px;"></div>
 </div>
 
-<!-- SEZIONE 2 — Ranking ufficiale -->
+<!-- SEZIONE 2 — Ranking WDI (beta) -->
 <div class="card" id="ranking-table">
 <h2>Ranking WDI delle gare trail <span class="badge badge--beta">Beta</span></h2>
 <p class="note note--warn" id="rankNote" style="margin-bottom:12px;">
@@ -621,32 +621,10 @@ function renderAnalysisHTML(rs, userNorm, discBadge, metrics) {
       <div style="font-size:0.74rem;color:var(--muted);margin-top:8px;">${metrics.km.toFixed(1)} km · ${Math.round(metrics.gain)} m D+</div>
     </div>
   </div>
-  <div style="margin-top:18px;padding:13px 16px;border:1px solid var(--accent,#009688);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:color-mix(in oklab,var(--accent,#009688) 8%,transparent);">
-    <div>
-      <div style="font-weight:700;font-size:.87rem;">🏅 Vuoi certificare questa gara?</div>
-      <div style="font-size:.74rem;opacity:.6;margin-top:3px;">Ottieni badge ufficiale WizTrail e l'inserimento nel ranking certificato</div>
-    </div>
-    <button onclick="openCertContact()" style="white-space:nowrap;padding:8px 16px;border:none;border-radius:8px;background:var(--accent,#009688);color:#fff;font-weight:700;font-size:.81rem;cursor:pointer;">Richiedi →</button>
-  </div>`;
+`;
 }
 
 /* ── Cert contact — apre mailto con dati analisi pre-compilati ─────────── */
-function openCertContact() {
-  const a = _lastAnalysis;
-  const gpxInfo = a
-    ? 'Distanza: ' + a.metrics.km.toFixed(1) + ' km\n'
-      + 'D+: ' + Math.round(a.metrics.gain) + ' m\n'
-      + 'WDI: ' + a.rs.WDI.toFixed(1) + ' (' + a.userNorm.category + ')\n'
-      + 'TechScore: ' + (a.rs.TechScore / 10).toFixed(1) + '/10\n\n'
-    : '';
-  const subject = encodeURIComponent('Richiesta certificazione WizTrail');
-  const body = encodeURIComponent(
-    'Nome gara: \nOrganizzatore / Referente: \nEdizione: \nNote: \n\n'
-    + '--- Dati analisi GPX ---\n'
-    + gpxInfo
-  );
-  window.location.href = 'mailto:ciao.madesign@gmail.com?subject=' + subject + '&body=' + body;
-}
 </script>
 <script>
 // Toggle label "mostra/nascondi" su #legendGuide
