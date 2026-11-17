@@ -11,7 +11,7 @@
   banner.setAttribute('role', 'region');
   banner.setAttribute('aria-label', 'Informativa privacy');
   banner.innerHTML =
-    '<span>Questo sito non usa cookie di tracciamento. Le mappe caricano tile da CARTO/OpenStreetMap (IP trasmesso). <a href="/privacy.html" style="color:inherit;font-weight:600;">Privacy policy</a></span>' +
+    '<span>Questo sito non usa cookie di tracciamento. Le mappe caricano i riquadri da CARTO e OpenTopoMap, con dati OpenStreetMap (il tuo IP è visibile ai fornitori). <a href="/privacy.html" style="color:inherit;font-weight:600;">Privacy policy</a></span>' +
     '<button id="wt-cookie-ok" type="button" aria-label="Chiudi">OK</button>';
 
   const style = document.createElement('style');

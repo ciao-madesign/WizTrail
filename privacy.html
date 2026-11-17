@@ -162,7 +162,7 @@
           <tbody>
             <tr><td>Carico un file GPX</td><td>Niente: lettura, WDI, tempi e pacing avvengono nel browser.</td><td>—</td></tr>
             <tr><td>Importa da link</td><td>L'indirizzo del link e il file scaricato transitano dal nostro server, che non li salva.</td><td>Server WizTrail (Vercel)</td></tr>
-            <tr><td>Mappe</td><td>Richieste dei riquadri di mappa: il tuo indirizzo IP è visibile ai fornitori.</td><td>CARTO / OpenStreetMap</td></tr>
+            <tr><td>Mappe</td><td>Richieste dei riquadri di mappa: il tuo indirizzo IP è visibile ai fornitori.</td><td>CARTO / OpenTopoMap (dati OpenStreetMap)</td></tr>
             <tr><td>Feedback sul tempo reale</td><td>Scarto percentuale, distanza e D+. Nessuna traccia GPS.</td><td>Database WizTrail (Upstash)</td></tr>
             <tr><td>Funzioni che usano i nostri server</td><td>Indirizzo IP, per contare le richieste e limitare gli abusi (60 secondi).</td><td>Database WizTrail (Upstash)</td></tr>
             <tr><td>Hub di calibrazione (su invito)</td><td>Le attività caricate dagli utenti abilitati (traccia GPS e tempi).</td><td>Database WizTrail (Upstash)</td></tr>
@@ -202,14 +202,14 @@
             <td>—</td>
           </tr>
           <tr>
-            <td><a href="https://carto.com/privacy" target="_blank" rel="noopener" style="color:var(--accent);">CARTO</a> / <a href="https://www.openstreetmap.org/privacy" target="_blank" rel="noopener" style="color:var(--accent);">OpenStreetMap</a></td>
-            <td>Tile server mappe (solo quando viene visualizzata una mappa)</td>
+            <td><a href="https://carto.com/privacy" target="_blank" rel="noopener" style="color:var(--accent);">CARTO</a> / <a href="https://www.openstreetmap.org/privacy" target="_blank" rel="noopener" style="color:var(--accent);">OpenStreetMap</a> (dati)</td>
+            <td>Tile server mappe (solo quando viene visualizzata una mappa); i dati cartografici sono di OpenStreetMap</td>
             <td>IP del visitatore per le richieste di tile</td>
             <td>USA/UE</td>
           </tr>
           <tr>
             <td><a href="https://opentopomap.org/about" target="_blank" rel="noopener" style="color:var(--accent);">OpenTopoMap</a></td>
-            <td>Tile topografici (Training Analyzer, opzionale)</td>
+            <td>Tile topografici (sovrapposti alle mappe di Calcolatore e Training Analyzer)</td>
             <td>IP del visitatore per le richieste di tile</td>
             <td>UE</td>
           </tr>
