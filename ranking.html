@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
 <link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts/fonts.css">
-<link rel="stylesheet" href="wiztrail.css?v=20261124">
+<link rel="stylesheet" href="wiztrail.css?v=20261125">
 <script src="features.js?v=20261118"></script>
 </head>
 <body data-theme="dark">
@@ -89,8 +89,20 @@
   <p class="mini" style="opacity:0.7; margin-bottom:16px;">
     Carica il GPX della tua gara per ottenere WDI, TechScore e disciplina.
   </p>
-  <label for="gpxUser">Carica GPX</label>
-  <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
+  <label for="gpxUser" class="gpx-dropzone" id="rkDropzone">
+    <div class="gpx-dropzone-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <div class="gpx-dropzone-text">
+      <span class="gpx-dropzone-main" id="rkDropMain">Trascina il GPX qui o clicca per selezionare</span>
+      <span class="gpx-dropzone-sub">GPX · TCX</span>
+    </div>
+    <input type="file" id="gpxUser" class="sr-only" accept=".gpx,.tcx"/>
+  </label>
   <div class="gpx-alt-row" style="margin-top:8px;">
     <button class="btn" id="btnUserCompute">Analizza →</button>
     <div id="userComputeMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>
@@ -518,6 +530,25 @@ document.getElementById('btnBatchCompute')?.addEventListener('click', async () =
   btn.disabled = false;
   renderTable();
 });
+
+//---------------------------------------- dropzone GPX (nome file e trascinamento)
+(function() {
+  const dz = document.getElementById('rkDropzone'), inp = document.getElementById('gpxUser'), main = document.getElementById('rkDropMain');
+  if (!dz || !inp) return;
+  const aggiorna = () => {
+    const f = inp.files && inp.files[0];
+    if (main) main.textContent = f ? f.name : 'Trascina il GPX qui o clicca per selezionare';
+    dz.classList.toggle('loaded', !!f);
+  };
+  inp.addEventListener('change', aggiorna);
+  ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dragover'); }));
+  ['dragleave', 'dragend'].forEach(ev => dz.addEventListener(ev, () => dz.classList.remove('dragover')));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) { try { inp.files = e.dataTransfer.files; } catch (err) { return; } aggiorna(); }
+  });
+})();
 
 //---------------------------------------- user compute
 btnUserCompute?.addEventListener("click", async () => {

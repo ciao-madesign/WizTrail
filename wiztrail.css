@@ -1887,11 +1887,12 @@ body.is-modal{ overflow:hidden; }
 .table-scroll > table.about-table{ min-width:480px; }
 .table-scroll:focus-visible{ outline:2px solid var(--focus-ring); }
 @media (max-width:600px){
-  /* Ranking: su smartphone restano Gara · km · D+ · WDI · Tech · Classe (Paese, Disciplina e WDI norm. si nascondono) */
+  /* Ranking: su smartphone restano Gara · km · D+ · WDI · Classe (Paese, Tech, Disciplina e WDI norm. si nascondono): nessuno scroll orizzontale a 390px */
   #raceTable th:nth-child(2), #raceTable td:nth-child(2),
+  #raceTable th:nth-child(6), #raceTable td:nth-child(6),
   #raceTable th:nth-child(8), #raceTable td:nth-child(8),
   #raceTable th:nth-child(9), #raceTable td:nth-child(9){ display:none; }
-  #raceTable td, #raceTable th{ padding-left:6px; padding-right:6px; font-size:.8125rem; }
+  #raceTable td, #raceTable th{ padding-left:4px!important; padding-right:4px!important; font-size:.78rem; }
   .about-table{ font-size:.75rem; }
   .about-table th, .about-table td{ padding:6px 8px; }
   .about-table td, .about-table th{ overflow-wrap:break-word; }
