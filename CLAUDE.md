@@ -10,7 +10,7 @@ WizTrail è una **piattaforma web per l'analisi tecnica dei percorsi trail runni
 
 **URL di produzione:** https://wiz-trail.vercel.app  
 **Repository:** ciao-madesign/WizTrail  
-**Branch di integrazione:** `backend` (PR verso `backend`, vedi "Regole di sviluppo"). Al 16/11/2026 i deploy di `backend` risultavano *preview* (target non production) e la produzione era ferma al commit `b4351fa`: verifica "Production Branch" in Vercel Settings → Git prima di assumere che un merge vada in produzione. Tag di ripristino creati in locale: `stable-b4351fa`, `pre-revision-20261116`.  
+**Branch di produzione:** `main` (Vercel → Settings → Environments → Production → Branch Tracking = `main`): ogni merge/push su `main` pubblica in produzione. `backend` è il branch di sviluppo/integrazione (i suoi deploy sono *preview*). `main` è stato creato il 17/11/2026 da `backend` (commit `df7846a`, la revisione di novembre già in produzione). Punto di ripristino: deploy `dpl_2xzbpK5R8QsUADef61aydRCTbF8p` (commit `b4351fa`, ultimo deploy di produzione precedente) e tag locali `stable-b4351fa`, `pre-revision-20261116`.  
 **Owner:** michele.aldeni1995@gmail.com
 
 ---
@@ -24,7 +24,7 @@ WizTrail è una **piattaforma web per l'analisi tecnica dei percorsi trail runni
 | Database | Upstash Redis (REST API) |
 | Mappa | Leaflet.js self-hosted |
 | Deploy | Vercel (preview per ogni branch/PR; produzione secondo il Production Branch del progetto) |
-| CI | GitHub Actions: `ci.yml` su PR verso `backend` (sintassi, `npm test`, `npm audit`) + pipeline di calibrazione (`hub-calibration.yml`) |
+| CI | GitHub Actions: `ci.yml` su PR verso `main` e `backend` (sintassi, `npm test`, `npm audit`) + pipeline di calibrazione (`hub-calibration.yml`) |
 
 **Vincolo critico:** il piano Vercel Hobby permette **max 12 serverless functions** e Vercel conta **ogni `.js` sotto `api/`** (anche le librerie). Per questo le librerie condivise stanno in **`server/`** (fuori da `api/`). Oggi `api/` contiene **7 file** (hub, import/url, strava×3, v1×2); `tests/guard-funzioni.test.mjs` fallisce oltre 10 file (margine 2) e se `api/lib` ricompare. Il 16/11/2026 il deploy dei commit con 15 file in `api/` era fallito con `exceeded_serverless_functions_per_deployment`. Non aggiungere file in `api/` senza consolidare in `api/hub.js` (pattern già usato) o upgradare il piano; nuovo codice condiviso va in `server/`.
 
@@ -355,7 +355,7 @@ Fuori da production le azioni con effetti esterni (`run`, `register`, `requestke
 
 ### Test e CI
 
-`npm test` (= `node --test "tests/**/*.test.mjs"`, Node ≥ 22, nessuna dipendenza aggiuntiva). Tutti i test usano mock: **nessuna rete e nessun Redis reale**. Suite: guard function (≤10 file in `api/`), parità frontend/server (engine, GPX, timing), SSRF, import/url, rate limit, requestkey, ambiente/preview, flag Strava, KF_terrain delle API v1, precache del service worker, SEO. CI: `.github/workflows/ci.yml` su ogni PR verso `backend` (sintassi, `npm test`, `npm audit --omit=dev --audit-level=high`).
+`npm test` (= `node --test "tests/**/*.test.mjs"`, Node ≥ 22, nessuna dipendenza aggiuntiva). Tutti i test usano mock: **nessuna rete e nessun Redis reale**. Suite: guard function (≤10 file in `api/`), parità frontend/server (engine, GPX, timing), SSRF, import/url, rate limit, requestkey, ambiente/preview, flag Strava, KF_terrain delle API v1, precache del service worker, SEO. CI: `.github/workflows/ci.yml` su ogni PR verso `main` e `backend` (sintassi, `npm test`, `npm audit --omit=dev --audit-level=high`).
 
 ---
 
@@ -638,8 +638,8 @@ Decisione: **non procedere con Opzione C** (velBase realistici da Kaggle). Il ri
 
 ## Regole di sviluppo
 
-1. **Branch di lavoro:** crea sempre un branch da `backend`. Non pushare direttamente su `backend`.
-2. **PR → backend:** tutto passa da PR. Merge squash preferito.
+1. **Branch di lavoro:** crea sempre un branch da `main` (produzione) o da `backend` (sviluppo). Non pushare direttamente su `main` né su `backend`.
+2. **PR → main:** tutto passa da PR; un merge su `main` pubblica in produzione (consigliata la branch protection con CI obbligatoria). Merge squash preferito.
 3. **Cache:** aggiorna il `?v=` dei file JS/CSS modificati; `CACHE_VERSION` in `service-worker.js` si cambia **solo nel commit di release** (che aggiunge anche i file nuovi al precache: `wiztrail-shell.js`, `features.js`). I file in `img/`, `icons/`, `fonts/` sono `immutable`: se li modifichi, rinominali.
 4. **Sync dei port server:** qualsiasi modifica a `wiztrail-engine.js`, `gpx-parser.js`, `wiztrail-timing.js`, `wiztrail-pacing.js` va replicata nel port corrispondente in `server/`; `npm test` deve restare verde (parità).
 5. **Vercel function limit:** 7 file in `api/` (limite 12, guardia nei test ≤10). Non aggiungere file in `api/` senza consolidare; il codice condiviso va in `server/`.

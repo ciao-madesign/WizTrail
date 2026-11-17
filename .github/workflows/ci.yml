@@ -1,10 +1,10 @@
 name: CI
 
-# Test automatici e controlli di sicurezza su ogni pull request verso backend.
+# Test automatici e controlli di sicurezza su ogni pull request verso main (produzione) e backend (sviluppo).
 # Nessun accesso a segreti, Redis o servizi esterni: i test usano mock.
 on:
   pull_request:
-    branches: [backend]
+    branches: [main, backend]
   workflow_dispatch:
 
 permissions:
