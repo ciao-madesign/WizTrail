@@ -205,9 +205,16 @@ input[type=text], input[type=number], select{
 input[type=file]{ color:var(--ink); font-size:14px; }
 
 .btn{
-  appearance:none; border:none; background:var(--accent); color:#062827;
+  appearance:none; border:none; background:var(--accent); color:var(--on-accent);
   padding:12px 14px; border-radius:10px; font-weight:800; cursor:pointer;
+  /* feedback tattile (unificato qui da M4-5: prima in un secondo blocco .btn piu' sotto) */
+  transition:
+    background var(--dur-fast),
+    border-color var(--dur-fast),
+    transform 80ms,
+    opacity var(--dur-fast);
 }
+.btn:active{ transform:scale(0.97); }
 .btn.secondary{ background:#263243; color:#fff; }
 
 /* ===== Grid tuning: evita sovrapposizioni ===== */
@@ -458,16 +465,6 @@ body[data-theme="light"] fieldset{
   animation: kpiIn var(--dur-base) var(--ease-spring) both;
 }
 
-/* Bottoni — feedback tattile */
-.btn {
-  transition:
-    background var(--dur-fast),
-    border-color var(--dur-fast),
-    transform 80ms,
-    opacity var(--dur-fast);
-}
-.btn:active { transform: scale(0.97); }
-
 /* Input focus — bordo accent discreto */
 input[type="text"],
 input[type="number"],
@@ -479,10 +476,13 @@ select {
 input[type="text"]:focus,
 input[type="number"]:focus,
 select:focus {
-  outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
 }
+/* niente anello per il focus da mouse; da tastiera vale la regola :focus-visible in 9.A */
+input[type="text"]:focus:not(:focus-visible),
+input[type="number"]:focus:not(:focus-visible),
+select:focus:not(:focus-visible) { outline: none; }
 
 /* Accordion — animazione max-height */
 .accordion-body {
@@ -1184,8 +1184,8 @@ table {
   width: 100%;
   transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
 }
+.input-text:focus:not(:focus-visible) { outline: none; }
 .input-text:focus {
-  outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
 }
@@ -1736,8 +1736,6 @@ body[data-theme="light"] a[style*="var(--accent)"]{ color:var(--accent-ink)!impo
 .app-brand-link .badge{ margin-left:2px; }
 
 /* Testo su accent da token (contrasto in light) */
-.btn{ color:var(--on-accent); }
-.btn.secondary{ color:#fff; }
 .hero-btn-primary{ color:var(--on-accent); }
 .hero-eyebrow{ color:var(--hdr-accent); font-size:12px; }
 .tab-btn.active{ color:var(--on-accent); }
