@@ -197,6 +197,8 @@
 
 <!-- RISULTATI -->
 <div id="results" style="display:none;margin-top:20px;">
+<h2 id="taResultsTitle" tabindex="-1" style="font-size:1.1rem; margin:0 0 10px; scroll-margin-top:72px;">Risultati</h2>
+<span id="taResultsLive" class="sr-only" role="status" aria-live="polite"></span>
 
 <div class="card">
 <h2>Mappa percorso</h2>
@@ -539,6 +541,21 @@ function drawLeaflet(pts, trackColor){
   map.fitBounds(poly.getBounds());
 }
 
+/* Dopo l'analisi: annuncio, scroll e focus sui risultati (rispetta prefers-reduced-motion) */
+function mostraRisultatiTA() {
+  const t = document.getElementById('taResultsTitle');
+  const live = document.getElementById('taResultsLive');
+  if (live) {
+    live.textContent = '';
+    const d = (document.getElementById('distVal') || {}).textContent || '', p = (document.getElementById('dplusVal') || {}).textContent || '';
+    setTimeout(() => { live.textContent = 'Risultati aggiornati. Distanza ' + d + ', dislivello positivo ' + p + '.'; }, 60);
+  }
+  if (!t) return;
+  const ridotto = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  t.scrollIntoView({ behavior: ridotto ? 'auto' : 'smooth', block: 'start' });
+  t.focus({ preventScroll: true });
+}
+
 function renderAnalysis(pts, mt, realTimeStr = null) {
 
   results.style.display = "block";
@@ -604,6 +621,8 @@ window.currentRealTime = realTimeStr;
     }));
     window.location.href = "share_card.html";
   };
+
+  mostraRisultatiTA();
 }
 
 /* ANALISI */
