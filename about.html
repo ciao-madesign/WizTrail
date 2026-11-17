@@ -278,7 +278,7 @@
             <tr><td>Ranking WDI delle gare</td><td><span class="badge badge--beta">Beta</span></td><td>Solo consultazione e filtri.</td></tr>
             <tr><td>Condivisione di un GPX verso WizTrail da altre app</td><td><span class="badge badge--beta">Beta</span></td><td>Android, con WizTrail installata.</td></tr>
             <tr><td>Training Analyzer (confronto stima/reale)</td><td><span class="badge badge--beta">Beta</span></td><td></td></tr>
-            <tr><td>API pubblica</td><td><span class="badge badge--beta">Beta</span></td><td>Richiede una chiave. Le stime di tempo possono differire da quelle del sito.</td></tr>
+            <tr><td>API pubblica</td><td><span class="badge badge--beta">Beta</span></td><td>Richiede una chiave. A parità di parametri equivalenti, le stime di tempo coincidono con quelle del sito.</td></tr>
             <tr><td>Strava (collegamento e importazione)</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Scarica il GPX da strava.com e caricalo nel Calcolatore.</td></tr>
             <tr><td>Sincronizzazione con orologi e piattaforme (Garmin, Suunto, Coros, Polar e simili)</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Carica il file GPX o TCX esportato.</td></tr>
             <tr><td>Invio del pacing all'orologio</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td></td></tr>
@@ -338,7 +338,7 @@
     <div class="card">
       <p>WizTrail espone una REST API che restituisce gli stessi output del calcolatore web — WDI, stima tempo e piano pacing — pronti per essere integrati in app, siti o dispositivi di terze parti.</p>
       <p style="margin-top:10px;">L'API è ospitata su Vercel ed è autenticata tramite API key (header <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">x-api-key</code>). L'API è attiva e richiede una chiave. La richiesta automatica della chiave non è ancora disponibile: scrivi a ciao.madesign@gmail.com indicando l'uso che ne farai.</p>
-      <p class="note note--warn" style="margin-top:10px;">Le stime di tempo dell'API possono differire da quelle del sito, che applica una correzione per il terreno tecnico.</p>
+      <p class="note note--warn" style="margin-top:10px;">Le stime di tempo dell'API applicano la stessa correzione per il terreno tecnico del sito (campo <code>terrain_factor</code>). A parità di parametri equivalenti i risultati coincidono; cambiano i valori predefiniti (terreno, meteo, altitudine) e il modo di indicare il ritmo base (nel sito dal tempo sui 10 km, nell'API da <code>specificity</code> o <code>vel_base</code>).</p>
     </div>
 
     <details class="card" open>
