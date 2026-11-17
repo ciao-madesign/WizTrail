@@ -1984,6 +1984,21 @@ body.is-modal{ overflow:hidden; }
 .howto__close:hover{ color:var(--ink); }
 @media (max-width:600px){ .howto ol{ flex-direction:column; } }
 
+/* ===== 9.C (M4-6) contrasti: colore di classe WDI come pallino, testo in ink ===== */
+.wdi-dot{ display:inline-block; width:.62em; height:.62em; border-radius:50%; margin-right:.45em; vertical-align:baseline; flex-shrink:0; }
+/* Numeri grandi colorati da JS (inline color): stessa tinta spostata verso l'ink, almeno 3:1 (testo grande) in entrambi i temi */
+#outRaceScore, #outTechScore, .kpi .val[style*="color"], [style*="font-weight:900"][style*="color:#"]{ -webkit-text-fill-color:color-mix(in oklab, currentColor 80%, var(--ink)); }
+body[data-theme="light"] #outRaceScore, body[data-theme="light"] #outTechScore, body[data-theme="light"] .kpi .val[style*="color"], body[data-theme="light"] [style*="font-weight:900"][style*="color:#"]{ -webkit-text-fill-color:color-mix(in oklab, currentColor 70%, var(--ink)); }
+/* Badge disciplina (colori inline dal classificatore): testo ink, il tono resta nello sfondo, nel bordo e nell'emoji */
+.discipline-badge{ color:var(--ink)!important; }
+/* Link senza classe ne' colore (prima blu di default del browser, 2:1 su fondo scuro) */
+.about-section a:not([class]):not([style*="color"]), .tc-no-data a, .card a:not([class]):not([style*="color"]){ color:var(--accent-ink); }
+.about-section a code{ color:inherit; }
+.kpi-microcopy{ opacity:1; color:var(--muted); }
+body[data-theme="light"] .badge--ok{ color:#15803d; }   /* 5.0:1 su bianco (il verde #34A853 e' 3.1:1) */
+p[style*="opacity"], :is(div,span)[style*="opacity:0.4"], :is(div,span)[style*="opacity:0.45"], :is(div,span)[style*="opacity:0.7"], :is(div,span)[style*="opacity:0.75"]{ opacity:1!important; color:var(--muted); }
+#outRaceScoreSub, #outFinalSub{ opacity:1!important; }
+
 /* ===== 9.F RIDUZIONE MOVIMENTO (deve restare l'ULTIMO blocco) ===== */
 @media (prefers-reduced-motion:reduce){
   *, *::before, *::after{
