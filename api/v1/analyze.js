@@ -26,7 +26,8 @@
  *     discipline,
  *     max_altitude,
  *     distance_km, dplus,
- *     time_estimate: { seconds, formatted },
+ *     time_estimate: { seconds, formatted },   // include la correzione terreno
+ *     terrain_factor,                          // correzione terreno applicata al tempo (>= 1), come nel sito
  *     avg_pace: { sec_km, formatted },
  *     pacing_plan: [{ km_end, dist_km, pace_sec_km, pace_str, time_str, cumulative_sec, dplus, dminus, faster_than_avg }],
  *     // se include_details: true
@@ -36,14 +37,14 @@
  *   }
  */
 
-import { checkRateLimit, getIP } from '../lib/ratelimit.js';
-import { checkApiKey } from '../lib/auth.js';
-import { parseTrack, compute }   from '../lib/gpx-node.js';
-import { computeFromGpx, classifyDiscipline } from '../lib/engine-node.js';
-import { computeTime, estimateMedianTime, estimatePercentile } from '../lib/timing-node.js';
-import { generatePacingPlan, serializeChunks, secToHMS } from '../lib/pacing-node.js';
-import { compute as computeStats }     from '../lib/trail-stats-node.js';
-import { generate as generateInsights } from '../lib/trail-insights-node.js';
+import { checkRateLimit, getIP } from '../../server/ratelimit.js';
+import { checkApiKey } from '../../server/auth.js';
+import { parseTrack, compute }   from '../../server/gpx-node.js';
+import { computeFromGpx, classifyDiscipline } from '../../server/engine-node.js';
+import { computeTime, estimateMedianTime, estimatePercentile, terrainFactor } from '../../server/timing-node.js';
+import { generatePacingPlan, serializeChunks, secToHMS } from '../../server/pacing-node.js';
+import { compute as computeStats }     from '../../server/trail-stats-node.js';
+import { generate as generateInsights } from '../../server/trail-insights-node.js';
 
 /* ── Helpers ──────────────────────────────────────────────────────── */
 
@@ -70,18 +71,20 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // ── Autenticazione ──
-  if (!(await checkApiKey(req))) {
-    return res.status(401).json({ error: 'API key non valida o mancante.' });
-  }
-
-  // ── Rate limiting ──
+  // Rate limit per IP PRIMA della verifica chiave: limita anche i tentativi con chiavi errate
   const ip = getIP(req);
-  const rl = await checkRateLimit(ip);
+  const rl = await checkRateLimit(ip, 'v1');
   res.setHeader('X-RateLimit-Remaining', rl.remaining);
   if (!rl.allowed) {
-    return res.status(429).json({ error: 'Troppe richieste. Riprova tra un minuto.' });
+    res.setHeader('Retry-After', String(rl.retryAfter || 60));
+    return res.status(429).json({ ok: false, code: 'RATE_LIMITED', error: 'Troppe richieste. Riprova tra un minuto.' });
   }
+
+  // Autenticazione (dopo il rate limit)
+  if (!(await checkApiKey(req))) {
+    return res.status(401).json({ ok: false, code: 'INVALID_API_KEY', error: 'API key non valida o mancante.' });
+  }
+
 
   // ── Parsing body ──
   const {
@@ -145,8 +148,10 @@ export default async function handler(req, res) {
   // ── Stima tempo ──
   const S      = Math.max(0, Math.min(1, Number(specificity)));
   const vBase  = vel_base ? Number(vel_base) : velBaseFromSpecificity(S);
+  // Correzione terreno (stessa del sito, main.js): T_finale = T_segmenti × terrainFactor(TechScore, S)
+  const kf     = terrainFactor(wdiResult.TechScore, S);
   const tEst   = computeTime(gpxPts, metrics, vBase, S, terrain_class,
-                              Number(meteo), Number(altitude));
+                              Number(meteo), Number(altitude)) * kf;
 
   // ── Pacing plan ──
   const T_target = parseDuration(target_time) ?? Math.round(tEst);
@@ -203,6 +208,7 @@ export default async function handler(req, res) {
       seconds:   Math.round(tEst),
       formatted: secToHMS(tEst),
     },
+    terrain_factor: Math.round(kf * 1000) / 1000,
     avg_pace: {
       sec_km:    Math.round(pacingResult.avg_pace_sec),
       formatted: `${Math.floor(pacingResult.avg_pace_sec / 60)}:${String(Math.round(pacingResult.avg_pace_sec % 60)).padStart(2,'0')}/km`,

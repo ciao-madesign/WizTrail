@@ -19,7 +19,7 @@ Ogni richiesta deve includere una chiave API nell'header HTTP:
 x-api-key: <la-tua-chiave>
 ```
 
-Le chiavi API sono distribuite manualmente. Per richiederne una, contattare il team WizTrail.
+Le chiavi API sono distribuite manualmente. Per richiederne una, scrivere a ciao.madesign@gmail.com indicando l'uso previsto: la richiesta automatica via email non è ancora disponibile.
 
 ---
 
@@ -30,6 +30,8 @@ Tutti gli errori restituiscono un oggetto JSON con campo `error`:
 ```json
 { "error": "Messaggio descrittivo." }
 ```
+
+Alcuni errori (ad esempio `401` per chiave non valida e `429`) includono anche `ok: false` e un `code` (`INVALID_API_KEY`, `RATE_LIMITED`); i client devono basarsi sullo status HTTP e ignorare i campi che non conoscono.
 
 | Status | Significato |
 |--------|-------------|
@@ -112,6 +114,7 @@ b64 = base64.b64encode(open("mia_gara.gpx", "rb").read()).decode()
     "seconds": 14820,
     "formatted": "4:07:00"
   },
+  "terrain_factor": 1.18,
   "avg_pace": {
     "sec_km": 610,
     "formatted": "10:10/km"
@@ -149,6 +152,7 @@ b64 = base64.b64encode(open("mia_gara.gpx", "rb").read()).decode()
 | `dplus` | number | Dislivello positivo in metri |
 | `time_estimate.seconds` | number | Stima tempo totale in secondi |
 | `time_estimate.formatted` | string | Stima tempo in formato `h:mm:ss` |
+| `terrain_factor` | number | Correzione per la tecnicità del terreno già applicata a `time_estimate` (≥ 1; es. `1.18` = +18%). Dal 2026-11-16, vedi «Novità» |
 | `avg_pace.sec_km` | number | Passo medio in secondi/km |
 | `avg_pace.formatted` | string | Passo medio in formato `mm:ss/km` |
 | `pacing_plan` | array | Piano pacing segmentato (un oggetto per chunk) |
@@ -211,18 +215,25 @@ x-api-key: <chiave>
 ```json
 {
   "estimate": true,
-  "wdi": 65.8,
-  "wdi_norm": 6.4,
+  "wdi": 60.1,
+  "wdi_norm": 6.6,
   "wdi_category": "Medium",
   "class": "Advanced",
   "color": "#F4C20D",
-  "tech_score": 63.2,
+  "tech_score": 56.3,
   "tech_class": "Tecnico",
-  "discipline": "mountain",
-  "distance_km": 42.0,
-  "dplus": 2800
+  "discipline": "trail",
+  "distance_km": 42,
+  "dplus": 2800,
+  "specificity": 0.5,
+  "level": "Amatore forte",
+  "terrain_factor": 1.249,
+  "time_estimate": { "seconds": 42801, "formatted": "11:53:21" },
+  "median_comparison": { "median_sec": 28013, "median_formatted": "7:46:53" }
 }
 ```
+
+`time_estimate` include la correzione terreno indicata in `terrain_factor` (≥ 1, calcolata dal TechScore stimato e dal livello `specificity`), come nel calcolatore del sito. `median_comparison` può essere `null`.
 
 ---
 
@@ -353,8 +364,20 @@ Il WDI viene normalizzato in base alla distanza per confrontare gare di lunghezz
 |-------|--------|------|
 | Standard | 30 req/min per IP | Header `X-RateLimit-Remaining` nella risposta |
 
-Il limite è condiviso tra tutti gli endpoint (`/api/v1/analyze` e `/api/v1/wdi`).
-Superato il limite, ricevi `HTTP 429` — riprova dopo 60 secondi.
+Il limite è condiviso tra tutti gli endpoint (`/api/v1/analyze` e `/api/v1/wdi`) ed è calcolato su una finestra fissa di 60 secondi per indirizzo IP, prima della verifica della chiave.
+Superato il limite, ricevi `HTTP 429` con l'header `Retry-After` — riprova dopo 60 secondi.
+
+---
+
+## Novità e modifiche
+
+### 2026-11-16 — Correzione terreno (KF_terrain) nel tempo stimato
+
+- **Cosa cambia:** `time_estimate` di `POST /api/v1/analyze` e di `POST /api/v1/wdi` (e quindi `pacing_plan` e `avg_pace`, ricavati da quel tempo quando non indichi `target_time`) ora include la stessa correzione del calcolatore del sito: `T_finale = T_segmenti × terrain_factor`, con `terrain_factor = 1 + (TechScore / 175) × (1 − S × 0,45)` (S = `specificity`).
+- **Campo nuovo (additivo):** `terrain_factor` nella risposta di entrambi gli endpoint. Nessun altro cambio di schema.
+- **Effetto:** i tempi aumentano rispetto alle versioni precedenti, di più sui percorsi tecnici. Sui 6 casi verificati (GPX reali e manuali) il fattore va da 1,11 a 1,30, cioè +11% / +30%; la documentazione interna del modello indica +14–40% sulle gare tecniche. Su percorsi scorrevoli l'aumento è minimo.
+- **Verifica:** i tempi coincidono con quelli del sito (scarto 0,00% su 6 casi confrontati col calcolatore reale; test automatici con tolleranza 0,5%). Il sito calcola il ritmo base dal tuo tempo sui 10 km, l'API dalla `specificity` (o da `vel_base`), quindi a parità di input i due strumenti danno lo stesso risultato solo se i parametri sono equivalenti.
+- **Nota:** i valori predefiniti dei parametri dell'API (`terrain_class` = `EE`, `meteo` = 1, `altitude` = 1) non cambiano e differiscono da quelli preselezionati nel sito.
 
 ---
 
@@ -363,3 +386,4 @@ Superato il limite, ricevi `HTTP 429` — riprova dopo 60 secondi.
 | Data | Versione | Note |
 |------|----------|------|
 | 2026-05-15 | v1.0 | Prima release pubblica: `/api/v1/analyze`, `/api/v1/wdi` |
+| 2026-11-16 | v1.0 | `time_estimate` con correzione terreno; nuovo campo `terrain_factor` (additivo) |

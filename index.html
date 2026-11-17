@@ -2,34 +2,40 @@
 <html lang="it">
 <head>
   <meta name="google-site-verification" content="mwv09enOB_Ruy-bMimm7xVFifXKwPl2nRCbbKnzoWT0" />
-  <meta name="description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale, nessun dato personale inviato a server.">
-  <meta name="keywords" content="WizTrail, trail running, difficoltà trail, WDI, analisi GPX, pacing trail">
   <meta name="author" content="madesign">
-  <meta name="robots" content="index, follow">
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="WizTrail — Analizza la difficoltà del tuo trail" />
-  <meta property="og:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale." />
-  <meta property="og:url" content="https://ciao-madesign.github.io/WizTrail/" />
-  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-index.jpg" />
-  <meta property="og:type" content="website" />
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="WizTrail — Analizza la difficoltà del tuo trail">
-  <meta name="twitter:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale.">
-  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-index.jpg">
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WizTrail — Analizza la difficoltà del tuo trail</title>
+<title>Calcolatore difficoltà e tempo trail da GPX — WizTrail</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="description" content="Carica un GPX o inserisci km e dislivello: ottieni WDI, TechScore, tempo di gara stimato e pacing per segmento. Gratuito, versione Beta.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://wiz-trail.vercel.app/index.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WizTrail">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="Calcolatore difficoltà e tempo trail da GPX — WizTrail">
+<meta property="og:description" content="Carica il GPX: WDI, TechScore, tempo stimato e pacing per segmento.">
+<meta property="og:url" content="https://wiz-trail.vercel.app/index.html">
+<meta property="og:image" content="https://wiz-trail.vercel.app/img/og/og-calcolatore.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="WizTrail Calcolatore: difficoltà e tempo di gara da un file GPX">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Calcolatore difficoltà e tempo trail da GPX — WizTrail">
+<meta name="twitter:description" content="Carica il GPX: WDI, TechScore, tempo stimato e pacing per segmento.">
+<meta name="twitter:image" content="https://wiz-trail.vercel.app/img/og/og-calcolatore.jpg">
+<meta name="twitter:image:alt" content="WizTrail Calcolatore: difficoltà e tempo di gara da un file GPX">
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#002b2b">
 
   <!-- iOS PWA -->
-  <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="photo-credit" content="Hero photo by Brian Erickson on Unsplash (unsplash.com/photos/8TJbrQGKFyU) — Unsplash License">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -41,33 +47,44 @@
   <script src="/lib/leaflet/leaflet.js"></script>
 
   <!-- WizTrail CSS -->
-  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261125">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WizTrail — Calcolatore GPX Trail","url":"https://wiz-trail.vercel.app/index.html","applicationCategory":"SportsApplication","operatingSystem":"Web","description":"Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale, nessun dato personale inviato a server.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}
+{"@context":"https://schema.org","@type":"WebApplication","name":"WizTrail — Calcolatore","url":"https://wiz-trail.vercel.app/index.html","isPartOf":{"@id":"https://wiz-trail.vercel.app/landing.html#website"},"applicationCategory":"SportsApplication","operatingSystem":"Web","description":"Carica un GPX o inserisci km e dislivello: ottieni WDI, TechScore, tempo di gara stimato e pacing per segmento.","featureList":["Calcolo dell'indice di difficoltà WDI da un file GPX","Stima del tempo di gara","Pacing per segmento"],"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}
 </script>
 </head>
 
 <body data-theme="dark">
+<script>(function(){try{var t=localStorage.getItem('wiztrail_theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.body.setAttribute('data-theme',t);document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
 
 <header class="app-header">
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
+  <nav class="app-nav" aria-label="Menu principale">
     <a href="index.html" class="nav-active">Calcolatore</a>
       <a href="training-analyzer.html" class="">Training</a>
       <a href="ranking.html" class="">Ranking</a>
       <a href="about.html" class="">Il Metodo</a>
   </nav>
-</header><!-- HERO FULL-WIDTH -->
+</header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+<!-- HERO FULL-WIDTH -->
 <div class="hero-fullwidth" id="heroSection">
   <div class="hero-bg-img" id="heroBgImg"></div>
   <div class="hero-overlay"></div>
   <div class="hero-inner">
     <div class="hero-eyebrow">WizTrail — Calcolatore</div>
-    <h1 class="hero-title">Analizza la difficoltà<br>del tuo trail</h1>
-    <p class="hero-desc">Carica il GPX, calcola il WDI e stima il tuo tempo di gara.</p>
+    <h1 class="hero-title">Calcola la difficoltà<br>e il tempo del tuo trail</h1>
+    <p class="hero-desc">Carica il GPX e ottieni WDI, TechScore e tempo di gara stimato. Il file viene analizzato nel tuo browser.</p>
     <div class="hero-actions">
       <a href="#calc" class="hero-btn-primary" id="heroCtaBtn">Inizia l'analisi →</a>
       <a href="about.html" class="hero-btn-ghost">Scopri il metodo →</a>
@@ -80,7 +97,7 @@
   <!-- Toolbar Link WDI -->
 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
     <span class="theme-ctrl">
-      <label class="mini">Tema</label>
+      <label class="mini" for="themeSel">Tema</label>
       <select id="themeSel">
         <option value="dark" selected>Scuro</option>
         <option value="light">Chiaro</option>
@@ -88,13 +105,32 @@
     </span>
   </div>
 
+  <!-- Come funziona: tre passi, chiudibile; la scelta e' ricordata in localStorage (wt-howto-v1) -->
+  <div class="howto" id="howto" role="region" aria-label="Come funziona">
+    <ol>
+      <li><b aria-hidden="true">1</b> Carica il GPX</li>
+      <li><b aria-hidden="true">2</b> Indica il tuo ritmo</li>
+      <li><b aria-hidden="true">3</b> Leggi WDI, tempo e pacing</li>
+    </ol>
+    <button type="button" class="howto__close" id="howtoClose" aria-label="Nascondi «Come funziona»">&times;</button>
+  </div>
+  <script>(function(){var h=document.getElementById('howto'),k='wt-howto-v1';try{if(localStorage.getItem(k))h.hidden=true}catch(e){}document.getElementById('howtoClose').addEventListener('click',function(){h.hidden=true;try{localStorage.setItem(k,'1')}catch(e){}var n=document.getElementById('gpxfile');if(n&&n.focus)n.focus()})})();</script>
+
   <!-- PANEL: CALCOLATORE -->
   <section id="calc" class="panel active">
     <div class="card">
 
       <fieldset>
-        <legend>Traccia GPX — consigliata per calcolo completo</legend>
+        <legend>Percorso</legend>
 
+        <!-- Modalità: GPX (consigliata, calcolo completo) oppure inserimento manuale di km e D+ -->
+        <div class="seg" role="radiogroup" aria-label="Come vuoi indicare il percorso">
+          <label class="seg__opt"><input type="radio" name="srcMode" value="gpx" checked><span>Ho un GPX</span></label>
+          <label class="seg__opt"><input type="radio" name="srcMode" value="manual"><span>Inserisco km e D+</span></label>
+        </div>
+        <p class="hint" id="modeHint">Con il GPX il calcolo è completo (profilo, mappa, pacing). Senza GPX la stima è approssimativa.</p>
+
+        <div id="modeGpx">
         <!-- Drop zone visiva -->
         <label for="gpxfile" class="gpx-dropzone" id="gpxDropzone">
           <div class="gpx-dropzone-icon">
@@ -106,58 +142,75 @@
           </div>
           <div class="gpx-dropzone-text">
             <span class="gpx-dropzone-main">Trascina il GPX qui o clicca per selezionare</span>
-            <span class="gpx-dropzone-sub">GPX · TCX · XML — Garmin, Suunto, Wikiloc, Komoot</span>
+            <span class="gpx-dropzone-sub">GPX · TCX · XML — file esportati da Garmin, Suunto, Wikiloc, Komoot e altre app</span>
           </div>
-          <input id="gpxfile" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml" style="display:none;"/>
+          <input id="gpxfile" class="sr-only" type="file" accept=".gpx,.tcx,.xml,application/gpx+xml,text/xml,application/xml"/>
         </label>
 
-        <!-- Alternativa Strava / link -->
+        <!-- Altre sorgenti: link diretto a un file GPX. Strava: non ancora disponibile (flag WizFeatures.stravaEnabled) -->
         <div class="gpx-alt-row">
           <span class="gpx-alt-sep">oppure</span>
-          <a href="import_strava.html?return=index" class="gpx-alt-link">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-            Importa da Strava
-          </a>
-          <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
-          <button type="button" class="gpx-alt-link" id="linkImportBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+          <button type="button" class="gpx-alt-link" id="linkImportBtn" aria-expanded="false" aria-controls="linkImportRow" data-expands style="background:none;border:none;cursor:pointer;padding:0;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            link
+            Importa da link
           </button>
+          <span class="gpx-alt-sep" aria-hidden="true">·</span>
+          <button type="button" class="action--unavailable" id="stravaBtnOff" aria-disabled="true" aria-describedby="srcNote">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+            Strava <span class="badge badge--soon">Non ancora disponibile</span>
+          </button>
+          <!-- Percorso attivo (solo con flag acceso): resta nel codice, nascosto -->
+          <a href="import_strava.html?return=index" class="gpx-alt-link" id="stravaLinkLive" hidden>Importa da Strava</a>
         </div>
-        <div id="linkImportRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
-          <input id="linkImportUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
-          <button id="linkImportGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
+        <p class="note" id="srcNote">Strava e sincronizzazione con gli orologi: non ancora disponibili. Carica il file GPX esportato dalla tua app o dal tuo orologio (su strava.com: menu "…" dell'attività &gt; "Esporta GPX").</p>
+        <div id="linkImportRow" class="field-inline field-inline--wrap" style="display:none;">
+          <input id="linkImportUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" aria-describedby="linkHelp" placeholder="Link diretto a un file .gpx"/>
+          <button id="linkImportGo" type="button" class="btn-inline">Carica</button>
+          <p class="hint" id="linkHelp" style="flex-basis:100%;">Funziona con link che scaricano direttamente un file GPX. Le pagine di Strava, Komoot o Wikiloc non sono file: scarica il GPX e caricalo qui sopra. Il link viene aperto dai nostri server per scaricare il file.</p>
         </div>
 
         <!-- Info dopo caricamento -->
-        <div id="gpxInfo" class="mini" style="margin-top:6px;"></div>
+        <div id="gpxInfo" class="mini" role="status" aria-live="polite" style="margin-top:6px;"></div>
+        <p id="gpxFacts" class="gpx-facts" hidden>
+          <strong id="gpxFactsText"></strong>
+          <span class="hint" style="display:inline;margin:0;">letti dal file</span>
+          <button type="button" class="linklike" id="gpxCorrectBtn" aria-expanded="false" aria-controls="paramGara">Correggi manualmente</button>
+        </p>
         <div id="gpxEmpty" class="gpx-empty" style="display:none;">
-          <span>Senza GPX: inserisci distanza e D+ manualmente</span>
+          <span>Carica un file GPX oppure scegli «Inserisco km e D+».</span>
         </div>
+        </div><!-- /modeGpx -->
       </fieldset>
 
       <fieldset>
         <legend>Parametri atleta</legend>
-        <label>Tempo 10 km in piano (mm:ss)
+        <div class="label-row"><label for="t10k">Tempo 10 km in piano (mm:ss)
           <span class="mini" style="opacity:0.65; font-weight:400;">
             — usato per pacing e stima tempo personalizzata
           </span>
-        </label>
-        <input id="t10k" type="text" value="50:00" placeholder="es. 52:00"/>
+        </label> <span class="info"><button type="button" class="info-btn" data-pop="pop-t10k" aria-expanded="false" aria-describedby="pop-t10k" aria-label="Informazioni: Tempo su 10 km"><span class="info-btn__dot" aria-hidden="true">i</span></button><span class="popover" id="pop-t10k" role="note" hidden>È il tuo tempo su 10 km in piano: da lì WizTrail ricava il ritmo per la stima del tempo e il pacing. 50:00 è solo un valore d'esempio. <a href="about.html#tempi">Come si calcola</a></span></span></div>
+        <input id="t10k" type="text" value="50:00" placeholder="es. 52:00" aria-describedby="t10kHint"/>
+        <p class="hint" id="t10kHint">50:00 è un valore d'esempio: inserisci il tuo tempo su 10 km per una stima personale.</p>
+        <div class="label-row" style="margin-top:12px;"><label for="spec" style="margin:0;">Livello</label> <span class="info"><button type="button" class="info-btn" data-pop="pop-livello" aria-expanded="false" aria-describedby="pop-livello" aria-label="Informazioni: Livello"><span class="info-btn__dot" aria-hidden="true">i</span></button><span class="popover" id="pop-livello" role="note" hidden>Indica quanto sei allenato sul terreno tecnico: più il livello è alto, meno i tratti tecnici allungano il tempo stimato. <a href="about.html#tempi">Come si calcola</a></span></span></div>
+        <input id="spec" aria-label="Livello di specificità" type="range" min="0" max="1" step="0.1" value="0.2" style="width:100%; margin:6px 0;"/>
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted);">
+          <span>Principiante</span><span>Amatore</span><span>Avanzato</span><span>Agonista</span><span>Elite</span>
+        </div>
       </fieldset>
 
-      <fieldset>
-        <legend>Parametri gara</legend>
+      <fieldset id="paramGara" hidden>
+        <legend id="paramGaraLegend">Parametri gara</legend>
         <div class="grid grid-2" style="gap:12px; margin-top:8px;">
           <fieldset>
             <legend>Distanza (km)</legend>
-            <input id="dist" type="number" step="0.001" min="0.1" max="500" value="21.097"/>
+            <input id="dist" aria-label="Distanza in chilometri" type="number" step="0.001" min="0.1" max="500" placeholder="es. 42"/>
           </fieldset>
           <fieldset>
             <legend>D+ (m)</legend>
-            <input id="dplus" type="number" step="1" min="0" max="30000" value="0"/>
+            <input id="dplus" aria-label="Dislivello positivo in metri" type="number" step="1" min="0" max="30000" placeholder="es. 2500"/>
           </fieldset>
         </div>
+        <p class="hint" id="paramGaraHint"></p>
       </fieldset>
 
       <!-- ACCORDION PARAMETRI AVANZATI -->
@@ -167,14 +220,14 @@
       <div class="accordion-body" id="advBody">
         <fieldset>
           <legend>Tecnica del percorso</legend>
-          <label>Livello tecnicità</label>
+          <label for="terrain">Livello tecnicità</label>
           <select id="terrain">
             <option value="Strada">Strada / molto semplice</option>
             <option value="E">E – Trail semplice</option>
             <option value="EE">EE – Impegnativo</option>
             <option value="EA">EA – Tecnico / Esposizione</option>
           </select>
-          <label style="margin-top:8px;">Fondo</label>
+          <label for="surfaceLvl" style="margin-top:8px;">Fondo</label>
           <select id="surfaceLvl">
             <option value="1">Asfalto / sterrato compatto</option>
             <option value="2">Sentiero battuto</option>
@@ -187,7 +240,7 @@
         <div class="grid grid-2" style="gap:12px;">
           <fieldset>
             <legend>Meteo</legend>
-            <select id="meteo">
+            <select id="meteo" aria-label="Condizioni meteo">
               <option value="1.00">Fresco</option>
               <option value="1.02">Mite</option>
               <option value="1.04" selected>Caldo</option>
@@ -196,7 +249,7 @@
           </fieldset>
           <fieldset>
             <legend>Altitudine media</legend>
-            <select id="alt">
+            <select id="alt" aria-label="Altitudine media">
               <option value="1.00">≤500 m</option>
               <option value="1.01">500–1000 m</option>
               <option value="1.02" selected>1000–1500 m</option>
@@ -206,25 +259,20 @@
           </fieldset>
           <fieldset>
             <legend>Margine ±%</legend>
-            <input id="margin" type="number" value="10"/>
+            <input id="margin" aria-label="Margine di errore in percentuale" type="number" value="10"/>
           </fieldset>
         </div>
-        <fieldset>
-          <legend>Livello</legend>
-          <input id="spec" type="range" min="0" max="1" step="0.1" value="0.2" style="width:100%; margin:6px 0;"/>
-          <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7;">
-            <span>Principiante</span><span>Amatore</span><span>Avanzato</span><span>Agonista</span><span>Elite</span>
-          </div>
-        </fieldset>
       </div><!-- /accordion-body -->
 
       <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px; gap:12px; flex-wrap:wrap;">
         <div style="display:flex; gap:10px;">
           <button class="btn" id="calcBtn">Calcola</button>
-          <button class="btn secondary" id="resetBtn">Reset</button>
+          <button class="btn secondary" id="resetBtn" type="button">Nuova analisi</button>
         </div>
         <button id="btnFotoJson" style="background:none; border:none; cursor:pointer; font-size:0.82rem; color:var(--muted); text-decoration:underline; text-underline-offset:3px; font-family:inherit; padding:0;">scarica riepilogo JSON</button>
       </div>
+
+      <p class="hint">WizTrail non salva i tuoi risultati: chiudendo la scheda vengono persi. Scarica il riepilogo JSON per conservarli.</p>
 
       <div id="calc_tips" class="card" style="display:none; margin-top:8px;">
         <div id="calc_tips_header" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
@@ -234,16 +282,18 @@
         <div id="calc_tips_body" class="mini" style="display:none; margin-top:10px;"></div>
       </div>
 
-      <div id="msg" class="mini"></div>
+      <div id="msg" class="mini" role="status" aria-live="polite"></div>
 
       <!-- KPI primari: WDI + Tempo -->
       <div id="kpiResults" style="margin-top:16px;">
+        <h2 id="resultsTitle" tabindex="-1" style="font-size:1.1rem; margin:0 0 10px;">Risultati</h2>
+        <span id="resultsLive" class="sr-only" role="status" aria-live="polite"></span>
         <div class="grid grid-2" style="gap:12px; margin-bottom:12px;">
           <div class="kpi kpi-primary">
-            <h3>WDI</h3>
+            <div class="kpi-head"><h3>WDI</h3> <span class="info"><button type="button" class="info-btn" data-pop="pop-wdi" aria-expanded="false" aria-describedby="pop-wdi" aria-label="Informazioni: WDI"><span class="info-btn__dot" aria-hidden="true">i</span></button><span class="popover" id="pop-wdi" role="note" hidden>Il WDI (WizTrail Difficulty Index) misura la difficoltà del percorso da 0 a 10 nella sua categoria di distanza. Il valore grezzo permette il confronto tra categorie diverse. <a href="about.html#wdi">Come si calcola</a></span></span></div>
             <div class="val" id="outRaceScore" style="font-size:3rem; font-weight:900; margin-bottom:4px; transition:color 0.3s;">—</div>
             <div id="outRaceScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;">
-              <span class="kpi-placeholder">Difficulty Index del percorso</span>
+              <span class="kpi-placeholder">Il WDI compare qui dopo l'analisi del percorso.</span>
             </div>
             <!-- Badge disciplina — mostrato dopo calcolo con GPX (max_altitude disponibile) -->
             <div id="disciplineBadgeBox" style="display:none; margin-top:8px;"></div>
@@ -254,10 +304,15 @@
             <h3>Tempo stimato</h3>
             <div class="val" id="outFinal" style="font-size:2.2rem; font-weight:900;">—:—</div>
             <div id="outFinalSub" style="font-size:0.75rem; line-height:1.5; opacity:0.8; margin-top:4px;">
-              <span class="kpi-placeholder">Inserisci il tempo su 10 km e premi Calcola</span>
+              <span class="kpi-placeholder">Il tempo stimato compare qui dopo l'analisi. Con il tuo tempo su 10 km la stima è personale.</span>
             </div>
           </div>
         </div>
+        <!-- Assunzioni: default dichiarati, modificabili -->
+        <p id="assumptions" class="assumptions" hidden>
+          <strong>Assunzioni:</strong> <span id="assumptionsText"></span>
+          <button type="button" class="linklike" id="assumptionsEdit">Modifica</button>
+        </p>
         <!-- KPI secondari: range -->
         <div class="kpi-secondary-row" id="intervalRow" style="display:none;">
           <span class="kpi-sec-label">Intervallo ±<span id="marginPct">10</span>%</span>
@@ -277,7 +332,7 @@
         </div>
         <!-- TechScore (opzionale) -->
         <div class="kpi" id="techScoreBox" style="display:none; margin-top:12px;">
-          <h3>TechScore</h3>
+          <div class="kpi-head"><h3>TechScore</h3> <span class="info"><button type="button" class="info-btn" data-pop="pop-tech" aria-expanded="false" aria-describedby="pop-tech" aria-label="Informazioni: TechScore"><span class="info-btn__dot" aria-hidden="true">i</span></button><span class="popover" id="pop-tech" role="note" hidden>La tecnicità del terreno da 0 a 100, indipendente dalla distanza, ricavata dalle irregolarità del profilo. <a href="about.html#techscore">Come si calcola</a></span></span></div>
           <div class="val" id="outTechScore" style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
           <div id="outTechScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
           <!-- Microcopy TechScore -->
@@ -299,15 +354,16 @@
             <div style="font-size:0.75rem; color:var(--muted,#a8b3c2);">Simule ti permette di "correre" virtualmente la traccia prima della gara.</div>
           </div>
           <a id="simuleCtaLink" href="#" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:7px; background:var(--accent,#4fd1c5); color:#0a0f14; font-size:0.84rem; font-weight:700; text-decoration:none; white-space:nowrap; flex-shrink:0;">
-            ▶ Simula su Simule
+            ▶ Apri in Simule <span class="badge badge--soon" style="margin-left:4px;">App esterna</span>
           </a>
+          <p class="hint" style="flex-basis:100%;margin:0;">Simule è un'app esterna a WizTrail e si apre in una nuova scheda. Per mostrare il percorso, a Simule viene passato il link al tuo file GPX.</p>
         </div>
       </div>
 
       <!-- Feedback secondario — appare dopo il primo calcolo WDI -->
       <div id="feedbackBtn" style="display:none; margin-top:12px; text-align:center;">
         <button class="btn secondary" onclick="openFeedbackModal();">
-          Hai un tempo reale per questa gara? Aiuta a calibrare il modello
+          Hai già corso questa gara? Aiutaci a migliorare il modello
         </button>
       </div>
 
@@ -318,7 +374,7 @@
     <div class="card" id="elevSection" style="display:none;">
       <h2>Profilo altimetrico</h2>
       <div class="profile-wrap">
-        <canvas id="elevCanvas" aria-label="Profilo altimetrico"></canvas>
+        <canvas id="elevCanvas" role="img" aria-label="Profilo altimetrico del percorso"></canvas>
       </div>
       <!-- Mappa percorso — inizializzata da map.js.init() al primo drawTrack().
            Il div è SEMPRE nel DOM (non dentro display:none) → Leaflet si inizializza con dimensioni reali. -->
@@ -339,12 +395,12 @@
         </p>
         <div class="pc-inputs">
           <div class="pc-input-group">
-            <label>Tempo obiettivo</label>
+            <label for="pc_target">Tempo obiettivo</label>
             <input id="pc_target" type="text" placeholder="02:30:00" class="pc-time-input">
             <span class="mini" style="opacity:0.5;">hh:mm:ss</span>
           </div>
           <div class="pc-input-group">
-            <label>Checkpoint ogni</label>
+            <label for="pc_gran">Checkpoint ogni</label>
             <select id="pc_gran">
               <option value="5">5 km</option>
               <option value="10">10 km</option>
@@ -353,6 +409,7 @@
           </div>
           <button class="btn" id="pc_generate">Genera pacing →</button>
         </div>
+        <p class="note" id="pcWatchNote"><span class="badge badge--soon">Non ancora disponibile</span> <strong>Invia all'orologio</strong> — Il piano non può ancora essere inviato all'orologio. Per ora consulta la tabella dei checkpoint o stampa la pagina.</p>
         <div id="pc_msg" class="mini" style="color:var(--accent);margin-top:6px;min-height:1em;"></div>
         <div id="pc_warning" class="pc-warning" style="display:none;">
           Carica una traccia GPX per generare il pacing.
@@ -376,19 +433,20 @@
     <div style="position:relative;z-index:1;max-width:480px;width:90%;max-height:90vh;overflow-y:auto;">
     <div class="card">
       <h2>Feedback tempo gara</h2>
+      <p class="hint" style="margin:0 0 8px;">Inserisci il tuo tempo reale a mano: WizTrail non legge i tempi da Strava o dall'orologio.</p>
       <p style="margin-bottom:16px; color:var(--muted); font-size:0.88rem;">
         Hai corso questa gara? Confronta la stima WizTrail con il tuo tempo reale.
-        Il dato ci aiuta a migliorare il modello — <strong>nessun dato personale viene raccolto</strong>.
+        Il dato ci aiuta a migliorare il modello. Invii solo lo scarto percentuale, i km e il D+: <strong>senza nome, account né traccia GPS</strong>.
       </p>
 
       <div class="feedback-form">
         <div class="feedback-times">
           <div>
-            <label>Tempo stimato da WizTrail</label>
+            <label for="fb_stimato">Tempo stimato da WizTrail</label>
             <input id="fb_stimato" type="text" placeholder="02:45:00" autocomplete="off">
           </div>
           <div>
-            <label>Tempo reale</label>
+            <label for="fb_reale">Tempo reale</label>
             <input id="fb_reale" type="text" placeholder="03:12:00" autocomplete="off">
           </div>
         </div>
@@ -423,10 +481,9 @@
       <a href="privacy.html" style="color:var(--muted);">Privacy</a>
     </p>
     <p class="mini" style="margin-top:8px;">
-      <span style="display:inline-block;padding:1px 7px;border-radius:10px;background:rgba(247,150,23,0.15);color:#F79617;font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;">BETA</span>
+      <span class="badge badge--beta">Beta</span>
+      &nbsp;·&nbsp;<a href="compatibilita.html" style="color:var(--muted);">Cosa funziona oggi</a>
       &nbsp;·&nbsp;<a href="mailto:ciao.madesign@gmail.com?subject=WizTrail%20beta%20feedback" style="color:var(--muted);">Invia feedback</a>
-      &nbsp;·&nbsp;<a href="privacy.html" style="color:var(--muted);">Privacy</a>
-      &nbsp;·&nbsp;<a href="hub.html" style="color:var(--muted);">hub</a>
     </p>
   </div>
 </div><!-- /wrap -->
@@ -435,7 +492,7 @@
 <div id="installIos" class="install-ios" role="dialog" aria-live="polite"
      aria-label="Suggerimento installazione app su iPhone" style="display:none;">
   <div class="install-ios__inner">
-    <img class="install-ios__icon" src="/icons/logo.png" alt="" aria-hidden="true">
+    <img class="install-ios__icon" src="/icons/apple-touch-icon.png" alt="" aria-hidden="true">
     <div>
       <p class="install-ios__title">Installa WizTrail su iPhone</p>
       <p class="install-ios__text">
@@ -476,7 +533,8 @@
 <script src="wiztrail-timing.js?v=20260626"></script>
 
 <!-- Entry point -->
-<script src="main.js?v=20260901a"></script>
+<script src="features.js?v=20261118"></script>
+<script src="main.js?v=20261118b"></script>
 
 
 
@@ -570,6 +628,7 @@
     });
   })();
   </script>
-<script src="/cookie-notice.js" defer></script>
+<script src="/cookie-notice.js?v=20261117" defer></script>
+<script src="wiztrail-shell.js?v=20261119" defer></script>
 </body>
 </html>

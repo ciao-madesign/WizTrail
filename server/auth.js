@@ -1,5 +1,5 @@
 /**
- * api/lib/auth.js — Autenticazione centralizzata per le API pubbliche v1.
+ * server/auth.js — Autenticazione centralizzata per le API pubbliche v1.
  *
  * Controlla x-api-key contro:
  *   1. Variabile d'ambiente API_KEYS (comma-separated) — chiavi statiche
@@ -8,18 +8,27 @@
  * Fail-open su errore Redis (non blocca il servizio per infra down).
  */
 
-const REDIS_NS = 'wiztrail:';
+import { createHash, timingSafeEqual } from 'node:crypto';
+import { ns } from './redis.js';
+
 
 async function redisGetRaw(key) {
   const url   = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
-  const res  = await fetch(`${url}/get/${encodeURIComponent(REDIS_NS + key)}`, {
+  const res  = await fetch(`${url}/get/${encodeURIComponent(ns() + key)}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const json = await res.json();
   if (json.result === null) return null;
   try { return JSON.parse(json.result); } catch { return json.result; }
+}
+
+/** Confronto a tempo costante (hash SHA-256 di lunghezza fissa + timingSafeEqual). */
+export function uguali(a, b) {
+  const ha = createHash('sha256').update(String(a)).digest();
+  const hb = createHash('sha256').update(String(b)).digest();
+  return timingSafeEqual(ha, hb);
 }
 
 /**
@@ -33,7 +42,7 @@ export async function checkApiKey(req) {
 
   // 1. Chiavi statiche da env var (non richiede Redis)
   const envKeys = (process.env.API_KEYS || '').split(',').map(k => k.trim()).filter(Boolean);
-  if (envKeys.includes(provided)) return true;
+  if (envKeys.some(k => uguali(k, provided))) return true;
 
   // 2. Chiavi dinamiche registrate su Redis
   try {

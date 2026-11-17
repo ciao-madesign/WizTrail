@@ -3,31 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WizTrail — Analizza la difficoltà del tuo trail</title>
-  <meta name="description" content="WizTrail calcola il WDI del tuo percorso trail, stima il tempo di gara personalizzato e genera il pacing adattivo. Carica il GPX, tutto in locale.">
-  <meta name="keywords" content="WizTrail, trail running, difficoltà trail, WDI, analisi GPX, pacing trail, TechScore">
+<title>WizTrail — Difficoltà e tempo di gara per il trail running</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="description" content="Carica il GPX del tuo trail: WizTrail calcola l'indice di difficoltà WDI, stima il tempo di gara e prepara il pacing. Gratuito, versione Beta.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://wiz-trail.vercel.app/landing.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WizTrail">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="WizTrail — Difficoltà e tempo di gara per il trail running">
+<meta property="og:description" content="Calcola il WDI del tuo trail da un file GPX, stima il tempo di gara e prepara il pacing.">
+<meta property="og:url" content="https://wiz-trail.vercel.app/landing.html">
+<meta property="og:image" content="https://wiz-trail.vercel.app/img/og/og-home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="WizTrail: analisi della difficoltà di un percorso trail">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WizTrail — Difficoltà e tempo di gara per il trail running">
+<meta name="twitter:description" content="Calcola il WDI del tuo trail da un file GPX, stima il tempo di gara e prepara il pacing.">
+<meta name="twitter:image" content="https://wiz-trail.vercel.app/img/og/og-home.jpg">
+<meta name="twitter:image:alt" content="WizTrail: analisi della difficoltà di un percorso trail">
   <meta name="author" content="madesign">
-  <meta name="robots" content="index, follow">
-  <meta property="og:title" content="WizTrail — Analizza la difficoltà del tuo trail" />
-  <meta property="og:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara. Gratuito, tutto in locale." />
-  <meta property="og:url" content="https://ciao-madesign.github.io/WizTrail/" />
-  <meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-landing.jpg" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="WizTrail — Analizza la difficoltà del tuo trail">
-  <meta name="twitter:description" content="Carica il GPX, calcola il WDI e stima il tuo tempo di gara.">
-  <meta name="twitter:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-landing.jpg">
   <meta name="photo-credit" content="Hero photo by Alessio Soggetti on Unsplash (unsplash.com/photos/GYr9A2CPMhY) — Unsplash License">
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#002b2b">
-  <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="WizTrail">
 
-  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261125">
 
   <style>
     /* ── Landing-specific styles ─────────────────────────────────── */
@@ -518,20 +528,10 @@
     }
   </style>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://wiz-trail.vercel.app/#website","url":"https://wiz-trail.vercel.app/","name":"WizTrail","description":"Piattaforma per l'analisi tecnica dei percorsi trail running: WDI, stima tempi, pacing adattivo.","inLanguage":"it"},{"@type":"SoftwareApplication","@id":"https://wiz-trail.vercel.app/#app","name":"WizTrail","url":"https://wiz-trail.vercel.app/","applicationCategory":"SportsApplication","operatingSystem":"Web","description":"WizTrail calcola il WDI del tuo percorso trail, stima il tempo di gara personalizzato e genera il pacing adattivo. Carica il GPX, tutto in locale.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}]}
+{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://wiz-trail.vercel.app/landing.html#website","url":"https://wiz-trail.vercel.app/landing.html","name":"WizTrail","description":"Piattaforma per l'analisi tecnica dei percorsi trail running: WDI, stima tempi, pacing per segmento.","inLanguage":"it"},{"@type":"SoftwareApplication","@id":"https://wiz-trail.vercel.app/landing.html#app","name":"WizTrail","url":"https://wiz-trail.vercel.app/landing.html","applicationCategory":"SportsApplication","operatingSystem":"Web","description":"WizTrail calcola il WDI del tuo percorso trail, stima il tempo di gara e genera il pacing per segmento a partire da un file GPX.","featureList":["Calcolo dell'indice di difficoltà WDI da un file GPX","Stima del tempo di gara","Pacing per segmento","Analisi degli allenamenti da file GPX"],"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}]}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"Cos'è il WDI e come si calcola?","acceptedAnswer":{"@type":"Answer","text":"Il WDI (WizTrail Difficulty Index) misura la difficoltà reale di un percorso trail. Combina distanza, dislivello, pendenza massima su finestra 40m (FRIP), variabilità del terreno (SlopeVar) e rugosità del profilo altimetrico (Roughness). Calibrato su 96 gare e 47 GPX reali."}},
-{"@type":"Question","name":"Che file posso caricare?","acceptedAnswer":{"@type":"Answer","text":"WizTrail supporta file GPX e TCX esportati da Garmin, Suunto, Wahoo, Coros, Polar o scaricati da Strava. Puoi anche importare un'attività direttamente da Strava nel Training Analyzer."}},
-{"@type":"Question","name":"WizTrail funziona offline?","acceptedAnswer":{"@type":"Answer","text":"Sì. WizTrail è una Progressive Web App (PWA): dopo il primo caricamento, tutto il codice e le risorse sono salvati localmente. Solo l'import da Strava richiede Internet. Installabile su iOS da Safari e su Android da Chrome."}},
-{"@type":"Question","name":"WizTrail funziona su mobile?","acceptedAnswer":{"@type":"Answer","text":"Sì, l'interfaccia è ottimizzata per smartphone. Puoi installarlo come app PWA: su iOS usa Safari → Aggiungi a schermo Home; su Android usa Chrome → Installa app."}},
-{"@type":"Question","name":"Posso importare da Strava?","acceptedAnswer":{"@type":"Answer","text":"Sì. Nel Training Analyzer puoi collegarti a Strava tramite OAuth e importare le attività recenti per analizzarle. L'accesso è opzionale e richiede il tuo consenso esplicito."}},
-{"@type":"Question","name":"Cos'è il TechScore?","acceptedAnswer":{"@type":"Answer","text":"Il TechScore misura la tecnicità pura di un percorso, indipendente dalla lunghezza. Analizza pendenza massima (FRIP), variabilità delle pendenze (SlopeVar) e rugosità del profilo altimetrico (Roughness). Scala 0–10: sopra 7 è terreno tecnico estremo."}},
-{"@type":"Question","name":"Come viene stimato il tempo di gara?","acceptedAnswer":{"@type":"Answer","text":"Il modello segment-based v3.0 calcola la velocità per ogni tratto del percorso in funzione di pendenza, tecnicità, meteo, quota e livello dell'atleta. La stima è personalizzata: due atleti con livelli diversi ottengono stime diverse sullo stesso percorso."}},
-{"@type":"Question","name":"Cos'è il pacing adattivo?","acceptedAnswer":{"@type":"Answer","text":"Il Pacing Planner divide il percorso in segmenti da 5 km e calcola il ritmo consigliato per ciascuno, considerando pendenza, tecnicità del terreno e fatica progressiva. L'obiettivo è distribuire lo sforzo per evitare cali di ritmo nella seconda metà di gara."}},
-{"@type":"Question","name":"Come interpreto la classe WDI?","acceptedAnswer":{"@type":"Answer","text":"Il WDI ha sei classi: Sport (meno di 22), Pro (22–40), Advanced (40–70), Extreme (70–120), Elite (120–200), Legend (200 e oltre). Il valore è normalizzato per categoria di distanza (Short/Medium/Long/Ultra) su scala 0–10, così percorsi di lunghezze diverse restano confrontabili."}}
-]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Cos'è il WDI e come si calcola?","acceptedAnswer":{"@type":"Answer","text":"Il WDI (WizTrail Difficulty Index) misura la difficoltà reale di un percorso trail. Combina distanza, dislivello, pendenza massima su finestra 40m (FRIP), variabilità del terreno (SlopeVar) e rugosità del profilo altimetrico (Roughness). Calibrato su 96 gare e 47 GPX reali."}},{"@type":"Question","name":"Che file posso caricare?","acceptedAnswer":{"@type":"Answer","text":"File GPX e TCX (anche XML con tracce compatibili) esportati da Garmin, Suunto, Wahoo, Coros, Polar, Strava o altre app. Il caricamento è manuale: la sincronizzazione diretta con orologi e piattaforme non è ancora disponibile."}},{"@type":"Question","name":"I miei dati vengono inviati a un server?","acceptedAnswer":{"@type":"Answer","text":"Il calcolo su un GPX caricato avviene nel tuo browser. Dati escono dal dispositivo solo con funzioni facoltative: l'importazione da link (il nostro server scarica il file dal link che indichi) e l'invio del feedback sul tempo reale (scarto percentuale, km e D+, senza tracce GPS)."}},{"@type":"Question","name":"WizTrail funziona offline?","acceptedAnswer":{"@type":"Answer","text":"In parte. Dopo il primo caricamento il calcolo funziona anche senza connessione. Mappa, import da link e invio del feedback richiedono Internet. Installabile su iOS da Safari e su Android da Chrome."}},{"@type":"Question","name":"WizTrail funziona su mobile?","acceptedAnswer":{"@type":"Answer","text":"Sì, l'interfaccia è ottimizzata per smartphone. Installalo come app: su iOS usa Safari → Aggiungi a schermo Home; su Android usa Chrome → Installa app."}},{"@type":"Question","name":"Posso importare da Strava?","acceptedAnswer":{"@type":"Answer","text":"Non ancora. L'importazione da Strava non è al momento disponibile. Puoi scaricare il GPX dell'attività da strava.com e caricarlo in WizTrail: l'analisi è la stessa."}},{"@type":"Question","name":"Cos'è il TechScore?","acceptedAnswer":{"@type":"Answer","text":"Misura la tecnicità pura del percorso, indipendente dalla lunghezza. Analizza pendenza massima (FRIP), variabilità delle pendenze (SlopeVar) e rugosità del profilo (Roughness). Scala 0–10: sopra 7 è terreno tecnico estremo."}},{"@type":"Question","name":"Come viene stimato il tempo di gara?","acceptedAnswer":{"@type":"Answer","text":"Il modello segment-based v3.0 calcola la velocità per ogni tratto in funzione di pendenza, tecnicità, meteo, quota e livello dell'atleta. La stima è personalizzata: due atleti con livelli diversi ottengono stime diverse sullo stesso percorso."}},{"@type":"Question","name":"Cos'è il pacing adattivo?","acceptedAnswer":{"@type":"Answer","text":"Il Pacing Planner divide il percorso in segmenti da 5 km e calcola il ritmo consigliato per ciascuno, considerando pendenza, tecnicità e fatica progressiva. L'obiettivo è distribuire lo sforzo per evitare cali di ritmo nella seconda metà di gara."}},{"@type":"Question","name":"Come interpreto la classe WDI?","acceptedAnswer":{"@type":"Answer","text":"Il WDI ha sei classi: Sport (<22), Pro (22–40), Advanced (40–70), Extreme (70–120), Elite (120–200), Legend (≥200). Il valore è normalizzato per categoria di distanza su scala 0–10, così percorsi di lunghezze diverse restano confrontabili."}}]}
 </script>
 </head>
 <body>
@@ -541,6 +541,7 @@
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
   <nav class="app-nav">
     <a href="about.html">Il Metodo</a>
@@ -555,14 +556,14 @@
   <div class="lnd-hero-bg" id="heroBg"></div>
   <div class="lnd-hero-gradient"></div>
   <div class="lnd-hero-content">
-    <p class="lnd-eyebrow">WizTrail — Trail Intelligence</p>
+    <p class="lnd-eyebrow">WizTrail · Analisi della difficoltà nel trail running</p>
     <h1 class="lnd-hero-title">
       Analizza il percorso.<br>
       Stabilisci il tuo obiettivo.<br>
       <em>Imposta il passo giusto.</em>
     </h1>
     <p class="lnd-hero-desc">
-      Dal GPX al piano di gara in pochi secondi. Tutto sul tuo dispositivo, nessun account richiesto.
+      Dal file GPX al piano di gara: indice di difficoltà WDI, tempo stimato e pacing per segmento. Il file GPX viene analizzato nel tuo browser.
     </p>
     <div class="lnd-hero-actions">
       <a href="index.html" class="btn-primary-lnd">
@@ -593,12 +594,12 @@
     <div class="lnd-stat-label">GPX reali</div>
   </div>
   <div class="lnd-stat">
-    <div class="lnd-stat-val">−59%</div>
-    <div class="lnd-stat-label">Precisione TechScore</div>
+    <div class="lnd-stat-val">6</div>
+    <div class="lnd-stat-label">Classi di difficoltà</div>
   </div>
   <div class="lnd-stat">
     <div class="lnd-stat-val">0</div>
-    <div class="lnd-stat-label">Dati personali raccolti</div>
+    <div class="lnd-stat-label">Account richiesti</div>
   </div>
 </div>
 
@@ -623,8 +624,7 @@
       <span class="feature-icon">🏃</span>
       <h3 class="feature-title">Analizza l'allenamento</h3>
       <p class="feature-desc">
-        Hai appena finito un'uscita? Carica il GPX o importa da Strava e scopri
-        quanto è stata impegnativa, calibrato sul tuo livello.
+        Hai appena finito un'uscita? Carica il GPX e scopri quanto era dura davvero.
       </p>
       <a href="training-analyzer.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Apri Training Analyzer →</a>
     </div>
@@ -633,7 +633,7 @@
       <h3 class="feature-title">Confronta la tua gara</h3>
       <p class="feature-desc">
         Carica il GPX e confronta distanza, WDI e TechScore
-        con le gare del ranking ufficiale WizTrail.
+        con le gare di riferimento del ranking WizTrail (beta).
       </p>
       <a href="ranking.html" class="feature-tag" style="text-decoration:none; cursor:pointer;">Vai al Ranking →</a>
     </div>
@@ -672,10 +672,10 @@
       <span class="feature-icon">🏃</span>
       <h3 class="feature-title">Training Analyzer</h3>
       <p class="feature-desc">
-        Analizza le tue sessioni di allenamento importate da Strava.
+        Analizza le tue sessioni di allenamento caricando il GPX.
         Il TrainingScore adatta i giudizi al contesto di allenamento.
       </p>
-      <span class="feature-tag">Integrazione Strava</span>
+      <span class="feature-tag">Carica il tuo GPX</span>
     </div>
 
   </div>
@@ -694,44 +694,44 @@
         del terreno (FRIP, SlopeVar, Roughness) in un indice unico.
         I feedback raccolti anonimamente alimentano il processo di calibrazione periodica del modello.
       </p>
-      <a href="about.html" style="display:inline-block; margin-top:24px; font-family:var(--font-sans); font-size:0.78rem; color:var(--landing-accent); text-decoration:none; border-bottom:1px solid rgba(79,209,197,0.3); padding-bottom:2px;">
+      <a href="about.html" class="link-block" style="display:inline-block; margin-top:24px; font-family:var(--font-sans); font-size:0.78rem; color:var(--landing-accent); text-decoration:none; border-bottom:1px solid rgba(79,209,197,0.3); padding-bottom:2px;">
         Formula completa e metodologia →
       </a>
     </div>
     <div class="wdi-classes">
       <div class="wdi-class-row" style="border-left-color:#2BB7DA;">
         <span class="wdi-class-dot" style="background:#2BB7DA;"></span>
-        <span class="wdi-class-name" style="color:#2BB7DA;">Sport</span>
+        <span class="wdi-class-name">Sport</span>
         <span class="wdi-class-range">WDI &lt; 22</span>
         <span class="wdi-class-example">Trail locale 13km</span>
       </div>
       <div class="wdi-class-row" style="border-left-color:#34A853;">
         <span class="wdi-class-dot" style="background:#34A853;"></span>
-        <span class="wdi-class-name" style="color:#34A853;">Pro</span>
+        <span class="wdi-class-name">Pro</span>
         <span class="wdi-class-range">WDI 22–40</span>
         <span class="wdi-class-example">Chianti UTMB 20K</span>
       </div>
       <div class="wdi-class-row" style="border-left-color:#F4C20D;">
         <span class="wdi-class-dot" style="background:#F4C20D;"></span>
-        <span class="wdi-class-name" style="color:#F4C20D;">Advanced</span>
+        <span class="wdi-class-name">Advanced</span>
         <span class="wdi-class-range">WDI 40–70</span>
         <span class="wdi-class-example">MEHT21 · Sierre-Zinal</span>
       </div>
       <div class="wdi-class-row" style="border-left-color:#F79617;">
         <span class="wdi-class-dot" style="background:#F79617;"></span>
-        <span class="wdi-class-name" style="color:#F79617;">Extreme</span>
+        <span class="wdi-class-name">Extreme</span>
         <span class="wdi-class-range">WDI 70–120</span>
         <span class="wdi-class-example">Speedgoat 50K · CDF 70K</span>
       </div>
       <div class="wdi-class-row" style="border-left-color:#E91E63;">
         <span class="wdi-class-dot" style="background:#E91E63;"></span>
-        <span class="wdi-class-name" style="color:#E91E63;">Elite</span>
+        <span class="wdi-class-name">Elite</span>
         <span class="wdi-class-range">WDI 120–200</span>
         <span class="wdi-class-example">CCC 99K · Western States</span>
       </div>
       <div class="wdi-class-row" style="border-left-color:#8E24AA;">
         <span class="wdi-class-dot" style="background:#8E24AA;"></span>
-        <span class="wdi-class-name" style="color:#8E24AA;">Legend</span>
+        <span class="wdi-class-name">Legend</span>
         <span class="wdi-class-range">WDI ≥ 200</span>
         <span class="wdi-class-example">UTMB · Hardrock · TdG</span>
       </div>
@@ -744,32 +744,38 @@
   <div>
     <p class="lnd-section-label">Privacy by design</p>
     <h2 class="lnd-section-title" style="margin-bottom:0;">
-      Il tuo GPX rimane<br><em>sul tuo dispositivo</em>.
+      Il tuo GPX viene analizzato<br><em>nel tuo browser</em>.
     </h2>
   </div>
   <div class="privacy-points">
     <div class="privacy-point">
       <span class="privacy-point-icon">🔒</span>
       <div class="privacy-point-text">
-        <strong>Tutto in locale</strong>
-        Il parsing GPX, il calcolo WDI e la stima tempi avvengono interamente nel browser.
-        Nessun file viene inviato a server.
+        <strong>Analisi nel browser</strong>
+        Lettura del GPX, calcolo del WDI e stima dei tempi avvengono nel tuo browser: il file non viene caricato sui nostri server.
+        Fa eccezione "Importa da link", dove il nostro server scarica il file dal link che indichi.
       </div>
     </div>
     <div class="privacy-point">
       <span class="privacy-point-icon">🔑</span>
       <div class="privacy-point-text">
         <strong>Nessun account</strong>
-        Non serve registrarsi. Non vengono raccolti dati personali.
-        Strava è opzionale e richiede consenso esplicito.
+        Non serve registrarsi. Riceviamo solo ciò che scegli di inviare (il feedback sul tempo reale: scarto percentuale, km e D+, senza tracce GPS)
+        e i dati tecnici necessari a limitare gli abusi, come l'indirizzo IP, per 60 secondi, sulle funzioni che usano i nostri server.
       </div>
     </div>
     <div class="privacy-point">
       <span class="privacy-point-icon">📱</span>
       <div class="privacy-point-text">
-        <strong>Funziona offline (PWA)</strong>
-        Installabile come app sul telefono. Una volta caricato,
-        funziona senza connessione.
+        <strong>Utilizzabile anche offline</strong>
+        Dopo il primo caricamento il calcolo funziona senza connessione; mappa, import da link e feedback richiedono Internet.
+      </div>
+    </div>
+    <div class="privacy-point">
+      <span class="privacy-point-icon">🗺️</span>
+      <div class="privacy-point-text">
+        <strong>Mappe di terze parti</strong>
+        Le mappe caricano i riquadri da CARTO e OpenTopoMap, con dati OpenStreetMap: i fornitori possono vedere il tuo indirizzo IP.
       </div>
     </div>
   </div>
@@ -786,11 +792,15 @@
       </details>
       <details class="faq-item">
         <summary>Che file posso caricare?</summary>
-        <p class="faq-answer">Supporta file GPX e TCX esportati da Garmin, Suunto, Wahoo, Coros, Polar o scaricati da Strava. Puoi anche importare un'attività direttamente da Strava nel Training Analyzer.</p>
+        <p class="faq-answer">File GPX e TCX (anche XML con tracce compatibili) esportati da Garmin, Suunto, Wahoo, Coros, Polar, Strava o altre app. Il caricamento è manuale: la sincronizzazione diretta con orologi e piattaforme non è ancora disponibile.</p>
+      </details>
+      <details class="faq-item">
+        <summary>I miei dati vengono inviati a un server?</summary>
+        <p class="faq-answer">Il calcolo su un GPX caricato avviene nel tuo browser. Dati escono dal dispositivo solo con funzioni facoltative: l'importazione da link (il nostro server scarica il file dal link che indichi) e l'invio del feedback sul tempo reale (scarto percentuale, km e D+, senza tracce GPS).</p>
       </details>
       <details class="faq-item">
         <summary>WizTrail funziona offline?</summary>
-        <p class="faq-answer">Sì. WizTrail è una PWA: dopo il primo caricamento tutto funziona senza connessione. Solo l'import da Strava richiede Internet. Installabile su iOS da Safari e su Android da Chrome.</p>
+        <p class="faq-answer">In parte. Dopo il primo caricamento il calcolo funziona anche senza connessione. Mappa, import da link e invio del feedback richiedono Internet. Installabile su iOS da Safari e su Android da Chrome.</p>
       </details>
       <details class="faq-item">
         <summary>WizTrail funziona su mobile?</summary>
@@ -798,7 +808,7 @@
       </details>
       <details class="faq-item">
         <summary>Posso importare da Strava?</summary>
-        <p class="faq-answer">Sì. Nel Training Analyzer puoi collegarti a Strava tramite OAuth e importare le attività recenti per analizzarle. L'accesso è opzionale e richiede il tuo consenso esplicito.</p>
+        <p class="faq-answer">Non ancora. L'importazione da Strava non è al momento disponibile. Puoi scaricare il GPX dell'attività da strava.com e caricarlo in WizTrail: l'analisi è la stessa.</p>
       </details>
     </div>
     <div>
@@ -836,12 +846,13 @@
   <div class="lnd-footer-left">
     WizTrail © 2026 &nbsp;·&nbsp;
     <a href="about.html">Il Metodo</a> &nbsp;·&nbsp;
+    <a href="compatibilita.html">Cosa funziona oggi</a> &nbsp;·&nbsp;
     <a href="about.html#licenze">Licenze</a> &nbsp;·&nbsp;
     <a href="privacy.html">Privacy</a><br>
     Foto hero: <a href="https://unsplash.com/it/@asoggetti?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Alessio Soggetti</a>
     su <a href="https://unsplash.com/it/foto/uomo-che-corre-sulla-montagna-GYr9A2CPMhY?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" target="_blank" rel="noopener">Unsplash</a>
     (Unsplash License)<br>
-    <span style="display:inline-block;padding:1px 7px;border-radius:10px;background:rgba(247,150,23,0.15);color:#F79617;font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;margin-top:6px;">BETA</span>
+    <span class="badge badge--beta">Beta</span>
     &nbsp;·&nbsp;<a href="mailto:ciao.madesign@gmail.com?subject=WizTrail%20beta%20feedback">Invia feedback</a>
   </div>
   <div class="lnd-footer-right">
@@ -864,6 +875,6 @@
     navigator.serviceWorker.register('/service-worker.js');
   }
 </script>
-<script src="/cookie-notice.js" defer></script>
+<script src="/cookie-notice.js?v=20261117" defer></script>
 </body>
 </html>

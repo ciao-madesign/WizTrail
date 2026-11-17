@@ -10,7 +10,7 @@ WizTrail è una **piattaforma web per l'analisi tecnica dei percorsi trail runni
 
 **URL di produzione:** https://wiz-trail.vercel.app  
 **Repository:** ciao-madesign/WizTrail  
-**Branch principale (= produzione su Vercel):** `backend`  
+**Branch di integrazione:** `backend` (PR verso `backend`, vedi "Regole di sviluppo"). Al 16/11/2026 i deploy di `backend` risultavano *preview* (target non production) e la produzione era ferma al commit `b4351fa`: verifica "Production Branch" in Vercel Settings → Git prima di assumere che un merge vada in produzione. Tag di ripristino creati in locale: `stable-b4351fa`, `pre-revision-20261116`.  
 **Owner:** michele.aldeni1995@gmail.com
 
 ---
@@ -23,10 +23,10 @@ WizTrail è una **piattaforma web per l'analisi tecnica dei percorsi trail runni
 | Backend / API | Vercel Serverless Functions (Node.js ES modules) |
 | Database | Upstash Redis (REST API) |
 | Mappa | Leaflet.js self-hosted |
-| Deploy | Vercel — branch `backend` = produzione automatica |
-| CI | GitHub Actions (solo per pipeline di calibrazione) |
+| Deploy | Vercel (preview per ogni branch/PR; produzione secondo il Production Branch del progetto) |
+| CI | GitHub Actions: `ci.yml` su PR verso `backend` (sintassi, `npm test`, `npm audit`) + pipeline di calibrazione (`hub-calibration.yml`) |
 
-**Vincolo critico:** Il piano Vercel Hobby permette **max 12 serverless functions**. Al momento sono 11/12 usate. Non aggiungere nuovi file in `/api/` senza consolidare in `api/hub.js` (pattern già usato) o upgradare il piano.
+**Vincolo critico:** il piano Vercel Hobby permette **max 12 serverless functions** e Vercel conta **ogni `.js` sotto `api/`** (anche le librerie). Per questo le librerie condivise stanno in **`server/`** (fuori da `api/`). Oggi `api/` contiene **7 file** (hub, import/url, strava×3, v1×2); `tests/guard-funzioni.test.mjs` fallisce oltre 10 file (margine 2) e se `api/lib` ricompare. Il 16/11/2026 il deploy dei commit con 15 file in `api/` era fallito con `exceeded_serverless_functions_per_deployment`. Non aggiungere file in `api/` senza consolidare in `api/hub.js` (pattern già usato) o upgradare il piano; nuovo codice condiviso va in `server/`.
 
 ---
 
@@ -67,20 +67,28 @@ window.NomeModulo = (function () {
 ### Ordine di caricamento script in index.html
 
 ```
-Leaflet → wiztrail-engine.js → wiztrail-pacing.js → wiztrail-timing.js
-       → gpx-parser.js → trail-stats.js → discipline-classifier.js
-       → map.js → ui.js → main.js → cookie-notice.js (defer)
+Leaflet → wiztrail-engine.js → wiztrail-pacing.js → gpx-parser.js → trail-stats.js
+       → discipline-classifier.js → map.js → ui.js → wiztrail-timing.js
+       → features.js → main.js → cookie-notice.js (defer) → wiztrail-shell.js (defer)
 ```
 
-`trail-stats.js` deve essere caricato DOPO `gpx-parser.js` (dipende da `GPXParser`).
+- `trail-stats.js` deve essere caricato DOPO `gpx-parser.js` (dipende da `GPXParser`).
+- `features.js` (flag client `window.WizFeatures`, testi condivisi) va caricato PRIMA di `main.js` e degli script di pagina che lo usano (training-analyzer, ranking, dettaglio, import_strava, auth_strava lo caricano nel `<head>`).
+- `wiztrail-shell.js` (guscio UI condiviso, `window.WizShell`) è caricato `defer` in tutte le pagine dell'app: aggiunge `aria-current` alla nav, icone della tab bar, toggle tema persistente (`localStorage` `wiztrail_theme`), skip-link e il modale accessibile (`WizShell.modal`). Header, tab bar e footer sono scritti **nell'HTML di ogni pagina** (funzionano senza JS e restano nel DOM per la SEO): se cambi la navigazione vanno aggiornate tutte le pagine.
 
-### Versioning degli script
+### Versioning degli script e cache
 
-I file JS in index.html usano query string per cache busting:
+I file JS/CSS in index.html usano query string per cache busting:
 ```html
 <script src="gpx-parser.js?v=20260415"></script>
 ```
-Quando modifichi un file JS caricato in index.html, **aggiorna il timestamp** `?v=YYYYMMDD`. Stesso vale per service-worker.js: aggiorna `CACHE_VERSION`.
+Quando modifichi un file JS/CSS, **aggiorna il `?v=`** nelle pagine che lo caricano.
+
+**`CACHE_VERSION` del service worker si cambia SOLO nel commit di release**, non nelle PR di feature (evita conflitti continui su `service-worker.js`).
+
+**File statici nuovi da aggiungere a `CORE_CACHE`/`PAGE_CACHE` del service worker al momento della release** (non ancora presenti): `wiztrail-shell.js`, `features.js` (e ogni altro file nuovo; il test `tests/service-worker-precache.test.mjs` verifica che i percorsi elencati esistano).
+
+**Cache HTTP (`vercel.json`):** `img/`, `icons/` e `fonts/*.woff2` sono serviti `immutable` per un anno: **se modifichi un file di queste cartelle, rinominalo** (nuovo nome e riferimenti aggiornati), altrimenti i client non lo rivedranno. JS/CSS nel root: `max-age=300, stale-while-revalidate=86400` (il service worker è escluso).
 
 ---
 
@@ -155,7 +163,7 @@ WizTrail.getColor(wdi)           // → hex color string
 WizTrail.getClass(wdi)           // → 'Sport'|'Pro'|...|'Legend'
 ```
 
-**ATTENZIONE — Drift Engine:** `api/lib/engine-node.js` è un PORT SERVER-SIDE di `wiztrail-engine.js`. **Ogni modifica a kT, soglie WDI, o formule nel frontend deve essere replicata in `api/lib/engine-node.js`**, altrimenti i calcoli frontend e API divergono. Stesso vale per `api/lib/pacing-node.js` rispetto a `wiztrail-pacing.js`.
+**ATTENZIONE — Drift Engine:** `server/engine-node.js` è un PORT SERVER-SIDE di `wiztrail-engine.js`. **Ogni modifica a kT, soglie WDI, o formule nel frontend deve essere replicata in `server/engine-node.js`**, altrimenti i calcoli frontend e API divergono. Stesso vale per `server/pacing-node.js` rispetto a `wiztrail-pacing.js`, `server/timing-node.js` rispetto a `wiztrail-timing.js`, `server/gpx-node.js` rispetto a `gpx-parser.js`. `tests/parita-engine.test.mjs` verifica la parità (432 casi manuali, 40 GPX reali, costanti: tolleranza 0,5%) e `tests/v1-kf-terrain.test.mjs` quella dei tempi delle API v1 con il sito. *Nota: nella sezione "Calibrazione e dati storici" i riferimenti a `api/lib/` sono storici e vanno letti come `server/`.*
 
 ---
 
@@ -268,21 +276,45 @@ Appare in `index.html` solo dopo calcolo con GPX reale (non in modalità noGpx).
 ### Struttura
 
 ```
-api/
-├── hub.js              — handler multi-azione (auth, upload, activities, run, patch, feedback)
-├── import/url.js       — proxy fetch GPX da URL esterno (anti-SSRF)
-├── strava/callback.js  — OAuth2 callback Strava
-├── strava/activities.js — lista attività
-├── strava/activity.js  — singola attività con parsing GPX
-├── v1/wdi.js           — API pubblica WDI da input manuali (richiede x-api-key)
-├── v1/analyze.js       — API pubblica analisi GPX completa (richiede x-api-key)
-└── lib/
-    ├── engine-node.js  — PORT server-side di wiztrail-engine.js (mantenere sincronizzato!)
-    ├── gpx-node.js     — PORT server-side di gpx-parser.js
-    ├── pacing-node.js  — PORT server-side di wiztrail-pacing.js
-    ├── timing-node.js  — PORT server-side di wiztrail-timing.js
-    └── ratelimit.js    — rate limiting su Redis (namespace wiztrail:rl:)
+api/                        — 7 function (limite Hobby 12: vedi "Vincolo critico")
+├── hub.js                  — handler multi-azione (?action=...), vedi tabella sotto
+├── import/url.js           — proxy fetch GPX da URL esterno (anti-SSRF, usa server/netguard.js)
+├── strava/callback.js      — OAuth2 callback Strava            ┐ spenti da STRAVA_ENABLED
+├── strava/activities.js    — lista attività                    │ (default: 503 FEATURE_UNAVAILABLE)
+├── strava/activity.js      — singola attività con parsing GPX  ┘
+├── v1/wdi.js               — API pubblica WDI da input manuali (richiede x-api-key)
+└── v1/analyze.js           — API pubblica analisi GPX completa (richiede x-api-key)
+
+server/                     — librerie condivise (NON sono function; fuori da api/)
+├── engine-node.js          — PORT di wiztrail-engine.js (mantenere sincronizzato!)
+├── gpx-node.js             — PORT di gpx-parser.js (usa @xmldom/xmldom)
+├── pacing-node.js          — PORT di wiztrail-pacing.js
+├── timing-node.js          — PORT di wiztrail-timing.js (incluso terrainFactor)
+├── trail-stats-node.js / trail-insights-node.js — PORT di trail-stats.js / trail-insights.js
+├── ratelimit.js            — rate limit su Redis (finestra fissa, per scope)
+├── auth.js                 — verifica x-api-key (env API_KEYS + chiavi dinamiche su Redis)
+├── netguard.js             — SSRF: validazione host/IP, DNS pinning, download sicuro
+├── redis.js                — namespace Redis per ambiente (ns())
+├── ambiente.js             — VERCEL_ENV e guard per azioni con effetti esterni
+└── features.js             — flag server (STRAVA_ENABLED)
 ```
+
+Gli import dalle function sono relativi: `../server/...` (da `api/hub.js`), `../../server/...` (da `api/<dir>/*.js`).
+
+### Azioni di `api/hub.js` (`GET|POST /api/hub?action=<azione>`)
+
+| Azione | Metodo | Chi la usa | Note |
+|---|---|---|---|
+| `auth` | GET | `hub.html` | verifica token (`X-Hub-Key`) → `{ok,isAdmin}` |
+| `upload` | POST | `hub.html` | carica attività GPX su Redis |
+| `activities` | GET | `hub.html` | lista attività + stats + plot (costosa: SCAN + GET di tutte le chiavi) |
+| `run` | POST | `hub.html` | avvia la pipeline GitHub Actions; **solo in production** |
+| `patch` | POST (admin) | `hub.html`, `06_push_results.py` | riceve i risultati di calibrazione |
+| `feedback` | POST (pubblica) | `index.html` | feedback post-gara; CORS con allowlist, rate limit scope `feedback` |
+| `register` / `listkeys` / `revokekey` | admin | nessun client (solo chiamate admin) | gestione API key dinamiche; `register` **solo in production** |
+| `requestkey` | POST (pubblica) | **nessun client**: spenta fuori da production e senza form UI | chiave via email (Resend); risposta neutra (nessuna enumerazione), limite per email e per IP, `description` escapata |
+
+**Ranking senza API**: `ranking.html` legge il JSON statico `ranking-data.json`; non esiste un endpoint ranking.
 
 ### Variabili d'ambiente richieste
 
@@ -294,34 +326,47 @@ HUB_ADMIN_TOKEN            — token admin dashboard
 GITHUB_TOKEN               — per trigger GitHub Actions (calibrazione)
 GITHUB_REPO                — "ciao-madesign/WizTrail"
 API_KEYS                   — chiavi API pubbliche (comma-separated)
-STRAVA_CLIENT_ID           — OAuth Strava
-STRAVA_CLIENT_SECRET       — OAuth Strava
+STRAVA_ENABLED             — "true" riattiva le API Strava (default: spente)
+STRAVA_CLIENT_ID           — OAuth Strava (solo con Strava attiva)
+STRAVA_CLIENT_SECRET       — OAuth Strava (solo con Strava attiva)
+RESEND_API_KEY             — invio email requestkey (spenta fuori da production)
+RESEND_FROM                — mittente email (default: dominio condiviso Resend)
+VERCEL_ENV                 — impostata da Vercel (production | preview | development)
 ```
 
-### Redis namespace
+### Redis namespace e ambienti
 
-Tutte le chiavi Redis usano il prefisso `wiztrail:` per isolare da altri progetti:
-- `wiztrail:rl:<ip>` — rate limiting
-- `wiztrail:activities:<id>` — attività caricate
-- `wiztrail:ranking` — dati ranking
-- `wiztrail:feedback:<ts>` — feedback post-gara
+`server/redis.js` → `ns()`: in **production** il prefisso è `wiztrail:`; in preview/sviluppo/locale è `wiztrail:<ambiente>:` (es. `wiztrail:preview:`). Una preview con le stesse credenziali Upstash non può quindi leggere né sovrascrivere i dati reali. Esempi di chiavi (in production):
+- `wiztrail:ratelimit:<scope>:<ip>` — rate limiting (scope: default, import, strava, v1, feedback)
+- `wiztrail:hub:activities:<id>` — attività caricate; `wiztrail:hub:*` — stats, modello, plot
+- `wiztrail:hub:feedback:<ts>` — feedback post-gara (TTL 90 giorni)
+- `wiztrail:apikeys:*` — chiavi API dinamiche
+- `wiztrail:rl:reqkey:*` — limiti di `requestkey`
+
+Fuori da production le azioni con effetti esterni (`run`, `register`, `requestkey`) rispondono `403 PREVIEW_DISABLED` (`server/ambiente.js`). Test: `tests/ambiente-preview.test.mjs`.
 
 ### Sicurezza API
 
-- **SSRF**: `api/import/url.js` blocca esplicitamente IP privati (127.x, 10.x, 192.168.x, 172.16-31.x, 169.254.x — incluso AWS metadata endpoint), IPv6 locali, schemi non-http/https
+- **SSRF**: `api/import/url.js` + `server/netguard.js`: solo http/https sulle porte 80/443, niente credenziali nell'URL, blocco di IP v4/v6 privati/riservati (anche IPv6 con parentesi e IPv4-mapped), DNS risolto e validato con pinning dell'IP, redirect manuali (max 3, rivalidati), timeout 8 s, tetto 5 MB in streaming. Errori `{ok:false, code, error}` in italiano (`HTML_PAGE`, `UPSTREAM_TIMEOUT`, `TOO_LARGE`, `BLOCKED_HOST`, `RATE_LIMITED`...).
 - **CSRF**: `api/hub.js` → `handleFeedback()` usa `setFeedbackCors(res, origin)` con allowlist esplicita: `['https://wiz-trail.vercel.app', 'https://ciao-madesign.github.io']` + wildcard `*.vercel.app`
-- **Rate limiting**: Redis sliding window, implementato in `api/lib/ratelimit.js`
+- **Rate limiting**: `server/ratelimit.js`, finestra fissa con `INCR` + `EXPIRE ... NX` (il TTL non si rinnova a ogni richiesta), contatori per scope (import 10, feedback 5, strava/v1 30 richieste/minuto per IP), `Retry-After`. Nelle API v1 il limite IP precede la verifica della chiave. **Fail-open** se Redis non risponde o non è configurato.
+- **API v1**: chiavi statiche confrontate a tempo costante; il tempo stimato include il KF_terrain come il sito e la risposta ha il campo `terrain_factor` (vedi `docs/api-public.md`, sezione "Novità e modifiche").
+- `@xmldom/xmldom` ≥ 0.8.15 (`npm audit` senza vulnerabilità).
+
+### Test e CI
+
+`npm test` (= `node --test "tests/**/*.test.mjs"`, Node ≥ 22, nessuna dipendenza aggiuntiva). Tutti i test usano mock: **nessuna rete e nessun Redis reale**. Suite: guard function (≤10 file in `api/`), parità frontend/server (engine, GPX, timing), SSRF, import/url, rate limit, requestkey, ambiente/preview, flag Strava, KF_terrain delle API v1, precache del service worker, SEO. CI: `.github/workflows/ci.yml` su ogni PR verso `backend` (sintassi, `npm test`, `npm audit --omit=dev --audit-level=high`).
 
 ---
 
 ## Service Worker (service-worker.js)
 
-- **CACHE_VERSION** — bump questo valore per forzare aggiornamento cache su tutti i client. Formato: `wiztrail-v{YYYY-MM-DD}{lettera}` (es. `wiztrail-v2026-06-09a`)
+- **CACHE_VERSION** — bump questo valore per forzare aggiornamento cache su tutti i client. Formato: `wiztrail-v{YYYY-MM-DD}{lettera}` (es. `wiztrail-v2026-06-09a`). **Si cambia solo nel commit di release**, non nelle PR di feature.
 - Strategia: **network-first** per HTML/CSS/JS (aggiornamenti immediati post-deploy), **cache-first** per immagini
 - I nuovi file statici vanno aggiunti a `CORE_CACHE` o `PAGE_CACHE`
 - `PAGE_CACHE` include pagine secondarie; `CORE_CACHE` include dipendenze critiche per offline
 
-**Attuale CACHE_VERSION:** `wiztrail-v2026-06-26d` (aggiornare dopo ogni modifica a file statici)
+**Attuale CACHE_VERSION:** `wiztrail-v2026-06-26e` (da aggiornare in release, quando cambiano file statici). **Da aggiungere al precache in release:** `wiztrail-shell.js`, `features.js` (oggi assenti da `CORE_CACHE`: online funzionano, offline no).
 
 ---
 
@@ -345,11 +390,13 @@ KF_terrain = 1 + (TechScore / tech_scale) × (1 - S × specificity_weight)
 ```
 
 Parametri correnti: `tech_scale=175`, `specificity_weight=0.45` (calibrati 26/06/2026 su 39 GPX reali).
+
+**API v1:** `/api/v1/analyze` e `/api/v1/wdi` applicano lo stesso `terrainFactor(TechScore, S)` al tempo stimato e restituiscono `terrain_factor` (dal 2026-11-16; prima i tempi erano più bassi del +11–30% sui casi verificati). Parità con il sito: scarto 0,00% su 6 casi confrontati col calcolatore reale, test in `tests/v1-kf-terrain.test.mjs`. Differenza di input: il sito ricava il ritmo base dal T10k, l'API da `specificity`/`vel_base`; i valori predefiniti di terreno, meteo e altitudine dell'API (`EE`, 1, 1) differiscono da quelli preselezionati nel sito.
 Calibrabili via `PATCH /api/hub?action=patch` con `{ timing: { kf_terrain: { tech_scale: X, specificity_weight: Y } } }`.
 
 **FATIGUE_CAP = 2.5** — cap alla funzione fatica introdotto 26/06/2026. Senza cap: UTMB +39%,
 Western States +46%, TOR des Géants +769%. Il cap interviene da ~18h in poi; gare normali
-(<15h) non sono toccate. Parametro in `wiztrail-timing.js` e `api/lib/timing-node.js`.
+(<15h) non sono toccate. Parametro in `wiztrail-timing.js` e `server/timing-node.js`.
 
 **IMPORTANTE — perché TechScore e non WDI:**
 WDI = `(VolumeScore + TechScore×kT) × DistFactor × AltFactor` — contiene distanza e dislivello
@@ -364,12 +411,19 @@ indipendentemente dalla distanza: LUT120 TS=65 → +14%, Comapedrosa TS=80 → +
 
 ---
 
-## Strava integration
+## Strava integration — NON DISPONIBILE (spenta)
 
-- OAuth2 flow: `auth_strava.html` → `api/strava/callback.js` → redirect a index con token
-- Token salvato in `sessionStorage` (non localStorage — scade alla chiusura tab)
+L'abbonamento sviluppatore Strava non è stato rinnovato: **ogni funzione Strava è "Non ancora disponibile"**. Il codice è stato lasciato nel repo e si riattiva con i flag:
+
+- **Server:** `STRAVA_ENABLED=true` (env Vercel). Senza, `api/strava/{callback,activities,activity}.js` rispondono `503 {ok:false, code:'FEATURE_UNAVAILABLE', feature:'strava', error:<italiano>}` PRIMA di rate limit e di ogni chiamata a Strava (`server/features.js`).
+- **Client:** `window.WizFeatures.stravaEnabled` in `features.js` (default `false`). A flag spento: pulsante `aria-disabled` + nota sempre visibile in index e training-analyzer; `import_strava.html`/`auth_strava.html` mostrano una pagina statica; i deep link `?source=strava&id=...` mostrano un messaggio; il 503 non cancella il token.
+- Per riattivare servono entrambi i flag, l'abbonamento attivo e un controllo del flusso (nota: il token dura circa 6 ore e il callback non restituisce il `refresh_token`).
+
+Dettagli del codice dormiente:
+- OAuth2 flow: `auth_strava.html` → `api/strava/callback.js` → redirect a import/index con token; token in `sessionStorage` (non localStorage)
 - L'endpoint Strava usa `www.strava.com/api/v3` (non `www.api-v3.strava.com` — al 09/06/2026 il nuovo dominio risponde ECONNREFUSED, non migrare)
-- **URGENTE:** Developer subscription Strava scade entro giugno 2026 (~$11.99/mese su developers.strava.com)
+
+Test: `tests/strava-flag.test.mjs` (nessuna chiamata di rete con il flag spento).
 
 ---
 
@@ -391,11 +445,21 @@ Classifica automaticamente il tipo di gara in base a km, D+, max_altitude, WDI:
 
 ---
 
-## Ranking e Dettaglio gara
+## Ranking e Dettaglio gara (beta, dettaglio disattivato)
 
-- `ranking.html` — lista gare caricate sul backend Redis, filtrabili
-- `dettaglio.html` — scheda singola gara con WDI, tempi, classifiche
-- I dati ranking vengono da `api/hub.js?action=activities`
+- `ranking.html` — tabella delle gare letta dal **JSON statico `ranking-data.json`** (34 gare, nessuna API né Redis), filtrabili; titolo "Ranking WDI delle gare trail (beta)", avviso in testa, righe **non cliccabili**. La pagina ha `noindex, follow` (meta e header `X-Robots-Tag`) ed è fuori dalla sitemap.
+- `dettaglio.html` — mostra solo un avviso ("Dettaglio gara non ancora disponibile"): i GPX delle gare non sono pubblicati (`gpx/*.gpx` non esistono; i GPX reali sono in `wiztrail-calibration/gpx/`). `noindex, nofollow`.
+- Flag client `WizFeatures.raceDetailEnabled` (in `features.js`, default `false`): se acceso la riga torna cliccabile (con controllo `res.ok` sul download) e il dettaglio mostra i dati. Riattivare solo dopo aver reso disponibili i GPX o un dettaglio indipendente dal GPX.
+- Gli strumenti admin (`?admin=1`: aggiunta gara, calcolo TechScore in batch) dipendono dai GPX assenti e non sono nel flusso pubblico.
+
+---
+
+## Routing, SEO e pubblicazione
+
+- **Home:** `landing.html`. `/` → `/landing.html` con **redirect 307** in `vercel.json`: le rewrites **non** battono i file statici, e con `index.html` nel root un rewrite `/` → landing non scatta mai. Canonical, `og:url` e JSON-LD della landing usano `https://wiz-trail.vercel.app/landing.html`; `index.html` è il Calcolatore (canonical proprio). Manifest PWA: `start_url` `/index.html`.
+- `vercel.json`: redirect `/wdi.html` e `/pacing.html` → `about.html` (308), header `X-Robots-Tag` per le pagine di servizio, cache header (vedi "Versioning degli script e cache").
+- `sitemap.xml` elenca solo URL canonici indicizzabili; `robots.txt`; `404.html` personalizzata. Se aggiungi/rimuovi pagine pubbliche aggiorna sitemap e `tests/seo.test.mjs`.
+- **`.vercelignore`**: `CLAUDE.md`, `README.md`, `docs/`, `wiztrail-knowledge-base.md`, `wiztrail-calibration/` restano nel repo ma **non sono pubblicati** sul sito.
 
 ---
 
@@ -551,7 +615,7 @@ Decisione: **non procedere con Opzione C** (velBase realistici da Kaggle). Il ri
 
 ## PWA
 
-- `manifest.webmanifest` — start_url: `/`, display: standalone, theme: `#002b2b`
+- `manifest.webmanifest` — start_url: `/index.html`, display: standalone, theme: `#002b2b`
 - Icone: `icons/icon-192.png`, `icons/icon-512.png`, `icons/icon-maskable.svg` (safe zone 80% su background full-bleed `#002b2b`)
 - Web Share Target: accetta file GPX/TCX/XML tramite POST a `/index.html`
 - Service Worker gestisce la coda share in `wiztrail-share-queue` cache
@@ -562,11 +626,13 @@ Decisione: **non procedere con Opzione C** (velBase realistici da Kaggle). Il ri
 
 | Problema | File | Note |
 |---|---|---|
-| `window.currentWDI_norm` non usata | main.js:25,421 | Riservata per display futuro |
-| `window.lastOsmResult` sempre null | main.js:27,417 | Feature OSM rimossa |
-| `#btnFit` e `#btnKml` non nel DOM | main.js:283,288 | Handler mai attivi, safe `?.` |
+| `window.currentWDI_norm` non usata | main.js:25,673 | Riservata per display futuro |
+| `window.lastOsmResult` sempre null | main.js:27,669 | Feature OSM rimossa |
+| `#btnFit` e `#btnKml` non nel DOM | main.js:509,514 | Handler mai attivi, safe `?.` (l'esportazione KML è "non disponibile") |
 | `#pacingElevCanvas` non nel DOM | wiztrail-pacing.js | Canvas non implementato |
 | `#fatica` nel form ma non nel calcolo | index.html | Incluso solo in export JSON |
+| `#terrain` predefinito "Strada / molto semplice" | index.html | Default silenzioso che sposta stime e TechScore (senza `selected`); dichiarato nella riga "Assunzioni" dei risultati |
+| Pipeline di calibrazione non aggiorna i port | `hub-calibration.yml`, `07_apply_patch.py` | Aggiornano solo i file frontend, non `server/*-node.js`: la parità è coperta da `npm test` ma non automatizzata |
 
 ---
 
@@ -574,12 +640,14 @@ Decisione: **non procedere con Opzione C** (velBase realistici da Kaggle). Il ri
 
 1. **Branch di lavoro:** crea sempre un branch da `backend`. Non pushare direttamente su `backend`.
 2. **PR → backend:** tutto passa da PR. Merge squash preferito.
-3. **Bump cache SW:** ogni modifica a file statici richiede aggiornamento `CACHE_VERSION` in `service-worker.js`.
-4. **Sync engine-node.js:** qualsiasi modifica a `wiztrail-engine.js` va replicata in `api/lib/engine-node.js`.
-5. **Vercel function limit:** 11/12 usate. Non aggiungere file in `/api/` senza consolidare.
+3. **Cache:** aggiorna il `?v=` dei file JS/CSS modificati; `CACHE_VERSION` in `service-worker.js` si cambia **solo nel commit di release** (che aggiunge anche i file nuovi al precache: `wiztrail-shell.js`, `features.js`). I file in `img/`, `icons/`, `fonts/` sono `immutable`: se li modifichi, rinominali.
+4. **Sync dei port server:** qualsiasi modifica a `wiztrail-engine.js`, `gpx-parser.js`, `wiztrail-timing.js`, `wiztrail-pacing.js` va replicata nel port corrispondente in `server/`; `npm test` deve restare verde (parità).
+5. **Vercel function limit:** 7 file in `api/` (limite 12, guardia nei test ≤10). Non aggiungere file in `api/` senza consolidare; il codice condiviso va in `server/`.
 6. **Nessun framework frontend:** tutto plain JS IIFE + globali. Non introdurre build tools.
 7. **CSS unico:** tutte le nuove regole in `wiztrail.css`. Nessun file CSS separato.
 8. **Lingua:** tutta l'interfaccia utente in italiano. Commenti nel codice in italiano.
+9. **Test:** `npm test` prima di ogni PR (la CI lo esegue). Nessun test deve toccare rete o Redis reali: usa gli stub di `tests/helpers.mjs`.
+10. **Stati Beta:** ogni funzione non attiva è "Non ancora disponibile" (senza date né promesse), con nota visibile; l'elenco ufficiale è `about.html#stato`. Flag: `features.js` (client) e `STRAVA_ENABLED` (server).
 
 ---
 
@@ -589,8 +657,8 @@ Decisione: **non procedere con Opzione C** (velBase realistici da Kaggle). Il ri
 - WDI engine v5.1 con TechScore
 - Pacing su segmenti v2.0
 - Calcolo manuale senza GPX
-- Strava integration (OAuth + import attività)
-- Ranking + Dettaglio gara
+- ~~Strava integration (OAuth + import attività)~~ — **spenta** ("Non ancora disponibile", vedi sezione Strava)
+- Ranking WDI (solo consultazione, beta); Dettaglio gara disattivato
 - Share Card (og:image generata)
 - Training Analyzer
 - Feedback anonimo post-gara
@@ -598,6 +666,7 @@ Decisione: **non procedere con Opzione C** (velBase realistici da Kaggle). Il ri
 
 ### Pianificato (beta)
 - ~~Fase 12 — Athlete Profile~~ **IN PRODUZIONE (10/06/2026):** `T_finale = T_segmenti × terrainFactor(TechScore, S)`. KF usa TechScore (non WDI — vedi nota in sezione timing). Parametri `KF_TERRAIN_PARAMS` calibrabili via hub patch senza deploy.
+- Revisione di novembre 2026 (implementata sul branch di lavoro, non ancora rilasciata): calcolatore guidato (upload con calcolo immediato, assunzioni dichiarate, modalità manuale esplicita, "Nuova analisi"), stati Beta con elenco ufficiale in `about.html#stato`, SEO tecnica (canonical, sitemap, 404, header), shell UI condivisa.
 - API Suunto: import route GPX + SuuntoPlus Guides (push pacing su orologio). Contatto: janne.kallio@suunto.com. Variabili: `SUUNTO_CLIENT_ID`, `SUUNTO_CLIENT_SECRET`. Implementare in singolo `api/suunto.js` (pattern hub).
 - Terrain 3D Viewer (webGL, bassa priorità)
 

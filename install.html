@@ -2,46 +2,59 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <title>Installa WizTrail</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="wiztrail.css">
+<title>Installa l'app WizTrail su iPhone e Android</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="description" content="Come aggiungere WizTrail alla schermata Home di iPhone e Android per usarlo come app, anche offline.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://wiz-trail.vercel.app/install.html">
+  <link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261125">
 </head>
 
 <body data-theme="dark">
+<script>(function(){try{var t=localStorage.getItem('wiztrail_theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.body.setAttribute('data-theme',t);document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
 
 <header class="app-header">
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
-    <a href="index.html" class="nav-active">Calcolatore</a>
+  <nav class="app-nav" aria-label="Menu principale">
+    <a href="index.html">Calcolatore</a>
       <a href="training-analyzer.html" class="">Training</a>
       <a href="ranking.html" class="">Ranking</a>
       <a href="about.html" class="">Il Metodo</a>
   </nav>
 </header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+
 
 <div class="wrap" style="margin-top:16px; padding:18px;">
-  <h1>📱 Aggiungi WizTrail sulla tua Home</h1>
+  <h1>Aggiungi WizTrail alla schermata Home</h1>
 
   <p class="mini">
    Vuoi WizTrail sulla Home del tuo telefono come un’app?
 Non devi scaricare nulla e non c’è nessuna installazione vera e propria! <br>
 Salvi un semplice segnalibro che ha l’aspetto di una vera app: icona dedicata, apertura a schermo intero, zero distrazioni.<br>
 Quando tocchi l’icona vieni portato direttamente su WizTrail, pronto all’uso. <br> <br>
-👉 Assoluta privacy: WizTrail non registraa nessun dato, non invia nulla a nessun server, e non occupa spazio nella memoria del telefono.
-È tutto leggerissimo, sicuro e completamente trasparente.
+👉 Privacy: installata sul telefono, WizTrail funziona come il sito: nessun account e il tuo GPX resta sul dispositivo, salvo quando usi "Importa da link" o invii un feedback. Occupa poco spazio: salva solo i file necessari a funzionare offline.
   </p>
 
-  <!-- Video -->
+  <!-- Video rimosso: video/install-wiztrail.mp4 non esiste (404). Ripristinare quando il file sarà pubblicato.
   <div style="margin-top:18px; text-align:center;">
-    <video 
-      src="video/install-wiztrail.mp4"
-      controls
-      style="max-width:100%; border-radius:12px;">
-    </video>
+    <video src="video/install-wiztrail.mp4" controls style="max-width:100%; border-radius:12px;"></video>
   </div>
+  -->
 
   <h2 style="margin-top:30px;">Istruzioni rapide</h2>
   <ul>
@@ -52,9 +65,13 @@ Quando tocchi l’icona vieni portato direttamente su WizTrail, pronto all’uso
     <li>Lancia WizTrail dalla Home!</li>
   </ul>
 
+  <h2 style="margin-top:30px;">Condividi un GPX direttamente su WizTrail <span class="badge badge--beta">Beta</span></h2>
+  <p>Su Android, con WizTrail installata sul telefono, puoi condividere un file GPX da un'altra app e aprirlo subito nel Calcolatore. Funzione in beta: se non compare tra le app di condivisione, carica il file dal Calcolatore. Non è disponibile su iPhone.</p>
+
   <div class="footer" style="margin-top:24px;">
     <a href="index.html" style="color:var(--accent); font-weight:600;">← Torna a WizTrail</a>
   </div>
 </div>
+<script src="wiztrail-shell.js?v=20261119" defer></script>
 </body>
 </html>

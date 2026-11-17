@@ -1,59 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <!-- HOMEPAGE / LANDING -->
-  <url>
-    <loc>https://wiz-trail.vercel.app/</loc>
-    <lastmod>2026-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-
+  <!-- Solo URL canoniche e indicizzabili. Le pagine noindex (ranking in beta, install, privacy, pagine di servizio) non sono incluse. -->
   <url>
     <loc>https://wiz-trail.vercel.app/landing.html</loc>
-    <lastmod>2026-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-11-16</lastmod>
   </url>
-
-  <!-- CALCOLATORE -->
   <url>
     <loc>https://wiz-trail.vercel.app/index.html</loc>
-    <lastmod>2026-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-11-16</lastmod>
   </url>
-
-  <!-- TRAINING ANALYZER -->
   <url>
     <loc>https://wiz-trail.vercel.app/training-analyzer.html</loc>
-    <lastmod>2026-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2026-11-16</lastmod>
   </url>
-
-  <!-- RANKING GARE -->
-  <url>
-    <loc>https://wiz-trail.vercel.app/ranking.html</loc>
-    <lastmod>2026-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- METODOLOGIA -->
   <url>
     <loc>https://wiz-trail.vercel.app/about.html</loc>
-    <lastmod>2026-05-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-11-16</lastmod>
   </url>
-
-  <!-- INSTALL APP -->
   <url>
-    <loc>https://wiz-trail.vercel.app/install.html</loc>
-    <lastmod>2026-05-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://wiz-trail.vercel.app/compatibilita.html</loc>
+    <lastmod>2026-11-16</lastmod>
   </url>
-
 </urlset>

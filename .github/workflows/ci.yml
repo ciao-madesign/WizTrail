@@ -1,0 +1,38 @@
+name: CI
+
+# Test automatici e controlli di sicurezza su ogni pull request verso backend.
+# Nessun accesso a segreti, Redis o servizi esterni: i test usano mock.
+on:
+  pull_request:
+    branches: [backend]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Installa dipendenze
+        run: npm ci
+
+      - name: Controllo sintassi JS (frontend e api)
+        run: |
+          for f in *.js api/*.js api/*/*.js server/*.js; do node --check "$f"; done
+
+      - name: Test (parita' engine, SSRF, rate limit, guard 12 function, ...)
+        run: npm test
+
+      - name: Audit dipendenze di produzione (fallisce da livello high)
+        run: npm audit --omit=dev --audit-level=high

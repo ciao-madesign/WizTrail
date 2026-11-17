@@ -28,15 +28,16 @@
  *     discipline,
  *     distance_km, dplus,
  *     specificity, level,
+ *     terrain_factor,                 // correzione terreno applicata al tempo (>= 1), come nel sito
  *     time_estimate: { seconds, formatted },
  *     median_comparison: { median_sec, median_formatted }
  *   }
  */
 
-import { checkRateLimit, getIP } from '../lib/ratelimit.js';
-import { checkApiKey } from '../lib/auth.js';
-import { computeManual, classifyDiscipline } from '../lib/engine-node.js';
-import { computeTimeManual, levelFromS, estimateMedianTime } from '../lib/timing-node.js';
+import { checkRateLimit, getIP } from '../../server/ratelimit.js';
+import { checkApiKey } from '../../server/auth.js';
+import { computeManual, classifyDiscipline } from '../../server/engine-node.js';
+import { computeTimeManual, levelFromS, estimateMedianTime, terrainFactor } from '../../server/timing-node.js';
 
 function secToHMS(s) {
   const h   = Math.floor(s / 3600);
@@ -55,16 +56,20 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  if (!(await checkApiKey(req))) {
-    return res.status(401).json({ error: 'API key non valida o mancante.' });
-  }
-
+  // Rate limit per IP PRIMA della verifica chiave: limita anche i tentativi con chiavi errate
   const ip = getIP(req);
-  const rl = await checkRateLimit(ip);
+  const rl = await checkRateLimit(ip, 'v1');
   res.setHeader('X-RateLimit-Remaining', rl.remaining);
   if (!rl.allowed) {
-    return res.status(429).json({ error: 'Troppe richieste. Riprova tra un minuto.' });
+    res.setHeader('Retry-After', String(rl.retryAfter || 60));
+    return res.status(429).json({ ok: false, code: 'RATE_LIMITED', error: 'Troppe richieste. Riprova tra un minuto.' });
   }
+
+  // Autenticazione (dopo il rate limit)
+  if (!(await checkApiKey(req))) {
+    return res.status(401).json({ ok: false, code: 'INVALID_API_KEY', error: 'API key non valida o mancante.' });
+  }
+
 
   const {
     distance_km,
@@ -103,7 +108,10 @@ export default async function handler(req, res) {
 
   const S          = Math.max(0, Math.min(1, Number(specificity)));
   const tClass     = terrain_class || terrain_cat || 'EE';
-  const tEst       = computeTimeManual(km, gain, S, tClass);
+  // Correzione terreno (stessa del sito, main.js): T_finale = T_segmenti × terrainFactor(TechScore, S).
+  // Usa TechScore (stimato dal terreno dichiarato), non il WDI: vedi CLAUDE.md, sezione Pacing e timing.
+  const kf         = terrainFactor(result.TechScore, S);
+  const tEst       = computeTimeManual(km, gain, S, tClass) * kf;
   const altMedia   = Number(avg_altitude);
   const tMedian    = estimateMedianTime(km, gain, altMedia);
 
@@ -121,6 +129,7 @@ export default async function handler(req, res) {
     dplus:        Math.round(gain),
     specificity:  S,
     level:        levelFromS(S),
+    terrain_factor: Math.round(kf * 1000) / 1000,
     time_estimate: {
       seconds:   Math.round(tEst),
       formatted: secToHMS(tEst),

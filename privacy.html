@@ -3,35 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WizTrail — Privacy & Dati</title>
-  <meta name="description" content="Informativa sulla privacy di WizTrail: cosa viene trattato, da chi e per quanto tempo.">
-  <meta name="robots" content="noindex, nofollow">
+<title>Privacy e trattamento dei dati — WizTrail</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="description" content="Quali dati tratta WizTrail, da chi e per quanto tempo: analisi nel browser, funzioni facoltative, terze parti e diritti GDPR.">
+<meta name="robots" content="noindex, nofollow">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#002b2b">
-  <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261125">
 </head>
 <body data-theme="dark">
+<script>(function(){try{var t=localStorage.getItem('wiztrail_theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.body.setAttribute('data-theme',t);document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
 
 <header class="app-header">
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
+  <nav class="app-nav" aria-label="Menu principale">
     <a href="index.html">Calcolatore</a>
     <a href="training-analyzer.html">Training</a>
     <a href="ranking.html">Ranking</a>
     <a href="about.html">Il Metodo</a>
   </nav>
 </header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+
 
 <div class="wrap">
 
   <nav class="about-toc">
     <a href="#cosa-non-raccogliamo">Cosa non raccogliamo</a>
     <a href="#cosa-raccogliamo">Cosa raccogliamo</a>
+    <a href="#dati-inviati">Cosa esce dal browser</a>
     <a href="#strava">Strava</a>
     <a href="#terze-parti">Terze parti</a>
     <a href="#diritti">I tuoi diritti</a>
@@ -41,9 +55,9 @@
   <!-- INTRO -->
   <section class="about-section" style="margin-bottom: 8px;">
     <div class="about-label">Informativa privacy</div>
-    <h1>Privacy & Dati</h1>
+    <h1>Privacy e dati</h1>
     <div class="card">
-      <p>WizTrail è progettato attorno a un principio semplice: <b>il tuo GPX non lascia mai il browser</b>. Tutto il calcolo — WDI, TechScore, stima tempi, pacing — avviene interamente in locale. Questa pagina documenta onestamente i pochi dati che <em>effettivamente</em> escono dal tuo browser e perché.</p>
+      <p>WizTrail è progettato attorno a un principio semplice: <b>il tuo GPX viene analizzato nel tuo browser</b>. Il calcolo — WDI, TechScore, stima tempi, pacing — avviene in locale. Questa pagina documenta i dati che <em>effettivamente</em> escono dal tuo browser, quando e perché.</p>
       <p class="mini" style="margin-top:10px; opacity:0.6;">Ultimo aggiornamento: maggio 2026 · Titolare: Michele Aldeni (ciao.madesign@gmail.com)</p>
     </div>
   </section>
@@ -53,7 +67,7 @@
     <h2>Cosa non raccogliamo</h2>
     <div class="card">
       <ul>
-        <li><b>GPX e tracce GPS</b> — il file caricato viene elaborato interamente nel browser. Non viene mai trasmesso a server.</li>
+        <li><b>GPX e tracce GPS</b> — il file caricato viene elaborato nel browser e non viene caricato sui nostri server. Fa eccezione «Importa da link»: in quel caso il nostro server scarica il file dal link che indichi (senza salvarlo) e lo restituisce al tuo browser.</li>
         <li><b>Calcoli WDI, TechScore, pacing</b> — avvengono localmente. Nessun risultato viene salvato fuori dal tuo dispositivo.</li>
         <li><b>Account e dati di registrazione</b> — WizTrail non richiede nome, email o password.</li>
         <li><b>Cookie di profilazione o di tracciamento</b> — nessuno. Zero.</li>
@@ -115,6 +129,7 @@
       <summary><b>Preferenze locali — solo nel tuo browser</b></summary>
       <div style="margin-top:12px">
         <p>WizTrail salva alcune preferenze in <code>localStorage</code> del tuo browser. Questi dati non vengono mai trasmessi:</p>
+        <div class="table-scroll" role="region" aria-label="Tabella scorrevole" tabindex="0">
         <table class="about-table">
           <thead><tr><th>Chiave</th><th>Contenuto</th><th>Scopo</th></tr></thead>
           <tbody>
@@ -123,6 +138,7 @@
             <tr><td><code>wt-install-ios-dismissed</code></td><td>Flag '1'</td><td>Non mostrare più il banner installazione iOS</td></tr>
           </tbody>
         </table>
+        </div>
         <p class="mini" style="margin-top:8px; opacity:0.6;">Questi dati esistono solo nel tuo browser. Puoi cancellarli in qualsiasi momento dalle impostazioni del browser.</p>
       </div>
     </details>
@@ -132,14 +148,28 @@
   <section id="strava" class="about-section">
     <h2>Integrazione Strava</h2>
     <div class="card">
-      <p>L'integrazione con Strava è <b>completamente opzionale</b> e richiede il tuo consenso esplicito tramite OAuth 2.0 (il flusso di autorizzazione standard di Strava).</p>
-      <p>Se scegli di collegare Strava:</p>
-      <ul>
-        <li>Il <b>token di accesso</b> viene salvato in <code>sessionStorage</code> — scompare alla chiusura della finestra del browser. WizTrail non lo salva su alcun server.</li>
-        <li>I <b>dati delle attività</b> (GPS stream, metriche) vengono recuperati da Strava e usati nel browser. WizTrail non salva copie delle tue attività Strava sui propri server.</li>
-        <li>Puoi revocare l'autorizzazione in qualsiasi momento da <a href="https://www.strava.com/settings/apps" target="_blank" rel="noopener" style="color:var(--accent);">Strava → Impostazioni → App</a>.</li>
-      </ul>
-      <p class="mini" style="margin-top:8px; opacity:0.6;">Per la privacy policy di Strava: <a href="https://www.strava.com/legal/privacy" target="_blank" rel="noopener" style="color:inherit;">strava.com/legal/privacy</a></p>
+      <p>Il collegamento con Strava non è al momento disponibile e WizTrail non tratta dati provenienti da Strava.</p>
+    </div>
+  </section>
+
+  <!-- COSA ESCE DAL BROWSER -->
+  <section id="dati-inviati" class="about-section">
+    <h2>Cosa esce dal browser, funzione per funzione</h2>
+    <div class="card">
+      <div class="table-scroll" role="region" aria-label="Tabella scorrevole" tabindex="0">
+        <table class="about-table">
+          <thead><tr><th>Funzione</th><th>Cosa esce dal tuo dispositivo</th><th>Dove</th></tr></thead>
+          <tbody>
+            <tr><td>Carico un file GPX</td><td>Niente: lettura, WDI, tempi e pacing avvengono nel browser.</td><td>—</td></tr>
+            <tr><td>Importa da link</td><td>L'indirizzo del link e il file scaricato transitano dal nostro server, che non li salva.</td><td>Server WizTrail (Vercel)</td></tr>
+            <tr><td>Mappe</td><td>Richieste dei riquadri di mappa: il tuo indirizzo IP è visibile ai fornitori.</td><td>CARTO / OpenTopoMap (dati OpenStreetMap)</td></tr>
+            <tr><td>Feedback sul tempo reale</td><td>Scarto percentuale, distanza e D+. Nessuna traccia GPS.</td><td>Database WizTrail (Upstash)</td></tr>
+            <tr><td>Funzioni che usano i nostri server</td><td>Indirizzo IP, per contare le richieste e limitare gli abusi (60 secondi).</td><td>Database WizTrail (Upstash)</td></tr>
+            <tr><td>Hub di calibrazione (su invito)</td><td>Le attività caricate dagli utenti abilitati (traccia GPS e tempi).</td><td>Database WizTrail (Upstash)</td></tr>
+            <tr><td>Strava</td><td>Non attivo: nessun dato.</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -147,7 +177,8 @@
   <section id="terze-parti" class="about-section">
     <h2>Terze parti coinvolte</h2>
     <div class="card">
-      <table class="about-table">
+      <div class="table-scroll" role="region" aria-label="Tabella scorrevole" tabindex="0">
+        <table class="about-table">
         <thead>
           <tr><th>Soggetto</th><th>Ruolo</th><th>Dati</th><th>Sede</th></tr>
         </thead>
@@ -165,25 +196,26 @@
             <td>USA/UE — Standard Contractual Clauses</td>
           </tr>
           <tr>
-            <td><a href="https://www.strava.com/legal/privacy" target="_blank" rel="noopener" style="color:var(--accent);">Strava Inc.</a></td>
-            <td>Fonte dati attività (opt-in)</td>
-            <td>Nessun dato salvato da WizTrail</td>
-            <td>USA</td>
+            <td>Strava Inc.</td>
+            <td>Integrazione non attiva</td>
+            <td>Nessun dato trattato</td>
+            <td>—</td>
           </tr>
           <tr>
-            <td><a href="https://carto.com/privacy" target="_blank" rel="noopener" style="color:var(--accent);">CARTO</a> / <a href="https://www.openstreetmap.org/privacy" target="_blank" rel="noopener" style="color:var(--accent);">OpenStreetMap</a></td>
-            <td>Tile server mappe (solo quando viene visualizzata una mappa)</td>
+            <td><a href="https://carto.com/privacy" target="_blank" rel="noopener" style="color:var(--accent);">CARTO</a> / <a href="https://www.openstreetmap.org/privacy" target="_blank" rel="noopener" style="color:var(--accent);">OpenStreetMap</a> (dati)</td>
+            <td>Tile server mappe (solo quando viene visualizzata una mappa); i dati cartografici sono di OpenStreetMap</td>
             <td>IP del visitatore per le richieste di tile</td>
             <td>USA/UE</td>
           </tr>
           <tr>
             <td><a href="https://opentopomap.org/about" target="_blank" rel="noopener" style="color:var(--accent);">OpenTopoMap</a></td>
-            <td>Tile topografici (Training Analyzer, opzionale)</td>
+            <td>Tile topografici (sovrapposti alle mappe di Calcolatore e Training Analyzer)</td>
             <td>IP del visitatore per le richieste di tile</td>
             <td>UE</td>
           </tr>
         </tbody>
       </table>
+        </div>
       <p class="mini" style="margin-top:10px; opacity:0.6;">I trasferimenti di dati verso paesi extra-UE avvengono nel rispetto delle garanzie previste dall'art. 46 GDPR (Standard Contractual Clauses). Le mappe vengono caricate solo quando l'utente visualizza una pagina con mappa attiva.</p>
     </div>
   </section>
@@ -209,7 +241,7 @@
     <h2>Contatti</h2>
     <div class="card">
       <p><b>Titolare del trattamento:</b> Michele Aldeni</p>
-      <p><b>Email:</b> <a href="mailto:ciao.madesign@gmail.com" style="color:var(--accent);">ciao.madesign@gmail.com</a></p>
+      <p><b>Email:</b> <a href="mailto:ciao.madesign@gmail.com" class="link-block" style="color:var(--accent);">ciao.madesign@gmail.com</a></p>
       <p class="mini" style="margin-top:10px; opacity:0.6;">Per richieste relative ai dati personali, risposta entro 30 giorni come previsto dal GDPR.</p>
     </div>
   </section>
@@ -217,6 +249,7 @@
   <div class="footer">WizTrail © 2026
     <p>
       <a href="about.html" style="color:var(--muted);">Il Metodo</a> &nbsp;·&nbsp;
+      <a href="compatibilita.html" style="color:var(--muted);">Cosa funziona oggi</a> &nbsp;·&nbsp;
       <a href="privacy.html" style="color:var(--accent);">Privacy</a>
     </p>
   </div>
@@ -283,5 +316,6 @@
   details.card > summary::-webkit-details-marker { color: var(--accent); }
 </style>
 
+<script src="wiztrail-shell.js?v=20261119" defer></script>
 </body>
 </html>

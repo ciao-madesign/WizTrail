@@ -3,38 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WizTrail — Ranking difficoltà gare trail</title>
-<meta name="description" content="Classifica WDI delle gare trail più famose. Scopri quanto è difficile la tua prossima gara e confrontala con il tuo GPX.">
-<meta property="og:title" content="WizTrail — Ranking difficoltà gare trail" />
-<meta property="og:description" content="Classifica WDI delle gare trail. Confronta la tua gara e scopri il tuo livello." />
-<meta property="og:type" content="website" />
-<meta property="og:image" content="https://ciao-madesign.github.io/WizTrail/img/hero-ranking.jpg" />
+<title>Ranking WDI delle gare trail (beta) — WizTrail</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="description" content="Elenco di gare trail con il WDI calcolato da WizTrail. Sezione in beta: le schede di dettaglio delle gare non sono ancora disponibili.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://wiz-trail.vercel.app/ranking.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WizTrail">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="Ranking WDI delle gare trail (beta) — WizTrail">
+<meta property="og:description" content="Il WDI calcolato da WizTrail per alcune gare trail (sezione in beta).">
+<meta property="og:url" content="https://wiz-trail.vercel.app/ranking.html">
+<meta property="og:image" content="https://wiz-trail.vercel.app/img/og/og-home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="WizTrail: analisi della difficoltà di un percorso trail">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="WizTrail — Ranking gare trail">
-<meta name="twitter:description" content="Classifica WDI delle gare trail più famose. Confronta la tua.">
+<meta name="twitter:title" content="Ranking WDI delle gare trail (beta) — WizTrail">
+<meta name="twitter:description" content="Il WDI calcolato da WizTrail per alcune gare trail (sezione in beta).">
+<meta name="twitter:image" content="https://wiz-trail.vercel.app/img/og/og-home.jpg">
+<meta name="twitter:image:alt" content="WizTrail: analisi della difficoltà di un percorso trail">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#002b2b">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="/lib/leaflet/leaflet.css">
-<link rel="stylesheet" href="wiztrail.css">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"ItemList","name":"Ranking WDI — Gare Trail Running","description":"Classifica WDI delle gare trail più famose. Scopri quanto è difficile la tua prossima gara e confrontala con il tuo GPX.","url":"https://wiz-trail.vercel.app/ranking.html","numberOfItems":31,"itemListElement":[{"@type":"ListItem","position":1,"name":"TOR330 — Tor des Géants","description":"WDI 546 · Legend ∞ · 336 km · 29536 m D+"},{"@type":"ListItem","position":2,"name":"TOR130 tot dret","description":"WDI 233 · Legend · 136 km · 11468 m D+"},{"@type":"ListItem","position":3,"name":"Ortles Haute Route Trail","description":"WDI 198 · Elite · 122 km · 9066 m D+"},{"@type":"ListItem","position":4,"name":"TOR100","description":"WDI 182 · Elite · 106 km · 8508 m D+"},{"@type":"ListItem","position":5,"name":"LUT120","description":"WDI 178 · Elite · 120 km · 6311 m D+"},{"@type":"ListItem","position":6,"name":"VUT90","description":"WDI 153 · Elite · 89 km · 6808 m D+"}]}
-</script>
+<link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261125">
+<script src="features.js?v=20261118"></script>
 </head>
 <body data-theme="dark">
+<script>(function(){try{var t=localStorage.getItem('wiztrail_theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.body.setAttribute('data-theme',t);document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
 <header class="app-header">
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
+  <nav class="app-nav" aria-label="Menu principale">
     <a href="index.html" class="">Calcolatore</a>
       <a href="training-analyzer.html" class="">Training</a>
       <a href="ranking.html" class="nav-active">Ranking</a>
       <a href="about.html" class="">Il Metodo</a>
   </nav>
 </header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+
 
 <!-- HERO -->
 <div class="hero-fullwidth">
@@ -43,7 +64,7 @@
   <div class="hero-inner">
     <div class="hero-eyebrow">WizTrail — Ranking WDI</div>
     <h1 class="hero-title">Quanto è difficile<br>il tuo percorso?</h1>
-    <p class="hero-desc">Carica il GPX e scopri WDI e TechScore. Poi confronta con le gare del ranking ufficiale.</p>
+    <p class="hero-desc">Carica il GPX e scopri WDI e TechScore. Consulta anche il WDI delle gare selezionate dal team WizTrail.</p>
     <div class="hero-actions">
       <a href="#analizza-gara" class="hero-btn-primary">Analizza il tuo GPX →</a>
       <a href="#ranking-table" class="hero-btn-ghost">Esplora il ranking</a>
@@ -54,7 +75,7 @@
 <div class="wrap">
 <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
   <span class="theme-ctrl">
-    <label class="mini">Tema</label>
+    <label class="mini" for="themeSel">Tema</label>
     <select id="themeSel">
       <option value="dark" selected>Scuro</option>
       <option value="light">Chiaro</option>
@@ -67,47 +88,63 @@
   <h2>Analizza il tuo percorso</h2>
   <p class="mini" style="opacity:0.7; margin-bottom:16px;">
     Carica il GPX della tua gara per ottenere WDI, TechScore e disciplina.
-    Confronta subito con le gare del ranking ufficiale.
   </p>
-  <label>Carica GPX</label>
-  <input type="file" id="gpxUser" accept=".gpx,.tcx"/>
+  <label for="gpxUser" class="gpx-dropzone" id="rkDropzone">
+    <div class="gpx-dropzone-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <div class="gpx-dropzone-text">
+      <span class="gpx-dropzone-main" id="rkDropMain">Trascina il GPX qui o clicca per selezionare</span>
+      <span class="gpx-dropzone-sub">GPX · TCX</span>
+    </div>
+    <input type="file" id="gpxUser" class="sr-only" accept=".gpx,.tcx"/>
+  </label>
   <div class="gpx-alt-row" style="margin-top:8px;">
     <button class="btn" id="btnUserCompute">Analizza →</button>
     <div id="userComputeMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>
     <span class="gpx-alt-sep" style="opacity:0.35;">·</span>
-    <button type="button" class="gpx-alt-link" id="rkLinkBtn" style="background:none;border:none;cursor:pointer;padding:0;">
+    <button type="button" class="gpx-alt-link" id="rkLinkBtn" aria-expanded="false" aria-controls="rkLinkRow" data-expands style="background:none;border:none;cursor:pointer;padding:0;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-      link
+      Importa da link
     </button>
   </div>
-  <div id="rkLinkRow" style="display:none; margin-top:8px; display:flex; gap:6px; align-items:center;">
-    <input id="rkLinkUrl" type="url" placeholder="https://…" style="flex:1; font-size:0.82rem; padding:6px 10px; border-radius:6px; border:1px solid var(--border,#ccc); background:var(--input-bg,#fff); color:inherit;"/>
-    <button id="rkLinkGo" type="button" style="padding:6px 14px; border-radius:6px; border:none; background:var(--accent,#009688); color:#fff; font-size:0.82rem; cursor:pointer; white-space:nowrap;">Carica</button>
+  <div id="rkLinkRow" class="field-inline field-inline--wrap" style="display:none;">
+    <input id="rkLinkUrl" type="url" inputmode="url" aria-label="Indirizzo (URL) del file GPX" aria-describedby="rkLinkHelp" placeholder="Link diretto a un file .gpx"/>
+    <button id="rkLinkGo" type="button" class="btn-inline">Carica</button>
+    <p class="hint" id="rkLinkHelp" style="flex-basis:100%;">Funziona con link che scaricano direttamente un file GPX. Il link viene aperto dai nostri server per scaricare il file.</p>
   </div>
   <div id="userResult" style="margin-top:16px;"></div>
 </div>
 
-<!-- SEZIONE 2 — Ranking ufficiale -->
+<!-- SEZIONE 2 — Ranking WDI (beta) -->
 <div class="card" id="ranking-table">
-<h2>Ranking ufficiale WDI</h2>
+<h2>Ranking WDI delle gare trail <span class="badge badge--beta">Beta</span></h2>
+<p class="note note--warn" id="rankNote" style="margin-bottom:12px;">
+  <strong>Ranking WDI in beta.</strong> Le schede di dettaglio delle gare non sono ancora disponibili: per ora puoi consultare e filtrare la classifica. Per vedere profilo altimetrico, mappa e pacing di un percorso, caricalo nel Calcolatore.
+  <a href="index.html">Apri il Calcolatore</a>
+</p>
+<p class="hint" id="rankCount" style="margin:0 0 12px;">Le gare del ranking sono selezionate dal team WizTrail. L'invio di nuove gare da parte degli utenti non è ancora disponibile.</p>
 <div class="grid grid-2">
 <div>
-<label>Filtra per nome gara</label>
+<label for="filterName">Filtra per nome gara</label>
 <input id="filterName" type="text" placeholder="Es: Zegama, UTMB…">
 </div>
 <div>
-<label>Disciplina</label>
+<label for="filterDiscipline">Disciplina</label>
 <select id="filterDiscipline">
   <option value="">Tutte le discipline</option>
   <option value="trail">🌲 Trail</option>
   <option value="sky">⛰️ Sky</option>
   <option value="mountain">🏔️ Mountain</option>
   <option value="ultra">🔥 Ultra</option>
-  <option value="xc">🏅 XC</option>
 </select>
 </div>
 <div>
-<label>Classe WDI</label>
+<label for="filterClass">Classe WDI</label>
 <select id="filterClass">
   <option value="">Tutte le classi</option>
   <option value="Sport">Sport (&lt;22)</option>
@@ -125,7 +162,7 @@
 <details class="card" id="legendGuide" style="margin-bottom:20px;">
   <summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:700;font-size:0.95rem;-webkit-user-select:none;user-select:none;">
     <span>Come leggere il ranking</span>
-    <span style="font-size:0.72rem;opacity:0.45;flex-shrink:0;">mostra ▼</span>
+    <span style="font-size:0.72rem;color:var(--muted);flex-shrink:0;">mostra ▼</span>
   </summary>
 
   <div style="margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;">
@@ -161,9 +198,9 @@
     </div>
 
     <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
-      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">Clicca una gara</div>
-      <div style="font-size:1.1rem;margin-top:4px;">→</div>
-      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">Apre la scheda completa con mappa interattiva, profilo altimetrico, piano di pacing e confronto col tuo GPX.</div>
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.45;margin-bottom:6px;">Dettaglio gara</div>
+      <div style="margin-top:4px;"><span class="badge badge--soon">Non ancora disponibile</span></div>
+      <div style="font-size:0.78rem;margin-top:7px;line-height:1.5;opacity:0.75;">Le schede con mappa, profilo e pacing delle singole gare non sono ancora disponibili. Puoi analizzare qualsiasi percorso caricando il suo GPX nel Calcolatore.</div>
     </div>
 
   </div>
@@ -176,7 +213,7 @@
       <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#34A853;color:#021;">Pro 22–40</span>
       <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#F4C20D;color:#021;">Advanced 40–70</span>
       <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#F79617;color:#021;">Extreme 70–120</span>
-      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#E91E63;color:#fff;">Elite 120–200</span>
+      <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#E91E63;color:#000;">Elite 120–200</span>
       <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:#8E24AA;color:#fff;">Legend ≥200</span>
       <span style="padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:700;background:linear-gradient(90deg,#8E24AA,#E91E63);color:#fff;">Legend ∞ &gt;300</span>
     </div>
@@ -186,7 +223,7 @@
 <div class="card">
 <h2>Ranking complessivo WDI</h2>
 <div id="rankMsg" class="mini" style="color:var(--accent);margin-bottom:6px;min-height:1em;"></div>
-<div class="responsive-table">
+<div class="responsive-table table-scroll" role="region" aria-label="Tabella ranking, scorrevole" tabindex="0">
 <table id="raceTable">
 <thead>
 <tr>
@@ -209,9 +246,9 @@
 <div class="card admin-only" style="display:none;">
 <h2>Aggiungi una nuova gara al ranking</h2>
 <p class="mini">Carica il GPX reale per ottenere distanza, D+, WDI.<br>Il JSON generato va copiato dentro <code>ranking-data.json</code>.</p>
-<label>GPX reale</label>
+<label for="gpxAdmin">GPX reale</label>
 <input type="file" id="gpxAdmin" accept=".gpx,.tcx"/>
-<label>Nome gara</label>
+<label for="adminName">Nome gara</label>
 <input type="text" id="adminName" placeholder="Es: Gran Trail XYZ"/>
 <button class="btn" id="btnAdminCompute">Calcola</button>
 <div id="adminMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>
@@ -221,7 +258,7 @@
 <div class="card admin-only" style="display:none;">
 <h2>Batch Compute TechScore</h2>
 <p class="mini">Calcola TechScore per tutte le gare con GPX disponibile sul server. Il JSON aggiornato va copiato dentro <code>ranking-data.json</code>.</p>
-<button class="btn" id="btnBatchCompute">Calcola tutti (31 gare)</button>
+<button class="btn" id="btnBatchCompute">Calcola tutte le gare</button>
 <div id="batchProgress" style="margin-top:8px; font-size:0.85rem; color:var(--muted);"></div>
 <pre id="batchOutput" style="margin-top:10px;padding:8px;background:#111;border-radius:6px;max-height:400px;overflow:auto;display:none;font-size:0.7rem;"></pre>
 </div>
@@ -229,10 +266,10 @@
 <div class="footer">WizTrail © 2026
     <p class="mini" style="opacity:0.5; margin-top:4px;">Foto di <a href="https://unsplash.com/@ryutaf" target="_blank" rel="noopener" style="color:inherit;">Ryuta F.</a> su <a href="https://unsplash.com" target="_blank" rel="noopener" style="color:inherit;">Unsplash</a> (Unsplash License)</p>
     <p class="mini" style="margin-top:8px;">
-      <span style="display:inline-block;padding:1px 7px;border-radius:10px;background:rgba(247,150,23,0.15);color:#F79617;font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;">BETA</span>
+      <span class="badge badge--beta">Beta</span>
+      &nbsp;·&nbsp;<a href="compatibilita.html" style="color:var(--muted);">Cosa funziona oggi</a>
       &nbsp;·&nbsp;<a href="mailto:ciao.madesign@gmail.com?subject=WizTrail%20beta%20feedback" style="color:var(--muted);">Invia feedback</a>
       &nbsp;·&nbsp;<a href="privacy.html" style="color:var(--muted);">Privacy</a>
-      &nbsp;·&nbsp;<a href="hub.html" style="color:var(--muted);">hub</a>
     </p>
   </div>
 </div>
@@ -253,7 +290,12 @@ document.querySelectorAll(".admin-only").forEach(el => el.style.display = isAdmi
 let races = [];
 fetch("ranking-data.json")
  .then(r => r.json())
- .then(json => { races = json; renderTable(); backgroundComputeTech(); });
+ .then(json => {
+   races = json; renderTable();
+   const rc = document.getElementById('rankCount');
+   if (rc) rc.textContent = races.length + ' gare selezionate dal team WizTrail. L\'invio di nuove gare da parte degli utenti non è ancora disponibile.';
+   if (isAdmin) backgroundComputeTech();   // strumento admin: i GPX non sono pubblicati, nessuna richiesta nel flusso pubblico
+ });
 
 // Calcola TechScore da GPX in background, aggiorna le celle progressivamente
 async function backgroundComputeTech() {
@@ -293,7 +335,7 @@ function badgeTextColor(hex){
   function rl(c){const s=c/255;return s<=0.04045?s/12.92:Math.pow((s+0.055)/1.055,2.4);}
   const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   const L=0.2126*rl(r)+0.7152*rl(g)+0.0722*rl(b);
-  return 1.05/(L+0.05)>=(L+0.05)/0.065?'#fff':'#021';
+  return 1.05/(L+0.05)>=(L+0.05)/0.05?'#fff':'#000';
 }
 
 function renderTable() {
@@ -310,30 +352,35 @@ function renderTable() {
     .forEach(r => {
 
       const tr = document.createElement('tr');
-      tr.style.cssText = `cursor:pointer; border-left:4px solid ${r.color}; background:${r.color}18; transition:background 0.2s;`;
+      tr.style.cssText = `border-left:4px solid ${r.color}; background:${r.color}18;`;
 
-      tr.addEventListener('click', () => {
-        if (!r.gpx) { showRankMsg('GPX non disponibile per questa gara.'); return; }
-        fetch(r.gpx)
-          .then(res => res.text())
-          .then(gpxText => {
-            sessionStorage.setItem('currentRaceGPX', gpxText);
-            sessionStorage.setItem('currentRaceMeta', JSON.stringify({
-              name:       r.name,
-              distance:   r.distance,
-              dplus:      r.dplus,
-              wdi:        r.wdi,
-              class:      r.class,
-              color:      r.color,
-              discipline: r.discipline || 'trail'
-            }));
-            window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
-          })
-          .catch(() => showRankMsg('Errore nel caricamento GPX.'));
-      });
-
-      tr.addEventListener('mouseenter', () => tr.style.background = r.color + '2e');
-      tr.addEventListener('mouseleave', () => tr.style.background = r.color + '18');
+      /* Dettaglio gara spento (WizFeatures.raceDetailEnabled=false): righe di sola lettura,
+         nessun click, nessun download di GPX, nessuna scrittura in sessionStorage. */
+      if (window.WizFeatures && WizFeatures.raceDetailEnabled) {
+        tr.style.cursor = 'pointer';
+        tr.style.transition = 'background 0.2s';
+        tr.addEventListener('click', () => {
+          if (!r.gpx) { showRankMsg('GPX non disponibile per questa gara.'); return; }
+          fetch(r.gpx)
+            .then(res => { if (!res.ok) throw new Error('GPX non disponibile'); return res.text(); })
+            .then(gpxText => {
+              sessionStorage.setItem('currentRaceGPX', gpxText);
+              sessionStorage.setItem('currentRaceMeta', JSON.stringify({
+                name:       r.name,
+                distance:   r.distance,
+                dplus:      r.dplus,
+                wdi:        r.wdi,
+                class:      r.class,
+                color:      r.color,
+                discipline: r.discipline || 'trail'
+              }));
+              window.location.href = `dettaglio.html?race=${encodeURIComponent(r.name)}`;
+            })
+            .catch(() => showRankMsg('La scheda di questa gara non è disponibile.'));
+        });
+        tr.addEventListener('mouseenter', () => tr.style.background = r.color + '2e');
+        tr.addEventListener('mouseleave', () => tr.style.background = r.color + '18');
+      }
 
       const disciplineBadge = r.discipline ? DisciplineClassifier.renderBadge(r.discipline) : '';
 
@@ -344,13 +391,13 @@ function renderTable() {
       const wdiCat      = normResult.category;
 
       /* Display WDI: valore grezzo assoluto — sempre il numero reale, nessun cap */
-      const wdiDisplay = `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${r.wdi.toFixed(1)}</span>`;
+      const wdiDisplay = `<span class="wdi-dot" style="background:${r.color}" aria-hidden="true"></span><span style="font-weight:800; font-size:1.05rem;">${r.wdi.toFixed(1)}</span>`;
 
       /* Display Score: WDI normalizzato 0–10 nella sua categoria di distanza */
       const catChip = `<span style="display:inline-block;margin-top:3px;padding:1px 7px;border-radius:8px;font-size:0.62rem;font-weight:700;letter-spacing:0.04em;color:var(--muted);background:color-mix(in oklab,var(--border) 55%,transparent);">${wdiCat}</span>`;
       const scoreDisplay = wdiLegPlus
-        ? `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">∞</span><br>${catChip}`
-        : `<span style="color:${r.color}; font-weight:800; font-size:1.05rem;">${wdiNorm.toFixed(1)}</span><span style="color:var(--muted); font-size:0.72rem;">/10</span><br>${catChip}`;
+        ? `<span class="wdi-dot" style="background:${r.color}" aria-hidden="true"></span><span style="font-weight:800; font-size:1.05rem;">∞</span><br>${catChip}`
+        : `<span class="wdi-dot" style="background:${r.color}" aria-hidden="true"></span><span style="font-weight:800; font-size:1.05rem;">${wdiNorm.toFixed(1)}</span><span style="color:var(--muted); font-size:0.72rem;">/10</span><br>${catChip}`;
 
       /* TechScore: calcolo interno 0–100, display 0–10 */
       const techDisplay = (r.techScore != null)
@@ -484,6 +531,25 @@ document.getElementById('btnBatchCompute')?.addEventListener('click', async () =
   renderTable();
 });
 
+//---------------------------------------- dropzone GPX (nome file e trascinamento)
+(function() {
+  const dz = document.getElementById('rkDropzone'), inp = document.getElementById('gpxUser'), main = document.getElementById('rkDropMain');
+  if (!dz || !inp) return;
+  const aggiorna = () => {
+    const f = inp.files && inp.files[0];
+    if (main) main.textContent = f ? f.name : 'Trascina il GPX qui o clicca per selezionare';
+    dz.classList.toggle('loaded', !!f);
+  };
+  inp.addEventListener('change', aggiorna);
+  ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dragover'); }));
+  ['dragleave', 'dragend'].forEach(ev => dz.addEventListener(ev, () => dz.classList.remove('dragover')));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) { try { inp.files = e.dataTransfer.files; } catch (err) { return; } aggiorna(); }
+  });
+})();
+
 //---------------------------------------- user compute
 btnUserCompute?.addEventListener("click", async () => {
  const gp = gpxUser.files[0];
@@ -529,12 +595,12 @@ userResult.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
       const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Errore nel caricamento');
+        throw new Error(WizFeatures.testoErroreImport(err.code, res.status));
       }
       const text = await res.text();
       const xml  = new DOMParser().parseFromString(text, 'application/xml');
       const pts  = GPXParser.parseTrack(xml);
-      if (!pts.length) throw new Error('Nessuna traccia trovata nel file');
+      if (!pts.length) throw new Error('Il file non contiene una traccia GPX valida.');
 
       const metrics    = GPXParser.compute(pts);
       const rs         = WizTrail.computeFromGpx(pts, metrics);
@@ -549,7 +615,7 @@ userResult.innerHTML = renderAnalysisHTML(rs, userNorm, discBadge, metrics);
       row.style.display = 'none';
       input.value = '';
     } catch (e) {
-      if (result) result.innerHTML = '<span style="color:var(--error,#f44);font-size:0.85rem;">✗ ' + e.message + '</span>';
+      if (result) result.innerHTML = '<span style="color:var(--error,#f44);font-size:0.85rem;">✗ ' + ((e && e.constructor === Error) ? e.message : WizFeatures.testoErroreImport(null, 0)) + '</span>';
     } finally {
       go.disabled = false;
     }
@@ -586,32 +652,10 @@ function renderAnalysisHTML(rs, userNorm, discBadge, metrics) {
       <div style="font-size:0.74rem;color:var(--muted);margin-top:8px;">${metrics.km.toFixed(1)} km · ${Math.round(metrics.gain)} m D+</div>
     </div>
   </div>
-  <div style="margin-top:18px;padding:13px 16px;border:1px solid var(--accent,#009688);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:color-mix(in oklab,var(--accent,#009688) 8%,transparent);">
-    <div>
-      <div style="font-weight:700;font-size:.87rem;">🏅 Vuoi certificare questa gara?</div>
-      <div style="font-size:.74rem;opacity:.6;margin-top:3px;">Ottieni badge ufficiale WizTrail e l'inserimento nel ranking certificato</div>
-    </div>
-    <button onclick="openCertContact()" style="white-space:nowrap;padding:8px 16px;border:none;border-radius:8px;background:var(--accent,#009688);color:#fff;font-weight:700;font-size:.81rem;cursor:pointer;">Richiedi →</button>
-  </div>`;
+`;
 }
 
 /* ── Cert contact — apre mailto con dati analisi pre-compilati ─────────── */
-function openCertContact() {
-  const a = _lastAnalysis;
-  const gpxInfo = a
-    ? 'Distanza: ' + a.metrics.km.toFixed(1) + ' km\n'
-      + 'D+: ' + Math.round(a.metrics.gain) + ' m\n'
-      + 'WDI: ' + a.rs.WDI.toFixed(1) + ' (' + a.userNorm.category + ')\n'
-      + 'TechScore: ' + (a.rs.TechScore / 10).toFixed(1) + '/10\n\n'
-    : '';
-  const subject = encodeURIComponent('Richiesta certificazione WizTrail');
-  const body = encodeURIComponent(
-    'Nome gara: \nOrganizzatore / Referente: \nEdizione: \nNote: \n\n'
-    + '--- Dati analisi GPX ---\n'
-    + gpxInfo
-  );
-  window.location.href = 'mailto:ciao.madesign@gmail.com?subject=' + subject + '&body=' + body;
-}
 </script>
 <script>
 // Toggle label "mostra/nascondi" su #legendGuide
@@ -638,6 +682,7 @@ function openCertContact() {
 })();
 </script>
 
-<script src="/cookie-notice.js" defer></script>
+<script src="/cookie-notice.js?v=20261117" defer></script>
+<script src="wiztrail-shell.js?v=20261119" defer></script>
 </body>
 </html>

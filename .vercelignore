@@ -1,0 +1,6 @@
+# File interni: restano nel repository ma non vengono pubblicati sul sito (solo deploy).
+/CLAUDE.md
+/README.md
+/docs/
+/wiztrail-knowledge-base.md
+/wiztrail-calibration/

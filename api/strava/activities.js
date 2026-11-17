@@ -7,9 +7,12 @@
  * Rate limit: 30 req/min per IP (Upstash)
  */
 
-import { checkRateLimit, getIP } from '../lib/ratelimit.js';
+import { checkRateLimit, getIP } from '../../server/ratelimit.js';
+import { rispondiSeStravaSpenta } from '../../server/features.js';
 
 export default async function handler(req, res) {
+  // Integrazione Strava non ancora disponibile (flag STRAVA_ENABLED): nessuna chiamata a Strava
+  if (rispondiSeStravaSpenta(res)) return;
 
   // Solo GET
   if (req.method !== 'GET') {
@@ -18,7 +21,7 @@ export default async function handler(req, res) {
 
   // Rate limiting
   const ip     = getIP(req);
-  const { allowed, remaining } = await checkRateLimit(ip);
+  const { allowed, remaining } = await checkRateLimit(ip, 'strava');
   res.setHeader('X-RateLimit-Remaining', remaining);
 
   if (!allowed) {

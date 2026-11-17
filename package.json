@@ -1,11 +1,14 @@
 {
   "type": "module",
   "dependencies": {
-    "@xmldom/xmldom": "^0.8.10"
+    "@xmldom/xmldom": "^0.8.15"
   },
   "devDependencies": {
     "html2canvas": "^1.4.1",
     "jszip": "^3.10.1",
     "leaflet": "^1.9.4"
+  },
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\""
   }
 }

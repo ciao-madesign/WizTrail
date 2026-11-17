@@ -1,5 +1,3 @@
-@import url('/fonts/fonts.css');
-
 :root{
   --bg:#0a0f14;
   --card:#121a22;
@@ -207,9 +205,16 @@ input[type=text], input[type=number], select{
 input[type=file]{ color:var(--ink); font-size:14px; }
 
 .btn{
-  appearance:none; border:none; background:var(--accent); color:#062827;
+  appearance:none; border:none; background:var(--accent); color:var(--on-accent);
   padding:12px 14px; border-radius:10px; font-weight:800; cursor:pointer;
+  /* feedback tattile (unificato qui da M4-5: prima in un secondo blocco .btn piu' sotto) */
+  transition:
+    background var(--dur-fast),
+    border-color var(--dur-fast),
+    transform 80ms,
+    opacity var(--dur-fast);
 }
+.btn:active{ transform:scale(0.97); }
 .btn.secondary{ background:#263243; color:#fff; }
 
 /* ===== Grid tuning: evita sovrapposizioni ===== */
@@ -460,16 +465,6 @@ body[data-theme="light"] fieldset{
   animation: kpiIn var(--dur-base) var(--ease-spring) both;
 }
 
-/* Bottoni — feedback tattile */
-.btn {
-  transition:
-    background var(--dur-fast),
-    border-color var(--dur-fast),
-    transform 80ms,
-    opacity var(--dur-fast);
-}
-.btn:active { transform: scale(0.97); }
-
 /* Input focus — bordo accent discreto */
 input[type="text"],
 input[type="number"],
@@ -481,10 +476,13 @@ select {
 input[type="text"]:focus,
 input[type="number"]:focus,
 select:focus {
-  outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
 }
+/* niente anello per il focus da mouse; da tastiera vale la regola :focus-visible in 9.A */
+input[type="text"]:focus:not(:focus-visible),
+input[type="number"]:focus:not(:focus-visible),
+select:focus:not(:focus-visible) { outline: none; }
 
 /* Accordion — animazione max-height */
 .accordion-body {
@@ -1186,8 +1184,8 @@ table {
   width: 100%;
   transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
 }
+.input-text:focus:not(:focus-visible) { outline: none; }
 .input-text:focus {
-  outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
 }
@@ -1671,3 +1669,341 @@ table {
   color: var(--muted);
 }
 .tc-no-data p { margin: 8px 0 0; font-size: 0.9rem; }
+
+
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║  M1 — Fondamenta UI (sezioni 9.A–9.F, SOLO append)                ║
+   ║  Non riordinare le regole sopra: qui si sovrascrive in cascata.   ║
+   ║  Ordine fisso: 9.A token/base → 9.B hero → 9.C componenti →       ║
+   ║  9.D mobile/touch → 9.E tabelle → 9.F reduced-motion (ultimo).    ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+
+/* ===== 9.A TOKEN E BASE ===== */
+:root{
+  --on-accent:#062827;      /* testo su sfondo accent (8.4:1 su #4fd1c5) */
+  --accent-ink:#4fd1c5;     /* accent usato come TESTO (9.4:1 su card scura) */
+  --focus-ring:#4fd1c5;
+  --ok:#34A853;
+  --hdr-ink:#e8f2ff;        /* header: sempre su fondo scuro, in entrambi i temi */
+  --hdr-muted:#c3cedb;
+  --hdr-accent:#4fd1c5;
+  --tabbar-h:56px;
+}
+body[data-theme="light"]{
+  --on-accent:#0a0f14;      /* 6.9:1 su #0ea5e9 */
+  --accent-ink:#0369a1;     /* 5.9:1 su bianco, 5.6:1 su #f7f9fc */
+  --focus-ring:#0369a1;
+}
+html{ color-scheme: dark light; }
+
+/* Solo per screen reader (resta focusabile, a differenza di display:none) */
+.sr-only{
+  position:absolute!important; width:1px; height:1px; margin:-1px; padding:0;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0;
+}
+.skip-link{
+  position:fixed; left:12px; top:-60px; z-index:10000;
+  background:var(--accent); color:var(--on-accent); padding:10px 16px; border-radius:8px;
+  font-weight:700; text-decoration:none;
+}
+.skip-link:focus{ top:12px; }
+
+/* Focus visibile ovunque (prima: outline:none su input e nessun :focus-visible) */
+a:focus-visible, button:focus-visible, summary:focus-visible, select:focus-visible,
+input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible,
+.gpx-dropzone:focus-within{
+  outline:2px solid var(--focus-ring)!important;
+  outline-offset:2px;
+}
+.hero-btn-primary:focus-visible, .hero-btn-ghost:focus-visible,
+.tabbar a:focus-visible, .app-nav a:focus-visible{ outline-color:var(--hdr-accent)!important; }
+
+/* Link con color:var(--accent) inline: in light l'accent (#0ea5e9) su bianco e' 2.8:1, si usa la variante testo */
+body[data-theme="light"] a[style*="var(--accent)"]{ color:var(--accent-ink)!important; }
+
+/* Testo attenuato con opacity (contrasto): il segnale di "secondario" resta il colore --muted */
+.gpx-alt-sep, .mini[style*="opacity"], .kpi-placeholder, .acc-arrow, .accordion-toggle, .about-label{ opacity:1!important; }
+.about-label, .about-toc a.active{ color:var(--accent-ink)!important; }
+.kpi-placeholder{ color:var(--muted); }
+
+/* Header: colori fissi (il fondo dietro l'header è scuro in dark e in light) */
+.app-header .brand-name{ color:var(--hdr-ink); opacity:1; }
+.app-nav a{ color:var(--hdr-muted); }
+.app-nav a:hover, .app-nav a.nav-active, .app-nav a[aria-current="page"]{ color:var(--hdr-accent); }
+.app-nav .nav-cta{ color:var(--on-accent); }
+.app-nav .nav-cta:hover{ color:var(--on-accent); }
+.app-brand-link{ min-height:44px; }
+.app-brand-link .badge{ margin-left:2px; }
+
+/* Testo su accent da token (contrasto in light) */
+.hero-btn-primary{ color:var(--on-accent); }
+.hero-eyebrow{ color:var(--hdr-accent); font-size:12px; }
+.tab-btn.active{ color:var(--on-accent); }
+
+/* Toggle tema (iniettato da wiztrail-shell.js; il vecchio select resta nel DOM per main.js) */
+.theme-toggle{
+  appearance:none; background:transparent; color:var(--hdr-ink);
+  border:1px solid rgba(255,255,255,.22); border-radius:999px;
+  width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center;
+  cursor:pointer; margin-left:12px; flex-shrink:0;
+}
+.theme-toggle:hover{ border-color:var(--hdr-accent); color:var(--hdr-accent); }
+.theme-toggle svg{ width:20px; height:20px; display:block; }
+.app-header .theme-toggle ~ *{ margin-left:0; }
+html.wt-shell .theme-ctrl{ display:none; }          /* sostituito dal toggle in header */
+
+/* Tab bar mobile: markup statico nell'HTML (funziona anche senza JS) */
+.tabbar{ display:none; }
+.tabbar a{ text-decoration:none; }
+
+/* ===== 9.B HERO (mobile: il contenuto non deve finire sotto l'header) ===== */
+@media (max-width:600px){
+  .hero-fullwidth{ height:auto; min-height:340px; display:flex; align-items:flex-end; }
+  .hero-inner{ position:relative; width:100%; padding-top:84px; padding-bottom:32px; }
+}
+
+/* ===== 9.C COMPONENTI ===== */
+/* Badge: Beta / Non ancora disponibile / Attivo. Il colore non è mai l'unico segnale (c'è sempre il testo). */
+.badge{
+  display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px;
+  font:700 .75rem/1.4 var(--font-sans); letter-spacing:.06em; text-transform:uppercase;
+  border:1px solid currentColor; background:color-mix(in oklab, currentColor 12%, transparent);
+  white-space:nowrap; vertical-align:middle; text-decoration:none;
+}
+.badge--beta{ color:var(--warn); }
+.badge--soon{ color:var(--muted); }
+.badge--ok{ color:var(--ok); }
+.app-header .badge--beta{ color:#ffb020; }           /* l'header è sempre scuro */
+
+/* Suggerimenti, note e riquadri informativi */
+.hint{ font-size:.8125rem; line-height:1.45; color:var(--muted); margin:6px 0 0; }
+.note, .callout{
+  display:block; padding:10px 12px; border-radius:10px; font-size:.875rem; line-height:1.5;
+  color:var(--ink); border:1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border-left:3px solid var(--accent-ink);
+  background:color-mix(in oklab, var(--card) 70%, transparent);
+}
+.callout--soon, .note--warn{ border-left-color:var(--warn); }
+
+/* Azione non disponibile: resta focusabile (aria-disabled) e spiega SEMPRE il motivo */
+.action--unavailable{
+  appearance:none; display:inline-flex; align-items:center; gap:8px; min-height:44px;
+  padding:8px 14px; border-radius:10px; cursor:not-allowed; font:inherit; font-weight:600;
+  color:var(--muted); background:transparent; border:1px dashed var(--border);
+}
+.action--unavailable:hover{ border-color:var(--muted); }
+
+/* Campo in linea (es. import da link) */
+.field-inline{ display:flex; gap:8px; align-items:center; margin-top:8px; }
+.field-inline[hidden]{ display:none; }
+.field-inline input{ flex:1; min-width:0; }
+
+/* Modale accessibile (role=dialog gestito da WizShell.modal) */
+.modal{
+  position:fixed; inset:0; z-index:10001; display:none; overflow:auto;
+  background:rgba(0,0,0,.85); padding:16px;
+}
+.modal.is-open{ display:block; }
+.modal__panel{
+  max-width:700px; margin:40px auto; padding:20px; border-radius:14px;
+  background:var(--card); color:var(--ink); border:1px solid var(--border);
+}
+body.is-modal{ overflow:hidden; }
+
+/* Pulsante "Carica" del campo link: testo su accent con contrasto sufficiente */
+.btn-inline{
+  padding:8px 16px; min-height:44px; border:0; border-radius:8px; cursor:pointer;
+  background:var(--accent); color:var(--on-accent); font:inherit; font-weight:700; white-space:nowrap;
+}
+/* Link "oppure Importa…": nessuna opacità sul testo (contrasto) */
+.gpx-alt-link{ color:var(--accent-ink); }
+.gpx-alt-sep{ opacity:1; color:var(--muted); }
+.gpx-dropzone-sub{ opacity:1; color:var(--muted); font-size:.75rem; }
+
+/* ===== 9.D MOBILE E TOUCH ===== */
+@media (max-width:600px){
+  /* Tab bar fissa in basso, 4 voci (Calcolatore · Training · Ranking · Il Metodo) */
+  .tabbar{
+    display:flex; position:fixed; left:0; right:0; bottom:0; z-index:60;
+    height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(10,15,20,.97); border-top:1px solid rgba(255,255,255,.12);
+  }
+  .tabbar a{
+    flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:2px; min-height:var(--tabbar-h); padding:4px 2px;
+    color:var(--hdr-muted); font-size:.75rem; line-height:1.2; text-align:center;
+  }
+  .tabbar a svg{ width:22px; height:22px; display:block; }
+  .tabbar a[aria-current="page"]{ color:var(--hdr-accent); box-shadow:inset 0 2px 0 var(--hdr-accent); font-weight:700; }
+  body:has(.tabbar), body.has-tabbar{ padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
+  /* Il vecchio nav in header resta nascosto: lo sostituisce la tab bar */
+  .app-nav a:not(.nav-cta){ display:none; }
+  .app-header{ gap:8px; }
+  .app-brand-link{ min-width:0; }
+}
+@media (min-width:601px){
+  .app-nav a:not(.nav-cta){ display:inline-flex; align-items:center; min-height:44px; padding:0 4px; }
+}
+/* Testo informativo non sotto 12px */
+.scroll-hint, .lnd-stat-label, .about-version, .kpi-microcopy, .kpi-placeholder,
+.about-label, .lnd-eyebrow, .lnd-section-label, .wdi-class-range, .feature-tag,
+.discipline-badge, .about-toc a, .gpx-alt-sep, .acc-arrow{ font-size:max(.75rem, 12px); }
+
+@media (pointer:coarse){
+  a.btn, button, summary, select, .tab-btn, .back-btn, .gpx-alt-link, .accordion-toggle,
+  .about-toc a, .footer a, .lnd-footer a, .feature-tag, .hero-btn-primary, .hero-btn-ghost, .nav-cta{
+    min-height:44px;
+  }
+  .footer a, .lnd-footer a, .about-toc a, .back-btn, .gpx-alt-link, .feature-tag, .accordion-toggle,
+  .app-nav a, .app-brand-link, summary{
+    display:inline-flex; align-items:center;
+  }
+  summary{ display:flex; }
+  .footer a, .lnd-footer a{ padding:0 6px; }
+  input[type="text"], input[type="number"], input[type="url"], input[type="search"], select{ min-height:44px; }
+  /* Checkbox: l'area toccabile è la label che lo contiene */
+  label:has(> input[type="checkbox"]), label:has(> input[type="radio"]){
+    display:flex; align-items:center; gap:10px; min-height:44px;
+  }
+  input[type="checkbox"], input[type="radio"]{ width:22px; height:22px; flex-shrink:0; }
+  #wt-cookie-ok{ min-height:44px; min-width:44px; }
+  .gpx-alt-link, .about-toc a{ min-width:44px; justify-content:center; }
+  input[type="range"], input[type="file"]{ min-height:44px; }
+  .about-table td a{ display:inline-flex; align-items:center; min-height:44px; }
+  .link-block{ display:inline-flex!important; align-items:center; min-height:44px; }
+}
+
+/* ===== 9.E TABELLE ===== */
+.table-scroll{
+  width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%;
+  /* ombra sul bordo destro: indica che si può scorrere */
+  background:
+    linear-gradient(to right, var(--bg) 30%, transparent) left center / 24px 100% no-repeat local,
+    linear-gradient(to left,  var(--bg) 30%, transparent) right center / 24px 100% no-repeat local,
+    linear-gradient(to right, rgba(0,0,0,.28), transparent) left center / 10px 100% no-repeat scroll,
+    linear-gradient(to left,  rgba(0,0,0,.28), transparent) right center / 10px 100% no-repeat scroll;
+}
+.table-scroll > table.about-table{ min-width:480px; }
+.table-scroll:focus-visible{ outline:2px solid var(--focus-ring); }
+@media (max-width:600px){
+  /* Ranking: su smartphone restano Gara · km · D+ · WDI · Classe (Paese, Tech, Disciplina e WDI norm. si nascondono): nessuno scroll orizzontale a 390px */
+  #raceTable th:nth-child(2), #raceTable td:nth-child(2),
+  #raceTable th:nth-child(6), #raceTable td:nth-child(6),
+  #raceTable th:nth-child(8), #raceTable td:nth-child(8),
+  #raceTable th:nth-child(9), #raceTable td:nth-child(9){ display:none; }
+  #raceTable td, #raceTable th{ padding-left:4px!important; padding-right:4px!important; font-size:.78rem; }
+  .about-table{ font-size:.75rem; }
+  .about-table th, .about-table td{ padding:6px 8px; }
+  .about-table td, .about-table th{ overflow-wrap:break-word; }
+}
+
+/* ===== 9.C (M1-7) campo URL di import: stile coerente nei temi (prima: sfondo bianco fisso) ===== */
+.field-inline input[type="url"]{
+  background:color-mix(in oklab, var(--panel) 75%, transparent); color:var(--ink);
+  border:1px solid var(--border); border-radius:10px; padding:8px 12px; font:inherit; font-size:.9rem; min-height:44px;
+}
+.field-inline input[type="url"]::placeholder{ color:var(--muted); opacity:1; }
+
+/* ===== 9.G M2 — stati Beta, flusso calcolatore, ranking disattivato ===== */
+/* Ancore sotto l'header fisso (56px) */
+#calc, #resultsTitle, #kpiResults{ scroll-margin-top:72px; }
+
+/* Selettore modalità percorso (GPX / manuale): radio accessibili con aspetto a segmenti */
+.seg{ display:inline-flex; max-width:100%; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:6px 0 2px; }
+.seg__opt{ position:relative; display:block; margin:0; cursor:pointer; }
+.seg__opt input{ position:absolute; opacity:0; inset:0; width:100%; height:100%; margin:0; cursor:pointer; }
+.seg__opt span{ display:flex; align-items:center; justify-content:center; min-height:44px; padding:8px 16px; font-weight:600; color:var(--muted); }
+.seg__opt + .seg__opt span{ border-left:1px solid var(--border); }
+.seg__opt input:checked + span{ background:var(--accent); color:var(--on-accent); }
+.seg__opt input:focus-visible + span{ outline:2px solid var(--focus-ring); outline-offset:-3px; }
+@media (max-width:420px){ .seg{ display:flex; } .seg__opt{ flex:1; } .seg__opt span{ padding:8px 6px; font-size:.875rem; text-align:center; } }
+
+/* Dati letti dal GPX (sola lettura) e assunzioni dichiarate */
+.gpx-facts, .assumptions{ margin:8px 0 0; font-size:.9rem; line-height:1.6; color:var(--ink); }
+.assumptions{ color:var(--muted); font-size:.8125rem; margin:6px 0 12px; }
+.assumptions strong{ color:var(--ink); }
+.gpx-facts[hidden], .assumptions[hidden], #paramGara[hidden]{ display:none; }
+.linklike{
+  appearance:none; background:none; border:0; padding:0 2px; margin:0 0 0 6px; min-height:24px;
+  font:inherit; color:var(--accent-ink); text-decoration:underline; text-underline-offset:3px; cursor:pointer;
+}
+.linklike:focus-visible{ outline:2px solid var(--focus-ring); outline-offset:2px; border-radius:3px; }
+
+/* Azioni non disponibili e note sempre visibili (Strava / orologi) */
+.field-inline--wrap{ flex-wrap:wrap; }
+.gpx-alt-row{ flex-wrap:wrap; }
+.gpx-alt-row .action--unavailable{ min-height:44px; padding:4px 12px; font-size:.875rem; }
+.action--unavailable[aria-disabled="true"]{ pointer-events:auto; }
+#srcNote{ margin:10px 0 0; }
+.gpx-alt-link[hidden], .action--unavailable[hidden]{ display:none; }
+.stato-box{ margin:0 0 16px; }
+.stato-box .btn{ margin:6px 8px 0 0; }
+
+/* ===== 9.C (M4-4) icone "i" con popover accessibile e strip "Come funziona" ===== */
+.kpi-head, .label-row{ display:flex; align-items:center; gap:4px; }
+.kpi-head h3{ margin:0 0 4px; }
+.label-row > label{ margin-bottom:4px; }
+.info{ position:relative; display:inline-flex; }
+.info-btn{
+  appearance:none; background:none; border:0; padding:0; cursor:pointer; color:var(--accent-ink);
+  width:44px; height:44px; margin:-12px -10px; display:inline-flex; align-items:center; justify-content:center;
+}
+.info-btn__dot{
+  width:20px; height:20px; border-radius:50%; border:1.5px solid currentColor;
+  display:inline-flex; align-items:center; justify-content:center;
+  font:700 .75rem/1 var(--font-sans); font-style:normal;
+}
+.info-btn[aria-expanded="true"] .info-btn__dot{ background:var(--accent-ink); color:var(--bg); }
+.popover{
+  position:absolute; z-index:40; left:0; top:calc(100% - 6px);
+  width:min(280px, calc(100vw - 32px)); padding:10px 12px; border-radius:10px;
+  background:var(--panel); color:var(--ink); border:1px solid var(--border);
+  box-shadow:0 10px 28px rgba(0,0,0,.35);
+  font:400 .8125rem/1.45 var(--font-sans); text-transform:none; letter-spacing:0; white-space:normal;
+}
+.popover[hidden]{ display:none; }
+.popover a{ color:var(--accent-ink); font-weight:600; }
+.kpi:has(.info-btn[aria-expanded="true"]){ position:relative; z-index:5; }
+.howto{
+  display:flex; align-items:center; gap:12px; justify-content:space-between;
+  padding:8px 8px 8px 14px; margin:0 0 12px; border-radius:12px;
+  border:1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  background:color-mix(in oklab, var(--card) 70%, transparent);
+}
+.howto[hidden]{ display:none; }
+.howto ol{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px 18px; font-size:.875rem; }
+.howto li{ display:flex; align-items:center; gap:8px; }
+.howto li b{
+  width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+  background:var(--accent); color:var(--on-accent); font-size:.75rem;
+}
+.howto__close{
+  appearance:none; background:none; border:0; cursor:pointer; color:var(--muted);
+  width:44px; height:44px; flex-shrink:0; font-size:1.4rem; line-height:1; border-radius:8px;
+}
+.howto__close:hover{ color:var(--ink); }
+@media (max-width:600px){ .howto ol{ flex-direction:column; } }
+
+/* ===== 9.C (M4-6) contrasti: colore di classe WDI come pallino, testo in ink ===== */
+.wdi-dot{ display:inline-block; width:.62em; height:.62em; border-radius:50%; margin-right:.45em; vertical-align:baseline; flex-shrink:0; }
+/* Numeri grandi colorati da JS (inline color): stessa tinta spostata verso l'ink, almeno 3:1 (testo grande) in entrambi i temi */
+#outRaceScore, #outTechScore, .kpi .val[style*="color"], [style*="font-weight:900"][style*="color:#"]{ -webkit-text-fill-color:color-mix(in oklab, currentColor 80%, var(--ink)); }
+body[data-theme="light"] #outRaceScore, body[data-theme="light"] #outTechScore, body[data-theme="light"] .kpi .val[style*="color"], body[data-theme="light"] [style*="font-weight:900"][style*="color:#"]{ -webkit-text-fill-color:color-mix(in oklab, currentColor 70%, var(--ink)); }
+/* Badge disciplina (colori inline dal classificatore): testo ink, il tono resta nello sfondo, nel bordo e nell'emoji */
+.discipline-badge{ color:var(--ink)!important; }
+/* Link senza classe ne' colore (prima blu di default del browser, 2:1 su fondo scuro) */
+.about-section a:not([class]):not([style*="color"]), .tc-no-data a, .card a:not([class]):not([style*="color"]){ color:var(--accent-ink); }
+.about-section a code{ color:inherit; }
+.kpi-microcopy{ opacity:1; color:var(--muted); }
+body[data-theme="light"] .badge--ok{ color:#15803d; }   /* 5.0:1 su bianco (il verde #34A853 e' 3.1:1) */
+p[style*="opacity"], :is(div,span)[style*="opacity:0.4"], :is(div,span)[style*="opacity:0.45"], :is(div,span)[style*="opacity:0.7"], :is(div,span)[style*="opacity:0.75"]{ opacity:1!important; color:var(--muted); }
+#outRaceScoreSub, #outFinalSub{ opacity:1!important; }
+
+/* ===== 9.F RIDUZIONE MOVIMENTO (deve restare l'ULTIMO blocco) ===== */
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{
+    animation-duration:.01ms!important; animation-iteration-count:1!important;
+    transition-duration:.01ms!important; scroll-behavior:auto!important;
+  }
+}

@@ -3,17 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Autenticazione Strava → WizTrail</title>
+  <title>Strava non ancora disponibile — WizTrail</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261125">
+  <script src="features.js?v=20261118"></script>
   <meta name="theme-color" content="#002b2b">
 </head>
 <body data-theme="dark" style="font-family:system-ui;padding:40px 20px;text-align:center;">
 
-  <p id="status">Connessione a Strava in corso…</p>
+  <div id="stravaUnavail" role="status" style="max-width:520px;margin:0 auto;">
+    <h1 style="font-size:1.4rem;">Strava non ancora disponibile</h1>
+    <p>Il collegamento con Strava non è al momento disponibile. Puoi comunque analizzare la tua attività: scarica il file GPX e caricalo nel Calcolatore.</p>
+    <p><a class="btn" href="index.html">Vai al Calcolatore</a> <a class="btn secondary" href="training-analyzer.html">Vai al Training Analyzer</a></p>
+  </div>
+  <p id="status" hidden>Connessione a Strava in corso…</p>
 
   <script>
     (async function () {
+      // Strava spenta (WizFeatures.stravaEnabled=false): pagina statica, nessuna richiesta e nessun redirect silenzioso
+      if (!WizFeatures.stravaEnabled) return;
+      document.getElementById('stravaUnavail').hidden = true;
+      document.getElementById('status').hidden = false;
       const params      = new URLSearchParams(location.search);
       const code        = params.get('code');
       const state       = params.get('state');

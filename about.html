@@ -3,34 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WizTrail — Il Metodo</title>
-  <meta name="description" content="Come funziona WizTrail: WDI, TechScore, stima tempi personalizzata, pacing planner e hub di calibrazione.">
-  <meta property="og:title" content="WizTrail — Il Metodo" />
-  <meta property="og:description" content="La metodologia scientifica dietro WizTrail: WDI v5.1, TechScore, stima tempi segment-based, autocalibrazione." />
-  <meta property="og:type" content="website" />
+<title>Come si calcola la difficoltà di un trail: metodo WDI</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="description" content="La formula del WDI, il TechScore del terreno, il modello dei tempi per segmenti, il pacing e l'API pubblica: come WizTrail valuta un percorso trail.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://wiz-trail.vercel.app/about.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WizTrail">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="Il metodo WizTrail: come si calcola il WDI">
+<meta property="og:description" content="Formula, parametri e modello dei tempi usati da WizTrail per valutare la difficoltà di un trail.">
+<meta property="og:url" content="https://wiz-trail.vercel.app/about.html">
+<meta property="og:image" content="https://wiz-trail.vercel.app/img/og/og-metodo.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Il metodo WizTrail per calcolare il WDI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Il metodo WizTrail: come si calcola il WDI">
+<meta name="twitter:description" content="Formula, parametri e modello dei tempi usati da WizTrail per valutare la difficoltà di un trail.">
+<meta name="twitter:image" content="https://wiz-trail.vercel.app/img/og/og-metodo.jpg">
+<meta name="twitter:image:alt" content="Il metodo WizTrail per calcolare il WDI">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#002b2b">
-  <link rel="apple-touch-icon" href="/icons/logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="wiztrail.css">
+  <link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="wiztrail.css?v=20261125">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Article","headline":"Il Metodo WizTrail — Formula WDI e modello tempi","description":"Come funziona WizTrail: WDI, TechScore, stima tempi personalizzata, pacing planner e hub di calibrazione.","url":"https://wiz-trail.vercel.app/about.html","inLanguage":"it","dateModified":"2026-06-26"}
+{"@context":"https://schema.org","@type":"Article","headline":"Il metodo WizTrail: come si calcola il WDI","description":"La formula del WDI, il TechScore del terreno, il modello dei tempi per segmenti, il pacing e l'API pubblica: come WizTrail valuta un percorso trail.","url":"https://wiz-trail.vercel.app/about.html","mainEntityOfPage":"https://wiz-trail.vercel.app/about.html","image":"https://wiz-trail.vercel.app/img/og/og-metodo.jpg","author":{"@type":"Organization","name":"WizTrail"},"publisher":{"@type":"Organization","name":"WizTrail"},"inLanguage":"it","dateModified":"2026-11-16"}
 </script>
 </head>
 <body data-theme="dark">
+<script>(function(){try{var t=localStorage.getItem('wiztrail_theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.body.setAttribute('data-theme',t);document.documentElement.setAttribute('data-theme',t)}catch(e){}})();</script>
 
 <header class="app-header">
   <a href="landing.html" class="app-brand-link">
     <img src="img/logo.svg" alt="WizTrail" class="brand-img">
     <span class="brand-name">WizTrail</span>
+    <span class="badge badge--beta">Beta</span>
   </a>
-  <nav class="app-nav">
+  <nav class="app-nav" aria-label="Menu principale">
     <a href="index.html">Calcolatore</a>
     <a href="training-analyzer.html">Training</a>
     <a href="ranking.html">Ranking</a>
     <a href="about.html" class="nav-active">Il Metodo</a>
   </nav>
-</header><div class="wrap">
+</header>
+<nav class="tabbar" aria-label="Navigazione mobile">
+  <a href="index.html" data-i="calc">Calcolatore</a>
+  <a href="training-analyzer.html" data-i="training">Training</a>
+  <a href="ranking.html" data-i="ranking">Ranking</a>
+  <a href="about.html" data-i="metodo">Il Metodo</a>
+</nav>
+<div class="wrap">
 
   <!-- NAV INTERNA -->
   <nav class="about-toc">
@@ -38,6 +65,7 @@
     <a href="#techscore">TechScore</a>
     <a href="#tempi">Modello Tempi</a>
     <a href="#pacing">Pacing</a>
+    <a href="#stato">Stato funzioni</a>
     <a href="#hub">Hub</a>
     <a href="#api">API</a>
     <a href="#licenze">Licenze</a>
@@ -48,7 +76,7 @@
   ══════════════════════════════════════════════════════════════ -->
   <section id="wdi" class="about-section">
     <div class="about-label">Indice di difficoltà</div>
-    <h1>WDI — WizTrail Difficulty Index <span class="about-version">v5.1</span></h1>
+    <h1>Il metodo WizTrail: come si calcola il WDI <span class="about-version">v5.1</span></h1>
 
     <div class="card">
       <p>Il <b>WDI</b> misura la <b>difficoltà oggettiva</b> di un percorso trail analizzando parametri reali estratti dal GPX. Non considera elementi soggettivi come l'atleta, il meteo o le condizioni del giorno — solo la struttura fisica del tracciato.</p>
@@ -74,12 +102,12 @@
         <table class="about-table">
           <thead><tr><th>Classe</th><th>WDI</th><th>Esempi reali</th></tr></thead>
           <tbody>
-            <tr><td style="color:#2BB7DA">Sport</td><td>&lt; 22</td><td>Trail locale 13km 400D+, Broken Arrow 11K</td></tr>
-            <tr><td style="color:#34A853">Pro</td><td>22–40</td><td>Chianti UTMB 20K, Trail Roc d'Azur 25K</td></tr>
-            <tr><td style="color:#F4C20D">Advanced</td><td>40–70</td><td>MEHT21 (44.4), Sierre-Zinal 31K, Zegama 42K</td></tr>
-            <tr><td style="color:#F79617">Extreme</td><td>70–120</td><td>Speedgoat 50K, CDF 70K (107.8), Transvulcania 74K</td></tr>
-            <tr><td style="color:#E91E63">Elite</td><td>120–200</td><td>CCC 99K (156.7), Western States 100 (151.6), Lavaredo 120K</td></tr>
-            <tr><td style="color:#8E24AA">Legend</td><td>≥ 200</td><td>UTMB 174K (241.4), TDS 145K, Hardrock 100, TdG 330K</td></tr>
+            <tr><td><span class="wdi-dot" style="background:#2BB7DA" aria-hidden="true"></span>Sport</td><td>&lt; 22</td><td>Trail locale 13km 400D+, Broken Arrow 11K</td></tr>
+            <tr><td><span class="wdi-dot" style="background:#34A853" aria-hidden="true"></span>Pro</td><td>22–40</td><td>Chianti UTMB 20K, Trail Roc d'Azur 25K</td></tr>
+            <tr><td><span class="wdi-dot" style="background:#F4C20D" aria-hidden="true"></span>Advanced</td><td>40–70</td><td>MEHT21 (44.4), Sierre-Zinal 31K, Zegama 42K</td></tr>
+            <tr><td><span class="wdi-dot" style="background:#F79617" aria-hidden="true"></span>Extreme</td><td>70–120</td><td>Speedgoat 50K, CDF 70K (107.8), Transvulcania 74K</td></tr>
+            <tr><td><span class="wdi-dot" style="background:#E91E63" aria-hidden="true"></span>Elite</td><td>120–200</td><td>CCC 99K (156.7), Western States 100 (151.6), Lavaredo 120K</td></tr>
+            <tr><td><span class="wdi-dot" style="background:#8E24AA" aria-hidden="true"></span>Legend</td><td>≥ 200</td><td>UTMB 174K (241.4), TDS 145K, Hardrock 100, TdG 330K</td></tr>
           </tbody>
         </table>
         <p class="mini" style="margin-top:12px; opacity:0.6;">Soglie v3 calibrate su 95 gare (v5.1 engine, 05/05/2026).</p>
@@ -229,6 +257,43 @@
   </section>
 
   <!-- ══════════════════════════════════════════════════════════════
+       STATO DELLE FUNZIONI — unica fonte di verità (Attivo / Beta / Non ancora disponibile)
+  ══════════════════════════════════════════════════════════════ -->
+  <section id="stato" class="about-section">
+    <div class="about-label">Versione beta</div>
+    <h2>Stato delle funzioni</h2>
+
+    <div class="card">
+      <p>WizTrail è in versione beta: alcune funzioni sono limitate e altre non sono ancora disponibili. Questa tabella è l'elenco di riferimento e viene aggiornata insieme al sito. Versione per esteso: <a href="compatibilita.html">Cosa funziona oggi</a>.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Tabella dello stato delle funzioni">
+        <table class="about-table">
+          <thead><tr><th>Funzione</th><th>Stato</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>Caricamento file GPX, TCX o XML</td><td><span class="badge badge--ok">Attivo</span></td><td>L'analisi avviene nel tuo browser.</td></tr>
+            <tr><td>WDI e TechScore</td><td><span class="badge badge--ok">Attivo</span></td><td></td></tr>
+            <tr><td>Stima del tempo e Pacing Planner</td><td><span class="badge badge--ok">Attivo</span></td><td>Il piano si consulta in tabella: non può essere inviato all'orologio.</td></tr>
+            <tr><td>Scheda dettagliata del percorso</td><td><span class="badge badge--ok">Attivo</span></td><td>Non viene salvata: si genera dal Calcolatore.</td></tr>
+            <tr><td>Importa da link diretto a un file GPX</td><td><span class="badge badge--ok">Attivo</span></td><td>Il link viene aperto dai nostri server per scaricare il file. Le pagine web (Strava, Komoot, Wikiloc) non sono file.</td></tr>
+            <tr><td>Riepilogo JSON</td><td><span class="badge badge--ok">Attivo</span></td><td>Scaricabile dal Calcolatore.</td></tr>
+            <tr><td>Ranking WDI delle gare</td><td><span class="badge badge--beta">Beta</span></td><td>Solo consultazione e filtri.</td></tr>
+            <tr><td>Condivisione di un GPX verso WizTrail da altre app</td><td><span class="badge badge--beta">Beta</span></td><td>Android, con WizTrail installata.</td></tr>
+            <tr><td>Training Analyzer (confronto stima/reale)</td><td><span class="badge badge--beta">Beta</span></td><td></td></tr>
+            <tr><td>API pubblica</td><td><span class="badge badge--beta">Beta</span></td><td>Richiede una chiave. A parità di parametri equivalenti, le stime di tempo coincidono con quelle del sito.</td></tr>
+            <tr><td>Strava (collegamento e importazione)</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Scarica il GPX da strava.com e caricalo nel Calcolatore.</td></tr>
+            <tr><td>Sincronizzazione con orologi e piattaforme (Garmin, Suunto, Coros, Polar e simili)</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Carica il file GPX o TCX esportato.</td></tr>
+            <tr><td>Invio del pacing all'orologio</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td></td></tr>
+            <tr><td>Schede di dettaglio delle gare del ranking</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Per vedere profilo e pacing, carica il GPX nel Calcolatore.</td></tr>
+            <tr><td>Invio di nuove gare al ranking</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Le gare sono selezionate dal team WizTrail.</td></tr>
+            <tr><td>Salvataggio e cronologia tra dispositivi</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Scarica il riepilogo JSON per conservare i risultati.</td></tr>
+            <tr><td>Richiesta automatica della chiave API</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td>Scrivi a ciao.madesign@gmail.com.</td></tr>
+            <tr><td>Esportazione KML</td><td><span class="badge badge--soon">Non ancora disponibile</span></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
        5. HUB DI AUTOCALIBRAZIONE
   ══════════════════════════════════════════════════════════════ -->
   <section id="hub" class="about-section">
@@ -268,18 +333,19 @@
   ══════════════════════════════════════════════════════════════ -->
   <section id="api" class="about-section">
     <div class="about-label">Integrazioni & sviluppatori</div>
-    <h2>API Pubblica</h2>
+    <h2>API Pubblica <span class="badge badge--beta">Beta</span></h2>
 
     <div class="card">
       <p>WizTrail espone una REST API che restituisce gli stessi output del calcolatore web — WDI, stima tempo e piano pacing — pronti per essere integrati in app, siti o dispositivi di terze parti.</p>
-      <p style="margin-top:10px;">L'API è ospitata su Vercel ed è autenticata tramite API key (header <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">x-api-key</code>). Per richiedere una chiave, contattare il team WizTrail.</p>
+      <p style="margin-top:10px;">L'API è ospitata su Vercel ed è autenticata tramite API key (header <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">x-api-key</code>). L'API è attiva e richiede una chiave. La richiesta automatica della chiave non è ancora disponibile: scrivi a ciao.madesign@gmail.com indicando l'uso che ne farai.</p>
+      <p class="note note--warn" style="margin-top:10px;">Le stime di tempo dell'API applicano la stessa correzione per il terreno tecnico del sito (campo <code>terrain_factor</code>). A parità di parametri equivalenti i risultati coincidono; cambiano i valori predefiniti (terreno, meteo, altitudine) e il modo di indicare il ritmo base (nel sito dal tempo sui 10 km, nell'API da <code>specificity</code> o <code>vel_base</code>).</p>
     </div>
 
     <details class="card" open>
       <summary><b>Endpoint disponibili</b></summary>
       <div style="margin-top:12px">
         <p style="margin-bottom:12px;"><b>Base URL:</b> <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:0.85em;">https://wiz-trail.vercel.app</code></p>
-        <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Tabella degli endpoint"><table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
           <thead>
             <tr style="border-bottom:1px solid var(--border);">
               <th style="text-align:left;padding:6px 8px;color:var(--muted);">Endpoint</th>
@@ -296,7 +362,7 @@
               <td style="padding:8px;">Stima WDI da input manuali (distanza, D+) senza GPX — risposta marcata <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:0.85em;">estimate:true</code></td>
             </tr>
           </tbody>
-        </table>
+        </table></div>
       </div>
     </details>
 
@@ -334,7 +400,7 @@ curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
     <h2>Licenze &amp; Credits</h2>
 
     <div class="card">
-      <p>WizTrail utilizza esclusivamente tecnologie open-source. <b>Nessun dato dell'utente viene inviato a server esterni</b>: tutto il calcolo avviene in locale nel browser.</p>
+      <p>WizTrail utilizza esclusivamente tecnologie open-source. Il calcolo del GPX avviene nel browser: i dati che escono dal dispositivo (solo con le funzioni facoltative) sono elencati nella <a href="privacy.html">pagina Privacy</a>.</p>
       <ul style="margin-top:16px; line-height:2;">
         <li><b>Leaflet</b> — libreria open-source per mappe interattive (BSD License). <span class="mini">© Leaflet contributors</span></li>
         <li><b>Carto Basemaps</b> — mappa 2D dark/light. <span class="mini">© CartoDB — CC-BY 4.0</span></li>
@@ -383,10 +449,9 @@ curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
       <a href="privacy.html" style="color:var(--muted);">Privacy</a>
     </p>
     <p class="mini" style="margin-top:8px;">
-      <span style="display:inline-block;padding:1px 7px;border-radius:10px;background:rgba(247,150,23,0.15);color:#F79617;font-size:0.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;">BETA</span>
+      <span class="badge badge--beta">Beta</span>
+      &nbsp;·&nbsp;<a href="compatibilita.html" style="color:var(--muted);">Cosa funziona oggi</a>
       &nbsp;·&nbsp;<a href="mailto:ciao.madesign@gmail.com?subject=WizTrail%20beta%20feedback" style="color:var(--muted);">Invia feedback</a>
-      &nbsp;·&nbsp;<a href="privacy.html" style="color:var(--muted);">Privacy</a>
-      &nbsp;·&nbsp;<a href="hub.html" style="color:var(--muted);">hub</a>
     </p>
   </div>
 
@@ -490,6 +555,7 @@ curl -X POST https://wiz-trail.vercel.app/api/v1/analyze \
   .about-table tr:last-child td { border-bottom: none; }
   h1 .about-version, h2 .about-version { font-size: 0.65rem; }
 </style>
-<script src="/cookie-notice.js" defer></script>
+<script src="/cookie-notice.js?v=20261117" defer></script>
+<script src="wiztrail-shell.js?v=20261119" defer></script>
 </body>
 </html>

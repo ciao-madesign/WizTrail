@@ -39,6 +39,183 @@
   window.readNum = readNum;
 
   /* ------------------------------------------------------------------
+     FLUSSO CALCOLATORE (M2): modalità percorso, assunzioni, risultati, nuova analisi
+     ------------------------------------------------------------------ */
+  const $id = id => document.getElementById(id);
+  const _init = {
+    dzMain:     $id('gpxDropzone')?.querySelector('.gpx-dropzone-main')?.textContent,
+    scoreSub:   $id('outRaceScoreSub')?.innerHTML,
+    finalSub:   $id('outFinalSub')?.innerHTML,
+    score:      $id('outRaceScore')?.textContent,
+    final:      $id('outFinal')?.textContent,
+  };
+  let _mode = 'gpx';          // 'gpx' | 'manual'
+  let _t10kTouched = false;   // false finché l'utente non modifica il ritmo (50:00 è solo un esempio)
+
+  function prefersReduced() {
+    return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  /* Nasconde i risultati e riporta i KPI allo stato iniziale */
+  function resetResultsView() {
+    ['elevSection', 'pacingSection', 'trailCardBtn', 'simuleCta', 'feedbackBtn', 'intervalRow',
+     'medianRefBox', 'extremeRouteWarning', 'techScoreBox', 'disciplineBadgeBox'].forEach(id => {
+      const el = $id(id); if (el) el.style.display = 'none';
+    });
+    const asm = $id('assumptions'); if (asm) asm.hidden = true;
+    const sc = $id('outRaceScore'); if (sc) { sc.textContent = _init.score; sc.style.color = ''; }
+    const fn = $id('outFinal'); if (fn) fn.textContent = _init.final;
+    const ss = $id('outRaceScoreSub'); if (ss && _init.scoreSub != null) ss.innerHTML = _init.scoreSub;
+    const fs = $id('outFinalSub'); if (fs && _init.finalSub != null) fs.innerHTML = _init.finalSub;
+    const lv = $id('resultsLive'); if (lv) lv.textContent = '';
+    window.currentWDI = null; window.currentWDI_norm = null; window.lastRS = null;
+    try { sessionStorage.removeItem('wiztrail_trail_card'); } catch (e) { /* storage non disponibile */ }
+    WizUI.showError('');
+  }
+
+  /* Azzera il GPX caricato (stato, dropzone, info) */
+  function clearGpxState() {
+    window.gpxPts = []; window.metrics = { e: [], d: [] };
+    window._gpxSourceUrl = null; window._gpxFileName = null;
+    const fi = $id('gpxfile'); if (fi) fi.value = '';
+    const dz = $id('gpxDropzone');
+    if (dz) { dz.classList.remove('loaded'); const mt = dz.querySelector('.gpx-dropzone-main'); if (mt && _init.dzMain) mt.textContent = _init.dzMain; }
+    const gi = $id('gpxInfo'); if (gi) gi.textContent = '';
+    const gf = $id('gpxFacts'); if (gf) gf.hidden = true;
+    try { if (window.WizMap && WizMap.clearTrack) WizMap.clearTrack(); } catch (e) { /* mappa non ancora inizializzata */ }
+    resetResultsView();
+  }
+
+  /* Modalità percorso: 'gpx' (dropzone, dati letti dal file) o 'manual' (km e D+ digitati) */
+  function setMode(mode) {
+    _mode = mode === 'manual' ? 'manual' : 'gpx';
+    const radio = document.querySelector('input[name="srcMode"][value="' + _mode + '"]');
+    if (radio && !radio.checked) radio.checked = true;
+    const gpxBox = $id('modeGpx'), pg = $id('paramGara'), hint = $id('modeHint');
+    const leg = $id('paramGaraLegend'), pgHint = $id('paramGaraHint');
+    if (_mode === 'manual') {
+      if (window.gpxPts && window.gpxPts.length) clearGpxState();
+      if (gpxBox) gpxBox.hidden = true;
+      if (pg) pg.hidden = false;
+      if (leg) leg.textContent = 'Parametri gara';
+      if (pgHint) pgHint.textContent = 'Stima approssimativa: senza GPX la tecnicità del terreno è stimata. Carica un GPX per un calcolo preciso.';
+      if (hint) hint.textContent = 'Inserisci distanza e dislivello positivo (D+) del percorso.';
+      $id('dist')?.focus();
+    } else {
+      if (gpxBox) gpxBox.hidden = false;
+      if (pg) pg.hidden = true;
+      if (hint) hint.textContent = 'Con il GPX il calcolo è completo (profilo, mappa, pacing). Senza GPX la stima è approssimativa.';
+      const ge = $id('gpxEmpty'); if (ge) ge.style.display = (window.gpxPts && window.gpxPts.length) ? 'none' : 'flex';
+    }
+  }
+  document.querySelectorAll('input[name="srcMode"]').forEach(r => {
+    r.addEventListener('change', () => setMode(r.value));
+  });
+
+  /* Dopo il caricamento di un GPX: dati letti dal file in sola lettura + calcolo immediato */
+  function afterGpxLoaded() {
+    const m = window.metrics;
+    const hasElev = m.gain > 0 || (m.e && m.e.some(v => v !== 0));
+    const km = m.km.toFixed(1).replace('.', ',');
+    const facts = $id('gpxFacts'), txt = $id('gpxFactsText');
+    if (txt) txt.textContent = hasElev ? km + ' km · D+ ' + Math.round(m.gain) + ' m' : km + ' km · D+ non presente nel file';
+    if (facts) facts.hidden = false;
+    const pg = $id('paramGara'), leg = $id('paramGaraLegend'), hint = $id('paramGaraHint'), cb = $id('gpxCorrectBtn');
+    const ge = $id('gpxEmpty'); if (ge) ge.style.display = 'none';
+    if (hasElev) {
+      if (pg) pg.hidden = true;
+      if (cb) { cb.hidden = false; cb.setAttribute('aria-expanded', 'false'); }
+      $id('calcBtn')?.click();               // calcolo immediato con i valori correnti
+    } else {
+      // GPX senza altimetria: serve il D+ manuale prima di calcolare
+      if (pg) pg.hidden = false;
+      if (leg) leg.textContent = 'Dislivello (D+) mancante nel file';
+      if (hint) hint.textContent = 'Il file non contiene dati altimetrici: inserisci il D+ e premi Calcola.';
+      if (cb) cb.hidden = true;
+      $id('dplus')?.focus();
+    }
+  }
+
+  /* "Correggi manualmente": rende modificabili distanza e D+ letti dal GPX (il GPX resta caricato) */
+  $id('gpxCorrectBtn')?.addEventListener('click', () => {
+    const pg = $id('paramGara'), leg = $id('paramGaraLegend'), hint = $id('paramGaraHint'), cb = $id('gpxCorrectBtn');
+    if (!pg) return;
+    const open = pg.hidden;
+    pg.hidden = !open;
+    cb.setAttribute('aria-expanded', String(open));
+    if (open) {
+      if (leg) leg.textContent = 'Correzione manuale';
+      if (hint) hint.textContent = 'I valori corretti sostituiscono quelli letti dal GPX nel calcolo. Premi Calcola per aggiornare.';
+      $id('dplus')?.focus();
+    }
+  });
+
+  /* Ritmo di esempio: finché non lo modifichi viene dichiarato come tale */
+  $id('t10k')?.addEventListener('input', () => {
+    _t10kTouched = true;
+    const h = $id('t10kHint'); if (h) h.hidden = true;
+  });
+
+  /* Riga "Assunzioni": tutto ciò che il calcolo usa senza che l'utente lo abbia scelto */
+  function updateAssumptions() {
+    const box = $id('assumptions'), txt = $id('assumptionsText');
+    if (!box || !txt) return;
+    const opt = id => { const e = $id(id); return e && e.selectedOptions && e.selectedOptions[0] ? e.selectedOptions[0].textContent.trim() : ''; };
+    const livello = WizTrailTiming.levelFromS(readNum('spec'));
+    const parti = [
+      'ritmo 10 km ' + ($id('t10k')?.value || '') + (_t10kTouched ? '' : ' (valore d\u2019esempio)'),
+      'meteo: ' + opt('meteo').toLowerCase(),
+      'altitudine: ' + opt('alt'),
+      'fondo: ' + opt('surfaceLvl').toLowerCase(),
+      'tecnicità: ' + opt('terrain'),
+      'livello: ' + livello.toLowerCase(),
+    ];
+    txt.textContent = parti.join(' · ');
+    box.hidden = false;
+  }
+  $id('assumptionsEdit')?.addEventListener('click', () => {
+    const body = $id('advBody'), tg = $id('advToggle');
+    if (body && !body.classList.contains('open')) { body.classList.add('open'); tg?.classList.add('open'); tg?.setAttribute('aria-expanded', 'true'); }
+    $id('meteo')?.scrollIntoView({ behavior: prefersReduced() ? 'auto' : 'smooth', block: 'center' });
+    $id('meteo')?.focus({ preventScroll: true });
+  });
+
+  /* Dopo un calcolo riuscito: assunzioni, annuncio, scroll e focus sui risultati */
+  function showResultsView() {
+    updateAssumptions();
+    const t = $id('resultsTitle');
+    const live = $id('resultsLive');
+    if (live) {
+      live.textContent = '';
+      const wdi = $id('outRaceScore')?.textContent || '', tempo = $id('outFinal')?.textContent || '';
+      setTimeout(() => { live.textContent = 'Risultati aggiornati. WDI ' + wdi + ', tempo stimato ' + tempo + '.'; }, 60);
+    }
+    if (t) {
+      const top = t.getBoundingClientRect().top;
+      if (top < 60 || top > window.innerHeight * 0.45) {
+        t.scrollIntoView({ behavior: prefersReduced() ? 'auto' : 'smooth', block: 'start' });
+      }
+      t.focus({ preventScroll: true });
+    }
+  }
+
+  /* Nuova analisi: azzera form e risultati SENZA ricaricare la pagina */
+  function newAnalysis() {
+    if (window.gpxPts && window.gpxPts.length && !window.confirm('Vuoi azzerare l\u2019analisi corrente? Il GPX caricato verrà rimosso.')) return;
+    clearGpxState();
+    const set = (id, v) => { const e = $id(id); if (e) e.value = v; };
+    set('t10k', '50:00'); set('spec', '0.2'); set('margin', '10'); set('meteo', '1.04'); set('alt', '1.02');
+    set('surfaceLvl', '3'); set('dist', ''); set('dplus', '');
+    const tr = $id('terrain'); if (tr) tr.selectedIndex = 0;
+    _t10kTouched = false;
+    const h = $id('t10kHint'); if (h) h.hidden = false;
+    const li = $id('linkImportUrl'); if (li) li.value = '';
+    setMode('gpx');
+    $id('calc')?.scrollIntoView({ behavior: prefersReduced() ? 'auto' : 'smooth', block: 'start' });
+    $id('gpxfile')?.focus({ preventScroll: true });
+  }
+
+  /* ------------------------------------------------------------------
      TEMA
      ------------------------------------------------------------------ */
   document.getElementById('themeSel')?.addEventListener('change', e => {
@@ -85,12 +262,26 @@
   // ── GPX handler condiviso (click + drag&drop) ────────────────────────
   async function handleGpxFile(f) {
     if (!f) return;
+    clearGpxState();
+    setMode('gpx');
+    const dz0 = $id('gpxDropzone');
+    const mainTxt0 = dz0?.querySelector('.gpx-dropzone-main');
+    let pts = [];
+    try {
+      const txt = await f.text();
+      const xml = new DOMParser().parseFromString(txt, 'application/xml');
+      pts = GPXParser.parseTrack(xml);
+    } catch (e) { pts = []; }
+    if (!pts || pts.length < 2) {
+      if (mainTxt0) mainTxt0.textContent = '✗ ' + f.name;
+      WizUI.showError('Il file non contiene una traccia valida. Carica un file GPX, TCX o XML con la traccia del percorso.');
+      return;
+    }
     window._gpxSourceUrl = null; // file locale — nessun URL handoff verso Simule
-    const txt = await f.text();
-    const xml = new DOMParser().parseFromString(txt, 'application/xml');
-    window.gpxPts      = GPXParser.parseTrack(xml);
+    window.gpxPts      = pts;
     window.metrics     = GPXParser.compute(window.gpxPts);
     window._gpxFileName = f.name.replace(/\.(gpx|tcx|xml)$/i, ''); // usato dalla trail-card
+    const dp = $id('dplus'); if (dp) dp.value = '';
     WizUI.updateGpxInfo(window.gpxPts, window.metrics);
     /* Mostra elevSection PRIMA di init mappa: #pacingMap deve avere dimensioni
        reali (clientWidth/Height > 0) quando Leaflet si inizializza.
@@ -109,6 +300,7 @@
       const mainTxt = dz.querySelector('.gpx-dropzone-main');
       if (mainTxt) mainTxt.textContent = '✓ ' + f.name;
     }
+    afterGpxLoaded();   // dati letti dal file + calcolo immediato
   }
 
   document.getElementById('gpxfile')?.addEventListener('change', async e => {
@@ -160,14 +352,19 @@
         const res = await fetch('/api/import/url?url=' + encodeURIComponent(raw));
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || 'Errore nel caricamento');
+          const e = new Error(WizFeatures.testoErroreImport(err.code, res.status));
+          e.mostra = true;
+          throw e;
         }
         const text = await res.text();
         const xml  = new DOMParser().parseFromString(text, 'application/xml');
-        window.gpxPts  = GPXParser.parseTrack(xml);
+        const pts  = GPXParser.parseTrack(xml);
+        if (!pts || pts.length < 2) { const e = new Error('Il file non contiene una traccia GPX valida.'); e.mostra = true; throw e; }
+        clearGpxState();
+        setMode('gpx');
+        window.gpxPts  = pts;
         window.metrics = GPXParser.compute(window.gpxPts);
-
-        if (!window.gpxPts.length) throw new Error('Nessuna traccia trovata nel file');
+        const dp = $id('dplus'); if (dp) dp.value = '';
 
         WizUI.updateGpxInfo(window.gpxPts, window.metrics);
         const es = document.getElementById('elevSection');
@@ -180,9 +377,13 @@
         if (dz) dz.classList.add('loaded');
         if (mainTxt) mainTxt.textContent = '✓ Traccia caricata da link';
         row.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
         input.value = '';
+        afterGpxLoaded();   // dati letti dal file + calcolo immediato
       } catch (e) {
-        if (mainTxt) mainTxt.textContent = '✗ ' + e.message;
+        const msg = (e && e.mostra) ? e.message : WizFeatures.testoErroreImport(null, 0);
+        if (mainTxt) mainTxt.textContent = '✗ ' + msg;
+        WizUI.showError(msg);
         if (dz) dz.classList.remove('loaded');
       } finally {
         goBtn.disabled = false;
@@ -223,9 +424,22 @@
      AUTO-LOAD DA STRAVA (index.html?source=strava&id=...)
      Attivato quando l'utente torna da import_strava.html
      ------------------------------------------------------------------ */
+  /* Flag Strava: spento di default (WizFeatures.stravaEnabled). Il codice resta, riattivabile col flag. */
+  if (window.WizFeatures && WizFeatures.stravaEnabled) {
+    const live = document.getElementById('stravaLinkLive'), off = document.getElementById('stravaBtnOff');
+    if (live) live.hidden = false;
+    if (off) off.hidden = true;
+  }
+
   (async function loadFromStravaIfNeeded() {
     const sp = new URLSearchParams(location.search);
     if (sp.get('source') !== 'strava') return;
+    if (!(window.WizFeatures && WizFeatures.stravaEnabled)) {
+      // Link vecchio (?source=strava&id=...): messaggio in pagina invece del caricamento
+      WizUI.showError(WizFeatures.MSG_STRAVA_NON_DISPONIBILE);
+      history.replaceState(null, '', location.pathname);
+      return;
+    }
     const activityId = sp.get('id');
     if (!activityId || !/^\d{1,20}$/.test(activityId)) return;
 
@@ -242,6 +456,15 @@
       const res = await fetch('/api/strava/activity?mode=analyze&id=' + encodeURIComponent(activityId), {
         headers: { Authorization: 'Bearer ' + token }
       });
+      if (res.status === 503) {
+        // Funzione spenta lato server (FEATURE_UNAVAILABLE): non è un token scaduto, il token resta
+        const d503 = await res.json().catch(() => ({}));
+        if (WizFeatures.funzioneNonDisponibile(res, d503)) {
+          if (mainTxt) mainTxt.textContent = WizFeatures.MSG_STRAVA_NON_DISPONIBILE;
+          WizUI.showError(WizFeatures.MSG_STRAVA_NON_DISPONIBILE);
+          return;
+        }
+      }
       if (res.status === 401) {
         sessionStorage.removeItem('strava_token');
         sessionStorage.removeItem('strava_athlete_id');
@@ -347,6 +570,12 @@
     const meteo  = readNum('meteo');
     const alt    = readNum('alt');
     const margin = readNum('margin') / 100;
+
+    // Modalità GPX senza file caricato: invita a caricarlo o a passare alla modalità manuale
+    if (_mode === 'gpx' && (!window.gpxPts || !window.gpxPts.length)) {
+      WizUI.showError('Carica un file GPX oppure scegli «Inserisco km e D+».');
+      return;
+    }
 
     // Calcola metrics dal GPX per coordinate e profilo altimetrico
     const mGpx = GPXParser.compute(window.gpxPts);
@@ -587,12 +816,14 @@
       void el.offsetWidth;
       el.classList.add('kpi-animate');
     });
+
+    showResultsView();   // assunzioni + annuncio + scroll e focus sui risultati
   });
 
   /* ------------------------------------------------------------------
-     RESET
+     NUOVA ANALISI (prima "Reset" ricaricava la pagina)
      ------------------------------------------------------------------ */
-  document.getElementById('resetBtn')?.addEventListener('click', () => location.reload());
+  document.getElementById('resetBtn')?.addEventListener('click', newAnalysis);
 
   /* ------------------------------------------------------------------
      EXPORT JSON (snapshot pre-gara)
@@ -695,12 +926,17 @@
     heroImg.src = 'img/hero-index.jpg';
   }
 
+  /* CTA "Inizia l'analisi": porta al calcolatore (#calc). Prima dipendeva da .tabs, che non esiste più. */
   document.getElementById('heroCtaBtn')?.addEventListener('click', (e) => {
+    const target = document.getElementById('calc');
+    if (!target) return;           // senza #calc resta il comportamento nativo del link
     e.preventDefault();
-    document.querySelector('.tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // Attiva il tab calcolatore
-    const calcBtn = document.querySelector('[data-tab="calc"]');
-    if (calcBtn) calcBtn.click();
+    const ridotto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: ridotto ? 'auto' : 'smooth', block: 'start' });
+    if (history.replaceState) history.replaceState(null, '', '#calc');
+    // Focus sul primo controllo del calcolatore, senza ulteriore scroll
+    const primo = document.getElementById('gpxfile') || target.querySelector('input, button, select');
+    if (primo) primo.focus({ preventScroll: true });
   });
 
   /* ------------------------------------------------------------------
