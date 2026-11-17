@@ -118,11 +118,11 @@
 <p class="hint" id="rankCount" style="margin:0 0 12px;">Le gare del ranking sono selezionate dal team WizTrail. L'invio di nuove gare da parte degli utenti non è ancora disponibile.</p>
 <div class="grid grid-2">
 <div>
-<label>Filtra per nome gara</label>
+<label for="filterName">Filtra per nome gara</label>
 <input id="filterName" type="text" placeholder="Es: Zegama, UTMB…">
 </div>
 <div>
-<label>Disciplina</label>
+<label for="filterDiscipline">Disciplina</label>
 <select id="filterDiscipline">
   <option value="">Tutte le discipline</option>
   <option value="trail">🌲 Trail</option>
@@ -132,7 +132,7 @@
 </select>
 </div>
 <div>
-<label>Classe WDI</label>
+<label for="filterClass">Classe WDI</label>
 <select id="filterClass">
   <option value="">Tutte le classi</option>
   <option value="Sport">Sport (&lt;22)</option>
@@ -234,9 +234,9 @@
 <div class="card admin-only" style="display:none;">
 <h2>Aggiungi una nuova gara al ranking</h2>
 <p class="mini">Carica il GPX reale per ottenere distanza, D+, WDI.<br>Il JSON generato va copiato dentro <code>ranking-data.json</code>.</p>
-<label>GPX reale</label>
+<label for="gpxAdmin">GPX reale</label>
 <input type="file" id="gpxAdmin" accept=".gpx,.tcx"/>
-<label>Nome gara</label>
+<label for="adminName">Nome gara</label>
 <input type="text" id="adminName" placeholder="Es: Gran Trail XYZ"/>
 <button class="btn" id="btnAdminCompute">Calcola</button>
 <div id="adminMsg" class="mini" style="color:var(--accent);margin-top:4px;min-height:1em;"></div>

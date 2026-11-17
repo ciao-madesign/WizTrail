@@ -155,7 +155,7 @@
   <p class="hint" id="taLinkHelp" style="flex-basis:100%;">Funziona con link che scaricano direttamente un file GPX. Le pagine di Strava, Komoot o Wikiloc non sono file: scarica il GPX e caricalo qui sopra. Il link viene aperto dai nostri server per scaricare il file.</p>
 </div>
 <div style="margin-top:12px;">
-<label>Tempo di completamento</label>
+<label for="timeRealInput">Tempo di completamento</label>
 <input id="timeRealInput" type="text" placeholder="hh:mm:ss" class="input-text">
 </div>
 
@@ -165,19 +165,19 @@
 
 <div id="paceBlock" style="margin-top:10px; display:none;">
   <div style="margin-bottom:8px;">
-    <label>Passo su strada (mm:ss / km)</label>
+    <label for="paceInput">Passo su strada (mm:ss / km)</label>
     <input id="paceInput" type="text" placeholder="06:00" value="06:00" class="input-text"
            style="width:90px;"
            pattern="^[0-9]{1,2}:[0-5][0-9]$">
     <span class="mini" style="margin-left:8px; opacity:0.7;">es. 05:00 = 5 min/km</span>
   </div>
   <div style="margin-bottom:8px;">
-    <label>Livello atleta</label>
+    <label for="specTA">Livello atleta</label>
     <input id="specTA" type="range" min="0" max="1" step="0.1" value="0.3" style="width:160px; vertical-align:middle; margin: 0 8px;">
     <span id="specTALabel" class="mini">Amatore avanzato</span>
   </div>
   <div>
-    <label>Terreno</label>
+    <label for="terrainTA">Terreno</label>
     <select id="terrainTA" class="input-text" style="margin-left:8px;">
       <option value="Strada">Strada</option>
       <option value="E" selected>E — Escursionistico</option>

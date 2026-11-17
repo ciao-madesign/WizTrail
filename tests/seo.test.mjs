@@ -240,3 +240,12 @@ test('copy veritiero sul ranking: niente "ufficiale", "certificato" o richieste 
   }
   assert.ok(!/openCertContact/.test(leggi('ranking.html')));
 });
+
+test('footer coerente: link a privacy.html nelle pagine con footer e nessun link Privacy duplicato nel footer', () => {
+  for (const f of ['index.html', 'about.html', 'training-analyzer.html', 'ranking.html', 'dettaglio.html', 'trail-card.html', 'privacy.html', 'compatibilita.html']) {
+    const m = leggi(f).match(/<div class="footer"[\s\S]*?\n  <\/div>/);
+    assert.ok(m, `${f}: footer`);
+    const n = (m[0].match(/href="privacy\.html"/g) || []).length;
+    assert.ok(f === 'privacy.html' ? n <= 1 : n === 1, `${f}: ${n} link a privacy.html nel footer`);
+  }
+});
