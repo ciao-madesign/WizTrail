@@ -11,7 +11,7 @@ const BASE = 'https://wiz-trail.vercel.app';
 const leggi = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const vercel = JSON.parse(leggi('vercel.json'));
 
-const INDICIZZABILI = { 'landing.html': '/landing.html', 'index.html': '/index.html', 'about.html': '/about.html', 'training-analyzer.html': '/training-analyzer.html' };
+const INDICIZZABILI = { 'landing.html': '/landing.html', 'index.html': '/index.html', 'about.html': '/about.html', 'compatibilita.html': '/compatibilita.html', 'training-analyzer.html': '/training-analyzer.html' };
 const NOINDEX = ['ranking.html', 'install.html', 'privacy.html', 'dettaglio.html', 'share_card.html', 'trail-card.html', 'hub.html', 'import_strava.html', 'auth_strava.html'];
 const TUTTE = fs.readdirSync(ROOT).filter(f => f.endsWith('.html') && f !== 'google836f8dbd20d85c05.html');
 
@@ -215,4 +215,20 @@ test('la navigazione resta nell\'HTML statico (link interni presenti senza JS)',
     for (const dest of ['index.html', 'about.html', 'training-analyzer.html'])
       assert.ok(nav.includes(`href="${dest}"`), `${f}: nav senza ${dest}`);
   }
+});
+
+test('compatibilita.html: pagina di stato funzioni, un solo H1, linkata da about/landing/footer, nessun claim di funzioni non disponibili', () => {
+  const s = leggi('compatibilita.html');
+  assert.equal((s.match(/<h1[\s>]/g) || []).length, 1);
+  assert.ok(/<h2[^>]*>\s*Funzioni attive/.test(s) && /<h2[^>]*>\s*Funzioni in beta/.test(s) && /<h2[^>]*>\s*Non ancora disponibili/.test(s));
+  // Strava e orologi compaiono solo nella sezione "Non ancora disponibili" (o come file caricati a mano / link che non sono file)
+  const prima = s.slice(0, s.indexOf('id="non-disponibili"'));
+  const corpo = prima.slice(prima.indexOf('<body'));
+  for (const m of corpo.matchAll(/[^<>]*\b(Strava|Garmin|Suunto|Coros|Polar|orologi?o?)\b[^<>]*/gi))
+    assert.ok(/file|a mano|caricare|carichi|esportat|non sono file|non può essere inviato|Komoot/i.test(m[0]), `claim ambiguo fuori dalla sezione "non disponibili": ${m[0].trim()}`);
+  assert.ok(/Strava \(collegamento e importazione\)<\/td><td>[^<]*Scarica il GPX/.test(s));
+  assert.ok(!/(presto|prossimamente|in arrivo|entro|dal \d)/i.test(corpo.replace(/Esportazione/g, '')), 'nessuna promessa di date o di arrivo');
+  for (const f of ['about.html', 'landing.html', 'index.html', 'training-analyzer.html', 'ranking.html', 'privacy.html'])
+    assert.ok(leggi(f).includes('href="compatibilita.html"'), `${f}: link a compatibilita.html`);
+  for (const f of ['index.html', 'compatibilita.html']) assert.equal((leggi(f).match(/<nav class="tabbar"[\s\S]*?<\/nav>/)[0].match(/<a /g) || []).length, 4, `${f}: la tab bar resta a 4 voci`);
 });
