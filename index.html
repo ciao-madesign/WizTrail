@@ -49,7 +49,7 @@
   <!-- WizTrail CSS -->
   <link rel="preload" href="/fonts/outfit-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/fonts/fonts.css">
-<link rel="stylesheet" href="wiztrail.css?v=20261118b">
+<link rel="stylesheet" href="wiztrail.css?v=20261119">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"WizTrail — Calcolatore","url":"https://wiz-trail.vercel.app/index.html","isPartOf":{"@id":"https://wiz-trail.vercel.app/landing.html#website"},"applicationCategory":"SportsApplication","operatingSystem":"Web","description":"Carica un GPX o inserisci km e dislivello: ottieni WDI, TechScore, tempo di gara stimato e pacing per segmento.","featureList":["Calcolo dell'indice di difficoltà WDI da un file GPX","Stima del tempo di gara","Pacing per segmento"],"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"inLanguage":"it"}
 </script>
@@ -104,6 +104,17 @@
       </select>
     </span>
   </div>
+
+  <!-- Come funziona: tre passi, chiudibile; la scelta e' ricordata in localStorage (wt-howto-v1) -->
+  <div class="howto" id="howto" role="region" aria-label="Come funziona">
+    <ol>
+      <li><b aria-hidden="true">1</b> Carica il GPX</li>
+      <li><b aria-hidden="true">2</b> Indica il tuo ritmo</li>
+      <li><b aria-hidden="true">3</b> Leggi WDI, tempo e pacing</li>
+    </ol>
+    <button type="button" class="howto__close" id="howtoClose" aria-label="Nascondi «Come funziona»">&times;</button>
+  </div>
+  <script>(function(){var h=document.getElementById('howto'),k='wt-howto-v1';try{if(localStorage.getItem(k))h.hidden=true}catch(e){}document.getElementById('howtoClose').addEventListener('click',function(){h.hidden=true;try{localStorage.setItem(k,'1')}catch(e){}var n=document.getElementById('gpxfile');if(n&&n.focus)n.focus()})})();</script>
 
   <!-- PANEL: CALCOLATORE -->
   <section id="calc" class="panel active">
@@ -173,14 +184,14 @@
 
       <fieldset>
         <legend>Parametri atleta</legend>
-        <label for="t10k">Tempo 10 km in piano (mm:ss)
+        <div class="label-row"><label for="t10k">Tempo 10 km in piano (mm:ss)
           <span class="mini" style="opacity:0.65; font-weight:400;">
             — usato per pacing e stima tempo personalizzata
           </span>
-        </label>
+        </label> <span class="info"><button type="button" class="info-btn" data-pop="pop-t10k" aria-expanded="false" aria-describedby="pop-t10k" aria-label="Informazioni: Tempo su 10 km"><span class="info-btn__dot" aria-hidden="true">i</span></button><span class="popover" id="pop-t10k" role="note" hidden>È il tuo tempo su 10 km in piano: da lì WizTrail ricava il ritmo per la stima del tempo e il pacing. 50:00 è solo un valore d'esempio. <a href="about.html#tempi">Come si calcola</a></span></span></div>
         <input id="t10k" type="text" value="50:00" placeholder="es. 52:00" aria-describedby="t10kHint"/>
         <p class="hint" id="t10kHint">50:00 è un valore d'esempio: inserisci il tuo tempo su 10 km per una stima personale.</p>
-        <label for="spec" style="margin-top:12px;">Livello</label>
+        <div class="label-row" style="margin-top:12px;"><label for="spec" style="margin:0;">Livello</label> <span class="info"><button type="button" class="info-btn" data-pop="pop-livello" aria-expanded="false" aria-describedby="pop-livello" aria-label="Informazioni: Livello"><span class="info-btn__dot" aria-hidden="true">i</span></button><span class="popover" id="pop-livello" role="note" hidden>Indica quanto sei allenato sul terreno tecnico: più il livello è alto, meno i tratti tecnici allungano il tempo stimato. <a href="about.html#tempi">Come si calcola</a></span></span></div>
         <input id="spec" aria-label="Livello di specificità" type="range" min="0" max="1" step="0.1" value="0.2" style="width:100%; margin:6px 0;"/>
         <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted);">
           <span>Principiante</span><span>Amatore</span><span>Avanzato</span><span>Agonista</span><span>Elite</span>
@@ -279,10 +290,10 @@
         <span id="resultsLive" class="sr-only" role="status" aria-live="polite"></span>
         <div class="grid grid-2" style="gap:12px; margin-bottom:12px;">
           <div class="kpi kpi-primary">
-            <h3>WDI</h3>
+            <div class="kpi-head"><h3>WDI</h3> <span class="info"><button type="button" class="info-btn" data-pop="pop-wdi" aria-expanded="false" aria-describedby="pop-wdi" aria-label="Informazioni: WDI"><span class="info-btn__dot" aria-hidden="true">i</span></button><span class="popover" id="pop-wdi" role="note" hidden>Il WDI (WizTrail Difficulty Index) misura la difficoltà del percorso da 0 a 10 nella sua categoria di distanza. Il valore grezzo permette il confronto tra categorie diverse. <a href="about.html#wdi">Come si calcola</a></span></span></div>
             <div class="val" id="outRaceScore" style="font-size:3rem; font-weight:900; margin-bottom:4px; transition:color 0.3s;">—</div>
             <div id="outRaceScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;">
-              <span class="kpi-placeholder">Difficulty Index del percorso</span>
+              <span class="kpi-placeholder">Il WDI compare qui dopo l'analisi del percorso.</span>
             </div>
             <!-- Badge disciplina — mostrato dopo calcolo con GPX (max_altitude disponibile) -->
             <div id="disciplineBadgeBox" style="display:none; margin-top:8px;"></div>
@@ -293,7 +304,7 @@
             <h3>Tempo stimato</h3>
             <div class="val" id="outFinal" style="font-size:2.2rem; font-weight:900;">—:—</div>
             <div id="outFinalSub" style="font-size:0.75rem; line-height:1.5; opacity:0.8; margin-top:4px;">
-              <span class="kpi-placeholder">Inserisci il tempo su 10 km e premi Calcola</span>
+              <span class="kpi-placeholder">Il tempo stimato compare qui dopo l'analisi. Con il tuo tempo su 10 km la stima è personale.</span>
             </div>
           </div>
         </div>
@@ -321,7 +332,7 @@
         </div>
         <!-- TechScore (opzionale) -->
         <div class="kpi" id="techScoreBox" style="display:none; margin-top:12px;">
-          <h3>TechScore</h3>
+          <div class="kpi-head"><h3>TechScore</h3> <span class="info"><button type="button" class="info-btn" data-pop="pop-tech" aria-expanded="false" aria-describedby="pop-tech" aria-label="Informazioni: TechScore"><span class="info-btn__dot" aria-hidden="true">i</span></button><span class="popover" id="pop-tech" role="note" hidden>La tecnicità del terreno da 0 a 100, indipendente dalla distanza, ricavata dalle irregolarità del profilo. <a href="about.html#techscore">Come si calcola</a></span></span></div>
           <div class="val" id="outTechScore" style="font-size:2.8rem; font-weight:900; margin-bottom:4px; transition:0.3s;">—</div>
           <div id="outTechScoreSub" style="font-size:0.78rem; line-height:1.4; opacity:0.85; margin-top:4px;"></div>
           <!-- Microcopy TechScore -->
@@ -619,6 +630,6 @@
   })();
   </script>
 <script src="/cookie-notice.js?v=20261116" defer></script>
-<script src="wiztrail-shell.js?v=20261117" defer></script>
+<script src="wiztrail-shell.js?v=20261119" defer></script>
 </body>
 </html>

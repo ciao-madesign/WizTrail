@@ -105,6 +105,35 @@ window.WizShell = (function () {
     if (t) { e.preventDefault(); e.stopPropagation(); }
   }
 
+  /* Popover "i": pulsante con aria-expanded + aria-describedby, ESC e clic fuori chiudono, mai modale */
+  function popClose(restore) {
+    var o = d.querySelector('.info-btn[aria-expanded="true"]');
+    if (!o) return false;
+    o.setAttribute('aria-expanded', 'false');
+    var p = d.getElementById(o.getAttribute('data-pop'));
+    if (p) { p.hidden = true; p.style.left = ''; }
+    if (restore) o.focus();
+    return true;
+  }
+  function popToggle(b) {
+    var was = b.getAttribute('aria-expanded') === 'true';
+    popClose(false);
+    if (was) return;
+    var p = d.getElementById(b.getAttribute('data-pop'));
+    if (!p) return;
+    p.hidden = false; b.setAttribute('aria-expanded', 'true');
+    var r = p.getBoundingClientRect(), vw = root.clientWidth, dx = 0;
+    if (r.right > vw - 8) dx = vw - 8 - r.right;
+    if (r.left + dx < 8) dx = 8 - r.left;
+    if (dx) p.style.left = dx + 'px';
+  }
+  function onPop(e) {
+    var b = e.target.closest && e.target.closest('.info-btn');
+    if (b) { popToggle(b); return; }
+    if (!(e.target.closest && e.target.closest('.popover'))) popClose(false);
+  }
+  function onPopKey(e) { if (e.key === 'Escape' && !cur && popClose(true)) e.preventDefault(); }
+
   /* aria-expanded dei pulsanti che mostrano/nascondono un riquadro (data-expands + aria-controls) */
   function syncExpanded(e) {
     var b = e.target.closest && e.target.closest('[data-expands][aria-controls]');
@@ -122,6 +151,8 @@ window.WizShell = (function () {
     d.addEventListener('click', blockUnavailable, true);
     d.addEventListener('click', backdrop);
     d.addEventListener('click', syncExpanded);
+    d.addEventListener('click', onPop);
+    d.addEventListener('keydown', onPopKey);
     if (window.matchMedia) {
       var mq = matchMedia('(prefers-color-scheme: light)');
       var fn = function () { if (!saved()) apply(preferred()); };
