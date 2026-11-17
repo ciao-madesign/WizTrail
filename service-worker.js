@@ -2,9 +2,9 @@
 //  WizTrail PWA – Service Worker
 //  Version bump: CHANGE THIS to force update
 // ===============================
-const CACHE_VERSION = "wiztrail-v2026-06-26e";
+const CACHE_VERSION = "wiztrail-v2026-11-17a";
+// Nota: "/" non e' nel precache: redirige (307) a /landing.html e una risposta "redirected" non puo' servire una navigazione offline.
 const CORE_CACHE = [
-  "/",
   "/landing.html",
   "/index.html",
   "/about.html",
@@ -18,6 +18,8 @@ const CORE_CACHE = [
   "/ui.js",
   "/main.js",
   "/cookie-notice.js",
+  "/wiztrail-shell.js",
+  "/features.js",
   "/trail-stats.js",
   "/trail-insights.js",
   "/trail-card.html",
@@ -27,6 +29,9 @@ const CORE_CACHE = [
   "/img/hero-calc.jpg",
   "/img/hero-ranking.jpg",
   "/fonts/fonts.css",
+  "/fonts/outfit-400-normal-latin.woff2",
+  "/favicon.ico",
+  "/icons/apple-touch-icon.png",
   "/lib/leaflet/leaflet.css",
   "/lib/leaflet/leaflet.js",
   "/icons/icon-192.png",
@@ -36,6 +41,8 @@ const CORE_CACHE = [
 
 // Pagine statiche extra da mettere in cache
 const PAGE_CACHE = [
+  "/compatibilita.html",
+  "/404.html",
   "/ranking.html",
   "/dettaglio.html",
   "/install.html",

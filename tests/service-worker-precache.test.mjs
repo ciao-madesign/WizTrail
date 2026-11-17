@@ -24,3 +24,12 @@ test('ogni percorso di CORE_CACHE e PAGE_CACHE esiste nel repo', () => {
 test('CACHE_VERSION ha il formato wiztrail-vYYYY-MM-DD<lettera>', () => {
   assert.match(src, /const CACHE_VERSION = "wiztrail-v\d{4}-\d{2}-\d{2}[a-z]";/);
 });
+
+test('precache: file nuovi della revisione presenti, "/" (redirect) assente, nessun duplicato', () => {
+  const tutti = [...elenco('CORE_CACHE'), ...elenco('PAGE_CACHE')];
+  for (const p of ['/wiztrail-shell.js', '/features.js', '/compatibilita.html', '/404.html', '/favicon.ico', '/icons/apple-touch-icon.png', '/fonts/outfit-400-normal-latin.woff2', '/landing.html', '/index.html'])
+    assert.ok(tutti.includes(p), `${p} manca dal precache`);
+  assert.ok(!tutti.includes('/'), '"/" redirige a /landing.html: non va nel precache (cache.addAll con risposta rediretta)');
+  assert.equal(new Set(tutti).size, tutti.length, 'URL duplicati nel precache');
+  assert.ok(tutti.every(p => !p.includes('?')), 'niente query nel precache');
+});
