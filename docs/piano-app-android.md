@@ -1,95 +1,91 @@
-# Piano: WizTrail come app nativa Android (Capacitor)
+# Piano: WizTrail su Google Play come app Android (TWA)
 
-Stato: **solo piano, nessun codice scritto** (24/11/2026). Ordine deciso: prima Surfer (repo separata, non toccata da questa sessione), poi WizTrail con lo stesso percorso.
+Stato: **solo piano, nessun codice scritto** (aggiornato 25/11/2026).
 
-## Obiettivo
-Pubblicare WizTrail su Google Play come app Capacitor che impacchetta il frontend esistente, con una **home dedicata all'app** diversa dalla landing del sito.
+## Decisioni prese
+- **Tecnologia: TWA** (Trusted Web Activity) per ora. Si impacchetta la PWA esistente: nessun guscio nativo e nessuna modifica al codice dell'app, a parte quelle elencate sotto. **Capacitor resta una valutazione futura** (vedi "Passaggio futuro a Capacitor").
+- **`appId` (package Android): `run.wiztrail.app`.** Non si cambia più dopo la pubblicazione.
+- **Home dedicata all'app**, diversa dalla landing del sito (possibile anche con la TWA, vedi sezione 3).
+- **Surfer è indipendente**: usa Kotlin nativo (Android) e Swift (iOS), scartando Capacitor perché serve il GPS a schermo spento (decisione del 25/11 sul suo branch di lavoro). WizTrail non ha quel vincolo. Nessun codice condiviso tra le due app; restano condivisi design system e account sviluppatore. Dettagli solo letti, la repo di Surfer non è stata toccata.
 
-## Perché è fattibile
-- Frontend HTML/JS puro, nessun bundler: la cartella da impacchettare è semplice.
-- Engine WDI, parser GPX, pacing e timing girano già nel browser e funzionano offline.
-- Leaflet è self-hosted.
-- Nessun vincolo nativo critico (a differenza di Surfer, che ha bisogno del GPS in background).
+## Perché la TWA va bene per WizTrail
+- WizTrail è già una PWA completa (manifest, service worker, offline, installabile, Web Share Target).
+- Gli aggiornamenti arrivano da Vercel, senza nuove release dello store per ogni modifica al frontend.
+- Stessa origine del sito: nessun problema di CORS, nessun URL base da cambiare, il service worker continua a servire l'offline.
+- Meno manutenzione: nessuna build Capacitor, nessun plugin da aggiornare.
+
+Limiti da accettare:
+- Serve **Chrome** (o un browser compatibile con le TWA) sul telefono; senza, l'app ripiega su una scheda del browser.
+- Nessun accesso a funzioni native oltre a quelle del web (notifiche, GPS, file picker sì; intent di sistema personalizzati no).
+- Rischio di rifiuto "sito impacchettato" dallo store: va compensato con una home dedicata e con funzioni utili in app (condivisione, apertura GPX, offline).
 
 ## Lavori necessari
 
-### 1. Struttura progetto
-- Cartella `android-app/` (o `app/`) con `package.json`, `capacitor.config.json` e script di copia dei file statici in `www/`.
-- Nessun bundler: la regola "non introdurre build tools" resta valida (solo script di copia).
-- `appId` dedicato, ad esempio `app.wiztrail`. Da decidere prima della pubblicazione: non si cambia più.
-- Escludere dalla copia: `docs/`, `wiztrail-calibration/`, `tests/`, `api/`, `server/`, `CLAUDE.md`, `README.md` e simili (stesso criterio di `.vercelignore`).
+### 1. Requisiti PWA per la TWA
+- Manifest valido con `name`, `short_name`, `start_url`, `display: standalone`, `theme_color`, icone.
+- **Icona maskable in PNG** (oggi `icons/icon-maskable.svg`): Play e Bubblewrap vogliono PNG. Aggiungere `icon-maskable-512.png` con nuovo nome (regola `immutable` di `img/`, `icons/`, `fonts/`: file nuovi, non sovrascritti) e aggiornare `manifest.webmanifest`.
+- Service worker funzionante offline. **Nel commit di release** aggiungere al precache `wiztrail-shell.js`, `features.js` e i file nuovi (la `CACHE_VERSION` si cambia solo lì).
+- Controllo Lighthouse (PWA) su `https://wiz-trail.vercel.app`.
 
-### 2. Chiamate alle API
-- Nell'app le chiamate a `/api/...` diventano cross-origin: serve un URL base assoluto (`https://wiz-trail.vercel.app`) quando `Capacitor.isNativePlatform()` è vero.
-- Aggiungere l'origine dell'app (`https://localhost`, `capacitor://localhost`) all'allowlist CORS di `api/hub.js` (oggi solo per `feedback`) e di `api/import/url.js`.
-- Verificare tutte le pagine che usano `fetch` verso le API: feedback, import da URL, API v1 (queste ultime hanno chiave, non interessano l'app).
-- Gestire il caso offline: calcolo da GPX e manuale funzionano; feedback e import da URL no (messaggio chiaro in italiano).
+### 2. Digital Asset Links (obbligatorio per nascondere la barra del browser)
+- Servire `https://<dominio>/.well-known/assetlinks.json` con il package `run.wiztrail.app` e l'impronta SHA-256 della chiave di firma (quella di **Play App Signing**, più eventuale chiave di upload per i test).
+- Aggiungere il file al repo (cartella `.well-known/`), verificare che Vercel lo serva con `Content-Type: application/json` e senza redirect (controllare `vercel.json`), che non sia escluso da `.vercelignore` e non venga catturato dai rewrite.
+- Aggiungere un test in `tests/` (esistenza del file, JSON valido, package corretto). Se il file va in una nuova pagina statica, nessun file in `api/` (restano 7 su 12).
+- **Dominio**: oggi `wiz-trail.vercel.app`. Le Asset Links vincolano l'app al dominio: cambiarlo dopo la pubblicazione obbliga a una nuova release. Conviene decidere prima se acquistare un dominio proprio (stessa questione già aperta in `CLAUDE.md` e in Surfer).
 
-### 3. Service worker e PWA
-- Disattivare la registrazione del service worker nella build nativa (i file sono già locali).
-- Web Share Target e `manifest.webmanifest` non valgono nell'app: sostituirli con gli intent filter Android per aprire file `.gpx` da altre app ("Apri con WizTrail").
-- Plugin: `@capacitor/app` (evento `appUrlOpen`), `@capacitor/filesystem` o equivalente per leggere il file ricevuto.
+### 3. Home specifica per l'app
+- Nuova pagina `app-home.html`, usata come avvio dell'app.
+- Nella TWA l'avvio è configurabile in Bubblewrap (`startUrl` in `twa-manifest.json`) **senza cambiare lo `start_url` del manifest web**: il sito resta com'è, la landing resta `landing.html`.
+- Rilevamento dell'app: parametro `?source=twa` sull'avvio e/o `document.referrer` che inizia con `android-app://run.wiztrail.app`. Funzione unica in `wiztrail-shell.js` (`WizShell.isNativeApp`), usata per nascondere elementi solo-web (banner/pagina installazione PWA `install.html`, link alla landing) e mostrare quelli dell'app.
+- Contenuti da definire (bozza): "Nuova analisi" (GPX / manuale), ultime analisi sul telefono, Training Analyzer, Ranking (beta), Stato delle funzioni.
+- CSS solo in `wiztrail.css` (file unico); aggiornare il `?v=` dei file toccati. Interfaccia in italiano.
+- Aggiungere `app-home.html` a `noindex` e **fuori dalla sitemap** (è una pagina operativa, `tests/seo.test.mjs` da aggiornare di conseguenza); precache nel service worker al commit di release.
 
-### 4. Routing e link
-- I redirect di `vercel.json` (`/` → `/landing.html`, `/wdi.html` e `/pacing.html` → `about.html`) non esistono nell'app: usare link diretti.
-- Canonical, sitemap e header SEO non servono nella build nativa.
-- Link esterni (privacy, condizioni, sito) aperti con `@capacitor/browser`.
+### 4. Apertura di file GPX e condivisione
+- Il **Web Share Target** esistente funziona in TWA se dichiarato nel manifest (Bubblewrap lo supporta): "Condividi → WizTrail" con un GPX. Da verificare in prova su telefono reale.
+- "Apri con WizTrail" dal file manager (intent per `.gpx`) **non è garantito con la TWA**: da verificare; se serve, è un motivo per passare a Capacitor.
+- Condivisione dei risultati: Web Share API (`navigator.share`) dove già non c'è.
 
-### 5. Home specifica per l'app (possibile)
-La landing del sito è pensata per SEO e conversione; l'app ha bisogno di un punto di ingresso operativo.
+### 5. Strumenti e build
+- **Bubblewrap CLI** (o PWABuilder) genera il progetto Android. Cartella `android-twa/` nel repo solo con `twa-manifest.json` e documentazione; le chiavi non vanno nel repo.
+- Servono JDK e Android SDK in locale. Qui nel cloud non si può compilare né provare su dispositivo: la build la fai tu (guida passo-passo da scrivere in `android-twa/README.md`).
+- Firma: keystore di upload fuori dal repo; attivare **Play App Signing**.
 
-- Nuova pagina `app-home.html`, caricata come pagina iniziale solo nella build nativa (`start_url` / `server.url` o `webDir` con `index` dedicato).
-- Contenuti da definire (bozza): "Nuova analisi" (GPX / manuale), ultime analisi salvate sul telefono, accesso a Training Analyzer, Ranking (beta), Info/Stato funzioni.
-- Stesso design system e `wiztrail.css`; nuove regole in `wiztrail.css` (file CSS unico, regola 7).
-- Nel web resta tutto com'è: `landing.html` è la home del sito. La stessa app-home può anche stare sul sito come pagina non indicizzata, ma non è necessario.
-- Rilevamento piattaforma in un punto solo, ad esempio una piccola funzione in `features.js` o `wiztrail-shell.js` (`WizShell.isNativeApp`), usata per nascondere elementi solo-web (banner installazione PWA, `install.html`, link alla landing, cookie notice dove non serve) e mostrare quelli dell'app.
-- Navigazione: la tab bar esiste già nell'HTML di ogni pagina; verificare che i link puntino alla home dell'app.
+### 6. Pubblicazione su Google Play
+- Account sviluppatore (25 $ una tantum), lo stesso per Surfer.
+- Account personale nuovo: **test chiuso con 12 tester per 14 giorni** prima della produzione (vale per ogni app; i tester possono essere gli stessi di Surfer).
+- Scheda store (nome, descrizione e screenshot in italiano), icona 512 px, immagine di presentazione 1024×500.
+- Privacy: usare `privacy.html` e compilare il modulo "Sicurezza dei dati" (WizTrail non richiede account; descrivere feedback anonimo e cookie notice).
+- Classificazione contenuti, paesi, contatto (oggi contatto personale: valutare una casella dedicata).
 
-### 6. Funzioni native utili (per evitare il rifiuto "sito impacchettato")
-- Apertura file GPX da altre app e dal file manager.
-- Salvataggio locale delle analisi (cronologia sul telefono).
-- Condivisione dei risultati con la share sheet di Android (`@capacitor/share`).
-- Opzionali, più avanti: notifiche, esportazione file.
+### 7. Test
+- `npm test` resta verde (nessuna rete, nessun Redis).
+- Nuovi test: `assetlinks.json` valido; manifest con icona maskable PNG esistente; `app-home.html` fuori dalla sitemap e `noindex`.
+- Prova su 2-3 telefoni Android reali: barra del browser assente (verifica Asset Links), offline, share target, apertura da icona, tasto indietro.
 
-### 7. Aspetto e comportamento
-- Icone adattive Android, splash screen, colore barra di stato (`#002b2b`), area sicura, tasto indietro.
-- Rinominare file in `img/`, `icons/`, `fonts/` se modificati (regola `immutable`; nell'app non conta ma vale per il sito).
-
-### 8. Pubblicazione su Google Play
-- Account sviluppatore (25 $ una tantum).
-- Per un account personale nuovo: **test chiuso con 12 tester per 14 giorni** prima della produzione.
-- Scheda store, screenshot, icona, descrizione in italiano.
-- Privacy policy (esiste `privacy.html`) e modulo "Sicurezza dei dati".
-- Firma dell'app (keystore): conservare chiave e password fuori dal repo.
-- Valutare l'App Bundle (`.aab`) e gli aggiornamenti: ogni modifica al frontend richiede una nuova release, oppure live update (decisione rimandata).
-
-### 9. Test e CI
-- `npm test` resta invariato (nessuna rete, nessun Redis).
-- Aggiungere test sulla build nativa: file copiati, assenza di file riservati, URL base API corretto, CORS con origine app.
-- Prova su dispositivi reali: almeno 2-3 telefoni Android; build e prova richiedono Android Studio in locale (non eseguibili in questo ambiente cloud).
-
-## Alternativa leggera: TWA
-Impacchettare la PWA esistente come Trusted Web Activity: nessuna modifica al codice, aggiornamenti automatici con Vercel, ma nessuna home dedicata nativa né funzioni native (la home dedicata resterebbe comunque possibile come pagina web). Da valutare se l'app deve restare un semplice contenitore.
+## Passaggio futuro a Capacitor
+Si valuta se servono: apertura file `.gpx` da intent, salvataggio file nativo, notifiche, funzioni offline più spinte, o se lo store rifiuta la TWA.
+- Il package `run.wiztrail.app` e la chiave di firma restano gli stessi: si pubblica come **aggiornamento** della stessa app, senza perdere installazioni e recensioni.
+- Cambierebbero: URL base API assoluto e CORS per l'origine dell'app, disattivazione del service worker, plugin `@capacitor/app` e `@capacitor/filesystem`, intent filter. Da progettare allora.
+- Per Surfer è già indicato che un guscio Capacitor resta possibile in futuro, quindi la scelta resta coerente.
 
 ## Ordine di lavoro proposto
-1. Chiudere il prototipo Surfer (repo separata).
-2. Decidere `appId`, nome store e se tenere il live update.
-3. Prototipo Capacitor di WizTrail con home attuale (2-4 giorni).
-4. CORS, URL base API, disattivazione service worker.
-5. Home dedicata `app-home.html` (da progettare insieme).
-6. Intent filter per i GPX e share sheet.
-7. Test su dispositivi, test chiuso su Play, poi produzione.
+1. Decidere il **dominio** (resta `wiz-trail.vercel.app` o dominio proprio) prima di pubblicare.
+2. Icona maskable PNG e controllo Lighthouse/manifest.
+3. `assetlinks.json` (con placeholder per l'impronta, da compilare dopo la prima firma) e test.
+4. Home `app-home.html` e rilevamento app (da progettare insieme: contenuti e grafica).
+5. Generare il progetto con Bubblewrap (in locale) e prova su telefono.
+6. Test chiuso su Play (14 giorni), poi produzione.
+7. Commit di release: `CACHE_VERSION` e precache dei file nuovi.
 
 ## Decisioni aperte
-- `appId` e nome pubblico.
+- Dominio definitivo.
 - Contenuti e grafica della home dell'app.
-- Capacitor o TWA.
-- Live update sì/no.
-- Se e quando fare la versione iOS (richiede Mac, Xcode e account Apple a pagamento).
-- Dominio e contatto per le policy (oggi contatto personale).
+- Nome pubblico nello store e contatto.
+- Versione iOS (non prevista: richiede Mac, Xcode e account Apple a pagamento; la TWA è solo Android).
 
 ## Vincoli da rispettare (da CLAUDE.md)
 - Plain JS IIFE, nessun framework né bundler; CSS solo in `wiztrail.css`; interfaccia in italiano.
-- Non aggiungere file in `api/` (7 su 12, guardia a 10): eventuali nuove azioni vanno in `api/hub.js`.
-- Branch di lavoro da `backend`, PR verso `backend`; `CACHE_VERSION` del service worker solo nel commit di release.
-- `docs/` non viene pubblicata sul sito (`.vercelignore`).
+- Non aggiungere file in `api/` (7 su 12, guardia a 10).
+- Branch da `backend`, PR verso `backend`; `CACHE_VERSION` solo nel commit di release.
+- `docs/` non è pubblicata sul sito (`.vercelignore`).
